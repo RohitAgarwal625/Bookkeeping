@@ -57,6 +57,13 @@ export default defineConfig({
     port: 3000,
     open: true,
     host: true,
-    allowedHosts: ['.ngrok-free.app']
+    allowedHosts: ['.ngrok-free.app'],
+    proxy: {
+      // Forward /api/* to the Express backend during development
+      '/api': {
+        target: 'http://localhost:4000',
+        changeOrigin: true,
+      },
+    },
   }
 });
