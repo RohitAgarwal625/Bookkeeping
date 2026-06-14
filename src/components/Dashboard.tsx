@@ -23,7 +23,7 @@ const recentEntries = [
 
 const notifications = recentEntries.slice(0, 2).map((t) => ({
   id: t.id,
-  message: `${t.type === "credit" ? "Received" : "Paid"} ${t.amount} ₱ ${t.type === "credit" ? "from" : "to"} ${t.customerName}`,
+  message: `${t.type === "credit" ? "Received" : "Paid"} ${t.amount} π ${t.type === "credit" ? "from" : "to"} ${t.customerName}`,
   time: t.date,
   type: t.type,
 }));
@@ -143,7 +143,7 @@ export function Dashboard({
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                   }`}>
-                  {transaction.type === "credit" ? "+" : "-"}{transaction.amount} ₱
+                  {transaction.type === "credit" ? "+" : "-"}{transaction.amount} π
                 </span>
               </div>
             ))}

@@ -58,12 +58,12 @@ export function PayScreen({ onBack }: PayScreenProps) {
           <div className="absolute inset-2 rounded-full bg-white dark:bg-[#0F1115] flex items-center justify-center">
             <span className="text-3xl font-black text-transparent bg-clip-text"
               style={{ backgroundImage: "linear-gradient(135deg, #A47CF3, #F7C548)" }}>
-              ₱
+              π
             </span>
           </div>
         </div>
         <p className="text-gray-900 dark:text-white font-bold text-xl mb-2">Processing Payment</p>
-        <p className="text-gray-400 text-sm">Sending {amount} ₱ to {selectedName}…</p>
+        <p className="text-gray-400 text-sm">Sending {amount} π to {selectedName}…</p>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -109,7 +109,7 @@ export function PayScreen({ onBack }: PayScreenProps) {
                 className="font-black text-gray-900 dark:text-white leading-none"
                 style={{ fontSize: "clamp(3rem, 14vw, 4.5rem)" }}
               >
-                {amount} ₱
+                {amount} π
               </p>
             </div>
 
@@ -288,7 +288,7 @@ export function PayScreen({ onBack }: PayScreenProps) {
               style={{ fontSize: "clamp(5rem, 22vw, 8rem)" }}
             />
             <span className="font-black text-gray-300 dark:text-gray-700 ml-2 leading-none select-none"
-              style={{ fontSize: "clamp(3.5rem, 15vw, 5.5rem)" }}>₱</span>
+              style={{ fontSize: "clamp(3.5rem, 15vw, 5.5rem)" }}>π</span>
           </div>
 
           {/* Quick chips */}
@@ -302,7 +302,7 @@ export function PayScreen({ onBack }: PayScreenProps) {
                     : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-[#A47CF3] hover:text-[#A47CF3]"
                   }`}
               >
-                {preset} ₱
+                {preset} π
               </button>
             ))}
           </div>
@@ -337,7 +337,7 @@ export function PayScreen({ onBack }: PayScreenProps) {
               <div className="text-right">
                 <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold leading-none mb-0.5">Amount</p>
                 <p className={`font-black text-lg leading-none ${amount ? "text-[#A47CF3]" : "text-gray-200 dark:text-gray-700"}`}>
-                  {amount ? `${amount} ₱` : "— ₱"}
+                  {amount ? `${amount} π` : "— π"}
                 </p>
               </div>
             </div>

@@ -2,12 +2,18 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   ChevronRight,
+  ChevronDown,
   X,
   Clock,
   Wallet,
   Hash,
   CheckCircle2,
   AlertCircle,
+  History,
+  Users,
+  Copy,
+  Pencil,
+  Check,
 } from "lucide-react";
 import { useState } from "react";
 import { BottomNav } from "./BottomNav";
@@ -166,62 +172,222 @@ export function MerchantDashboard({
 }: MerchantDashboardProps) {
   const [selectedMerchant, setSelectedMerchant] = useState<MerchantRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<"individual" | "business">("individual");
+  const [activeView, setActiveView] = useState<"transactions" | "contacts">("transactions");
+  const [showViewDropdown, setShowViewDropdown] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editingWalletId, setEditingWalletId] = useState<string | null>(null);
+  const [walletDraftMap, setWalletDraftMap] = useState<Record<string, string>>({});
+  // Local wallet overrides (edits saved in session)
+  const [walletOverrides, setWalletOverrides] = useState<Record<string, string>>({});
 
   const individualMerchants = mockMerchants.filter((m) => m.category === "individual");
   const businessMerchants = mockMerchants.filter((m) => m.category === "business");
 
+  const handleCopyWallet = (id: string, address: string) => {
+    navigator.clipboard.writeText(address).catch(() => {});
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  const getWallet = (merchant: MerchantRecord) =>
+    walletOverrides[merchant.id] ?? merchant.piWalletAddress;
+
+  const startEditWallet = (merchant: MerchantRecord) => {
+    setEditingWalletId(merchant.id);
+    setWalletDraftMap((prev) => ({ ...prev, [merchant.id]: getWallet(merchant) }));
+  };
+
+  const saveWallet = (id: string) => {
+    const draft = walletDraftMap[id]?.trim();
+    if (draft) setWalletOverrides((prev) => ({ ...prev, [id]: draft }));
+    setEditingWalletId(null);
+  };
+
+  const cancelEditWallet = (id: string) => {
+    setEditingWalletId(null);
+    setWalletDraftMap((prev) => { const n = { ...prev }; delete n[id]; return n; });
+  };
+
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-      {/* Header
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 border-b border-transparent dark:border-border">
-        <h2 className="text-[#D32F2F] dark:text-[#8A2BE2] text-center">Merchant Dashboard</h2>
-      </header> */}
+      {/* ── Header with View Dropdown ── */}
+      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border relative z-20">
+        <div className="relative">
+          <button
+            onClick={() => setShowViewDropdown((v) => !v)}
+            className="flex items-center gap-2 group"
+          >
+            <span className="font-semibold text-gray-900 dark:text-foreground text-base">
+              {activeView === "transactions" ? "Transaction History" : "Contacts"}
+            </span>
+            <ChevronDown className={`w-4 h-4 text-[#A47CF3] transition-transform duration-200 ${showViewDropdown ? "rotate-180" : ""}`} />
+          </button>
+
+          {showViewDropdown && (
+            <>
+              <div className="fixed inset-0 z-30" onClick={() => setShowViewDropdown(false)} />
+              <div className="absolute top-full left-0 mt-2 w-52 bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border overflow-hidden z-40">
+                <button
+                  onClick={() => { setActiveView("transactions"); setShowViewDropdown(false); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                    activeView === "transactions"
+                      ? "bg-purple-50 dark:bg-secondary text-[#A47CF3]"
+                      : "text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-secondary/60"
+                  }`}
+                >
+                  <History className="w-4 h-4" />
+                  Transaction History
+                </button>
+                <button
+                  onClick={() => { setActiveView("contacts"); setShowViewDropdown(false); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                    activeView === "contacts"
+                      ? "bg-purple-50 dark:bg-secondary text-[#A47CF3]"
+                      : "text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-secondary/60"
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  Contacts
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </header>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
-        {/* Summary Stats */}
-        {/* <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4">
-            <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Merchants</p>
-            <p className="text-2xl text-gray-900 dark:text-foreground">{mockMerchants.length}</p>
+
+        {/* ── Contacts View ───────────────────────────────────────────── */}
+        {activeView === "contacts" && (
+          <div className="space-y-3">
+            {mockMerchants.map((merchant) => (
+              <div
+                key={merchant.id}
+                className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-semibold">{merchant.merchantName.charAt(0)}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-900 dark:text-foreground font-semibold truncate">{merchant.merchantName}</p>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      merchant.category === "individual"
+                        ? "bg-purple-100 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400"
+                        : "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
+                    }`}>
+                      {merchant.category === "individual" ? "Individual" : "Business"}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2 pl-0">
+                  {/* Wallet Address Row */}
+                  <div className="flex items-start gap-2">
+                    <Wallet className="w-3.5 h-3.5 text-[#A47CF3] flex-shrink-0 mt-0.5" />
+                    <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Wallet:</span>
+                    {editingWalletId === merchant.id ? (
+                      /* Edit mode */
+                      <div className="flex-1 flex flex-col gap-2">
+                        <input
+                          autoFocus
+                          value={walletDraftMap[merchant.id] ?? getWallet(merchant)}
+                          onChange={(e) =>
+                            setWalletDraftMap((prev) => ({ ...prev, [merchant.id]: e.target.value }))
+                          }
+                          className="w-full text-xs font-mono bg-gray-50 dark:bg-secondary border border-[#A47CF3]/60 rounded-lg px-2 py-1.5 text-gray-800 dark:text-foreground outline-none focus:ring-2 focus:ring-[#A47CF3]/30 transition-all"
+                          placeholder="Enter Pi wallet address"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => saveWallet(merchant.id)}
+                            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white text-xs font-semibold shadow-sm hover:shadow-md transition-shadow"
+                          >
+                            <Check className="w-3 h-3" />
+                            Save
+                          </button>
+                          <button
+                            onClick={() => cancelEditWallet(merchant.id)}
+                            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-gray-200 dark:border-border text-gray-500 dark:text-muted-foreground text-xs font-medium hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* View mode */
+                      <>
+                        <span className="text-xs text-gray-700 dark:text-gray-300 font-mono truncate flex-1">
+                          {getWallet(merchant).slice(0, 12)}...{getWallet(merchant).slice(-6)}
+                        </span>
+                        <button
+                          onClick={() => startEditWallet(merchant)}
+                          className="flex-shrink-0 p-1 rounded hover:bg-purple-50 dark:hover:bg-secondary transition-colors"
+                          title="Edit wallet address"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-[#A47CF3]" />
+                        </button>
+                        <button
+                          onClick={() => handleCopyWallet(merchant.id, getWallet(merchant))}
+                          className="flex-shrink-0 p-1 rounded hover:bg-gray-100 dark:hover:bg-secondary transition-colors"
+                          title="Copy wallet address"
+                        >
+                          <Copy className={`w-3.5 h-3.5 ${copiedId === merchant.id ? "text-green-500" : "text-gray-400"}`} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Hash className="w-3.5 h-3.5 text-[#A47CF3] flex-shrink-0" />
+                    <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Last Tx:</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300 font-mono truncate flex-1">{merchant.txHash.slice(0, 10)}...</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-[#A47CF3] flex-shrink-0" />
+                    <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Last seen:</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300">{merchant.date}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => onNavigateToCustomerLedger(merchant.merchantName)}
+                  className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end gap-1"
+                >
+                  <span className="text-xs text-[#A47CF3] dark:text-[#8A2BE2]">Open Ledger</span>
+                  <ChevronRight className="w-4 h-4 text-[#A47CF3] dark:text-[#8A2BE2]" />
+                </button>
+              </div>
+            ))}
           </div>
-          <div className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4">
-            <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Transactions</p>
-            <p className="text-2xl text-gray-900 dark:text-foreground">{mockMerchants.length}</p>
-          </div>
-        </div> */}
+        )}
 
-        {/* Category Toggle */}
-        <div className="flex bg-gray-100 dark:bg-secondary p-1 rounded-xl mb-6 shadow-inner">
-          <button
-            onClick={() => setActiveCategory("individual")}
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-              activeCategory === "individual"
-                ? "bg-white dark:bg-card text-[#A47CF3] shadow flex flex-col items-center justify-center"
-                : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
-            }`}
-          >
-            Individual
-          </button>
-          <button
-            onClick={() => setActiveCategory("business")}
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-              activeCategory === "business"
-                ? "bg-white dark:bg-card text-[#A47CF3] shadow flex flex-col items-center justify-center"
-                : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
-            }`}
-          >
-            Business (coming soon)
-          </button>
-        </div>
+        {/* ── Transaction History View ─────────────────────────────────── */}
+        {activeView === "transactions" && (
+          <>
+            {/* Category Toggle */}
+            <div className="flex bg-gray-100 dark:bg-secondary p-1 rounded-xl mb-6 shadow-inner">
+              <button
+                onClick={() => setActiveCategory("individual")}
+                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                  activeCategory === "individual"
+                    ? "bg-white dark:bg-card text-[#A47CF3] shadow flex flex-col items-center justify-center"
+                    : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+                }`}
+              >
+                Individual
+              </button>
+              <button
+                disabled
+                className="flex-1 py-2 text-sm font-semibold rounded-lg cursor-not-allowed text-gray-300 dark:text-muted-foreground/40 flex items-center justify-center gap-1"
+              >
+                Business
+                <span className="text-[10px] font-normal text-amber-400">(soon)</span>
+              </button>
+            </div>
 
-        {/* Merchants List */}
-        <div className="space-y-3">
-          <h3 className="text-gray-900 dark:text-foreground mb-3">
-            {activeCategory === "individual" ? "Individual" : "Business (coming soon)"} Merchants &amp; Transactions
-          </h3>
-
-          {(activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
+            {/* Merchants List */}
+            <div className="space-y-3">
+              {(activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
             <div
               key={merchant.id}
               className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A2BE2]/40 transition-all"
@@ -251,7 +417,7 @@ export function MerchantDashboard({
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                     }`}>
-                    {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} ₱
+                    {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} π
                   </span>
                 </div>
               </div>
@@ -285,8 +451,10 @@ export function MerchantDashboard({
                 <ChevronRight className="w-4 h-4 text-[#A47CF3] dark:text-[#8A2BE2]" />
               </button>
             </div>
-          ))}
-        </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Bottom Navigation */}
@@ -343,7 +511,7 @@ export function MerchantDashboard({
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                     }`}>
-                    {selectedMerchant.type === "credit" ? "+" : "-"}{selectedMerchant.amount.toFixed(2)} ₱
+                    {selectedMerchant.type === "credit" ? "+" : "-"}{selectedMerchant.amount.toFixed(2)} π
                   </span>
                 </div>
               </div>
@@ -402,11 +570,11 @@ export function MerchantDashboard({
               <div className="flex gap-3 mb-5">
                 <div className="flex-1 bg-green-50 dark:bg-green-950/20 rounded-xl p-3 border border-green-100 dark:border-green-900/30 text-center">
                   <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Credited</p>
-                  <p className="text-green-600 dark:text-green-400 font-bold">{selectedMerchant.totalCredit.toFixed(2)} ₱</p>
+                  <p className="text-green-600 dark:text-green-400 font-bold">{selectedMerchant.totalCredit.toFixed(2)} π</p>
                 </div>
                 <div className="flex-1 bg-red-50 dark:bg-red-950/20 rounded-xl p-3 border border-red-100 dark:border-red-900/30 text-center">
                   <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Debited</p>
-                  <p className="text-red-600 dark:text-red-400 font-bold">{selectedMerchant.totalDebit.toFixed(2)} ₱</p>
+                  <p className="text-red-600 dark:text-red-400 font-bold">{selectedMerchant.totalDebit.toFixed(2)} π</p>
                 </div>
               </div>
 
@@ -441,7 +609,7 @@ export function MerchantDashboard({
                         ? "text-green-600 dark:text-green-400"
                         : "text-red-600 dark:text-red-400"
                         }`}>
-                        {pt.type === "credit" ? "+" : "-"}{pt.amount} ₱
+                        {pt.type === "credit" ? "+" : "-"}{pt.amount} π
                       </span>
                       {pt.status === "pending" && (
                         <div className="flex items-center gap-1 justify-end mt-0.5">
