@@ -42,7 +42,7 @@ export function AddEntry({ onBack }: AddEntryProps) {
       return;
     }
     if (!selectedCustomer) {
-      toast.error("Please select a customer name");
+      toast.error("Please select a Pioneer");
       return;
     }
     if (!txHash.trim()) {
@@ -90,7 +90,7 @@ export function AddEntry({ onBack }: AddEntryProps) {
         >
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">Add Entry</h2>
+        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">Add Transaction</h2>
         {/* Pi Logo indicating auto-sync */}
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6F3C97] to-[#A47CF3] flex items-center justify-center shadow-sm">
           <span className="text-white text-xs">π</span>
@@ -114,7 +114,7 @@ export function AddEntry({ onBack }: AddEntryProps) {
 
           {/* Name from Database */}
           <div className="mb-4" ref={nameInputRef}>
-            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Customer Name</label>
+            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Pioneer</label>
             <div className="relative z-50">
               {selectedCustomer ? (
                 <div className="flex items-center justify-between px-4 py-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 rounded-xl">

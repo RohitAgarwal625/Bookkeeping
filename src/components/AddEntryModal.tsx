@@ -16,7 +16,7 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!amount || parseFloat(amount) <= 0) {
       alert("Please enter a valid amount");
       return;
@@ -58,7 +58,7 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
       <div className="relative bg-white dark:bg-card w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[85vh] overflow-y-auto border-t border-gray-100 dark:border-border">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-border">
-          <h3 className="text-gray-900 dark:text-foreground">Add Entry</h3>
+          <h3 className="text-gray-900 dark:text-foreground">Add Transaction</h3>
           <button
             onClick={handleClose}
             className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors"
@@ -76,22 +76,20 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
               <button
                 type="button"
                 onClick={() => setType("debit")}
-                className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all ${
-                  type === "debit"
+                className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all ${type === "debit"
                     ? "border-red-500 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400"
                     : "border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
-                }`}
+                  }`}
               >
                 Debit (You Gave)
               </button>
               <button
                 type="button"
                 onClick={() => setType("credit")}
-                className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all ${
-                  type === "credit"
+                className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all ${type === "credit"
                     ? "border-green-500 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                     : "border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
-                }`}
+                  }`}
               >
                 Credit (You'll Get)
               </button>
