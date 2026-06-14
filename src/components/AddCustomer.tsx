@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 interface AddCustomerProps {
   onBack: () => void;
   onSave: (customer: { name: string; piWallet: string; category: "individual" | "business" }) => void;
+  defaultCategory?: "individual" | "business";
 }
 
-export function AddCustomer({ onBack, onSave }: AddCustomerProps) {
+export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: AddCustomerProps) {
   const [name, setName] = useState("");
   const [piWallet, setPiWallet] = useState("");
-  const [category, setCategory] = useState<"individual" | "business">("individual");
+  const [category, setCategory] = useState<"individual" | "business">(defaultCategory);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   // Detect dark mode dynamically
@@ -31,7 +32,6 @@ export function AddCustomer({ onBack, onSave }: AddCustomerProps) {
         piWallet: piWallet.trim(),
         category,
       });
-      // Clear form
       setName("");
       setPiWallet("");
       setCategory("individual");
@@ -53,7 +53,7 @@ export function AddCustomer({ onBack, onSave }: AddCustomerProps) {
         <h1
           className="font-medium"
           style={{ color: isDark ? "#ffffff" : "#D32F2F" }}
-        >Add Customer</h1>
+        >Enter Details</h1>
         <button
           onClick={handleSave}
           disabled={!isValid}
@@ -68,31 +68,65 @@ export function AddCustomer({ onBack, onSave }: AddCustomerProps) {
         {/* Optional Illustration */}
         <div className="flex justify-center mb-8">
           <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-100 to-yellow-100 dark:from-purple-950/30 dark:to-yellow-950/30 flex items-center justify-center">
-            <svg
-              className="w-16 h-16 text-[#A47CF3]"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
+            <svg className="w-16 h-16 text-[#A47CF3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
         </div>
 
         {/* Form Section */}
         <div className="space-y-6 max-w-md mx-auto">
-          {/* Customer Name Input */}
+
+          {/* Category Dropdown — first */}
           <div>
-            <label htmlFor="customerName" className="block text-gray-700 dark:text-foreground mb-2">
-              Customer Name
+            <label htmlFor="category" className="block text-gray-700 dark:text-foreground mb-2">
+              Category
+            </label>
+            <div className="relative">
+              <button
+                id="category"
+                type="button"
+                onClick={() => setIsCategoryOpen((prev) => !prev)}
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${category === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
+                  <span className="font-medium capitalize">
+                    {category === "business" ? "Business (coming soon)" : "Individual"}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isCategoryOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {isCategoryOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-xl overflow-hidden z-30">
+                  {(["individual", "business"] as const).map((opt) => (
+                    <div
+                      key={opt}
+                      onClick={() => { setCategory(opt); setIsCategoryOpen(false); }}
+                      className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary transition-colors ${opt !== "business" ? "border-b border-gray-50 dark:border-border" : ""}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
+                        <span className="text-gray-900 dark:text-foreground font-medium capitalize">
+                          {opt === "business" ? "Business (coming soon)" : "Individual"}
+                        </span>
+                      </div>
+                      {category === opt && <Check className="w-4 h-4 text-[#A47CF3]" />}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Pioneer Name Input — second */}
+          <div>
+            <label htmlFor="pioneerName" className="block text-gray-700 dark:text-foreground mb-2">
+              Pioneer
             </label>
             <input
-              id="customerName"
+              id="pioneerName"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -101,10 +135,10 @@ export function AddCustomer({ onBack, onSave }: AddCustomerProps) {
             />
           </div>
 
-          {/* Pi Wallet Address Input */}
+          {/* Public Key Input — third */}
           <div>
             <label htmlFor="piWallet" className="block text-gray-700 dark:text-foreground mb-2">
-              Pi Wallet Address <span className="text-red-500">*</span>
+              Public Key <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
@@ -121,56 +155,13 @@ export function AddCustomer({ onBack, onSave }: AddCustomerProps) {
             </div>
           </div>
 
-          {/* Category Dropdown */}
-          <div>
-            <label htmlFor="category" className="block text-gray-700 dark:text-foreground mb-2">
-              Category
-            </label>
-            <div className="relative">
-              <button
-                id="category"
-                type="button"
-                onClick={() => setIsCategoryOpen((prev) => !prev)}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${category === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
-                  <span className="font-medium capitalize">{category}</span>
-                </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isCategoryOpen ? "rotate-180" : ""}`} />
-              </button>
-
-              {isCategoryOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-xl overflow-hidden z-30">
-                  {(["individual", "business"] as const).map((opt) => (
-                    <div
-                      key={opt}
-                      onClick={() => { setCategory(opt); setIsCategoryOpen(false); }}
-                      className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary transition-colors ${
-                        opt !== "business" ? "border-b border-gray-50 dark:border-border" : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
-                        <span className="text-gray-900 dark:text-foreground font-medium capitalize">{opt}</span>
-                      </div>
-                      {category === opt && (
-                        <Check className="w-4 h-4 text-[#A47CF3]" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Save Button */}
           <button
             onClick={handleSave}
             disabled={!isValid}
             className="w-full py-4 px-6 mt-8 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save Customer
+            Save Pioneer
           </button>
         </div>
 

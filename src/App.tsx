@@ -20,6 +20,7 @@ function AppContent() {
   const [piBalance] = useState("370.20");
   const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<"individual" | "business">("individual");
 
   const handleConnectWallet = () => {
     // Placeholder for Pi Wallet connection logic
@@ -34,7 +35,8 @@ function AppContent() {
     setCurrentScreen("dashboard");
   };
 
-  const handleNavigateToAddCustomer = () => {
+  const handleNavigateToAddCustomer = (category: "individual" | "business") => {
+    setSelectedCategory(category);
     setCurrentScreen("addCustomer");
   };
 
@@ -132,6 +134,7 @@ function AppContent() {
       <AddCustomer
         onBack={handleBackToDashboard}
         onSave={handleSaveCustomer}
+        defaultCategory={selectedCategory}
       />
     );
   }

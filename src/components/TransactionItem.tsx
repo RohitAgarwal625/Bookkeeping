@@ -46,7 +46,7 @@ export function TransactionItem({ transaction, isLast, onClick }: TransactionIte
       {/* Amount and Badge */}
       <div className="flex flex-col items-end gap-1">
         <p className={`font-bold ${isCredit ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-          π {transaction.amount}
+          {transaction.amount} π
         </p>
         <span
           className={`text-xs px-2 py-0.5 rounded-full ${

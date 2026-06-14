@@ -15,7 +15,7 @@ import { BottomNav } from "./BottomNav";
 interface MerchantDashboardProps {
   userName: string;
   piBalance: string;
-  onNavigateToAddCustomer: () => void;
+  onNavigateToAddCustomer: (category: "individual" | "business") => void;
   onNavigateToAddEntry: () => void;
   onNavigateToCustomerLedger: (customerName: string) => void;
   onNavigate: (screen: string) => void;
@@ -167,7 +167,8 @@ export function MerchantDashboard({
   const [selectedMerchant, setSelectedMerchant] = useState<MerchantRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<"individual" | "business">("individual");
 
-  const filteredMerchants = mockMerchants.filter((m) => m.category === activeCategory);
+  const individualMerchants = mockMerchants.filter((m) => m.category === "individual");
+  const businessMerchants = mockMerchants.filter((m) => m.category === "business");
 
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
@@ -190,7 +191,7 @@ export function MerchantDashboard({
           </div>
         </div> */}
 
-        {/* Category Tabs */}
+        {/* Category Toggle */}
         <div className="flex bg-gray-100 dark:bg-secondary p-1 rounded-xl mb-6 shadow-inner">
           <button
             onClick={() => setActiveCategory("individual")}
@@ -210,15 +211,17 @@ export function MerchantDashboard({
                 : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
             }`}
           >
-            Business
+            Business (coming soon)
           </button>
         </div>
 
         {/* Merchants List */}
         <div className="space-y-3">
-          <h3 className="text-gray-900 dark:text-foreground mb-3">All Merchants &amp; Transactions</h3>
+          <h3 className="text-gray-900 dark:text-foreground mb-3">
+            {activeCategory === "individual" ? "Individual" : "Business (coming soon)"} Merchants &amp; Transactions
+          </h3>
 
-          {filteredMerchants.map((merchant) => (
+          {(activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
             <div
               key={merchant.id}
               className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A2BE2]/40 transition-all"
@@ -248,7 +251,7 @@ export function MerchantDashboard({
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                     }`}>
-                    {merchant.type === "credit" ? "+" : "-"}₱{merchant.amount.toFixed(2)}
+                    {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} ₱
                   </span>
                 </div>
               </div>
@@ -340,7 +343,7 @@ export function MerchantDashboard({
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                     }`}>
-                    {selectedMerchant.type === "credit" ? "+" : "-"}₱{selectedMerchant.amount.toFixed(2)}
+                    {selectedMerchant.type === "credit" ? "+" : "-"}{selectedMerchant.amount.toFixed(2)} ₱
                   </span>
                 </div>
               </div>
@@ -399,11 +402,11 @@ export function MerchantDashboard({
               <div className="flex gap-3 mb-5">
                 <div className="flex-1 bg-green-50 dark:bg-green-950/20 rounded-xl p-3 border border-green-100 dark:border-green-900/30 text-center">
                   <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Credited</p>
-                  <p className="text-green-600 dark:text-green-400 font-bold">₱{selectedMerchant.totalCredit.toFixed(2)}</p>
+                  <p className="text-green-600 dark:text-green-400 font-bold">{selectedMerchant.totalCredit.toFixed(2)} ₱</p>
                 </div>
                 <div className="flex-1 bg-red-50 dark:bg-red-950/20 rounded-xl p-3 border border-red-100 dark:border-red-900/30 text-center">
                   <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Debited</p>
-                  <p className="text-red-600 dark:text-red-400 font-bold">₱{selectedMerchant.totalDebit.toFixed(2)}</p>
+                  <p className="text-red-600 dark:text-red-400 font-bold">{selectedMerchant.totalDebit.toFixed(2)} ₱</p>
                 </div>
               </div>
 
@@ -438,7 +441,7 @@ export function MerchantDashboard({
                         ? "text-green-600 dark:text-green-400"
                         : "text-red-600 dark:text-red-400"
                         }`}>
-                        {pt.type === "credit" ? "+" : "-"}₱{pt.amount}
+                        {pt.type === "credit" ? "+" : "-"}{pt.amount} ₱
                       </span>
                       {pt.status === "pending" && (
                         <div className="flex items-center gap-1 justify-end mt-0.5">

@@ -7,7 +7,7 @@ import { BottomNav } from "./BottomNav";
 interface DashboardProps {
   userName: string;
   piBalance: string;
-  onNavigateToAddCustomer: () => void;
+  onNavigateToAddCustomer: (category: "individual" | "business") => void;
   onNavigateToAddEntry: () => void;
   onNavigateToCustomerLedger: (customerName: string) => void;
   onNavigate: (screen: string) => void;
@@ -18,11 +18,12 @@ const recentEntries = [
   { id: "2", customerName: "Priya Sharma", type: "debit" as const, amount: "280.50", date: "Today, 11:15 AM" },
   { id: "3", customerName: "Amit Patel", type: "credit" as const, amount: "625.00", date: "Yesterday, 5:45 PM" },
   { id: "4", customerName: "Sneha Gupta", type: "debit" as const, amount: "195.75", date: "Yesterday, 3:20 PM" },
+  { id: "5", customerName: "Vikram Singh", type: "credit" as const, amount: "330.00", date: "2 days ago, 1:00 PM" },
 ];
 
-const notifications = recentEntries.slice(0, 3).map((t) => ({
+const notifications = recentEntries.slice(0, 2).map((t) => ({
   id: t.id,
-  message: `${t.type === "credit" ? "Received" : "Paid"} ₱${t.amount} ${t.type === "credit" ? "from" : "to"} ${t.customerName}`,
+  message: `${t.type === "credit" ? "Received" : "Paid"} ${t.amount} ₱ ${t.type === "credit" ? "from" : "to"} ${t.customerName}`,
   time: t.date,
   type: t.type,
 }));
@@ -74,8 +75,7 @@ export function Dashboard({
           <div className="absolute top-[72px] right-4 z-40 w-80 bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-[#A47CF3]" />
-                <p className="text-gray-900 dark:text-foreground font-semibold text-sm">Recent Transactions</p>
+                <p className="text-gray-900 dark:text-foreground font-semibold text-sm">Alerts</p>
               </div>
               <button onClick={() => setShowBell(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full">
                 <X className="w-4 h-4 text-gray-400" />
@@ -117,7 +117,7 @@ export function Dashboard({
         <BalanceCard piBalance={piBalance} />
 
         {/* Quick Actions */}
-        <QuickActions onAddCustomer={onNavigateToAddCustomer} onAddEntry={onNavigateToAddEntry} />
+        <QuickActions onAddCustomer={(cat) => onNavigateToAddCustomer(cat)} onAddEntry={onNavigateToAddEntry} />
 
         {/* Recent Entries */}
         <div>
@@ -143,7 +143,7 @@ export function Dashboard({
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                   }`}>
-                  {transaction.type === "credit" ? "+" : "-"}₱{transaction.amount}
+                  {transaction.type === "credit" ? "+" : "-"}{transaction.amount} ₱
                 </span>
               </div>
             ))}

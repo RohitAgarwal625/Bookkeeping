@@ -106,7 +106,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
           <p className="text-gray-500 dark:text-muted-foreground text-sm mb-2">Balance</p>
           <div className="flex items-center gap-2 mb-4">
             <span className="text-3xl font-bold text-gray-900 dark:text-foreground">
-              ₱ {Math.abs(balance).toFixed(2)}
+              {Math.abs(balance).toFixed(2)} ₱
             </span>
             <span className="text-sm text-gray-600 dark:text-muted-foreground">Pi</span>
           </div>
@@ -115,11 +115,11 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
           <div className="flex gap-6 pt-4 border-t border-gray-100 dark:border-border">
             <div className="flex-1">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Debit</p>
-              <p className="text-red-600 dark:text-red-400 font-bold">₱ {totalDebit.toFixed(2)}</p>
+              <p className="text-red-600 dark:text-red-400 font-bold">{totalDebit.toFixed(2)} ₱</p>
             </div>
             <div className="flex-1">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Credit</p>
-              <p className="text-green-600 dark:text-green-400 font-bold">₱ {totalCredit.toFixed(2)}</p>
+              <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)} ₱</p>
             </div>
           </div>
         </div>
@@ -149,7 +149,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
                         transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                       }`}
                     >
-                      {transaction.type === "credit" ? "+" : "-"}₱ {transaction.amount.toFixed(2)}
+                      {transaction.type === "credit" ? "+" : "-"}{transaction.amount.toFixed(2)} ₱
                     </p>
                   </div>
                 </div>

@@ -20,13 +20,13 @@ export function BalanceCard({ piBalance }: BalanceCardProps) {
         {/* Total Debit */}
         <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 border border-red-200 dark:border-red-800/40">
           <p className="text-red-700 dark:text-red-400 text-xs mb-1">Total Debit</p>
-          <p className="text-red-800 dark:text-red-300 font-bold text-lg">π 875.30</p>
+          <p className="text-red-800 dark:text-red-300 font-bold text-lg">875.30 π</p>
         </div>
 
         {/* Total Credit */}
         <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-4 border border-green-200 dark:border-green-800/40">
           <p className="text-green-700 dark:text-green-400 text-xs mb-1">Total Credit</p>
-          <p className="text-green-800 dark:text-green-300 font-bold text-lg">π 1,245.50</p>
+          <p className="text-green-800 dark:text-green-300 font-bold text-lg">1,245.50 π</p>
         </div>
       </div>
     </div>

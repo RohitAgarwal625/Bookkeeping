@@ -125,8 +125,8 @@ export function ReportsAnalytics({ onNavigate }: ReportsAnalyticsProps) {
               <p className="text-gray-600 dark:text-muted-foreground text-sm">Total Debit</p>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl text-red-600 dark:text-red-400">₱</span>
               <span className="text-3xl text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
+              <span className="text-2xl text-red-600 dark:text-red-400">₱</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1">Pi given</p>
           </div>
@@ -138,8 +138,8 @@ export function ReportsAnalytics({ onNavigate }: ReportsAnalyticsProps) {
               <p className="text-gray-600 dark:text-muted-foreground text-sm">Total Credit</p>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl text-green-600 dark:text-green-400">₱</span>
               <span className="text-3xl text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
+              <span className="text-2xl text-green-600 dark:text-green-400">₱</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1">Pi received</p>
           </div>
@@ -155,8 +155,8 @@ export function ReportsAnalytics({ onNavigate }: ReportsAnalyticsProps) {
               <p className="text-gray-600 dark:text-muted-foreground text-sm">Net Balance</p>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl text-gray-900 dark:text-foreground">₱</span>
               <span className="text-3xl text-gray-900 dark:text-foreground">{netBalance.toFixed(2)}</span>
+              <span className="text-2xl text-gray-900 dark:text-foreground">₱</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1">Current balance</p>
           </div>
@@ -224,7 +224,7 @@ export function ReportsAnalytics({ onNavigate }: ReportsAnalyticsProps) {
                       className={`text-sm ${customer.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                         }`}
                     >
-                      ₱ {customer.totalAmount.toFixed(2)}
+                      {customer.totalAmount.toFixed(2)} ₱
                     </p>
                   </div>
                 </div>

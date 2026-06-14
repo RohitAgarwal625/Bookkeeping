@@ -1,0 +1,9 @@
+
+
+1. In Home Screen , when I click on bell icon , Recent Transactions opens with a bell icon , I want to remove the bell icon and replace Recent Transactions to Alerts and I want that transactions in this screen should be limited to 2 only .
+
+2. In Home Screen , change Add Customer to Add Pioneer and when I click on Add Pioneer , A dialog box should appear with 2 options , Individual and Business and when I click on Individual , it should take me to Add Pioneer Screen and when I click on Business , it should also take me to Add Pioneer  Screen but the difference is in the Add Pioneer Screen which was Add Customer Screen , the Category dropdown is selected to what the user had selected in the dialog box . the user should still be able to select the changes in the Category dropdown in the Add Pioneer Screen .
+
+3. In Add Pioneer Screen , I want to replace Add Customer to Enter Details , Customer Name to Pioneer , Pi Wallet Address to Public Key and Category as it is . The order of these 3 must be Category , Pioneer , Public Key and in last Save Customer to Save Pioneer
+
+If you have any queries , first ask and do not proceed until I allow .

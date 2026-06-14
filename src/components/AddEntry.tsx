@@ -173,9 +173,6 @@ export function AddEntry({ onBack }: AddEntryProps) {
           <div className="mb-4">
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Amount</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground">
-                ₱
-              </span>
               <input
                 type="number"
                 step="0.01"
@@ -183,8 +180,11 @@ export function AddEntry({ onBack }: AddEntryProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                className="w-full pl-4 pr-10 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
               />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground">
+                ₱
+              </span>
             </div>
           </div>
 
