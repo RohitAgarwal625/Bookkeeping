@@ -99,14 +99,6 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
-        {/* Pi Transactions Button */}
-        <button
-          onClick={handlePiTransactions}
-          className="w-full mb-6 py-4 px-6 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-        >
-          <span className="font-medium">View Pi Transactions</span>
-          <ExternalLink className="w-5 h-5" />
-        </button>
 
         {/* Manual Entry Card */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
@@ -252,6 +244,15 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
               />
             </div>
           </div>
+
+          {/* View Pi Transactions — moved here, below Transaction Hash */}
+          <button
+            onClick={handlePiTransactions}
+            className="w-full mb-4 py-3 px-5 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+          >
+            <span className="font-medium text-sm">View Pi Transactions</span>
+            <ExternalLink className="w-4 h-4" />
+          </button>
 
           {/* Note Input */}
           <div className="mb-6">
