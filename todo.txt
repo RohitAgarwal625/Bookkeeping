@@ -33,6 +33,81 @@
 | Profile               | Fetch and display **Legal Name** and **Username** from Pi authentication                                           |
 
 
+Minor changes
 
+| **Page / Module**  | **Change Details**                                                             |
+| ------------------ | ------------------------------------------------------------------------------ |
+| Home               | Remove **"View All in Analyse"** option from Home Screen                       |
+| Home               | Update terminology and text consistency across Home Screen                     |
+| Dashboard          | Rename **"Transaction History"** to **"History"**                              |
+| Dashboard          | Rename **"Analyse"** to **"Analysis"**                                         |
+| Dashboard          | Change inactive **History** and **Analysis** tab colors to off-white style     |
+| Dashboard          | Remove arrows from Dashboard History section                                   |
+| Dashboard          | Grey out Business section in Analysis                                          |
+| Analysis           | Add information button beside **Top Customers** showing number of transactions |
+| Contacts List      | Change **"Entries"** terminology to **"Transactions"**                         |
+| Contacts List      | Remove separator/bar design element                                            |
+| Contacts List      | Replace 3-dot menu icon with bookkeeping logo                                  |
+| Open Ledger        | Remove Balance display                                                         |
+| Open Ledger        | Remove Settle Balance option                                                   |
+| Open Ledger        | Rename **Recent Entries** to **All Transactions**                              |
+| History            | Change **Completed** status text to **Successful**                             |
+| History            | Change **Description** field name to **Note/Memo**                             |
+| Add Pioneer        | Change **"Enter Pi wallet address"** to **"Pi Wallet Address"**                |
+| Add Pioneer        | Remove star (*) symbol from Public Key field                                   |
+| Add Pioneer        | Replace tick mark with application logo                                        |
+| Add Pioneer        | Change **Free Limited** text to **"Free - Limited"**                           |
+| Add Pioneer        | Auto-capitalize first letter of First Name and Last Name                       |
+| Manual Transaction | Change **Date and Time** label to **Date & Time**                              |
+| Manual Transaction | Change **Save Entry** button text to **Add**                                   |
+| Manual Transaction | Change **Add Transaction** heading to **Enter Details**                        |
+| Manual Transaction | Change transaction saved success message                                       |
+| Pay                | Replace **"Send to Someone"** with **"Payment Details"**                       |
+| Pay                | Change **Paying To** text to **Pioneer**                                       |
+| Pay                | Update amount format from **0** to **0.0000001**                               |
+| Settings           | Add application logo inside Settings section                                   |
+| Contacts List      | Rename **Recent Entries** to **All Transactions** in Contact Ledger            |
+| General UI         | Remove **Continue as Guest** option from loading page                          |                                                                |
+
+Major changes
+
+| **Page / Feature**  | **Change Details**                                                 |                        |                              |
+Major Changes Table
+Page / Feature
+Change Details
+Pay — QR Payment
+PhonePe/Gpay-style Pay screen flow implementation
+Pay — QR Payment
+Camera-based QR scanner functionality
+Pay — QR Payment
+Extract wallet information from QR
+Pay — QR Payment
+Amount entry after QR scan
+Pay — QR Payment
+Direct payment workflow after QR scan
+Pay — QR Receive
+Generate personal QR for receiving Pi payments
+Pay —  QR Receive
+UI Screens for QR receive payment
+Introduction of Business feature
+Modifications in Database architecture
+Introduction of Business feature
+Business UI Screen modifications
+Introduction of  Contacts feature
+Contact feature UI Screen additions
+Introduction of  Contacts feature
+Fetch from DB and storage
+User Profile System
+Add separate Display Name storage
+
+
+Contact Details UI Screen
+
+Heading on top - Contact Details
+right corner side - Book keeping logo
+1st field - "Pioneer"  (editable)
+2nd field - "Pi Wallet Address" (editable)
+3rd field - "Category" (non-editable)
+Open Ledger button - below the 3rd field
 
 If you have any queries , first ask and do not proceed until I allow.

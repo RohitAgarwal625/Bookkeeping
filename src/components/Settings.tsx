@@ -10,12 +10,11 @@ import {
   CheckCircle,
   ChevronDown,
   ChevronUp,
-  Camera,
   Edit2,
   X,
   Save,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Switch } from "./ui/switch";
 import { BottomNav } from "./BottomNav";
 import { useDarkMode } from "../contexts/DarkModeContext";
@@ -95,9 +94,7 @@ export function Settings({
   // Edit Profile state
   const [displayName, setDisplayName] = useState(initialUserName);
   const [editingName, setEditingName] = useState(initialUserName);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // FAQs state
   const [openFaq, setOpenFaq] = useState<string | null>(null);
@@ -110,16 +107,6 @@ export function Settings({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setProfileImage(ev.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleSaveName = () => {
     if (editingName.trim()) {
@@ -168,39 +155,11 @@ export function Settings({
         </header>
 
         <div className="flex-1 overflow-y-auto px-6 py-8 pb-24 flex flex-col items-center gap-6">
-          {/* Profile Image Upload */}
+          {/* Profile Avatar */}
           <div className="flex flex-col items-center gap-3">
-            <div className="relative">
-              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-xl overflow-hidden">
-                {profileImage ? (
-                  <img
-                    src={profileImage}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-white text-4xl font-bold">
-                    {displayName.charAt(0)}
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 w-9 h-9 bg-[#A47CF3] rounded-full flex items-center justify-center shadow-md hover:bg-[#8A2BE2] transition-colors border-2 border-white dark:border-[#0F1115]"
-              >
-                <Camera className="w-4 h-4 text-white" />
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg overflow-hidden">
+              <span className="text-white text-2xl">{displayName.charAt(0)}</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-muted-foreground">
-              Tap the camera icon to change your photo
-            </p>
           </div>
 
           {/* Name Edit */}
@@ -511,11 +470,7 @@ export function Settings({
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-6 mb-6">
           <div className="flex flex-col items-center mb-4">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3 overflow-hidden">
-              {profileImage ? (
-                <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-white text-2xl">{displayName.charAt(0)}</span>
-              )}
+              <span className="text-white text-2xl">{displayName.charAt(0)}</span>
             </div>
 
             <h3 className="text-gray-900 dark:text-foreground mb-1">{displayName}</h3>

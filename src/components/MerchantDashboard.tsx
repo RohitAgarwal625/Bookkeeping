@@ -208,13 +208,8 @@ export function MerchantDashboard({
 
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-      {/* Header */}
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border">
-        <h2 className="font-semibold text-gray-900 dark:text-foreground text-base">Dashboard</h2>
-      </header>
-
-      {/* History / Analysis Tab Toggle */}
-      <div className="px-6 pt-4">
+      {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
+      <header className="bg-white dark:bg-card shadow-sm px-6 py-3 border-b border-transparent dark:border-border">
         <div className="flex bg-gray-100 dark:bg-secondary p-1 rounded-xl shadow-inner">
           <button
             onClick={() => setActiveView("history")}
@@ -237,7 +232,7 @@ export function MerchantDashboard({
             <BarChart2 className="w-4 h-4" /> Analysis
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">

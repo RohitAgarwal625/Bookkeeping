@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Search,
-  UserPlus,
   Edit2,
   X,
   Check,
@@ -78,17 +77,7 @@ export function ContactsScreen({
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 border-b border-gray-200 dark:border-border z-10 relative">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-foreground">Contacts</h1>
-          <button
-            onClick={() => onNavigate("addCustomer")}
-            className="flex items-center gap-2 py-2 px-4 rounded-full text-sm font-semibold text-white shadow-md"
-            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
-          >
-            <UserPlus className="w-4 h-4" />
-            Add Pioneer
-          </button>
-        </div>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-foreground mb-4">Contacts</h1>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground" />
           <input
