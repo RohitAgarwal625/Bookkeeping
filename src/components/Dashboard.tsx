@@ -1,7 +1,6 @@
-import { Bell, X, ArrowDownLeft, ArrowUpRight, Send } from "lucide-react";
+import { Bell, X, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { BalanceCard } from "./BalanceCard";
-import { QuickActions } from "./QuickActions";
 import { BottomNav } from "./BottomNav";
 
 interface DashboardProps {
@@ -9,6 +8,7 @@ interface DashboardProps {
   piBalance: string;
   onNavigateToAddCustomer: (category: "individual" | "business") => void;
   onNavigateToAddEntry: () => void;
+  onNavigateToAutoEntry: () => void;
   onNavigateToCustomerLedger: (customerName: string) => void;
   onNavigate: (screen: string) => void;
 }
@@ -33,6 +33,7 @@ export function Dashboard({
   piBalance,
   onNavigateToAddCustomer,
   onNavigateToAddEntry,
+  onNavigateToAutoEntry,
   onNavigateToCustomerLedger,
   onNavigate,
 }: DashboardProps) {
@@ -113,11 +114,13 @@ export function Dashboard({
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
-        {/* Balance Card */}
-        <BalanceCard piBalance={piBalance} />
-
-        {/* Quick Actions */}
-        <QuickActions onAddCustomer={(cat) => onNavigateToAddCustomer(cat)} onAddEntry={onNavigateToAddEntry} />
+        {/* Balance Card — contains Add Pioneer & Add Transaction buttons */}
+        <BalanceCard
+          piBalance={piBalance}
+          onAddCustomer={(cat) => onNavigateToAddCustomer(cat)}
+          onAddEntry={onNavigateToAddEntry}
+          onAutoEntry={onNavigateToAutoEntry}
+        />
 
         {/* Recent Entries */}
         <div>
@@ -150,18 +153,6 @@ export function Dashboard({
           </div>
         </div>
 
-        {/* Pay Button */}
-        <div className="mt-8 flex justify-center w-full">
-          <button
-            onClick={() => onNavigate("pay")}
-            className="flex flex-col items-center gap-3 group"
-          >
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-              <Send className="w-10 h-10 text-white ml-1.5" />
-            </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Pay</span>
-          </button>
-        </div>
       </div>
 
       {/* Bottom Navigation */}

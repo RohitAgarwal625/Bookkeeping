@@ -3,9 +3,12 @@ import { useState, useEffect } from "react";
 
 interface PayScreenProps {
   onBack: () => void;
+  contacts?: string[];
+  prefilledAddress?: string;
+  onAddressUsed?: () => void;
 }
 
-const mockNames = [
+const defaultContacts = [
   "Rajesh Kumar",
   "Priya Sharma",
   "Amit Patel",
@@ -14,12 +17,20 @@ const mockNames = [
 
 type ScreenState = "form" | "processing" | "success";
 
-export function PayScreen({ onBack }: PayScreenProps) {
+export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }: PayScreenProps) {
+  const mockNames = contacts ?? defaultContacts;
   const [nameQuery, setNameQuery] = useState("");
-  const [selectedName, setSelectedName] = useState("");
+  const [selectedName, setSelectedName] = useState(prefilledAddress ?? "");
   const [amount, setAmount] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [screen, setScreen] = useState<ScreenState>("form");
+
+  // Use prefilled scanned address once
+  useState(() => {
+    if (prefilledAddress) {
+      onAddressUsed?.();
+    }
+  });
 
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark")

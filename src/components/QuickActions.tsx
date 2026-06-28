@@ -56,13 +56,14 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
       {/* ── Add Pioneer Dialog ───────────────────────────────────────────── */}
       {showPioneerDialog && (
         <>
-          {/* Blurred backdrop */}
+          {/* Blurred backdrop — sits below the card */}
           <div
-            className="fixed inset-0 z-50 backdrop-blur-sm bg-black/40"
+            className="fixed inset-0 z-40 backdrop-blur-md bg-black/40"
             onClick={() => setShowPioneerDialog(false)}
           />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-            <div className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-full max-w-xs overflow-hidden">
+          {/* Dialog card — above the blur */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 pointer-events-none">
+            <div className="pointer-events-auto bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-full max-w-xs overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 dark:border-border flex items-center justify-between">
                 <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Pioneer</h3>
                 <button onClick={() => setShowPioneerDialog(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full">
@@ -70,7 +71,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                 </button>
               </div>
               <p className="px-5 pt-4 pb-2 text-sm text-gray-500 dark:text-muted-foreground">Select pioneer type</p>
-              <div className="px-5 pb-5 flex flex-col gap-3">
+              <div className="px-5 pb-6 flex flex-col gap-3">
                 {/* Individual */}
                 <button
                   onClick={() => handleSelectPioneer("individual")}
@@ -99,13 +100,14 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
       {/* ── Add Transaction(s) Dialog ────────────────────────────────────── */}
       {showTransactionDialog && (
         <>
-          {/* Blurred backdrop */}
+          {/* Blurred backdrop — sits below the card */}
           <div
-            className="fixed inset-0 z-50 backdrop-blur-sm bg-black/40"
+            className="fixed inset-0 z-40 backdrop-blur-md bg-black/40"
             onClick={() => setShowTransactionDialog(false)}
           />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-            <div className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-full max-w-xs overflow-hidden">
+          {/* Dialog card — above the blur */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 pointer-events-none">
+            <div className="pointer-events-auto bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-full max-w-xs overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 dark:border-border flex items-center justify-between">
                 <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Transaction(s)</h3>
                 <button onClick={() => setShowTransactionDialog(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full">
@@ -113,7 +115,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                 </button>
               </div>
               <p className="px-5 pt-4 pb-2 text-sm text-gray-500 dark:text-muted-foreground">How would you like to add?</p>
-              <div className="px-5 pb-5 flex flex-col gap-3">
+              <div className="px-5 pb-6 flex flex-col gap-3">
 
                 {/* Manual Option */}
                 <div className="relative">
@@ -172,6 +174,8 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                   )}
                 </div>
 
+                {/* Bottom breathing room */}
+                <div className="pb-2" />
               </div>
             </div>
           </div>

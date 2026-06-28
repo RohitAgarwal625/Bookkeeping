@@ -4,18 +4,18 @@ import { toast } from "sonner";
 
 interface AddEntryProps {
   onBack: () => void;
+  contacts?: string[];
 }
 
-const savedCustomers = [
-  "Rajesh Kumar",
-  "Priya Sharma",
-  "Amit Patel",
-  "Sneha Gupta",
-  "Vikram Singh",
-  "Ananya Reddy",
-];
-
-export function AddEntry({ onBack }: AddEntryProps) {
+export function AddEntry({ onBack, contacts }: AddEntryProps) {
+  const savedCustomers = contacts ?? [
+    "Rajesh Kumar",
+    "Priya Sharma",
+    "Amit Patel",
+    "Sneha Gupta",
+    "Vikram Singh",
+    "Ananya Reddy",
+  ];
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [customerQuery, setCustomerQuery] = useState("");
   const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);

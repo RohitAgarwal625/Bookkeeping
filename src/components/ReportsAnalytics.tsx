@@ -14,6 +14,7 @@ import { BottomNav } from "./BottomNav";
 
 interface ReportsAnalyticsProps {
   onNavigate: (screen: string) => void;
+  embedded?: boolean;
 }
 
 const monthlyData = [
@@ -33,7 +34,7 @@ const topCustomers = [
   { id: "5", name: "Vikram Singh", totalAmount: 1540.5, type: "credit" as const },
 ];
 
-export function ReportsAnalytics({ onNavigate }: ReportsAnalyticsProps) {
+export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyticsProps) {
   const [selectedFilter, setSelectedFilter] = useState<"week" | "month" | "custom">("month");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "individual" | "business">("all");
@@ -251,8 +252,8 @@ export function ReportsAnalytics({ onNavigate }: ReportsAnalyticsProps) {
         </p>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav activeTab="analyze" onNavigate={onNavigate} />
+      {/* Bottom Navigation — only when used as standalone screen */}
+      {!embedded && <BottomNav activeTab="merchantDashboard" onNavigate={onNavigate} />}
     </div>
   );
 }

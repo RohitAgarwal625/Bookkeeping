@@ -11,8 +11,16 @@ import { MerchantDashboard } from "./components/MerchantDashboard";
 import { Toaster } from "./components/ui/sonner";
 import { DarkModeProvider } from "./contexts/DarkModeContext";
 import { PayScreen } from "./components/PayScreen";
+import { ContactsScreen } from "./components/ContactsScreen";
+import { AutomaticTransactionScreen } from "./components/AutomaticTransactionScreen";
+import { QRScannerScreen } from "./components/QRScannerScreen";
+import { PayMethodModal } from "./components/PayMethodModal";
+import { Contact, initialContacts } from "./types";
 
-type Screen = "login" | "dashboard" | "addCustomer" | "customerLedger" | "merchantDashboard" | "analyze" | "settings" | "addEntry" | "pay";
+type Screen =
+  | "login" | "dashboard" | "addCustomer" | "customerLedger"
+  | "merchantDashboard" | "analyze" | "settings" | "addEntry"
+  | "pay" | "contacts" | "autoTransaction" | "qrPay";
 
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
@@ -21,17 +29,16 @@ function AppContent() {
   const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<"individual" | "business">("individual");
+  const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+  const [newContactId, setNewContactId] = useState<string | null>(null);
+  const [showPayModal, setShowPayModal] = useState(false);
+  const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
 
   const handleConnectWallet = () => {
-    // Placeholder for Pi Wallet connection logic
-    console.log("Connecting to Pi Wallet...");
-    // Simulate successful login
     setCurrentScreen("dashboard");
   };
 
   const handleGuestLogin = () => {
-    // Placeholder for guest login logic
-    console.log("Continuing as guest...");
     setCurrentScreen("dashboard");
   };
 
@@ -53,82 +60,151 @@ function AppContent() {
     setCurrentScreen("addEntry");
   };
 
+  const handleNavigateToAutoEntry = () => {
+    setCurrentScreen("autoTransaction");
+  };
+
   const handleSaveCustomer = (customer: { name: string; piWallet: string; category: "individual" | "business" }) => {
-    console.log("Saving customer:", customer);
-    // Placeholder for saving customer logic
-    // In real app, this would save to blockchain or local storage
-    setCurrentScreen("dashboard");
+    const newContact: Contact = {
+      id: Date.now().toString(),
+      name: customer.name,
+      category: customer.category,
+      piWalletAddress: customer.piWallet,
+      txHash: "0x" + Math.random().toString(16).slice(2, 42),
+      lastSeen: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+      totalCredit: 0,
+      totalDebit: 0,
+    };
+    setContacts((prev) => [...prev, newContact]);
+    setNewContactId(newContact.id);
+    setCurrentScreen("contacts");
   };
 
   const handleNavigate = (screen: string) => {
-    if (screen === "home") {
-      setCurrentScreen("dashboard");
-    } else if (screen === "analyze") {
-      setCurrentScreen("analyze");
-    } else if (screen === "merchantDashboard") {
-      setCurrentScreen("merchantDashboard");
-    } else if (screen === "settings") {
-      setCurrentScreen("settings");
-    } else if (screen === "pay") {
-      setCurrentScreen("pay");
+    if (screen === "pay") {
+      setShowPayModal(true);
+      return;
+    }
+    const validScreens: Screen[] = [
+      "home", "dashboard", "addCustomer", "customerLedger",
+      "merchantDashboard", "analyze", "settings", "addEntry",
+      "pay", "contacts", "autoTransaction", "qrPay",
+    ];
+    const mapped = screen === "home" ? "dashboard" : screen;
+    if (validScreens.includes(mapped as Screen)) {
+      setCurrentScreen(mapped as Screen);
     }
   };
 
   const handleLogout = () => {
-    console.log("Logging out...");
-    // In a real app, this would disconnect the Pi wallet and clear user data
     setCurrentScreen("login");
   };
 
-  // Show Add Entry Screen
+  const handleQRScanned = (address: string) => {
+    setScannedWalletAddress(address);
+    setCurrentScreen("pay");
+  };
+
+  const contactNames = contacts.map((c) => c.name);
+
+  // ── Screens ────────────────────────────────────────────────────────
+
+  if (currentScreen === "autoTransaction") {
+    return (
+      <>
+        <AutomaticTransactionScreen contacts={contacts} onBack={handleBackToDashboard} />
+        <Toaster position="bottom-center" />
+      </>
+    );
+  }
+
+  if (currentScreen === "qrPay") {
+    return (
+      <>
+        <QRScannerScreen onBack={handleBackToDashboard} onScanned={handleQRScanned} />
+        <Toaster position="bottom-center" />
+      </>
+    );
+  }
+
   if (currentScreen === "addEntry") {
     return (
       <>
-        <AddEntry onBack={handleBackToDashboard} />
+        <AddEntry onBack={handleBackToDashboard} contacts={contactNames} />
         <Toaster position="bottom-center" />
       </>
     );
   }
 
-  // Show Pay Screen
   if (currentScreen === "pay") {
     return (
       <>
-        <PayScreen onBack={handleBackToDashboard} />
+        <PayScreen
+          onBack={handleBackToDashboard}
+          contacts={contactNames}
+          prefilledAddress={scannedWalletAddress}
+          onAddressUsed={() => setScannedWalletAddress("")}
+        />
         <Toaster position="bottom-center" />
       </>
     );
   }
 
-  // Show Settings Screen
-  if (currentScreen === "settings") {
+  if (currentScreen === "contacts") {
     return (
-      <Settings
-        userName={userName}
-        piWalletAddress={piWalletAddress}
-        onBack={handleBackToDashboard}
-        onNavigate={handleNavigate}
-        onLogout={handleLogout}
-      />
+      <>
+        <ContactsScreen
+          contacts={contacts}
+          onUpdateContacts={setContacts}
+          onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
+          onNavigate={handleNavigate}
+          newContactId={newContactId}
+          onNewContactSeen={() => setNewContactId(null)}
+        />
+        {showPayModal && (
+          <PayMethodModal
+            onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
+            onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
+            onClose={() => setShowPayModal(false)}
+          />
+        )}
+        <Toaster position="bottom-center" />
+      </>
     );
   }
 
-  // Show Reports & Analytics Screen
+  if (currentScreen === "settings") {
+    return (
+      <>
+        <Settings
+          userName={userName}
+          piWalletAddress={piWalletAddress}
+          onBack={handleBackToDashboard}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+        {showPayModal && (
+          <PayMethodModal
+            onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
+            onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
+            onClose={() => setShowPayModal(false)}
+          />
+        )}
+        <Toaster position="bottom-center" />
+      </>
+    );
+  }
+
   if (currentScreen === "analyze") {
     return <ReportsAnalytics onNavigate={handleNavigate} />;
   }
 
-  // Show Customer Ledger Screen
   if (currentScreen === "customerLedger") {
     return (
-      <CustomerLedger
-        customerName={selectedCustomer}
-        onBack={handleBackToDashboard}
-      />
+      <CustomerLedger customerName={selectedCustomer} onBack={handleBackToDashboard} />
     );
   }
 
-  // Show Add Customer Screen
   if (currentScreen === "addCustomer") {
     return (
       <AddCustomer
@@ -139,24 +215,6 @@ function AppContent() {
     );
   }
 
-  // Show Dashboard if logged in
-  if (currentScreen === "dashboard") {
-    return (
-      <>
-        <Dashboard
-          userName={userName}
-          piBalance={piBalance}
-          onNavigateToAddCustomer={handleNavigateToAddCustomer}
-          onNavigateToAddEntry={handleNavigateToAddEntry}
-          onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
-          onNavigate={handleNavigate}
-        />
-        <Toaster position="bottom-center" />
-      </>
-    );
-  }
-
-  // Show Merchant Dashboard if logged in
   if (currentScreen === "merchantDashboard") {
     return (
       <>
@@ -168,53 +226,71 @@ function AppContent() {
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigate={handleNavigate}
         />
+        {showPayModal && (
+          <PayMethodModal
+            onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
+            onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
+            onClose={() => setShowPayModal(false)}
+          />
+        )}
         <Toaster position="bottom-center" />
       </>
     );
   }
 
-  // Show Login Screen
+  if (currentScreen === "dashboard") {
+    return (
+      <>
+        <Dashboard
+          userName={userName}
+          piBalance={piBalance}
+          onNavigateToAddCustomer={handleNavigateToAddCustomer}
+          onNavigateToAddEntry={handleNavigateToAddEntry}
+          onNavigateToAutoEntry={handleNavigateToAutoEntry}
+          onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
+          onNavigate={handleNavigate}
+        />
+        {showPayModal && (
+          <PayMethodModal
+            onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
+            onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
+            onClose={() => setShowPayModal(false)}
+          />
+        )}
+        <Toaster position="bottom-center" />
+      </>
+    );
+  }
+
+  // Login Screen
   return (
     <div className="size-full flex items-center justify-center bg-background">
       <div className="w-full max-w-md px-6 py-8 flex flex-col items-center">
-        {/* Header Section */}
         <div className="flex flex-col items-center gap-4 mb-8">
           <BookkeepingLogo />
           <h1 className="text-red-600 dark:text-[#8A2BE2] text-2xl font-bold text-center">
             Bookkeeping Web3
           </h1>
         </div>
-
-        {/* Central Illustration */}
         <div className="my-12">
           <PiWalletIcon />
         </div>
-
-        {/* Primary Button */}
         <button
           onClick={handleConnectWallet}
           className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
         >
           Connect Pi Wallet
         </button>
-
-        {/* Secondary Link */}
         <button
           onClick={handleGuestLogin}
           className="mt-6 text-[#6A0DAD] dark:text-[#A47CF3] underline hover:no-underline transition-all"
         >
           Continue as Guest
         </button>
-
-        {/* Footer */}
         <div className="mt-auto pt-12 flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
-          <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
-            Terms of Use
-          </a>
+          <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
           <span>•</span>
-          <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
-            Privacy Policy
-          </a>
+          <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
         </div>
       </div>
     </div>

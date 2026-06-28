@@ -2360,3 +2360,48 @@ html {
   inherits: false;
   initial-value: 1;
 }
+
+/* Custom backdrop blur classes */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.backdrop-blur {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+.backdrop-blur-2xl {
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+.backdrop-blur-3xl {
+  backdrop-filter: blur(64px);
+  -webkit-backdrop-filter: blur(64px);
+}
+
+/* Custom padding-bottom utilities */
+.pb-5 {
+  padding-bottom: calc(var(--spacing) * 5);
+}
+.pb-6 {
+  padding-bottom: calc(var(--spacing) * 6);
+}
+.pb-8 {
+  padding-bottom: calc(var(--spacing) * 8);
+}
+.pb-10 {
+  padding-bottom: calc(var(--spacing) * 10);
+}
+
