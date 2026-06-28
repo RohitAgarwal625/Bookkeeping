@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Search,
-  Edit2,
   X,
-  Check,
   BookOpen,
   Building2,
   User,
-  Wallet,
 } from "lucide-react";
 import { Contact } from "../types";
 import { BottomNav } from "./BottomNav";
@@ -16,6 +13,7 @@ interface ContactsScreenProps {
   contacts: Contact[];
   onUpdateContacts: (contacts: Contact[]) => void;
   onNavigateToCustomerLedger: (customerName: string) => void;
+  onNavigateToContactDetails: (contact: Contact) => void;
   onNavigate: (screen: string) => void;
   newContactId: string | null;
   onNewContactSeen: () => void;
@@ -25,13 +23,12 @@ export function ContactsScreen({
   contacts,
   onUpdateContacts,
   onNavigateToCustomerLedger,
+  onNavigateToContactDetails,
   onNavigate,
   newContactId,
   onNewContactSeen,
 }: ContactsScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [editingContactId, setEditingContactId] = useState<string | null>(null);
-  const [editWallet, setEditWallet] = useState("");
   const newContactRef = useRef<HTMLDivElement | null>(null);
 
   const sorted = [...contacts].sort((a, b) => a.name.localeCompare(b.name));
@@ -58,20 +55,6 @@ export function ContactsScreen({
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newContactId]);
-
-  const handleSaveWallet = (contactId: string) => {
-    const updated = contacts.map((c) =>
-      c.id === contactId ? { ...c, piWalletAddress: editWallet.trim() } : c
-    );
-    onUpdateContacts(updated);
-    setEditingContactId(null);
-    setEditWallet("");
-  };
-
-  const handleCancelEdit = () => {
-    setEditingContactId(null);
-    setEditWallet("");
-  };
 
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
@@ -120,17 +103,17 @@ export function ContactsScreen({
                 <div className="flex flex-col gap-2">
                   {letterContacts.map((contact) => {
                     const isNew = contact.id === newContactId;
-                    const isEditing = editingContactId === contact.id;
                     const balance = contact.totalCredit - contact.totalDebit;
 
                     return (
                       <div
                         key={contact.id}
                         ref={isNew ? newContactRef : undefined}
-                        className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 ${
+                        onClick={() => onNavigateToContactDetails(contact)}
+                        className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 cursor-pointer ${
                           isNew
                             ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
-                            : "bg-white dark:bg-card border border-gray-100 dark:border-border"
+                            : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:border-[#A47CF3]/40 dark:hover:border-[#8A2BE2]/40"
                         }`}
                       >
                         <div className="p-4">
@@ -160,77 +143,20 @@ export function ContactsScreen({
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-1 mt-0.5">
-                                <Wallet className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                                <p className="text-gray-400 dark:text-muted-foreground text-xs truncate">
-                                  {contact.piWalletAddress.length > 16
-                                    ? `${contact.piWalletAddress.slice(0, 8)}…${contact.piWalletAddress.slice(-6)}`
-                                    : contact.piWalletAddress}
-                                </p>
-                              </div>
+                              <p className="text-gray-400 dark:text-muted-foreground text-xs mt-0.5 capitalize">
+                                {contact.category}
+                              </p>
                             </div>
 
                             <div className="text-right flex-shrink-0">
                               <p className={`text-sm font-bold ${balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
                                 {balance >= 0 ? "+" : ""}{balance.toFixed(2)} π
                               </p>
-                              <p className="text-[10px] text-gray-400 dark:text-muted-foreground capitalize">
-                                {contact.category}
-                              </p>
+                              <div className="flex items-center justify-end gap-1 mt-1">
+                                <BookOpen className="w-3 h-3 text-[#A47CF3]" />
+                                <span className="text-[10px] text-[#A47CF3] font-medium">Details</span>
+                              </div>
                             </div>
-                          </div>
-
-                          {/* Inline wallet edit */}
-                          {isEditing && (
-                            <div className="mt-3 flex items-center gap-2">
-                              <input
-                                type="text"
-                                value={editWallet}
-                                onChange={(e) => setEditWallet(e.target.value)}
-                                placeholder="Pi Wallet Address"
-                                autoFocus
-                                className="flex-1 px-3 py-2 rounded-lg bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-[#A47CF3] border border-gray-200 dark:border-border transition"
-                              />
-                              <button
-                                onClick={() => handleSaveWallet(contact.id)}
-                                disabled={!editWallet.trim()}
-                                className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center disabled:opacity-40"
-                              >
-                                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              </button>
-                              <button
-                                onClick={handleCancelEdit}
-                                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center"
-                              >
-                                <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-                              </button>
-                            </div>
-                          )}
-
-                          {/* Action row */}
-                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-border">
-                            <button
-                              onClick={() => onNavigateToCustomerLedger(contact.name)}
-                              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-purple-50 dark:bg-[#2A1F3D] text-[#A47CF3] text-xs font-semibold hover:bg-purple-100 dark:hover:bg-[#3A2F4D] transition-colors"
-                            >
-                              <BookOpen className="w-3.5 h-3.5" />
-                              Open Ledger
-                            </button>
-                            <button
-                              onClick={() =>
-                                isEditing
-                                  ? handleCancelEdit()
-                                  : (setEditingContactId(contact.id), setEditWallet(contact.piWalletAddress))
-                              }
-                              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-secondary hover:bg-gray-200 dark:hover:bg-border transition-colors"
-                              title={isEditing ? "Cancel" : "Edit wallet address"}
-                            >
-                              {isEditing ? (
-                                <X className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
-                              ) : (
-                                <Edit2 className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
-                              )}
-                            </button>
                           </div>
                         </div>
                       </div>

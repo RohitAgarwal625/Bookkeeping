@@ -12,6 +12,7 @@ import { Toaster } from "./components/ui/sonner";
 import { DarkModeProvider } from "./contexts/DarkModeContext";
 import { PayScreen } from "./components/PayScreen";
 import { ContactsScreen } from "./components/ContactsScreen";
+import { ContactDetails } from "./components/ContactDetails";
 import { AutomaticTransactionScreen } from "./components/AutomaticTransactionScreen";
 import { QRScannerScreen } from "./components/QRScannerScreen";
 import { PayMethodModal } from "./components/PayMethodModal";
@@ -20,7 +21,7 @@ import { Contact, initialContacts } from "./types";
 type Screen =
   | "login" | "dashboard" | "addCustomer" | "customerLedger"
   | "merchantDashboard" | "analyze" | "settings" | "addEntry"
-  | "pay" | "contacts" | "autoTransaction" | "qrPay";
+  | "pay" | "contacts" | "autoTransaction" | "qrPay" | "contactDetails";
 
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
@@ -31,6 +32,7 @@ function AppContent() {
   const [selectedCategory, setSelectedCategory] = useState<"individual" | "business">("individual");
   const [contacts, setContacts] = useState<Contact[]>(initialContacts);
   const [newContactId, setNewContactId] = useState<string | null>(null);
+  const [selectedContactDetails, setSelectedContactDetails] = useState<Contact | null>(null);
   const [showPayModal, setShowPayModal] = useState(false);
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
 
@@ -77,7 +79,8 @@ function AppContent() {
     };
     setContacts((prev) => [...prev, newContact]);
     setNewContactId(newContact.id);
-    setCurrentScreen("contacts");
+    setSelectedContactDetails(newContact);
+    setCurrentScreen("contactDetails");
   };
 
   const handleNavigate = (screen: string) => {
@@ -88,7 +91,7 @@ function AppContent() {
     const validScreens: Screen[] = [
       "home", "dashboard", "addCustomer", "customerLedger",
       "merchantDashboard", "analyze", "settings", "addEntry",
-      "pay", "contacts", "autoTransaction", "qrPay",
+      "pay", "contacts", "autoTransaction", "qrPay", "contactDetails",
     ];
     const mapped = screen === "home" ? "dashboard" : screen;
     if (validScreens.includes(mapped as Screen)) {
@@ -150,6 +153,20 @@ function AppContent() {
     );
   }
 
+  if (currentScreen === "contactDetails" && selectedContactDetails) {
+    return (
+      <ContactDetails
+        contact={selectedContactDetails}
+        onBack={() => setCurrentScreen("contacts")}
+        onUpdate={(updated) => {
+          setContacts((prev) => prev.map((c) => c.id === updated.id ? updated : c));
+          setSelectedContactDetails(updated);
+        }}
+        onNavigateToLedger={handleNavigateToCustomerLedger}
+      />
+    );
+  }
+
   if (currentScreen === "contacts") {
     return (
       <>
@@ -157,6 +174,10 @@ function AppContent() {
           contacts={contacts}
           onUpdateContacts={setContacts}
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
+          onNavigateToContactDetails={(contact) => {
+            setSelectedContactDetails(contact);
+            setCurrentScreen("contactDetails");
+          }}
           onNavigate={handleNavigate}
           newContactId={newContactId}
           onNewContactSeen={() => setNewContactId(null)}
@@ -280,12 +301,6 @@ function AppContent() {
           className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
         >
           Connect Pi Wallet
-        </button>
-        <button
-          onClick={handleGuestLogin}
-          className="mt-6 text-[#6A0DAD] dark:text-[#A47CF3] underline hover:no-underline transition-all"
-        >
-          Continue as Guest
         </button>
         <div className="mt-auto pt-12 flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
           <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>

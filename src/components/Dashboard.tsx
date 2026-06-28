@@ -100,14 +100,6 @@ export function Dashboard({
                 </div>
               ))}
             </div>
-            <div className="px-4 py-3 text-center border-t border-gray-50 dark:border-border">
-              <p
-                className="text-xs text-[#A47CF3] cursor-pointer hover:underline"
-                onClick={() => { setShowBell(false); onNavigate("analyze"); }}
-              >
-                View all in Analyze →
-              </p>
-            </div>
           </div>
         </>
       )}
@@ -124,7 +116,7 @@ export function Dashboard({
 
         {/* Recent Entries */}
         <div>
-          <h3 className="text-gray-900 dark:text-foreground mb-4">Recent Entries</h3>
+          <h3 className="text-gray-900 dark:text-foreground mb-4">Recent Transactions</h3>
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border overflow-hidden">
             {recentEntries.map((transaction, index) => (
               <div

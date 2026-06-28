@@ -1,6 +1,7 @@
-import { ArrowLeft, MoreVertical, Plus } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useState } from "react";
 import { AddEntryModal } from "./AddEntryModal";
+import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface Transaction {
   id: string;
@@ -90,9 +91,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
         <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">{customerName}</h2>
-        <button className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
-          <MoreVertical className="w-6 h-6 text-gray-700 dark:text-foreground" />
-        </button>
+        <BookkeepingLogo compact />
       </header>
 
       {/* Scrollable Content */}
@@ -102,17 +101,9 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
           {/* Gradient border effect */}
           <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-br from-[#A47CF3] to-[#F7C548] -z-10" />
           <div className="absolute inset-[2px] bg-white dark:bg-card rounded-2xl -z-10" />
-          
-          <p className="text-gray-500 dark:text-muted-foreground text-sm mb-2">Balance</p>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-3xl font-bold text-gray-900 dark:text-foreground">
-              {Math.abs(balance).toFixed(2)} π
-            </span>
-            <span className="text-sm text-gray-600 dark:text-muted-foreground">Pi</span>
-          </div>
 
           {/* Credit and Debit Summary */}
-          <div className="flex gap-6 pt-4 border-t border-gray-100 dark:border-border">
+          <div className="flex gap-6">
             <div className="flex-1">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Debit</p>
               <p className="text-red-600 dark:text-red-400 font-bold">{totalDebit.toFixed(2)} π</p>
@@ -126,7 +117,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
 
         {/* Recent Transactions Section */}
         <div className="mb-6">
-          <h3 className="text-gray-900 dark:text-foreground mb-4">Recent Entries</h3>
+          <h3 className="text-gray-900 dark:text-foreground mb-4">All Transactions</h3>
 
           {transactions.length === 0 ? (
             <div className="text-center py-12 text-gray-500 dark:text-muted-foreground">
@@ -158,13 +149,6 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
           )}
         </div>
 
-        {/* Settle Balance Button */}
-        <button
-          onClick={handleSettleBalance}
-          className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow"
-        >
-          Settle Balance
-        </button>
       </div>
 
       {/* Floating Action Button */}

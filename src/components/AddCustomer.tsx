@@ -1,5 +1,6 @@
-import { ArrowLeft, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check } from "lucide-react";
 import { useState, useEffect } from "react";
+import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface AddCustomerProps {
   onBack: () => void;
@@ -8,10 +9,14 @@ interface AddCustomerProps {
 }
 
 export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: AddCustomerProps) {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [piWallet, setPiWallet] = useState("");
   const [category, setCategory] = useState<"individual" | "business">(defaultCategory);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
+  const capitalizeFirst = (val: string) =>
+    val.length === 0 ? val : val.charAt(0).toUpperCase() + val.slice(1);
 
   // Detect dark mode dynamically
   const [isDark, setIsDark] = useState(() =>
@@ -26,19 +31,20 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
   }, []);
 
   const handleSave = () => {
-    if (name.trim() && piWallet.trim()) {
+    if (firstName.trim() && lastName.trim() && piWallet.trim()) {
       onSave({
-        name: name.trim(),
+        name: `${firstName.trim()} ${lastName.trim()}`,
         piWallet: piWallet.trim(),
         category,
       });
-      setName("");
+      setFirstName("");
+      setLastName("");
       setPiWallet("");
       setCategory("individual");
     }
   };
 
-  const isValid = name.trim() && piWallet.trim();
+  const isValid = firstName.trim() && lastName.trim() && piWallet.trim();
 
   return (
     <div className="size-full flex flex-col bg-background">
@@ -54,18 +60,13 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
           className="font-medium"
           style={{ color: isDark ? "#ffffff" : "#D32F2F" }}
         >Enter Details</h1>
-        <button
-          onClick={handleSave}
-          disabled={!isValid}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <Check className="w-5 h-5 text-[#D32F2F] dark:text-[#8A2BE2]" />
-        </button>
+        {/* App logo replaces tick mark */}
+        <BookkeepingLogo compact />
       </header>
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto px-6 py-8">
-        {/* Optional Illustration */}
+        {/* Illustration */}
         <div className="flex justify-center mb-8">
           <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-100 to-yellow-100 dark:from-purple-950/30 dark:to-yellow-950/30 flex items-center justify-center">
             <svg className="w-16 h-16 text-[#A47CF3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +78,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
         {/* Form Section */}
         <div className="space-y-6 max-w-md mx-auto">
 
-          {/* Category Dropdown — first */}
+          {/* Category Dropdown */}
           <div>
             <label htmlFor="category" className="block text-gray-700 dark:text-foreground mb-2">
               Category
@@ -120,25 +121,40 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
             </div>
           </div>
 
-          {/* Pioneer Name Input — second */}
+          {/* First Name */}
           <div>
-            <label htmlFor="pioneerName" className="block text-gray-700 dark:text-foreground mb-2">
-              Pioneer
+            <label htmlFor="firstName" className="block text-gray-700 dark:text-foreground mb-2">
+              First Name
             </label>
             <input
-              id="pioneerName"
+              id="firstName"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter Name"
+              value={firstName}
+              onChange={(e) => setFirstName(capitalizeFirst(e.target.value))}
+              placeholder="First Name"
               className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
             />
           </div>
 
-          {/* Public Key Input — third */}
+          {/* Last Name */}
+          <div>
+            <label htmlFor="lastName" className="block text-gray-700 dark:text-foreground mb-2">
+              Last Name
+            </label>
+            <input
+              id="lastName"
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(capitalizeFirst(e.target.value))}
+              placeholder="Last Name"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+            />
+          </div>
+
+          {/* Public Key */}
           <div>
             <label htmlFor="piWallet" className="block text-gray-700 dark:text-foreground mb-2">
-              Public Key <span className="text-red-500">*</span>
+              Public Key
             </label>
             <div className="relative">
               <input
@@ -146,7 +162,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 type="text"
                 value={piWallet}
                 onChange={(e) => setPiWallet(e.target.value)}
-                placeholder="Enter Pi wallet address"
+                placeholder="Pi Wallet Address"
                 className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center">

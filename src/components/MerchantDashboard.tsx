@@ -1,7 +1,6 @@
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  ChevronRight,
   X,
   Clock,
   Wallet,
@@ -293,7 +292,9 @@ export function MerchantDashboard({
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500 dark:text-muted-foreground">Status:</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${merchant.status === "completed" ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400" : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"}`}>{merchant.status}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${merchant.status === "completed" ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400" : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"}`}>
+                        {merchant.status === "completed" ? "Successful" : merchant.status}
+                      </span>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Wallet:</span>
@@ -301,9 +302,8 @@ export function MerchantDashboard({
                     </div>
                     <p className="text-xs text-gray-600 dark:text-muted-foreground">{merchant.description}</p>
                   </div>
-                  <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end gap-1">
+                  <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
                     <span className="text-xs text-[#A47CF3] dark:text-[#8A2BE2]">View Details</span>
-                    <ChevronRight className="w-4 h-4 text-[#A47CF3] dark:text-[#8A2BE2]" />
                   </button>
                 </div>
               ))}
@@ -391,7 +391,7 @@ export function MerchantDashboard({
                     ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400"
                     : "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400"
                     }`}>
-                    {selectedMerchant.status}
+                    {selectedMerchant.status === "completed" ? "Successful" : selectedMerchant.status}
                   </span>
                 </div>
                 {/* Wallet */}
@@ -414,9 +414,9 @@ export function MerchantDashboard({
                     {selectedMerchant.txHash.slice(0, 14)}...
                   </span>
                 </div>
-                {/* Description */}
+                {/* Note/Memo */}
                 <div className="pt-1 border-t border-gray-100 dark:border-border">
-                  <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Description</p>
+                  <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Note/Memo</p>
                   <p className="text-sm text-gray-800 dark:text-foreground">{selectedMerchant.description}</p>
                 </div>
               </div>

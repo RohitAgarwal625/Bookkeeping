@@ -59,22 +59,21 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
 
       {/* ── Add Pioneer Dialog ── */}
       {showPioneerDialog && (
-        <div
-          className="fixed inset-0 z-50 backdrop-blur-md bg-black/40 flex items-center justify-center p-4"
+        <div className="fixed inset-0 z-50 backdrop-blur-md bg-black/40 flex items-center justify-center p-4"
           onClick={closePioneer}
         >
           {/* Relative wrapper — positions card + the outside X button together */}
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            {/* X button OUTSIDE the card boundary on the right */}
+          <div className="relative w-[94vw] max-w-[440px]" onClick={(e) => e.stopPropagation()}>
+            {/* X button OUTSIDE the card boundary — ear style at top-right corner */}
             <button
               onClick={closePioneer}
-              className="absolute -top-3 right-0 translate-x-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+              className="absolute -top-4 -right-4 z-10 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
             >
               <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
             </button>
 
             {/* Card */}
-            <div className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-[90vw] max-w-[380px]">
+            <div className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-full">
               {/* Header — title only, no X inside */}
               <div className="px-5 py-4 border-b border-gray-100 dark:border-border text-center">
                 <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Pioneer</h3>
@@ -146,22 +145,21 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
 
       {/* ── Add Transaction Dialog ── */}
       {showTransactionDialog && (
-        <div
-          className="fixed inset-0 z-50 backdrop-blur-md bg-black/40 flex items-center justify-center p-4"
+        <div className="fixed inset-0 z-50 backdrop-blur-md bg-black/40 flex items-center justify-center p-4"
           onClick={closeTransaction}
         >
           {/* Relative wrapper — positions card + the outside X button together */}
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            {/* X button OUTSIDE the card boundary */}
+          <div className="relative w-[94vw] max-w-[440px]" onClick={(e) => e.stopPropagation()}>
+            {/* X button OUTSIDE the card boundary — ear style at top-right corner */}
             <button
               onClick={closeTransaction}
-              className="absolute -top-3 right-0 translate-x-1/2 z-10 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+              className="absolute -top-4 -right-4 z-10 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
             >
               <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
             </button>
 
             {/* Card */}
-            <div className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-[90vw] max-w-[380px]">
+            <div className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-full">
               {/* Header — title only, no X inside */}
               <div className="px-5 py-4 border-b border-gray-100 dark:border-border text-center">
                 <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Transaction(s)</h3>
@@ -212,7 +210,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Automatic</span>
                   </button>
                   <span className="text-[10px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-2 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
-                    Free · Limited
+                    Free - Limited
                   </span>
                   <button
                     onClick={(e) => { e.stopPropagation(); setAutoTooltip(v => !v); setManualTooltip(false); }}

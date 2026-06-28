@@ -18,6 +18,7 @@ import { useState } from "react";
 import { Switch } from "./ui/switch";
 import { BottomNav } from "./BottomNav";
 import { useDarkMode } from "../contexts/DarkModeContext";
+import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface SettingsProps {
   userName: string;
@@ -461,7 +462,7 @@ export function Settings({
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
         <h2 className="text-[#D32F2F] dark:text-[#8A2BE2] flex-1 text-center">Settings</h2>
-        <div className="w-8" />
+        <BookkeepingLogo compact />
       </header>
 
       {/* Scrollable Content */}

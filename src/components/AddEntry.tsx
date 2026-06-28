@@ -61,7 +61,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
     });
 
     // Show success toast
-    toast.success("Entry added successfully ✅");
+    toast.success("Transaction Saved Successfully");
 
     // Clear form
     setSelectedCustomer("");
@@ -90,7 +90,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
         >
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">Add Transaction</h2>
+        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">Enter Details</h2>
         {/* Pi Logo indicating auto-sync */}
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6F3C97] to-[#A47CF3] flex items-center justify-center shadow-sm">
           <span className="text-white text-xs">π</span>
@@ -218,7 +218,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
           {/* Date and Time Input */}
           <div className="mb-4">
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">
-              Date and Time
+              Date &amp; Time
             </label>
             <div className="flex gap-3">
               <input
@@ -272,7 +272,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
             onClick={handleSaveEntry}
             className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#6F3C97] to-[#A47CF3] text-white shadow-md hover:shadow-lg transition-all active:scale-98"
           >
-            Save Entry
+            Add
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Filter, TrendingUp, Users, Download, Search } from "lucide-react";
+import { Filter, TrendingUp, Users, Download, Search, Info } from "lucide-react";
 import { useState } from "react";
 import {
   BarChart,
@@ -38,6 +38,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
   const [selectedFilter, setSelectedFilter] = useState<"week" | "month" | "custom">("month");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "individual" | "business">("all");
+  const [showCustomerInfo, setShowCustomerInfo] = useState(false);
 
   // Calculate totals
   const totalCredit = monthlyData.reduce((sum, month) => sum + month.credit, 0);
@@ -63,7 +64,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
-        <h2 className="text-[#D32F2F] dark:text-[#8A2BE2]">Analyze</h2>
+        <h2 className="text-[#D32F2F] dark:text-[#8A2BE2]">Analysis</h2>
         <button className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <Filter className="w-5 h-5 text-gray-700 dark:text-foreground" />
         </button>
@@ -106,11 +107,8 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
               Individual
             </button>
             <button
-              onClick={() => setFilterType("business")}
-              className={`px-4 py-2 rounded-full text-xs whitespace-nowrap transition-all ${filterType === "business"
-                ? "bg-[#A47CF3] text-white"
-                : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
-                }`}
+              disabled
+              className="px-4 py-2 rounded-full text-xs whitespace-nowrap bg-white dark:bg-card text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-border opacity-60 cursor-not-allowed"
             >
               Business
             </button>
@@ -199,6 +197,18 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
             <h3 className="text-gray-900 dark:text-foreground">Top Customers</h3>
+            <button
+              onClick={() => setShowCustomerInfo(v => !v)}
+              className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+              aria-label="Customer info"
+            >
+              <Info className="w-3 h-3 text-gray-400" />
+            </button>
+            {showCustomerInfo && (
+              <span className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-2 py-0.5 rounded-full border border-purple-100 dark:border-purple-800/30">
+                {filteredCustomers.length} Pioneer{filteredCustomers.length !== 1 ? "s" : ""}
+              </span>
+            )}
           </div>
           <div className="space-y-3">
             {filteredCustomers.map((customer, index) => (

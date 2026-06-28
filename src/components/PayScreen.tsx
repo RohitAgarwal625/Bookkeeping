@@ -212,7 +212,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
 
-        <p className="text-white/70 text-sm font-medium mt-1">Send to someone</p>
+        <p className="text-white/70 text-sm font-medium mt-1">Payment Details</p>
         <h1 className="text-white text-2xl font-bold mt-1">Make a Payment</h1>
       </div>
 
@@ -221,7 +221,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
 
         {/* Pay To */}
         <div className="mt-6 mb-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Paying To</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Pioneer</p>
 
           {selectedName ? (
             <div className="flex items-center justify-between bg-gradient-to-r from-purple-50 to-amber-50 dark:from-[#1e1633] dark:to-[#1e1a10] border border-purple-200 dark:border-purple-800/50 rounded-2xl px-4 py-3.5 shadow-sm">
@@ -294,7 +294,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="0"
+              placeholder="0.0000001"
               className="bg-transparent text-center font-black text-gray-900 dark:text-white outline-none w-full placeholder-gray-200 dark:placeholder-gray-800 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none leading-none"
               style={{ fontSize: "clamp(5rem, 22vw, 8rem)" }}
             />
