@@ -1,4 +1,4 @@
-import { Filter, TrendingUp, Users, Download, Search, Info } from "lucide-react";
+import { TrendingUp, Users, Download, Search, Info } from "lucide-react";
 import { useState } from "react";
 import {
   BarChart,
@@ -43,7 +43,6 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
   // Calculate totals
   const totalCredit = monthlyData.reduce((sum, month) => sum + month.credit, 0);
   const totalDebit = monthlyData.reduce((sum, month) => sum + month.debit, 0);
-  const netBalance = totalCredit - totalDebit;
 
   // Filter customers based on search query and category
   const filteredCustomers = topCustomers.filter((customer) => {
@@ -62,13 +61,6 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
 
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-      {/* Header */}
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
-        <h2 className="text-[#D32F2F] dark:text-[#8A2BE2]">Analysis</h2>
-        <button className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
-          <Filter className="w-5 h-5 text-gray-700 dark:text-foreground" />
-        </button>
-      </header>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
@@ -143,22 +135,6 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
             <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1">Pi received</p>
           </div>
 
-          {/* Net Balance Card */}
-          <div className="min-w-[280px] bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border-2 dark:border-[#8A2BE2]/30 p-5 relative overflow-hidden">
-            {/* Gradient border effect */}
-            <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-br from-[#A47CF3] to-[#F7C548] -z-10" />
-            <div className="absolute inset-[2px] bg-white dark:bg-card rounded-2xl -z-10" />
-
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548]" />
-              <p className="text-gray-600 dark:text-muted-foreground text-sm">Net Balance</p>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl text-gray-900 dark:text-foreground">{netBalance.toFixed(2)}</span>
-              <span className="text-2xl text-gray-900 dark:text-foreground">π</span>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1">Current balance</p>
-          </div>
         </div>
 
         {/* Category Filters */}

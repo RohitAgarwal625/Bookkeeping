@@ -293,7 +293,11 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
             <input
               type="number"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "" || Number(val) >= 0) setAmount(val);
+              }}
+              min="0"
               placeholder="0.0000001"
               className="bg-transparent text-center font-black text-gray-900 dark:text-white outline-none w-full placeholder-gray-200 dark:placeholder-gray-800 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none leading-none"
               style={{ fontSize: "clamp(5rem, 22vw, 8rem)" }}
