@@ -1,6 +1,6 @@
 import { ArrowLeft, BookOpen, Check, X, Pencil } from "lucide-react";
 import { useState } from "react";
-import { Contact } from "../types";
+import { Contact, getInitials } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface ContactDetailsProps {
@@ -63,7 +63,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
         {/* Avatar */}
         <div className="flex justify-center mb-8">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg">
-            <span className="text-white text-2xl font-bold">{displayName.charAt(0).toUpperCase()}</span>
+            <span className="text-white text-2xl font-bold">{getInitials(displayName)}</span>
           </div>
         </div>
 

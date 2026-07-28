@@ -2,6 +2,8 @@ import { Bell, X, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { BalanceCard } from "./BalanceCard";
 import { BottomNav } from "./BottomNav";
+import { BookkeepingLogo } from "./BookkeepingLogo";
+import { getInitials } from "../types";
 
 interface DashboardProps {
   userName: string;
@@ -63,9 +65,7 @@ export function Dashboard({
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
             )}
           </button>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-sm">π</span>
-          </div>
+          <BookkeepingLogo compact />
         </div>
       </header>
 
@@ -126,7 +126,7 @@ export function Dashboard({
                   }`}
               >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-semibold">{transaction.customerName.charAt(0)}</span>
+                  <span className="text-white text-sm font-semibold">{getInitials(transaction.customerName)}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">

@@ -9,6 +9,18 @@ export interface Contact {
   totalDebit: number;
 }
 
+/**
+ * Generate display-picture initials from a full name.
+ * Uses the FIRST and LAST name initials (e.g. "Rahul Verma" -> "RV").
+ * Falls back to a single initial when only one name part is present.
+ */
+export function getInitials(fullName: string): string {
+  const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "";
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
 export const initialContacts: Contact[] = [
   {
     id: "1",

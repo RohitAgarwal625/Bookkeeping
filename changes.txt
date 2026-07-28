@@ -1,0 +1,87 @@
+
+
+
+
+Dashboard Screen
+
+ I do not want grey colour border for History section or for Analysis section , I want if any of them is selected that entire part should be white , it should  look like it merged with the rest of the section . Also remove the grey line below History as an Analysis section
+
+I want to add a rounded toggle switch for Individual and Business
+
+
+History Section
+- for each transaction on outside show Status , Date , Note ,when user clicks on View Details  show Status , Date , Public key instead of  Pi Wallet , Tx ID instead of Tx Hash  , Note/Memo  , remove Total Credited , Total Debited and Open Ledger  from there
+- As told earlier , in History section also initials of first and last name will come in the dp (display picture) , right now only first name comes
+
+Analysis Section
+- Grey out Business button as it is disabled
+- Match "All , Individual , Business" button size similar to This week , This Month , Custom
+-  Add a heading  Pioneer Details in left side above Search bar
+- Rename Search from Pioneer to Search to from Contacts
+
+Home Contacts Pay Dashboard Settings  (bottom nav bar)
+
+* Add "Pay" below QR code button .
+* remove QR code icon and add  Pi icon of Pi network
+* add a white border on this nav bar and rounded corners on both sides
+
+Contacts
+
+* Use initials of first name and last name for generating dp ( display picture) , right now you are only showing first name initial  and apply it everywhere
+* Interchange the position of business/individual and Details and also remove logo beside Details
+* add bookkeeping logo on top right corner
+* Move Heading Contacts at the center of the screen
+Fix search bar , magnifying  glass is overlapping with search contacts and also change Search Contacts to Search from Contacts
+
+Home Screen
+
+* when I click on Add Pioneer , a modal appears for indivdual and business , when i click on info button ,modal width expands , I want that same modal width to remain before clicking on the box , means at every state i want that modal width only .
+* Same I want for Add Transaction
+* Cross button to be positioned to right outer corner side of the screen of modal box of Add Pioneer and Add Transaction
+* remove Pi icon on top right and add bookkeeping logo over there
+
+
+Add Pioneer Screen
+- Change First name to Full Name and remove Last name word
+- rename Save Pioneer to Save
+- change the Pi icon in Pi Wallet Address button to white tick mark which will be used for validation of Pi Wallet Address, if validation is successful then its colour will change to purple
+- Add a functionality in which first the Save button is disabled and Validate button is there , when user enter all details and clicks on Validate , it will validate if the Wallet Address is of Pi Blockchain or not , if it is valid then Validate button will change to Save button and user can click on Save to save the Pioneer details , if it is invalid then show a popup with message "Invalid Pi Wallet Address" and keep Validate button there only .
+
+
+Read changes.txt  and first ask if you have any queries and do not proceed until I allow .
+
+
+
+
+
+
+
+| Page / Module | Change Details |
+| --- | --- |
+| Dashboard | Change inactive History and Analysis tab colors to off-white style | 
+| Dashboard | Remove arrows from Dashboard History section |
+| Dashboard | Grey out Business section in Analysis |
+| Analysis | Add information button beside Top Customers showing number of transactions | 
+| Contacts List | Change "Entries" terminology to "Transactions" | -- Done 
+| Contacts List | Remove separator/bar design element | -- Done 
+| Contacts List | Replace 3-dot menu icon with bookkeeping logo | -- Done 
+| Open Ledger | Remove Balance display | -- Done 
+| Open Ledger | Remove Settle Balance option | -- Done 
+| Open Ledger | Rename Recent Entries to All Transactions | -- Done 
+| History | Change Completed status text to Successful |
+| History | Change Description field name to Note/Memo |  -- Done 
+| Add Pioneer | Change "Enter Pi wallet address" to "Pi Wallet Address" | -- Done 
+| Add Pioneer | Remove star symbol from Public Key field | -- Done
+| Add Pioneer | Replace tick mark with application logo | -- Done
+| Add Pioneer | Change Free Limited text to "Free - Limited" | -- Done
+| Add Pioneer | Auto-capitalize first letter of First Name and Last Name | -- Done
+| Manual Transaction | Change Date and Time label to Date & Time |. -- Done
+| Manual Transaction | Change Save Entry button text to Add |  -- Done
+| Manual Transaction | Change Add Transaction heading to Enter Details | -- Done
+| Manual Transaction | Change Transaction saved message |
+| Pay | Replace "Send to Someone" with "Payment Details" |. -- Done
+| Pay | Change Paying To text to Pioneer |.  - Done
+| Pay | Update amount format from 0 to 0.0000001 | -- Done
+| Settings | Add application logo inside Settings section | -- Done
+| Contacts List | Recent Entries to All transactions in Contacts open ledger for specific pioneer | -- Done
+| General UI | Restore Continue as Guest from loading page |

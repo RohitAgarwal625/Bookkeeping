@@ -144,7 +144,7 @@ function AppContent() {
       <>
         <PayScreen
           onBack={handleBackToDashboard}
-          contacts={contactNames}
+          contacts={contacts}
           prefilledAddress={scannedWalletAddress}
           onAddressUsed={() => setScannedWalletAddress("")}
         />
@@ -301,6 +301,12 @@ function AppContent() {
           className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
         >
           Connect Pi Wallet
+        </button>
+        <button
+          onClick={handleGuestLogin}
+          className="mt-6 text-[#6A0DAD] dark:text-[#A47CF3] underline hover:no-underline transition-all"
+        >
+          Continue as Guest
         </button>
         <div className="mt-auto pt-12 flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
           <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>

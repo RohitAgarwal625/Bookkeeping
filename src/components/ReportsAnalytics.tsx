@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { BottomNav } from "./BottomNav";
+import { getInitials } from "../types";
 
 interface ReportsAnalyticsProps {
   onNavigate: (screen: string) => void;
@@ -66,23 +67,25 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
         {/* Search & Filter Section */}
         <div className="mb-6">
+          {/* Section heading */}
+          <h3 className="text-gray-900 dark:text-foreground font-semibold mb-3">Pioneer Details</h3>
           {/* Search Bar */}
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search Pioneer..."
+              placeholder="Search from Contacts"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
             />
           </div>
 
-          {/* Filter Chips */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {/* Filter Chips — sized to match the This Week / This Month / Custom chips */}
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             <button
               onClick={() => setFilterType("all")}
-              className={`px-4 py-2 rounded-full text-xs whitespace-nowrap transition-all ${filterType === "all"
+              className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${filterType === "all"
                 ? "bg-[#A47CF3] text-white"
                 : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
                 }`}
@@ -91,7 +94,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
             </button>
             <button
               onClick={() => setFilterType("individual")}
-              className={`px-4 py-2 rounded-full text-xs whitespace-nowrap transition-all ${filterType === "individual"
+              className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${filterType === "individual"
                 ? "bg-[#A47CF3] text-white"
                 : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
                 }`}
@@ -100,7 +103,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
             </button>
             <button
               disabled
-              className="px-4 py-2 rounded-full text-xs whitespace-nowrap bg-white dark:bg-card text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-border opacity-60 cursor-not-allowed"
+              className="px-5 py-2 rounded-full text-sm whitespace-nowrap bg-gray-100 dark:bg-secondary text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-border opacity-60 cursor-not-allowed"
             >
               Business
             </button>
@@ -193,7 +196,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
                   {/* Profile Icon */}
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
                     <span className="text-white text-sm">
-                      {customer.name.charAt(0)}
+                      {getInitials(customer.name)}
                     </span>
                   </div>
 

@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import {
   Search,
   X,
-  BookOpen,
   Building2,
   User,
 } from "lucide-react";
-import { Contact } from "../types";
+import { Contact, getInitials } from "../types";
 import { BottomNav } from "./BottomNav";
+import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface ContactsScreenProps {
   contacts: Contact[];
@@ -60,15 +60,21 @@ export function ContactsScreen({
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 border-b border-gray-200 dark:border-border z-10 relative">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-foreground mb-4">Contacts</h1>
+        <div className="flex items-center mb-4">
+          <div className="w-8 flex-shrink-0" />
+          <h1 className="flex-1 text-xl font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
+          <div className="flex-shrink-0">
+            <BookkeepingLogo compact />
+          </div>
+        </div>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
             type="text"
-            placeholder="Search contacts…"
+            placeholder="Search from Contacts"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -127,7 +133,7 @@ export function ContactsScreen({
                                 <Building2 className="w-5 h-5 text-white" />
                               ) : (
                                 <span className="text-white font-bold text-base">
-                                  {contact.name[0].toUpperCase()}
+                                  {getInitials(contact.name)}
                                 </span>
                               )}
                             </div>
@@ -143,19 +149,18 @@ export function ContactsScreen({
                                   </span>
                                 )}
                               </div>
-                              <p className="text-gray-400 dark:text-muted-foreground text-xs mt-0.5 capitalize">
-                                {contact.category}
-                              </p>
+                              {/* Details now sits under the name (logo removed) */}
+                              <span className="text-[11px] text-[#A47CF3] font-medium mt-0.5 inline-block">Details</span>
                             </div>
 
                             <div className="text-right flex-shrink-0">
                               <p className={`text-sm font-bold ${balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
                                 {balance >= 0 ? "+" : ""}{balance.toFixed(2)} π
                               </p>
-                              <div className="flex items-center justify-end gap-1 mt-1">
-                                <BookOpen className="w-3 h-3 text-[#A47CF3]" />
-                                <span className="text-[10px] text-[#A47CF3] font-medium">Details</span>
-                              </div>
+                              {/* Category now sits under the balance */}
+                              <p className="text-gray-400 dark:text-muted-foreground text-xs mt-1 capitalize">
+                                {contact.category}
+                              </p>
                             </div>
                           </div>
                         </div>

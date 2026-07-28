@@ -1,6 +1,4 @@
 import {
-  ArrowDownLeft,
-  ArrowUpRight,
   X,
   Clock,
   Wallet,
@@ -15,6 +13,7 @@ import {
 import { useState } from "react";
 import { BottomNav } from "./BottomNav";
 import { ReportsAnalytics } from "./ReportsAnalytics";
+import { getInitials } from "../types";
 
 interface MerchantDashboardProps {
   userName: string;
@@ -207,24 +206,24 @@ export function MerchantDashboard({
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-3 border-b border-transparent dark:border-border">
-        <div className="flex bg-gray-100 dark:bg-secondary p-1 rounded-xl shadow-inner">
+      <header className="bg-white dark:bg-card">
+        <div className="flex">
           <button
             onClick={() => setActiveView("history")}
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "history"
-                ? "bg-white dark:bg-card text-[#A47CF3] shadow"
-                : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+                ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
+                : "text-gray-400 dark:text-muted-foreground bg-gray-50 dark:bg-secondary/40"
             }`}
           >
             <History className="w-4 h-4" /> History
           </button>
           <button
             onClick={() => setActiveView("analysis")}
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "analysis"
-                ? "bg-white dark:bg-card text-[#A47CF3] shadow"
-                : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+                ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
+                : "text-gray-400 dark:text-muted-foreground bg-gray-50 dark:bg-secondary/40"
             }`}
           >
             <BarChart2 className="w-4 h-4" /> Analysis
@@ -243,11 +242,11 @@ export function MerchantDashboard({
         {/* ── History View ── */}
         {activeView === "history" && (
           <>
-            {/* Category Toggle */}
-            <div className="flex bg-gray-100 dark:bg-secondary p-1 rounded-xl mb-6 shadow-inner">
+            {/* Individual / Business — rounded segmented toggle */}
+            <div className="flex bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto">
               <button
                 onClick={() => setActiveCategory("individual")}
-                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${
                   activeCategory === "individual"
                     ? "bg-white dark:bg-card text-[#A47CF3] shadow"
                     : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
@@ -257,7 +256,7 @@ export function MerchantDashboard({
               </button>
               <button
                 onClick={() => setActiveCategory("business")}
-                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${
                   activeCategory === "business"
                     ? "bg-white dark:bg-card text-[#A47CF3] shadow"
                     : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
@@ -277,32 +276,35 @@ export function MerchantDashboard({
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-medium">{merchant.merchantName.charAt(0)}</span>
+                        <span className="text-white font-medium">{getInitials(merchant.merchantName)}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-gray-900 dark:text-foreground font-medium truncate">{merchant.merchantName}</p>
                         <p className="text-xs text-gray-500 dark:text-muted-foreground">{merchant.date}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      {merchant.type === "credit" ? <ArrowDownLeft className="w-4 h-4 text-green-600 dark:text-green-400" /> : <ArrowUpRight className="w-4 h-4 text-red-600 dark:text-red-400" />}
-                      <span className={`font-medium ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                        {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} π
-                      </span>
-                    </div>
+                    <span className={`font-medium ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                      {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} π
+                    </span>
                   </div>
                   <div className="space-y-1.5">
+                    {/* Status */}
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500 dark:text-muted-foreground">Status:</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${merchant.status === "completed" ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400" : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"}`}>
                         {merchant.status === "completed" ? "Successful" : merchant.status}
                       </span>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Wallet:</span>
-                      <span className="text-xs text-gray-700 dark:text-gray-300 font-mono truncate">{merchant.piWalletAddress.slice(0, 10)}...{merchant.piWalletAddress.slice(-8)}</span>
+                    {/* Date */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 dark:text-muted-foreground">Date:</span>
+                      <span className="text-xs text-gray-700 dark:text-gray-300">{merchant.date}</span>
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-muted-foreground">{merchant.description}</p>
+                    {/* Note */}
+                    <div className="flex items-start gap-2">
+                      <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Note:</span>
+                      <span className="text-xs text-gray-600 dark:text-muted-foreground">{merchant.description}</span>
+                    </div>
                   </div>
                   <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
                     <span className="text-xs text-[#A47CF3] dark:text-[#8A2BE2]">View Details</span>
@@ -349,7 +351,7 @@ export function MerchantDashboard({
               <div className="flex flex-col items-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3">
                   <span className="text-white text-2xl font-bold">
-                    {selectedMerchant.merchantName.charAt(0)}
+                    {getInitials(selectedMerchant.merchantName)}
                   </span>
                 </div>
                 <h4 className="text-gray-900 dark:text-foreground font-bold text-xl">
@@ -396,21 +398,21 @@ export function MerchantDashboard({
                     {selectedMerchant.status === "completed" ? "Successful" : selectedMerchant.status}
                   </span>
                 </div>
-                {/* Wallet */}
+                {/* Public Key */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <Wallet className="w-4 h-4 text-[#A47CF3]" />
-                    <span className="text-xs text-gray-500 dark:text-muted-foreground">Pi Wallet</span>
+                    <span className="text-xs text-gray-500 dark:text-muted-foreground">Public Key</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono truncate max-w-[180px]">
                     {selectedMerchant.piWalletAddress.slice(0, 10)}...{selectedMerchant.piWalletAddress.slice(-8)}
                   </span>
                 </div>
-                {/* Tx Hash */}
+                {/* Tx ID */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <Hash className="w-4 h-4 text-[#A47CF3]" />
-                    <span className="text-xs text-gray-500 dark:text-muted-foreground">Tx Hash</span>
+                    <span className="text-xs text-gray-500 dark:text-muted-foreground">Tx ID</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono">
                     {selectedMerchant.txHash.slice(0, 14)}...
@@ -422,29 +424,6 @@ export function MerchantDashboard({
                   <p className="text-sm text-gray-800 dark:text-foreground">{selectedMerchant.description}</p>
                 </div>
               </div>
-
-              {/* Account Summary */}
-              <div className="flex gap-3 mb-5">
-                <div className="flex-1 bg-green-50 dark:bg-green-950/20 rounded-xl p-3 border border-green-100 dark:border-green-900/30 text-center">
-                  <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Credited</p>
-                  <p className="text-green-600 dark:text-green-400 font-bold">{selectedMerchant.totalCredit.toFixed(2)} π</p>
-                </div>
-                <div className="flex-1 bg-red-50 dark:bg-red-950/20 rounded-xl p-3 border border-red-100 dark:border-red-900/30 text-center">
-                  <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Debited</p>
-                  <p className="text-red-600 dark:text-red-400 font-bold">{selectedMerchant.totalDebit.toFixed(2)} π</p>
-                </div>
-              </div>
-
-              {/* Open Full Ledger Button */}
-              <button
-                onClick={() => {
-                  setSelectedMerchant(null);
-                  onNavigateToCustomerLedger(selectedMerchant.merchantName);
-                }}
-                className="w-full mt-5 py-3 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white font-semibold shadow-md hover:shadow-lg transition-shadow"
-              >
-                Open Full Ledger
-              </button>
             </div>
           </div>
         </div>

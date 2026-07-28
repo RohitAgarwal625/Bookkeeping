@@ -1,0 +1,8 @@
+
+| Page / Module | Change Details |
+| Dashboard | Expand the inactive History/Analysis tab to full corners , not in a box , for eg History is selected and Analysis is not , then Analysis tab greyed out area should be till it's corners , right now it is in a box   | 
+| Dashboard | Remove arrows from Dashboard History section |
+| Dashboard | Disable/Grey out Business section in Analysis |
+| Analysis | Add information button beside Top Customers showing number of transactions | 
+| Manual Transaction | Change Transaction saved UI pop up message |
+| General UI | Restore Continue as Guest from loading page , earlier it was there you can check in git history if you want |

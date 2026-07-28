@@ -62,8 +62,8 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
         <div className="fixed inset-0 z-50 backdrop-blur-md bg-black/40 flex items-center justify-center p-4"
           onClick={closePioneer}
         >
-          {/* Relative wrapper — positions card + the outside X button together */}
-          <div className="relative w-[94vw] max-w-[440px]" onClick={(e) => e.stopPropagation()}>
+          {/* Relative wrapper — fixed width so the modal never resizes when tooltip opens */}
+          <div className="relative w-[340px]" onClick={(e) => e.stopPropagation()}>
             {/* X button OUTSIDE the card boundary — ear style at top-right corner */}
             <button
               onClick={closePioneer}
@@ -84,7 +84,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
               <div className="px-6 pb-6 pt-5 flex items-start gap-0">
 
                 {/* Individual */}
-                <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex-1 flex flex-col items-center gap-2 relative">
                   <button
                     onClick={() => { closePioneer(); onAddCustomer("individual"); }}
                     className="flex flex-col items-center gap-2 group"
@@ -102,7 +102,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     <Info className="w-3 h-3 text-gray-400" />
                   </button>
                   {pioneerTooltip === "individual" && (
-                    <div className="bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 z-30 bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center shadow-lg">
                       <p className="font-semibold text-[#A47CF3] mb-1">Individual</p>
                       Add and Save Contact name with Pi Wallet Address.
                     </div>
@@ -113,7 +113,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                 <div className="w-px bg-gray-100 dark:bg-border mx-6 self-stretch mt-1 mb-1 flex-shrink-0" />
 
                 {/* Business — disabled */}
-                <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex-1 flex flex-col items-center gap-2 relative">
                   <div className="flex flex-col items-center gap-2 opacity-50 pointer-events-none">
                     <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-secondary flex items-center justify-center shadow-sm">
                       <Briefcase className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
@@ -131,7 +131,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     <Info className="w-3 h-3 text-gray-400" />
                   </button>
                   {pioneerTooltip === "business" && (
-                    <div className="bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 z-30 bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center shadow-lg">
                       <p className="font-semibold text-amber-500 mb-1">Business</p>
                       Coming soon. For business entities.
                     </div>
@@ -148,8 +148,8 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
         <div className="fixed inset-0 z-50 backdrop-blur-md bg-black/40 flex items-center justify-center p-4"
           onClick={closeTransaction}
         >
-          {/* Relative wrapper — positions card + the outside X button together */}
-          <div className="relative w-[94vw] max-w-[440px]" onClick={(e) => e.stopPropagation()}>
+          {/* Relative wrapper — fixed width so the modal never resizes when tooltip opens */}
+          <div className="relative w-[340px]" onClick={(e) => e.stopPropagation()}>
             {/* X button OUTSIDE the card boundary — ear style at top-right corner */}
             <button
               onClick={closeTransaction}
@@ -170,7 +170,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
               <div className="px-6 pb-6 pt-5 flex items-start gap-0">
 
                 {/* Manual */}
-                <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex-1 flex flex-col items-center gap-2 relative">
                   <button
                     onClick={() => { closeTransaction(); onAddEntry(); }}
                     className="flex flex-col items-center gap-2 group"
@@ -188,7 +188,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     <Info className="w-3 h-3 text-gray-400" />
                   </button>
                   {manualTooltip && (
-                    <div className="bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 z-30 bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center shadow-lg">
                       <p className="font-semibold text-[#A47CF3] mb-1">Manual</p>
                       Recommended for adding one or few missing transaction(s) one by one. Repeat this step to add more than one transaction.
                     </div>
@@ -199,7 +199,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                 <div className="w-px bg-gray-100 dark:bg-border mx-6 self-stretch mt-1 mb-1 flex-shrink-0" />
 
                 {/* Automatic */}
-                <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex-1 flex flex-col items-center gap-2 relative">
                   <button
                     onClick={() => { closeTransaction(); onAutoEntry(); }}
                     className="flex flex-col items-center gap-2 group"
@@ -210,7 +210,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Automatic</span>
                   </button>
                   <span className="text-[10px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-2 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
-                    Free - Limited
+                    Free·Limited
                   </span>
                   <button
                     onClick={(e) => { e.stopPropagation(); setAutoTooltip(v => !v); setManualTooltip(false); }}
@@ -220,7 +220,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     <Info className="w-3 h-3 text-gray-400" />
                   </button>
                   {autoTooltip && (
-                    <div className="bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 z-30 bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center shadow-lg">
                       <p className="font-semibold text-amber-500 mb-1">Automatic</p>
                       Recommended for adding multiple transactions all at once. This option is free for limited time only.
                     </div>

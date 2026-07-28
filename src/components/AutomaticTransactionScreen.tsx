@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, CheckCircle, CalendarDays, Search, X } from "lucide-react";
-import { Contact } from "../types";
+import { Contact, getInitials } from "../types";
 
 interface AutomaticTransactionScreenProps {
   contacts: Contact[];
@@ -107,7 +107,7 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
         <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-6">
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-5 flex items-center gap-3">
             <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold">{selectedContact?.name.charAt(0)}</span>
+              <span className="text-white font-bold">{getInitials(selectedContact?.name ?? "")}</span>
             </div>
             <div>
               <p className="text-xs text-gray-500 dark:text-muted-foreground">Fetching for</p>
@@ -165,7 +165,7 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
             <button key={contact.id} onClick={() => { setSelectedContact(contact); setStep("dateRange"); }}
               className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A2BE2]/40 transition-all text-left">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold">{contact.name.charAt(0)}</span>
+                <span className="text-white font-bold">{getInitials(contact.name)}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-gray-900 dark:text-foreground font-medium truncate">{contact.name}</p>

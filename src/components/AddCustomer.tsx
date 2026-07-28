@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronDown, Check } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
@@ -15,8 +15,13 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
   const [category, setCategory] = useState<"individual" | "business">(defaultCategory);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
-  const capitalizeFirst = (val: string) =>
-    val.length === 0 ? val : val.charAt(0).toUpperCase() + val.slice(1);
+  // Pi-wallet validation flow state
+  const [isValidated, setIsValidated] = useState(false);
+  const [showInvalidPopup, setShowInvalidPopup] = useState(false);
+
+  const capitalizeWords = (val: string) =>
+    val.replace(/\b\w/g, (c) => c.toUpperCase());
+
 
   // Detect dark mode dynamically
   const [isDark, setIsDark] = useState(() =>
@@ -30,10 +35,32 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
     return () => observer.disconnect();
   }, []);
 
+  // Reset validation whenever the wallet address changes
+  const handleWalletChange = (val: string) => {
+    setPiWallet(val);
+    if (isValidated) setIsValidated(false);
+  };
+
+  const handleValidate = () => {
+    // ── DUMMY VALIDATION ─────────────────────────────────────────────────
+    // TODO: Replace with a real call to the Pi blockchain TESTNET RPC server
+    //       (Horizon style: GET https://api.testnet.minepi.com/accounts/{address})
+    //       to verify the wallet address actually exists on the Pi network.
+    //       For now we only run a lightweight check so the UI flow is demoable.
+    const address = piWallet.trim();
+    const isValidPiAddress = address.length >= 8; // dummy rule — replace with RPC result
+    if (isValidPiAddress) {
+      setIsValidated(true);
+    } else {
+      setShowInvalidPopup(true);
+    }
+  };
+
   const handleSave = () => {
-    if (firstName.trim() && lastName.trim() && piWallet.trim()) {
+    if (!isValidated) return;
+    if (firstName.trim() && piWallet.trim()) {
       onSave({
-        name: `${firstName.trim()} ${lastName.trim()}`,
+        name: lastName.trim() ? `${firstName.trim()} ${lastName.trim()}` : firstName.trim(),
         piWallet: piWallet.trim(),
         category,
       });
@@ -41,10 +68,11 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
       setLastName("");
       setPiWallet("");
       setCategory("individual");
+      setIsValidated(false);
     }
   };
 
-  const isValid = firstName.trim() && lastName.trim() && piWallet.trim();
+  const allFieldsFilled = Boolean(firstName.trim() && piWallet.trim());
 
   return (
     <div className="size-full flex flex-col bg-background">
@@ -121,31 +149,28 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
             </div>
           </div>
 
-          {/* First Name */}
+          {/* Full Name */}
           <div>
             <label htmlFor="firstName" className="block text-gray-700 dark:text-foreground mb-2">
-              First Name
+              Full Name
             </label>
             <input
               id="firstName"
               type="text"
               value={firstName}
-              onChange={(e) => setFirstName(capitalizeFirst(e.target.value))}
-              placeholder="First Name"
+              onChange={(e) => setFirstName(capitalizeWords(e.target.value))}
+              placeholder="Full Name"
               className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
             />
           </div>
 
-          {/* Last Name */}
+          {/* Last Name — no label, placeholder only */}
           <div>
-            <label htmlFor="lastName" className="block text-gray-700 dark:text-foreground mb-2">
-              Last Name
-            </label>
             <input
               id="lastName"
               type="text"
               value={lastName}
-              onChange={(e) => setLastName(capitalizeFirst(e.target.value))}
+              onChange={(e) => setLastName(capitalizeWords(e.target.value))}
               placeholder="Last Name"
               className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
             />
@@ -161,24 +186,41 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 id="piWallet"
                 type="text"
                 value={piWallet}
-                onChange={(e) => setPiWallet(e.target.value)}
+                onChange={(e) => handleWalletChange(e.target.value)}
                 placeholder="Pi Wallet Address"
                 className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center">
-                <span className="text-white text-xs">π</span>
+              {/* Validation tick — white by default, turns purple once validated */}
+              <div
+                className={`absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                  isValidated
+                    ? "bg-white border-2 border-[#A47CF3]"
+                    : "bg-gray-300 dark:bg-gray-600"
+                }`}
+                title={isValidated ? "Pi Wallet Address validated" : "Not validated yet"}
+              >
+                <Check className={`w-4 h-4 ${isValidated ? "text-[#A47CF3]" : "text-white"}`} />
               </div>
             </div>
           </div>
 
-          {/* Save Button */}
-          <button
-            onClick={handleSave}
-            disabled={!isValid}
-            className="w-full py-4 px-6 mt-8 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Save Pioneer
-          </button>
+          {/* Validate / Save Button */}
+          {isValidated ? (
+            <button
+              onClick={handleSave}
+              className="w-full py-4 px-6 mt-8 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
+            >
+              Save
+            </button>
+          ) : (
+            <button
+              onClick={handleValidate}
+              disabled={!allFieldsFilled}
+              className="w-full py-4 px-6 mt-8 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Validate
+            </button>
+          )}
         </div>
 
         {/* Footer Note */}
@@ -188,6 +230,33 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
           </p>
         </div>
       </div>
+
+      {/* ── Invalid Pi Wallet Address Popup ── */}
+      {showInvalidPopup && (
+        <div
+          className="fixed inset-0 z-50 backdrop-blur-md bg-black/40 flex items-center justify-center p-4"
+          onClick={() => setShowInvalidPopup(false)}
+        >
+          <div
+            className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-[88vw] max-w-[360px] p-6 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center">
+              <X className="w-6 h-6 text-red-500" />
+            </div>
+            <h3 className="font-semibold text-gray-900 dark:text-foreground mb-1">Invalid Pi Wallet Address</h3>
+            <p className="text-xs text-gray-500 dark:text-muted-foreground mb-5">
+              The address you entered could not be validated on the Pi network. Please check and try again.
+            </p>
+            <button
+              onClick={() => setShowInvalidPopup(false)}
+              className="w-full py-3 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

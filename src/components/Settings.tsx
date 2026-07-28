@@ -19,6 +19,7 @@ import { Switch } from "./ui/switch";
 import { BottomNav } from "./BottomNav";
 import { useDarkMode } from "../contexts/DarkModeContext";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { getInitials } from "../types";
 
 interface SettingsProps {
   userName: string;
@@ -159,7 +160,7 @@ export function Settings({
           {/* Profile Avatar */}
           <div className="flex flex-col items-center gap-3">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg overflow-hidden">
-              <span className="text-white text-2xl">{displayName.charAt(0)}</span>
+              <span className="text-white text-2xl">{getInitials(displayName)}</span>
             </div>
           </div>
 
@@ -471,7 +472,7 @@ export function Settings({
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-6 mb-6">
           <div className="flex flex-col items-center mb-4">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3 overflow-hidden">
-              <span className="text-white text-2xl">{displayName.charAt(0)}</span>
+              <span className="text-white text-2xl">{getInitials(displayName)}</span>
             </div>
 
             <h3 className="text-gray-900 dark:text-foreground mb-1">{displayName}</h3>

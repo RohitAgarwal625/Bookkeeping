@@ -1,6 +1,7 @@
-import { ArrowLeft, CheckCircle, RefreshCw, ExternalLink, Search, X, Hash } from "lucide-react";
+import { ArrowLeft, CheckCircle, RefreshCw, ExternalLink, Search, X, Hash, Check } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
+import { getInitials } from "../types";
 
 interface AddEntryProps {
   onBack: () => void;
@@ -25,6 +26,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
   const [time, setTime] = useState("");
   const [txHash, setTxHash] = useState("");
   const [note, setNote] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
   const nameInputRef = useRef<HTMLDivElement>(null);
 
   const filteredCustomers = savedCustomers.filter((c) =>
@@ -60,8 +62,8 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
       note,
     });
 
-    // Show success toast
-    toast.success("Transaction Saved Successfully");
+    // Show full-screen success overlay
+    setShowSuccess(true);
 
     // Clear form
     setSelectedCustomer("");
@@ -74,11 +76,36 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
     setTransactionType("credit");
 
     // In a real app, this would save to blockchain/database
-    // Optional: navigate back after a delay
-    setTimeout(() => {
-      onBack();
-    }, 1500);
+    // Navigate back after success overlay is dismissed
   };
+
+  // ── Full-screen success overlay ────────────────────────────────────
+  if (showSuccess) {
+    return (
+      <div className="size-full flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-emerald-50 dark:from-[#0a1a10] dark:to-[#0F1115] animate-in fade-in duration-300">
+        <div className="flex flex-col items-center gap-6 px-8 text-center">
+          {/* Animated check circle */}
+          <div className="w-24 h-24 rounded-full bg-green-100 dark:bg-green-950/40 flex items-center justify-center shadow-lg">
+            <Check className="w-14 h-14 text-green-500 dark:text-green-400" strokeWidth={2.5} />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold">
+              Transaction Saved Successfully
+            </h2>
+            <p className="text-gray-500 dark:text-muted-foreground text-sm">
+              Your transaction has been recorded.
+            </p>
+          </div>
+          <button
+            onClick={onBack}
+            className="mt-4 px-10 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-md hover:shadow-lg transition-all"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
@@ -112,7 +139,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
                 <div className="flex items-center justify-between px-4 py-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 rounded-xl">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
-                      {selectedCustomer.charAt(0)}
+                      {getInitials(selectedCustomer)}
                     </div>
                     <span className="text-gray-900 dark:text-foreground font-medium text-sm">{selectedCustomer}</span>
                   </div>
@@ -149,7 +176,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
                         >
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
-                            {name.charAt(0)}
+                            {getInitials(name)}
                           </div>
                           <span className="text-gray-900 dark:text-foreground text-sm font-medium">{name}</span>
                         </div>
