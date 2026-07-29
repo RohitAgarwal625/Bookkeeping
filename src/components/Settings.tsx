@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "./ui/switch";
-import { BottomNav } from "./BottomNav";
 import { useDarkMode } from "../contexts/DarkModeContext";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { getInitials } from "../types";
@@ -266,7 +265,6 @@ export function Settings({
           </div>
         </div>
 
-        <BottomNav activeTab="settings" onNavigate={onNavigate} />
       </div>
     );
   }
@@ -350,7 +348,6 @@ export function Settings({
           </p>
         </div>
 
-        <BottomNav activeTab="settings" onNavigate={onNavigate} />
       </div>
     );
   }
@@ -451,7 +448,6 @@ export function Settings({
           </p>
         </div>
 
-        <BottomNav activeTab="settings" onNavigate={onNavigate} />
       </div>
     );
   }
@@ -561,7 +557,6 @@ export function Settings({
         </div>
       </div>
 
-      <BottomNav activeTab="settings" onNavigate={onNavigate} />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { ContactDetails } from "./components/ContactDetails";
 import { AutomaticTransactionScreen } from "./components/AutomaticTransactionScreen";
 import { QRScannerScreen } from "./components/QRScannerScreen";
 import { PayMethodModal } from "./components/PayMethodModal";
+import { BottomNav } from "./components/BottomNav";
 import { Contact, initialContacts } from "./types";
 
 type Screen =
@@ -112,6 +113,17 @@ function AppContent() {
 
   const contactNames = contacts.map((c) => c.name);
 
+  // Screens that show the bottom nav
+  const navScreens: Screen[] = ["dashboard", "contacts", "merchantDashboard", "analyze", "settings"];
+  const activeTab = ((): "home" | "contacts" | "pay" | "merchantDashboard" | "settings" => {
+    if (currentScreen === "dashboard") return "home";
+    if (currentScreen === "contacts") return "contacts";
+    if (currentScreen === "merchantDashboard") return "merchantDashboard";
+    if (currentScreen === "analyze") return "merchantDashboard";
+    return "settings";
+  })();
+  const showNav = navScreens.includes(currentScreen);
+
   // ── Screens ────────────────────────────────────────────────────────
 
   if (currentScreen === "autoTransaction") {
@@ -184,6 +196,7 @@ function AppContent() {
           newContactId={newContactId}
           onNewContactSeen={() => setNewContactId(null)}
         />
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         {showPayModal && (
           <PayMethodModal
             onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
@@ -206,6 +219,7 @@ function AppContent() {
           onNavigate={handleNavigate}
           onLogout={handleLogout}
         />
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         {showPayModal && (
           <PayMethodModal
             onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
@@ -219,7 +233,13 @@ function AppContent() {
   }
 
   if (currentScreen === "analyze") {
-    return <ReportsAnalytics onNavigate={handleNavigate} />;
+    return (
+      <>
+        <ReportsAnalytics onNavigate={handleNavigate} />
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
+        <Toaster position="bottom-center" />
+      </>
+    );
   }
 
   if (currentScreen === "customerLedger") {
@@ -249,6 +269,7 @@ function AppContent() {
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigate={handleNavigate}
         />
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         {showPayModal && (
           <PayMethodModal
             onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
@@ -273,6 +294,7 @@ function AppContent() {
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigate={handleNavigate}
         />
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         {showPayModal && (
           <PayMethodModal
             onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}

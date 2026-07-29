@@ -6,7 +6,6 @@ import {
   User,
 } from "lucide-react";
 import { Contact, getInitials } from "../types";
-import { BottomNav } from "./BottomNav";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface ContactsScreenProps {
@@ -173,7 +172,6 @@ export function ContactsScreen({
         )}
       </div>
 
-      <BottomNav activeTab="contacts" onNavigate={onNavigate} />
     </div>
   );
 }

@@ -10,12 +10,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { BottomNav } from "./BottomNav";
 import { getInitials } from "../types";
 
 interface ReportsAnalyticsProps {
   onNavigate: (screen: string) => void;
-  embedded?: boolean;
 }
 
 const monthlyData = [
@@ -240,7 +238,6 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
       </div>
 
       {/* Bottom Navigation — only when used as standalone screen */}
-      {!embedded && <BottomNav activeTab="merchantDashboard" onNavigate={onNavigate} />}
     </div>
   );
 }

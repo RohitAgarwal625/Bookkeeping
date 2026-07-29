@@ -13,7 +13,6 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { useState } from "react";
-import { BottomNav } from "./BottomNav";
 import { ReportsAnalytics } from "./ReportsAnalytics";
 import { getInitials } from "../types";
 
@@ -328,8 +327,6 @@ export function MerchantDashboard({
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav activeTab="merchantDashboard" onNavigate={onNavigate} />
 
       {/* ── Transaction Detail Modal ───────────────────────────────────── */}
       {selectedMerchant && (

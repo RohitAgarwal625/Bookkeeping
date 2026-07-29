@@ -1,7 +1,6 @@
 import { Bell, X, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { BalanceCard } from "./BalanceCard";
-import { BottomNav } from "./BottomNav";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { getInitials } from "../types";
 
@@ -147,8 +146,6 @@ export function Dashboard({
 
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav activeTab="home" onNavigate={onNavigate} />
     </div>
   );
 }
