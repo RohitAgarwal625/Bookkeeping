@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Home, Users, LayoutDashboard, Settings, QrCode } from "lucide-react";
 
 interface BottomNavProps {
@@ -7,6 +7,21 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
+  const [navSize, setNavSize] = useState({ w: 390, h: 64 });
+  const navRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const update = () => {
+      if (navRef.current) {
+        const { width, height } = navRef.current.getBoundingClientRect();
+        setNavSize({ w: width, h: height });
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const leftItems = [
     { id: "home" as const, label: "Home", icon: Home },
     { id: "contacts" as const, label: "Contacts", icon: Users },
@@ -36,27 +51,45 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
     );
   };
 
+  // Full border drawn as one SVG path so corners and notch share identical colour/weight
+  const notchR = 32;   // QR button radius(28) + 4px padding
+  const cornerR = 32;  // matches border-radius of nav div
+  const { w: W, h: H } = navSize;
+  const cx = W / 2;
+  // Path: left side up → top-left corner → flat → QR notch up → flat → top-right corner → right side down
+  const svgPath = [
+    `M 0,${H}`,                                                        // bottom-left
+    `L 0,${cornerR}`,                                                  // up left side
+    `A ${cornerR},${cornerR} 0 0,1 ${cornerR},0`,                     // top-left corner arc
+    `L ${cx - notchR},0`,                                              // flat to notch left
+    `A ${notchR},${notchR} 0 0,1 ${cx + notchR},0`,                   // notch arc UP over QR button
+    `L ${W - cornerR},0`,                                              // flat to top-right corner
+    `A ${cornerR},${cornerR} 0 0,1 ${W},${cornerR}`,                  // top-right corner arc
+    `L ${W},${H}`,                                                     // down right side
+  ].join(" ");
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
-      {/*
-        Arch: traces around top half of bump (50:50).
-        Same bg as nav bar — hides the nav's top border in the centre.
-        Has border-t/l/r so the outline goes UP and AROUND the bump.
-        -mb-[2px] ensures the arch bg sits flush over the nav's top border.
-      */}
-      <div className="flex justify-center pointer-events-none -mb-[2px]">
-        <div className="w-[72px] h-8 bg-white dark:bg-card rounded-t-full border-t-2 border-l-2 border-r-2 border-gray-400 dark:border-white/50" />
-      </div>
-
-      {/* Nav bar: flush to screen edges, rounded top corners */}
       <div
-        className="bg-white dark:bg-card border-2 border-b-0 border-gray-400 dark:border-white/50 shadow-[0_-4px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
-        style={{ borderTopLeftRadius: 32, borderTopRightRadius: 32 }}
+        ref={navRef}
+        className="relative bg-white dark:bg-card shadow-[0_-4px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
+        style={{ borderTopLeftRadius: cornerR, borderTopRightRadius: cornerR }}
       >
+        {/* Single SVG draws the entire border outline: corners + top + QR notch, all in one colour */}
+        <svg
+          className="absolute inset-0 pointer-events-none text-gray-400 dark:text-white/50"
+          width="100%"
+          height="100%"
+          style={{ overflow: "visible" }}
+          aria-hidden="true"
+        >
+          <path d={svgPath} fill="none" stroke="currentColor" strokeWidth="2" />
+        </svg>
+
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           {leftItems.map(renderTab)}
 
-          {/* Centre Pay hump button — 50:50: -top-7 = 28px above nav top */}
+          {/* Centre Pay hump button */}
           <div className="flex-1 flex flex-col items-center justify-end pb-2 relative" style={{ minWidth: 60 }}>
             <button
               onClick={() => onNavigate?.("pay")}
