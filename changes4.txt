@@ -1,0 +1,15 @@
+
+Botton Nav bar
+1. I still do not see any white border . There is no white border added . I asked below changes why not implemented .
+Bottom Nav Bar
+1. Add "Pay" text below QR code button .
+2. Add a white border on this nav bar and rounded corners on both end sides just like CRED UI app has . there is a bump for QR code button , I want the space divided for this should 50:50 , means the QR code button bump should be 50% outside and 50% inside. the white border goes around the entire nav bar which includes bump as well .
+
+
+Pay Via contacts screen
+
+When I click on QR code button , the modal that appears it should disappear when I click on  other nav buttons  on the screen .
+
+The dark mode is still now fixed for Pay screen
+You have removed all the space which was there , add a little space or padding over there on the payment details screen .
+On Payment Details screen , Pi wallet address button , I want the address to appear like  this first 5 characters then ….. then last 5 characters .

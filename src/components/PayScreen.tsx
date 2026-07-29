@@ -2,6 +2,7 @@ import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, Home, ReceiptText 
 import { useState, useEffect } from "react";
 import { Contact, getInitials, initialContacts } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 interface PayScreenProps {
   onBack: () => void;
@@ -23,17 +24,9 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
   const [amount, setAmount] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [screen, setScreen] = useState<ScreenState>("form");
+  const [isPublicKeyFocused, setIsPublicKeyFocused] = useState(false);
 
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
-  );
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
+  const { isDarkMode: isDark } = useDarkMode();
 
   // ── Helpers ────────────────────────────────────────────────────────────
   const findByAddress = (addr: string) =>
@@ -105,7 +98,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
   // ── Processing Screen (pulse / ripple animation — no spinner) ──────────
   if (screen === "processing") {
     return (
-      <div className="size-full flex flex-col bg-white dark:bg-[#0F1115]">
+      <div className="size-full flex flex-col bg-background">
         <Header onBack={onBack} hideBack />
 
         <div className="flex-1 flex flex-col items-center justify-center px-8">
@@ -163,7 +156,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
   // ── Success Screen ─────────────────────────────────────────────────────
   if (screen === "success") {
     return (
-      <div className="size-full flex flex-col bg-white dark:bg-[#0F1115] relative overflow-hidden">
+      <div className="size-full flex flex-col bg-background relative overflow-hidden">
         {/* Soft on-theme glow */}
         <div
           className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full blur-3xl opacity-30 pointer-events-none"
@@ -187,7 +180,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
 
           {/* Receipt card */}
           <div
-            className="w-full max-w-sm bg-white dark:bg-[#1a1a2e] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden"
+            className="w-full max-w-sm bg-white dark:bg-card rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden"
             style={{ animation: "pay-fade-up 0.5s 0.12s both" }}
           >
             <div className="flex flex-col items-center py-6 border-b border-gray-100 dark:border-gray-800">
@@ -221,9 +214,9 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
 
             {/* Dashed divider (receipt tear) */}
             <div className="relative flex items-center px-4 py-1">
-              <div className="w-5 h-5 rounded-full bg-white dark:bg-[#0F1115] absolute -left-2.5" />
-              <div className="flex-1 border-dashed border-t-2 border-gray-100 dark:border-gray-800" />
-              <div className="w-5 h-5 rounded-full bg-white dark:bg-[#0F1115] absolute -right-2.5" />
+              <div className="w-5 h-5 rounded-full bg-background absolute -left-2.5" />
+              <div className="flex-1 border-dashed border-t-2 border-gray-100 dark:border-gray-700" />
+              <div className="w-5 h-5 rounded-full bg-background absolute -right-2.5" />
             </div>
 
             <div className="px-5 py-4">
@@ -266,7 +259,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
 
   // ── Payment Form (default) ─────────────────────────────────────────────
   return (
-    <div className="size-full flex flex-col bg-white dark:bg-[#0F1115]">
+    <div className="size-full min-h-screen flex flex-col bg-background">
       <Header onBack={onBack} />
 
       {/* Scrollable content */}
@@ -276,11 +269,15 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Public key
           </label>
-          <div className="flex items-center bg-gray-50 dark:bg-[#1a1a2e] border-2 border-gray-100 dark:border-gray-800 focus-within:border-[#A47CF3] rounded-2xl pl-4 pr-3 py-3.5 transition-all shadow-sm">
+          <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl pl-4 pr-3 py-3.5 transition-all shadow-sm">
             <input
               type="text"
-              value={publicKey}
+              value={isVerified && !isPublicKeyFocused
+                ? `${publicKey.slice(0, 5)}…${publicKey.slice(-5)}`
+                : publicKey}
               onChange={(e) => handlePublicKeyChange(e.target.value)}
+              onFocus={() => setIsPublicKeyFocused(true)}
+              onBlur={() => setIsPublicKeyFocused(false)}
               placeholder="Pi Wallet Address"
               className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium pl-2"
             />
@@ -316,7 +313,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Pioneer
           </label>
-          <div className="flex items-center gap-3 bg-gray-50 dark:bg-[#1a1a2e] border-2 border-gray-100 dark:border-gray-800 focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
+          <div className="flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -333,7 +330,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
           </div>
 
           {isDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1a2e] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden z-40 max-h-64 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-card border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-40 max-h-64 overflow-y-auto">
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 pt-3 pb-1">
                 Saved Contacts
               </p>
@@ -351,7 +348,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-gray-900 dark:text-white font-medium truncate">{contact.name}</p>
-                      <p className="text-gray-400 dark:text-gray-500 text-xs truncate font-mono">{contact.piWalletAddress}</p>
+                      <p className="text-gray-400 dark:text-gray-500 text-xs truncate font-mono">{contact.piWalletAddress.length > 10 ? `${contact.piWalletAddress.slice(0, 5)}…${contact.piWalletAddress.slice(-5)}` : contact.piWalletAddress}</p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
                   </div>
@@ -413,17 +410,17 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div
           style={{ paddingBottom: "48px", paddingTop: "16px", paddingLeft: "20px", paddingRight: "20px" }}
-          className="bg-white/90 dark:bg-[#0F1115]/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-800 shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
+          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700 shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
         >
           {(isVerified || amount) && (
-            <div className="mb-4 px-4 py-3 bg-gray-50 dark:bg-gray-900/80 rounded-2xl flex items-center justify-between">
+            <div className="mb-4 px-4 py-3 bg-gray-50 dark:bg-secondary rounded-2xl flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
                 {isVerified ? (
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0">
                     {getInitials(recipientName)}
                   </div>
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
                     <Search className="w-4 h-4 text-gray-400" />
                   </div>
                 )}
@@ -464,8 +461,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
 // ── Shared header: "Payment Details" centered + Bookkeeping logo on the right ──────
 function Header({ onBack, hideBack = false }: { onBack: () => void; hideBack?: boolean }) {
   return (
-    <div className="flex-shrink-0">
-      <div className="flex items-center justify-between px-6 pt-1 pb-4">
+    <div className="flex-shrink-0 bg-background">
+      <div className="flex items-center justify-between px-6 pt-10 pb-4">
         <div className="w-9">
           {!hideBack && (
             <button
@@ -476,10 +473,10 @@ function Header({ onBack, hideBack = false }: { onBack: () => void; hideBack?: b
             </button>
           )}
         </div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white text-center">Payment Details</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-foreground text-center">Payment Details</h1>
         <BookkeepingLogo compact />
       </div>
-      <div className="h-px bg-gray-100 dark:bg-gray-800 mx-6" />
+      <div className="h-px bg-gray-100 dark:bg-gray-700 mx-6" />
     </div>
   );
 }

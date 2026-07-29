@@ -156,8 +156,8 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
               </div>
             ) : (
               <p className="text-gray-700 dark:text-gray-300 text-xs font-mono mt-1 break-all">
-                {displayWallet.length > 20
-                  ? `${displayWallet.slice(0, 10)}…${displayWallet.slice(-8)}`
+                {displayWallet.length > 10
+                  ? `${displayWallet.slice(0, 5)}…${displayWallet.slice(-5)}`
                   : displayWallet}
               </p>
             )}

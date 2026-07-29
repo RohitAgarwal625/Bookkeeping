@@ -59,7 +59,7 @@ Home Screen
 Botton Nav bar
 1. I still do not see any white border . There is no white border added . I asked below changes why not implemented .
 Bottom Nav Bar
-1. Add "Pay" below QR code button .
+1. Add "Pay" text below QR code button .
 2. Add a white border on this nav bar and rounded corners on both sides just like CRED UI app has . there is a bump for QR code button , I want the space divided for this should 50:50 , means the QR code button bump should be 50% outside and 50% inside. the white border goes around the entire nav bar which includes bump as well .
 
 

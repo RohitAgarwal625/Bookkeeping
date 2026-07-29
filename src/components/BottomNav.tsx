@@ -39,21 +39,17 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
       {/*
-        Arch div: same bg as nav, has border-t/l/r, no border-b.
-        Sits above the nav bar (-mb-px overlaps by 1px so nav's border-t
-        is hidden behind the arch background in the center).
-        Width 72px = wider than QR button (56px) to look natural.
-        Height 28px = half the button height (56px) for 50:50 split.
+        Arch: traces around top half of bump (50:50).
+        Same bg as nav bar — hides the nav's top border in the centre.
+        Has border-t/l/r so the outline goes UP and AROUND the bump.
+        -mb-[2px] ensures the arch bg sits flush over the nav's top border.
       */}
-      <div className="flex justify-center pointer-events-none -mb-px">
-        <div className="w-[72px] h-7 bg-white dark:bg-card rounded-t-full border-t border-l border-r border-gray-200 dark:border-gray-600" />
+      <div className="flex justify-center pointer-events-none -mb-[2px]">
+        <div className="w-[68px] h-7 bg-white dark:bg-card rounded-t-full border-t-2 border-l-2 border-r-2 border-gray-300 dark:border-white/40" />
       </div>
 
-      {/*
-        Nav bar: border on all 4 sides (border-t shows left & right of arch,
-        arch bg hides it in the center). Rounded top corners.
-      */}
-      <div className="bg-white dark:bg-card border border-gray-200 dark:border-gray-600 rounded-tl-3xl rounded-tr-3xl shadow-xl">
+      {/* Nav bar: TOP border only, rounded top corners only */}
+      <div className="bg-white dark:bg-card border-t-2 border-gray-300 dark:border-white/40 rounded-tl-[28px] rounded-tr-[28px] shadow-[0_-4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]">
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           {leftItems.map(renderTab)}
 

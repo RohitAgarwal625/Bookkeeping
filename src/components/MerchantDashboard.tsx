@@ -417,7 +417,7 @@ export function MerchantDashboard({
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Public Key</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono truncate max-w-[180px]">
-                    {selectedMerchant.piWalletAddress.slice(0, 10)}...{selectedMerchant.piWalletAddress.slice(-8)}
+                    {selectedMerchant.piWalletAddress.slice(0, 5)}…{selectedMerchant.piWalletAddress.slice(-5)}
                   </span>
                 </div>
                 {/* Tx ID */}

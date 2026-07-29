@@ -101,7 +101,9 @@ export function Settings({
   // FAQs state
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 
-  const truncatedAddress = `${piWalletAddress.slice(0, 8)}...${piWalletAddress.slice(-6)}`;
+  const truncatedAddress = piWalletAddress.length > 10
+    ? `${piWalletAddress.slice(0, 5)}…${piWalletAddress.slice(-5)}`
+    : piWalletAddress;
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(piWalletAddress);

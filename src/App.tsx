@@ -88,6 +88,8 @@ function AppContent() {
       setShowPayModal(true);
       return;
     }
+    // Close the Pay modal when user taps any other nav button
+    setShowPayModal(false);
     const validScreens: Screen[] = [
       "home", "dashboard", "addCustomer", "customerLedger",
       "merchantDashboard", "analyze", "settings", "addEntry",
