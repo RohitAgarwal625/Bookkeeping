@@ -9,6 +9,8 @@ import {
   Copy,
   Pencil,
   Check,
+  ArrowDownLeft,
+  ArrowUpRight,
 } from "lucide-react";
 import { useState } from "react";
 import { BottomNav } from "./BottomNav";
@@ -242,8 +244,8 @@ export function MerchantDashboard({
         {/* ── History View ── */}
         {activeView === "history" && (
           <>
-            {/* Individual / Business — rounded segmented toggle */}
-            <div className="flex bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto">
+            {/* Individual / Business — rounded segmented toggle with middle switch */}
+            <div className="flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto">
               <button
                 onClick={() => setActiveCategory("individual")}
                 className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${
@@ -254,13 +256,23 @@ export function MerchantDashboard({
               >
                 Individual
               </button>
+
+              {/* Middle toggle switch — bordered pill for visibility */}
+              <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
+                <div className="w-10 h-5 rounded-full bg-gray-200 dark:bg-gray-700 relative flex items-center px-0.5">
+                  <div
+                    className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
+                    style={{
+                      background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                      transform: activeCategory === "business" ? "translateX(20px)" : "translateX(0)",
+                    }}
+                  />
+                </div>
+              </div>
+
               <button
-                onClick={() => setActiveCategory("business")}
-                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${
-                  activeCategory === "business"
-                    ? "bg-white dark:bg-card text-[#A47CF3] shadow"
-                    : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
-                }`}
+                disabled
+                className="flex-1 py-2 text-sm font-semibold rounded-full opacity-40 cursor-not-allowed text-gray-400 dark:text-muted-foreground"
               >
                 Business
               </button>

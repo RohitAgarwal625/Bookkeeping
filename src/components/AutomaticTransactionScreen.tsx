@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, CheckCircle, CalendarDays, Search, X } from "lucide-react";
 import { Contact, getInitials } from "../types";
+import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface AutomaticTransactionScreenProps {
   contacts: Contact[];
@@ -45,18 +46,24 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
     const msg = SCAN_MESSAGES[Math.min(scanMsgIndex, SCAN_MESSAGES.length - 1)];
     return (
       <div className="size-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-8">
-        <div className="relative w-32 h-32 mb-8">
-          <div className="absolute inset-0 rounded-full"
-            style={{ background: "conic-gradient(from 0deg,#A47CF3,#F7C548,#A47CF3)", animation: "spin 1s linear infinite" }} />
-          <div className="absolute inset-2 rounded-full bg-white dark:bg-[#0F1115] flex items-center justify-center">
-            <span className="text-3xl font-black text-transparent bg-clip-text"
-              style={{ backgroundImage: "linear-gradient(135deg,#A47CF3,#F7C548)" }}>π</span>
-          </div>
+        {/* Bouncing dots */}
+        <div className="flex items-center gap-3 mb-8">
+          {[0, 0.15, 0.3].map((delay, i) => (
+            <span
+              key={i}
+              className="w-4 h-4 rounded-full"
+              style={{
+                background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                animation: "bounce-dot 0.8s ease-in-out infinite",
+                animationDelay: `${delay}s`,
+              }}
+            />
+          ))}
         </div>
         <p className="text-gray-900 dark:text-foreground font-bold text-xl mb-2 text-center">Fetching Transactions</p>
         <p className="text-[#A47CF3] text-sm text-center font-medium mb-1">{selectedContact?.name}</p>
         <p className="text-gray-400 dark:text-muted-foreground text-xs text-center animate-pulse">{msg}</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <style>{`@keyframes bounce-dot { 0%, 80%, 100% { transform: translateY(0); opacity: 0.5; } 40% { transform: translateY(-18px); opacity: 1; } }`}</style>
       </div>
     );
   }
@@ -98,11 +105,12 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
     const isValid = !!(fromDate && toDate && fromDate <= toDate);
     return (
       <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-        <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center border-b border-transparent dark:border-border">
-          <button onClick={() => setStep("selectContact")} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors mr-3">
+        <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border">
+          <button onClick={() => setStep("selectContact")} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
-          <h2 className="text-gray-900 dark:text-foreground font-semibold">Select Date Range</h2>
+          <h2 className="text-gray-900 dark:text-foreground font-semibold">Enter Details</h2>
+          <BookkeepingLogo compact />
         </header>
         <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-6">
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-5 flex items-center gap-3">
@@ -143,11 +151,12 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
   // Step: selectContact
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center border-b border-transparent dark:border-border">
-        <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors mr-3">
+      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border">
+        <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground font-semibold">Automatic — Select Pioneer</h2>
+        <h2 className="text-gray-900 dark:text-foreground font-semibold">Select Pioneer</h2>
+        <BookkeepingLogo compact />
       </header>
       <div className="flex-1 overflow-y-auto px-6 py-4">
         <div className="relative mb-4">

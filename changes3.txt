@@ -1,0 +1,70 @@
+Add Transaction Screen
+1. the Bookeeking logo used at top right corner in Home Screen , I want same logo to be used  in Add Transation then manual screen as well , in this screen purple logo is there replace it with this .
+2. Date and Time to Date position and Time position in Add Pioneer screen , Date position and Time position to be in same line , not in two lines
+
+
+Automatic Fetch Screen
+1.  Change loading Animation in automatic transaction , right now it is very bad , replace it with a better one . You give me list which all loading animations you have and I will select one from that list
+2. In Automatic , also enter details  , then Add Automatic Fetch Screen also will have same logo ,Add Pioneer , Enter details , bookkeeping logo
+3.
+
+
+Pay Via Contacts Screen
+1. Payment Details is the heading , logo in right, then separation line , just like in Add Transaction screen ,  enter details is the heading and separation line is there below it .
+2. add a little space Public key field for text Pi wallet address
+3. Add a divider in the Public Key field button beside tickmark , the divide should be just beside the tickmark and the text Pi Wallet Address should be on left side of the divider and tickmark on right side of the divider which is already there .
+4. Add a functionality in which first the Pay button is disabled and Validate button is there , when user enter all details and clicks on Validate , it will validate if the Wallet Address is of Pi Blockchain or not , if it is valid then Validate button will change to Pay button and user can click on Pay to make the payment , if it is invalid then show a popup with message "Invalid Pi Wallet Address" and keep Validate button there only .
+5. I am unable to select any of the names from the contacts list , when I click on any of the contact name , nothing happens , fix it.
+
+
+Dashboard
+Analysis Section
+1. Remove Pi given , Pi receive
+2.
+
+History Section
+1. View Details is not being loaded , empty screen appears when we click on it, fix it.
+2. Business , b capital in Contacts , same with Individual
+3. Add a UI toggle in the middle of individual and business in History section, so that user can switch between individual and business transactions, right now it should be disabled for business
+
+
+Home Screen
+Add Pioneer and Add Transaction Modal
+1. when I click on Add Pioneer , a modal appears for indivdual and business , when i click on info button ,modal width expands , I want that same modal width to remain before clicking on the box , means at every state i want that modal width only. The width , rounded corners should be similar to the card which contains  Total Debit , Total Credit ,Add Pioneer and Add Transaction buttons , also the cross button to be positioned to right outer corner side of the screen of modal box of Add Pioneer and Add Transaction
+
+Bottom Nav Bar
+1. Add "Pay" below QR code button .
+2. Add a white border on this nav bar and rounded corners on both sides just like CRED UI app has . there is a bump for QR code button , I want the space divided for this should 50:50 , means the QR code button bump should be 50% outside and 50% inside. the white border goes around the entire nav bar which includes bump as well .
+
+
+
+
+Modifications
+
+Pay via Contacts Screen
+1. In the top a lot of spacce is there , remove it .
+2. Pi wallet address text is still sticking to the left side of the screen field , move text a little right side
+3. I still unable to select any of the names from the contacts list , when I click on any of the contact name , nothing happens , why it is not fixed .
+4. Still divider is not there in the Public Key field button beside tickmark , the divide should be just beside the tickmark and the text Pi Wallet Address should be on left side of the divider and tickmark on right side of the divider which is already there .
+
+Home Screen
+1. When i click on Add Pioneer
+ add animation when modal appears,
+ also add halo effect on the border
+ also make background little less blur
+ the info button text when clicked should come below it , right now it is covering the button and it is happening for all 4 infos of Add Pioneer and Add Transaction , make it come below the button when clicked
+ all the above Same for Add Transaction  ,
+
+
+Botton Nav bar
+1. I still do not see any white border . There is no white border added . I asked below changes why not implemented .
+Bottom Nav Bar
+1. Add "Pay" below QR code button .
+2. Add a white border on this nav bar and rounded corners on both sides just like CRED UI app has . there is a bump for QR code button , I want the space divided for this should 50:50 , means the QR code button bump should be 50% outside and 50% inside. the white border goes around the entire nav bar which includes bump as well .
+
+
+
+
+
+1. change success screen when Automatic Fetch is done , right now it is very bad , change it to a better one .
+2. wh

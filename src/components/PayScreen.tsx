@@ -76,9 +76,13 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
 
   const handlePioneerSearchChange = (value: string) => {
     setPioneerQuery(value);
-    // Typing a name to search clears any locked-in address until a contact is picked
     setPublicKey("");
     setIsDropdownOpen(true);
+  };
+
+  // Close dropdown on blur — delay so onMouseDown on contact fires first
+  const handlePioneerBlur = () => {
+    setTimeout(() => setIsDropdownOpen(false), 150);
   };
 
   const filteredContacts = contactList.filter((c) =>
@@ -278,21 +282,21 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
               value={publicKey}
               onChange={(e) => handlePublicKeyChange(e.target.value)}
               placeholder="Pi Wallet Address"
-              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 outline-none text-base font-medium"
+              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium pl-2"
             />
-            {/* Separation line between field and tickmark */}
-            <div className="w-px h-7 bg-gray-200 dark:bg-gray-700 mx-3 flex-shrink-0" />
-            {/* Verification tick — white by default, purple when address is a saved contact */}
+            {/* Vertical divider — 2px wide, clearly visible */}
+            <div className="w-0.5 h-7 bg-gray-300 dark:bg-gray-500 mx-3 flex-shrink-0 rounded-full" />
+            {/* Verification tick */}
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all duration-300 ${
                 isVerified
                   ? "bg-[#A47CF3] border-[#A47CF3]"
-                  : "bg-white dark:bg-transparent border-gray-300 dark:border-gray-600"
+                  : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
               }`}
             >
               <Check
                 className={`w-4 h-4 transition-colors duration-300 ${
-                  isVerified ? "text-white" : "text-gray-300 dark:text-gray-600"
+                  isVerified ? "text-white" : "text-gray-300 dark:text-gray-500"
                 }`}
                 strokeWidth={3}
               />
@@ -318,9 +322,10 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
               type="text"
               value={pioneerQuery}
               onFocus={() => setIsDropdownOpen(true)}
+              onBlur={handlePioneerBlur}
               onChange={(e) => handlePioneerSearchChange(e.target.value)}
               placeholder="Select from Contacts"
-              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 outline-none text-base font-medium"
+              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium"
             />
             <ChevronDown
               className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
@@ -336,7 +341,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
                 filteredContacts.map((contact, i) => (
                   <div
                     key={contact.id}
-                    onClick={() => handleSelectPioneer(contact)}
+                    onMouseDown={(e) => { e.preventDefault(); handleSelectPioneer(contact); }}
                     className={`flex items-center gap-3 px-4 py-3 hover:bg-purple-50 dark:hover:bg-purple-950/30 cursor-pointer transition-colors ${
                       i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-gray-800" : ""
                     }`}
@@ -346,7 +351,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-gray-900 dark:text-white font-medium truncate">{contact.name}</p>
-                      <p className="text-gray-400 text-xs truncate font-mono">{contact.piWalletAddress}</p>
+                      <p className="text-gray-400 dark:text-gray-500 text-xs truncate font-mono">{contact.piWalletAddress}</p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
                   </div>
@@ -357,11 +362,6 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
             </div>
           )}
         </div>
-
-        {/* Click-away overlay for dropdown */}
-        {isDropdownOpen && (
-          <div className="fixed inset-0 z-20" onClick={() => setIsDropdownOpen(false)} />
-        )}
 
         {/* Amount */}
         <div className="mt-8">
@@ -461,22 +461,25 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
   );
 }
 
-// ── Shared header: "Payment Details" + Bookkeeping logo on the right ──────
+// ── Shared header: "Payment Details" centered + Bookkeeping logo on the right ──────
 function Header({ onBack, hideBack = false }: { onBack: () => void; hideBack?: boolean }) {
   return (
-    <div className="flex items-center justify-between px-6 pt-12 pb-4 flex-shrink-0">
-      <div className="flex items-center gap-3">
-        {!hideBack && (
-          <button
-            onClick={onBack}
-            className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-          </button>
-        )}
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Payment Details</h1>
+    <div className="flex-shrink-0">
+      <div className="flex items-center justify-between px-6 pt-1 pb-4">
+        <div className="w-9">
+          {!hideBack && (
+            <button
+              onClick={onBack}
+              className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+            </button>
+          )}
+        </div>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white text-center">Payment Details</h1>
+        <BookkeepingLogo compact />
       </div>
-      <BookkeepingLogo compact />
+      <div className="h-px bg-gray-100 dark:bg-gray-800 mx-6" />
     </div>
   );
 }

@@ -158,8 +158,8 @@ export function ContactsScreen({
                                 {balance >= 0 ? "+" : ""}{balance.toFixed(2)} π
                               </p>
                               {/* Category now sits under the balance */}
-                              <p className="text-gray-400 dark:text-muted-foreground text-xs mt-1 capitalize">
-                                {contact.category}
+                              <p className="text-gray-400 dark:text-muted-foreground text-xs mt-1">
+                                {contact.category === "individual" ? "Individual" : "Business"}
                               </p>
                             </div>
                           </div>

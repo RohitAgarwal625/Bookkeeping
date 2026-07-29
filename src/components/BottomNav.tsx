@@ -1,4 +1,4 @@
-import React, { ElementType } from "react";
+import React from "react";
 import { Home, Users, LayoutDashboard, Settings, QrCode } from "lucide-react";
 
 interface BottomNavProps {
@@ -38,28 +38,35 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
-      {/* Semi-circular hump arc — same bg as nav, masks the border-top behind the Pay button */}
-      <div className="flex justify-center pointer-events-none relative z-10 -mb-px">
-        <div
-          className="w-[72px] h-8 bg-white dark:bg-card rounded-t-full"
-          style={{ boxShadow: "0 -1px 0 rgb(229 231 235), -1px -1px 0 rgb(229 231 235), 1px -1px 0 rgb(229 231 235)" }}
-        />
+      {/*
+        Arch div: same bg as nav, has border-t/l/r, no border-b.
+        Sits above the nav bar (-mb-px overlaps by 1px so nav's border-t
+        is hidden behind the arch background in the center).
+        Width 72px = wider than QR button (56px) to look natural.
+        Height 28px = half the button height (56px) for 50:50 split.
+      */}
+      <div className="flex justify-center pointer-events-none -mb-px">
+        <div className="w-[72px] h-7 bg-white dark:bg-card rounded-t-full border-t border-l border-r border-gray-200 dark:border-gray-600" />
       </div>
 
-      <div className="bg-white dark:bg-card border-t border-gray-200 dark:border-border shadow-lg">
+      {/*
+        Nav bar: border on all 4 sides (border-t shows left & right of arch,
+        arch bg hides it in the center). Rounded top corners.
+      */}
+      <div className="bg-white dark:bg-card border border-gray-200 dark:border-gray-600 rounded-tl-3xl rounded-tr-3xl shadow-xl">
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           {leftItems.map(renderTab)}
 
-          {/* Centre Pay hump button */}
+          {/* Centre Pay hump button — 50:50: -top-7 = 28px above nav top */}
           <div className="flex-1 flex flex-col items-center justify-end pb-2 relative" style={{ minWidth: 60 }}>
             <button
               onClick={() => onNavigate?.("pay")}
-              className="absolute -top-8 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl border-4 border-white dark:border-card"
+              className="absolute -top-7 w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
               style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
             >
               <QrCode className="w-6 h-6 text-white" />
             </button>
-            <span className={`text-xs ${activeTab === "pay" ? "text-[#A47CF3]" : "text-gray-400 dark:text-muted-foreground"}`}>
+            <span className={`text-xs font-medium ${activeTab === "pay" ? "text-[#A47CF3]" : "text-gray-400 dark:text-muted-foreground"}`}>
               Pay
             </span>
           </div>

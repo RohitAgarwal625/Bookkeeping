@@ -2,6 +2,7 @@ import { ArrowLeft, CheckCircle, RefreshCw, ExternalLink, Search, X, Hash, Check
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getInitials } from "../types";
+import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface AddEntryProps {
   onBack: () => void;
@@ -118,10 +119,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
         <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">Enter Details</h2>
-        {/* Pi Logo indicating auto-sync */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6F3C97] to-[#A47CF3] flex items-center justify-center shadow-sm">
-          <span className="text-white text-xs">π</span>
-        </div>
+        <BookkeepingLogo compact />
       </header>
 
       {/* Scrollable Content */}
@@ -236,22 +234,25 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
 
           {/* Date and Time Input */}
           <div className="mb-4">
-            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">
-              Date &amp; Time
-            </label>
             <div className="flex gap-3">
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
-              />
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
-              />
+              <div className="flex-1">
+                <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Date</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Time</label>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                />
+              </div>
             </div>
           </div>
 

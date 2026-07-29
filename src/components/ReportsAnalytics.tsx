@@ -122,7 +122,6 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
               <span className="text-3xl text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
               <span className="text-2xl text-red-600 dark:text-red-400">π</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1">Pi given</p>
           </div>
 
           {/* Total Credit Card */}
@@ -135,7 +134,6 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
               <span className="text-3xl text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
               <span className="text-2xl text-green-600 dark:text-green-400">π</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-muted-foreground mt-1">Pi received</p>
           </div>
 
         </div>
