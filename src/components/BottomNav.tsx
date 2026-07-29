@@ -45,13 +45,13 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
         -mb-[2px] ensures the arch bg sits flush over the nav's top border.
       */}
       <div className="flex justify-center pointer-events-none -mb-[2px]">
-        <div className="w-[68px] h-7 bg-white dark:bg-card rounded-t-full border-t-2 border-l-2 border-r-2 border-gray-400 dark:border-white/50" />
+        <div className="w-[72px] h-8 bg-white dark:bg-card rounded-t-full border-t-2 border-l-2 border-r-2 border-gray-400 dark:border-white/50" />
       </div>
 
-      {/* Nav bar: rounded top corners with side margin so corners are visible */}
+      {/* Nav bar: flush to screen edges, rounded top corners */}
       <div
-        className="mx-3 bg-white dark:bg-card border-2 border-b-0 border-gray-400 dark:border-white/50 shadow-[0_-4px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
-        style={{ borderTopLeftRadius: 32, borderTopRightRadius: 32, marginLeft: 12, marginRight: 12 }}
+        className="bg-white dark:bg-card border-2 border-b-0 border-gray-400 dark:border-white/50 shadow-[0_-4px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"
+        style={{ borderTopLeftRadius: 32, borderTopRightRadius: 32 }}
       >
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           {leftItems.map(renderTab)}
