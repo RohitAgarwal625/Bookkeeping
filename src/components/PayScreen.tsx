@@ -462,7 +462,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
 function Header({ onBack, hideBack = false }: { onBack: () => void; hideBack?: boolean }) {
   return (
     <header className="flex-shrink-0 bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border">
-      <div className="pt-12 pb-4 px-6 flex items-center justify-between">
+      <div className="px-6 py-4 flex items-center justify-between">
         <div className="w-9">
           {!hideBack && (
             <button
