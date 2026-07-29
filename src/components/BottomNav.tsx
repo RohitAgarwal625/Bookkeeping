@@ -8,14 +8,20 @@ interface BottomNavProps {
 
 export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
   const [navSize, setNavSize] = useState({ w: 390, h: 64 });
+  const [buttonCX, setButtonCX] = useState(195);
   const navRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const update = () => {
-      if (navRef.current) {
-        const { width, height } = navRef.current.getBoundingClientRect();
-        setNavSize({ w: width, h: height });
-      }
+      requestAnimationFrame(() => {
+        if (navRef.current && btnRef.current) {
+          const navRect = navRef.current.getBoundingClientRect();
+          const btnRect = btnRef.current.getBoundingClientRect();
+          setNavSize({ w: navRect.width, h: navRect.height });
+          setButtonCX(btnRect.left - navRect.left + btnRect.width / 2);
+        }
+      });
     };
     update();
     window.addEventListener("resize", update);
@@ -52,10 +58,10 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
   };
 
   // Full border drawn as one SVG path so corners and notch share identical colour/weight
-  const notchR = 32;   // QR button radius(28) + 4px padding
-  const cornerR = 32;  // matches border-radius of nav div
+  const notchR = 28;   // exact button radius (w-14/2 = 28px) — arc traces button edge
+  const cornerR = 32;
   const { w: W, h: H } = navSize;
-  const cx = W / 2;
+  const cx = buttonCX;  // measured from actual button position
   // Path: left side up → top-left corner → flat → QR notch up → flat → top-right corner → right side down
   const svgPath = [
     `M 0,${H}`,                                                        // bottom-left
@@ -92,6 +98,7 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
           {/* Centre Pay hump button */}
           <div className="flex-1 flex flex-col items-center justify-end pb-2 relative" style={{ minWidth: 60 }}>
             <button
+              ref={btnRef}
               onClick={() => onNavigate?.("pay")}
               className="absolute -top-7 w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
               style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
