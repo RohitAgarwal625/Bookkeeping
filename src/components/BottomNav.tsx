@@ -89,7 +89,7 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
           style={{ overflow: "visible" }}
           aria-hidden="true"
         >
-          <path d={svgPath} fill="none" stroke="currentColor" strokeWidth="2" />
+          <path d={svgPath} fill="none" stroke="currentColor" strokeWidth="3.5" />
         </svg>
 
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
@@ -100,8 +100,8 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
             <button
               ref={btnRef}
               onClick={() => onNavigate?.("pay")}
-              className="absolute -top-7 w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-              style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+              className="absolute w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
+              style={{ top: "-45px", background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
             >
               <QrCode className="w-6 h-6 text-white" />
             </button>
