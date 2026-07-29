@@ -461,8 +461,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
 // ── Shared header: "Payment Details" centered + Bookkeeping logo on the right ──────
 function Header({ onBack, hideBack = false }: { onBack: () => void; hideBack?: boolean }) {
   return (
-    <div className="flex-shrink-0 bg-background">
-      <div className="flex items-center justify-between px-6 pt-10 pb-4">
+    <header className="flex-shrink-0 bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border">
+      <div className="pt-12 pb-4 px-6 flex items-center justify-between">
         <div className="w-9">
           {!hideBack && (
             <button
@@ -476,8 +476,7 @@ function Header({ onBack, hideBack = false }: { onBack: () => void; hideBack?: b
         <h1 className="text-xl font-bold text-gray-900 dark:text-foreground text-center">Payment Details</h1>
         <BookkeepingLogo compact />
       </div>
-      <div className="h-px bg-gray-100 dark:bg-gray-700 mx-6" />
-    </div>
+    </header>
   );
 }
 
