@@ -62,19 +62,19 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}
           >
-            {/* X — top-right outer corner */}
-            <button
-              onClick={closePioneer}
-              className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
-            >
-              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-            </button>
-
             {/* Card with white halo */}
             <div
               className="bg-white dark:bg-card rounded-2xl w-full relative"
               style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.95), 0 0 28px 6px rgba(255,255,255,0.5), 0 8px 32px rgba(0,0,0,0.2)" }}
             >
+            {/* X — top-right outer corner */}
+            <button
+              onClick={(e) => { e.stopPropagation(); closePioneer(); }}
+              className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+            >
+              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+            </button>
+
 
               {/* Title above separator */}
               <div className="px-5 pt-4 text-center">
@@ -161,19 +161,19 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}
           >
-            {/* X — top-right outer corner */}
-            <button
-              onClick={closeTransaction}
-              className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
-            >
-              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-            </button>
-
             {/* Card with white halo */}
             <div
               className="bg-white dark:bg-card rounded-2xl w-full relative"
               style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.95), 0 0 28px 6px rgba(255,255,255,0.5), 0 8px 32px rgba(0,0,0,0.2)" }}
             >
+            {/* X — top-right outer corner */}
+            <button
+              onClick={(e) => { e.stopPropagation(); closeTransaction(); }}
+              className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+            >
+              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+            </button>
+
 
               {/* Title above separator */}
               <div className="px-5 pt-4 text-center">
