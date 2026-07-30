@@ -125,9 +125,6 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                       <Briefcase className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
                     </div>
                     <span className="text-xs text-gray-400 dark:text-muted-foreground font-medium">Business</span>
-                    <span className="text-[10px] text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/40">
-                      Coming Soon
-                    </span>
                   </div>
                   {/* Info */}
                   <button
@@ -137,6 +134,9 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                   >
                     <Info className="w-3 h-3 text-gray-400" />
                   </button>
+                  <span className="text-[9px] text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/40">
+                    Coming Soon
+                  </span>
                   {pioneerTooltip === "business" && (
                     <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
                       <p className="font-semibold text-amber-500 mb-0.5">Business</p>
@@ -228,9 +228,6 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     </div>
                     <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Automatic</span>
                   </button>
-                  <span className="text-[10px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-2 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
-                    Free·Limited
-                  </span>
                   {/* Info */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setAutoTooltip(v => !v); setManualTooltip(false); }}
@@ -239,6 +236,9 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                   >
                     <Info className="w-3 h-3 text-gray-400" />
                   </button>
+                  <span className="text-[9px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-1.5 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
+                    Free·Limited
+                  </span>
                   {autoTooltip && (
                     <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
                       <p className="font-semibold text-amber-500 mb-0.5">Automatic</p>
