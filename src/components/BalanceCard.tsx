@@ -72,9 +72,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
 
             {/* Card with white halo */}
             <div
-              className="bg-white dark:bg-card rounded-2xl w-full overflow-hidden"
+              className="bg-white dark:bg-card rounded-2xl w-full relative"
               style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.95), 0 0 28px 6px rgba(255,255,255,0.5), 0 8px 32px rgba(0,0,0,0.2)" }}
             >
+
               {/* Title above separator */}
               <div className="px-5 pt-4 text-center">
                 <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Pioneer</h3>
@@ -88,7 +89,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
               <div className="px-6 pb-6 pt-3 flex items-start gap-0">
 
                 {/* Individual */}
-                <div className="flex-1 flex flex-col items-center gap-3">
+                <div className="flex-1 flex flex-col items-center gap-2">
                   <button
                     onClick={() => { closePioneer(); onAddCustomer("individual"); }}
                     className="flex flex-col items-center gap-2 group"
@@ -98,54 +99,50 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     </div>
                     <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Individual</span>
                   </button>
-                  {/* Info — relative wrapper so tooltip appears below THIS button only */}
-                  <div className="relative flex flex-col items-center">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "individual" ? null : "individual"); }}
-                      className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-secondary/80 transition-colors"
-                      aria-label="Individual info"
-                    >
-                      <Info className="w-3 h-3 text-gray-400" />
-                    </button>
-                    {pioneerTooltip === "individual" && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-44 z-30 bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center shadow-lg">
-                        <p className="font-semibold text-[#A47CF3] mb-1">Individual</p>
-                        Add and Save Contact name with Pi Wallet Address.
-                      </div>
-                    )}
-                  </div>
+                  {/* Info */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "individual" ? null : "individual"); }}
+                    className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-secondary/80 transition-colors"
+                    aria-label="Individual info"
+                  >
+                    <Info className="w-3 h-3 text-gray-400" />
+                  </button>
+                  {pioneerTooltip === "individual" && (
+                    <div className="w-full bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
+                      <p className="font-semibold text-[#A47CF3] mb-0.5">Individual</p>
+                      Add and Save Contact name with Pi Wallet Address.
+                    </div>
+                  )}
                 </div>
 
                 {/* Vertical divider */}
                 <div className="w-px bg-gray-100 dark:bg-border mx-6 self-stretch flex-shrink-0" />
 
                 {/* Business — disabled */}
-                <div className="flex-1 flex flex-col items-center gap-3">
+                <div className="flex-1 flex flex-col items-center gap-2">
                   <div className="flex flex-col items-center gap-2 opacity-50 pointer-events-none">
                     <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-secondary flex items-center justify-center shadow-sm">
                       <Briefcase className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
                     </div>
                     <span className="text-xs text-gray-400 dark:text-muted-foreground font-medium">Business</span>
                     <span className="text-[10px] text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/40">
-                      Soon
+                      Coming Soon
                     </span>
                   </div>
-                  {/* Info — relative wrapper */}
-                  <div className="relative flex flex-col items-center">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "business" ? null : "business"); }}
-                      className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-amber-100 dark:hover:bg-secondary/80 transition-colors"
-                      aria-label="Business info"
-                    >
-                      <Info className="w-3 h-3 text-gray-400" />
-                    </button>
-                    {pioneerTooltip === "business" && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-44 z-30 bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center shadow-lg">
-                        <p className="font-semibold text-amber-500 mb-1">Business</p>
-                        Coming soon. For business entities.
-                      </div>
-                    )}
-                  </div>
+                  {/* Info */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "business" ? null : "business"); }}
+                    className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-amber-100 dark:hover:bg-secondary/80 transition-colors"
+                    aria-label="Business info"
+                  >
+                    <Info className="w-3 h-3 text-gray-400" />
+                  </button>
+                  {pioneerTooltip === "business" && (
+                    <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
+                      <p className="font-semibold text-amber-500 mb-0.5">Business</p>
+                      Coming soon. For business entities.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -174,9 +171,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
 
             {/* Card with white halo */}
             <div
-              className="bg-white dark:bg-card rounded-2xl w-full overflow-hidden"
+              className="bg-white dark:bg-card rounded-2xl w-full relative"
               style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.95), 0 0 28px 6px rgba(255,255,255,0.5), 0 8px 32px rgba(0,0,0,0.2)" }}
             >
+
               {/* Title above separator */}
               <div className="px-5 pt-4 text-center">
                 <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Transaction(s)</h3>
@@ -190,7 +188,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
               <div className="px-6 pb-6 pt-3 flex items-start gap-0">
 
                 {/* Manual */}
-                <div className="flex-1 flex flex-col items-center gap-3">
+                <div className="flex-1 flex flex-col items-center gap-2">
                   <button
                     onClick={() => { closeTransaction(); onAddEntry(); }}
                     className="flex flex-col items-center gap-2 group"
@@ -201,28 +199,26 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Manual</span>
                   </button>
                   {/* Info */}
-                  <div className="relative flex flex-col items-center">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setManualTooltip(v => !v); setAutoTooltip(false); }}
-                      className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-secondary/80 transition-colors"
-                      aria-label="Manual info"
-                    >
-                      <Info className="w-3 h-3 text-gray-400" />
-                    </button>
-                    {manualTooltip && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-44 z-30 bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center shadow-lg">
-                        <p className="font-semibold text-[#A47CF3] mb-1">Manual</p>
-                        Recommended for adding one or few missing transaction(s) one by one.
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setManualTooltip(v => !v); setAutoTooltip(false); }}
+                    className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-secondary/80 transition-colors"
+                    aria-label="Manual info"
+                  >
+                    <Info className="w-3 h-3 text-gray-400" />
+                  </button>
+                  {manualTooltip && (
+                    <div className="w-full bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
+                      <p className="font-semibold text-[#A47CF3] mb-0.5">Manual</p>
+                      Recommended for adding one or few missing transaction(s) one by one.
+                    </div>
+                  )}
                 </div>
 
                 {/* Vertical divider */}
                 <div className="w-px bg-gray-100 dark:bg-border mx-6 self-stretch flex-shrink-0" />
 
                 {/* Automatic */}
-                <div className="flex-1 flex flex-col items-center gap-3">
+                <div className="flex-1 flex flex-col items-center gap-2">
                   <button
                     onClick={() => { closeTransaction(); onAutoEntry(); }}
                     className="flex flex-col items-center gap-2 group"
@@ -236,21 +232,19 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     Free·Limited
                   </span>
                   {/* Info */}
-                  <div className="relative flex flex-col items-center">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setAutoTooltip(v => !v); setManualTooltip(false); }}
-                      className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-amber-100 dark:hover:bg-secondary/80 transition-colors"
-                      aria-label="Automatic info"
-                    >
-                      <Info className="w-3 h-3 text-gray-400" />
-                    </button>
-                    {autoTooltip && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-44 z-30 bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl p-2.5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed text-center shadow-lg">
-                        <p className="font-semibold text-amber-500 mb-1">Automatic</p>
-                        Recommended for adding multiple transactions all at once. Free for limited time.
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setAutoTooltip(v => !v); setManualTooltip(false); }}
+                    className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-amber-100 dark:hover:bg-secondary/80 transition-colors"
+                    aria-label="Automatic info"
+                  >
+                    <Info className="w-3 h-3 text-gray-400" />
+                  </button>
+                  {autoTooltip && (
+                    <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
+                      <p className="font-semibold text-amber-500 mb-0.5">Automatic</p>
+                      Recommended for adding multiple transactions all at once. Free for limited time.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
