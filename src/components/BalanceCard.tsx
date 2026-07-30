@@ -55,7 +55,6 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
       {showPioneerDialog && (
         <div
           className="fixed inset-0 z-50 backdrop-blur-sm bg-black/40 flex items-center justify-center px-6"
-          onClick={closePioneer}
         >
           <div
             className="relative w-full max-w-[420px]"
@@ -154,7 +153,6 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
       {showTransactionDialog && (
         <div
           className="fixed inset-0 z-50 backdrop-blur-sm bg-black/40 flex items-center justify-center px-6"
-          onClick={closeTransaction}
         >
           <div
             className="relative w-full max-w-[420px]"
