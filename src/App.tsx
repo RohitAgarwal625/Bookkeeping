@@ -363,14 +363,42 @@ function AppContent() {
   // ── Login Screen ──────────────────────────────────────────────────
   return (
     <div className="size-full flex items-center justify-center bg-background">
+      <style>{`
+        @keyframes pen-write {
+          0%   { transform: translateX(-120px) translateY(4px) rotate(-25deg); opacity: 0; }
+          8%   { opacity: 1; }
+          75%  { transform: translateX(0px) translateY(0px) rotate(-10deg); opacity: 1; }
+          88%  { transform: translateX(4px) translateY(-2px) rotate(0deg); opacity: 1; }
+          100% { transform: translateX(0px) translateY(0px) rotate(0deg); opacity: 1; }
+        }
+        @keyframes text-reveal {
+          0%   { max-width: 0; opacity: 0; }
+          8%   { opacity: 1; }
+          75%  { max-width: 320px; opacity: 1; }
+          100% { max-width: 320px; opacity: 1; }
+        }
+        .pen-animate {
+          animation: pen-write 2.8s cubic-bezier(0.25,0.1,0.25,1) 0.8s both;
+        }
+        .text-animate {
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          max-width: 0;
+          animation: text-reveal 2.8s cubic-bezier(0.25,0.1,0.25,1) 0.8s both;
+        }
+      `}</style>
       <div className="w-full max-w-md px-6 py-8 flex flex-col items-center">
         <div className="flex flex-col items-center gap-2 mb-8">
           <BookkeepingLogo />
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-base italic text-center">For Bookkeepering you...</p>
-        </div>
-        <div className="my-12 flex items-center justify-center">
-          <img src={penFeatherIcon} alt="Pen Feather" className="w-16 h-16 object-contain" />
+          {/* Tagline + pen icon inline — pen settles after the ellipsis */}
+          <div className="flex items-center gap-1">
+            <p className="text-gray-500 dark:text-gray-400 text-base italic">
+              <span className="text-animate">For Bookkeepering you...</span>
+            </p>
+            <img src={penFeatherIcon} alt="Pen Feather" className="w-6 h-6 object-contain pen-animate flex-shrink-0" />
+          </div>
         </div>
         <button
           onClick={handleConnectWallet}

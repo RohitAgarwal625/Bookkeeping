@@ -133,7 +133,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                   >
                     <Info className="w-3 h-3 text-gray-400" />
                   </button>
-                  <span className="text-[9px] text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/40">
+                  <span style={{ padding: "2px 10px" }} className="text-[9px] text-amber-500 bg-amber-50 dark:bg-amber-950/30 rounded-full border border-amber-200 dark:border-amber-800/40 whitespace-nowrap">
                     Coming Soon
                   </span>
                   {pioneerTooltip === "business" && (
@@ -221,7 +221,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                     onClick={() => { closeTransaction(); onAutoEntry(); }}
                     className="flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#F7C548] to-[#A47CF3] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <Zap className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Automatic</span>
@@ -234,8 +234,8 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
                   >
                     <Info className="w-3 h-3 text-gray-400" />
                   </button>
-                  <span className="text-[9px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-1.5 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
-                    Free·Limited
+                  <span style={{ padding: "2px 10px" }} className="text-[9px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
+                    Free · Limited
                   </span>
                   {autoTooltip && (
                     <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">

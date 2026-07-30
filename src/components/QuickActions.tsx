@@ -87,7 +87,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                 >
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-300/60" />
                   Business
-                  <span className="ml-auto text-xs font-normal text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/40">
+                  <span style={{ padding: "2px 10px" }} className="ml-auto text-xs font-normal text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-full border border-amber-200 dark:border-amber-800/40">
                     Coming Soon
                   </span>
                 </button>
@@ -154,7 +154,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                       <Zap className="w-4 h-4 text-white" />
                     </div>
                     Automatic
-                    <span className="ml-auto text-xs font-normal text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-3 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
+                    <span style={{ padding: "2px 10px" }} className="ml-auto text-xs font-normal text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
                       Free · Limited
                     </span>
                   </button>
