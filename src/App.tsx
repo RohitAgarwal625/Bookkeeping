@@ -285,6 +285,7 @@ function AppContent() {
           onBack={handleBackToDashboard}
           onNavigate={handleNavigate}
           onLogout={handleLogout}
+          isGuest={isGuest}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         <SharedOverlays />
@@ -296,7 +297,7 @@ function AppContent() {
   if (currentScreen === "analyze") {
     return (
       <>
-        <ReportsAnalytics onNavigate={handleNavigate} />
+        <ReportsAnalytics onNavigate={handleNavigate} isGuest={isGuest} />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         <SharedOverlays />
         <Toaster position="bottom-center" />

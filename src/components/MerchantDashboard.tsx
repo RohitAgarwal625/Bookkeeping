@@ -210,14 +210,14 @@ export function MerchantDashboard({
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
-      <header className="bg-white dark:bg-[#0F1115]">
+      <header className="bg-white dark:bg-card">
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "history"
-                ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
-                : "text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#080810]"
+                ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-card"
+                : "text-gray-400 dark:text-gray-500 bg-[#f5f5f7] dark:bg-[#1c1c28]"
             }`}
           >
             <History className="w-4 h-4" /> History
@@ -226,8 +226,8 @@ export function MerchantDashboard({
             onClick={() => setActiveView("analysis")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "analysis"
-                ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
-                : "text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#080810]"
+                ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-card"
+                : "text-gray-400 dark:text-gray-500 bg-[#f5f5f7] dark:bg-[#1c1c28]"
             }`}
           >
             <BarChart2 className="w-4 h-4" /> Analysis
@@ -240,7 +240,7 @@ export function MerchantDashboard({
 
         {/* ── Analysis View ── */}
         {activeView === "analysis" && (
-          <ReportsAnalytics onNavigate={onNavigate} embedded />
+          <ReportsAnalytics onNavigate={onNavigate} embedded isGuest={isGuest} />
         )}
 
         {/* ── History View ── */}
@@ -350,7 +350,7 @@ export function MerchantDashboard({
 
       {/* ── Transaction Detail Modal ───────────────────────────────────── */}
       {selectedMerchant && (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center pb-24">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -358,7 +358,7 @@ export function MerchantDashboard({
           />
 
           {/* Sheet */}
-          <div className="relative w-full max-w-md bg-white dark:bg-card rounded-t-3xl shadow-2xl max-h-[75vh] overflow-y-auto pb-8">
+          <div className="relative w-full max-w-md bg-white dark:bg-card rounded-t-3xl shadow-2xl max-h-[60vh] overflow-y-auto pb-4">
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 bg-gray-200 dark:bg-border rounded-full" />

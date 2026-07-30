@@ -26,6 +26,7 @@ interface SettingsProps {
   onBack: () => void;
   onNavigate: (screen: string) => void;
   onLogout: () => void;
+  isGuest?: boolean;
 }
 
 const faqData = [
@@ -87,6 +88,7 @@ export function Settings({
   onBack,
   onNavigate,
   onLogout,
+  isGuest,
 }: SettingsProps) {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [copied, setCopied] = useState(false);
@@ -470,29 +472,34 @@ export function Settings({
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-6 mb-6">
           <div className="flex flex-col items-center mb-4">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3 overflow-hidden">
-              <span className="text-white text-2xl">{getInitials(displayName)}</span>
+              <span className="text-white text-2xl">{isGuest ? "?" : getInitials(displayName)}</span>
             </div>
 
-            <h3 className="text-gray-900 dark:text-foreground mb-1">{displayName}</h3>
+            <h3 className="text-gray-900 dark:text-foreground mb-1">{isGuest ? "Guest User" : displayName}</h3>
 
             <div className="flex items-center gap-2 mb-3">
-              <p className="text-gray-500 dark:text-muted-foreground text-sm font-mono">{truncatedAddress}</p>
-              <button
-                onClick={handleCopyAddress}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded transition-colors"
-              >
-                {copied ? (
-                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                ) : (
-                  <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-                )}
-              </button>
+              {isGuest ? (
+                <p className="text-gray-400 dark:text-muted-foreground text-sm italic">No wallet connected</p>
+              ) : (
+                <>
+                  <p className="text-gray-500 dark:text-muted-foreground text-sm font-mono">{truncatedAddress}</p>
+                  <button onClick={handleCopyAddress} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded transition-colors">
+                    {copied ? <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" /> : <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />}
+                  </button>
+                </>
+              )}
             </div>
 
+            {isGuest ? (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/20 rounded-full border border-amber-200 dark:border-amber-800/40">
+                <span className="text-xs text-amber-700 dark:text-amber-400">Browsing as Guest — Limited Access</span>
+              </div>
+            ) : (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-purple-200 dark:border-purple-800/40">
               <CheckCircle className="w-3.5 h-3.5 text-[#A47CF3]" />
               <span className="text-xs text-gray-700 dark:text-gray-300">Verified via Pi Wallet</span>
             </div>
+            )}
           </div>
         </div>
 

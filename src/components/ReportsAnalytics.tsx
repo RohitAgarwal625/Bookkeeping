@@ -1,4 +1,4 @@
-import { TrendingUp, Users, Download, Search, Info } from "lucide-react";
+import { TrendingUp, Users, Search, Info, BarChart2 } from "lucide-react";
 import { useState } from "react";
 import {
   BarChart,
@@ -14,6 +14,8 @@ import { getInitials } from "../types";
 
 interface ReportsAnalyticsProps {
   onNavigate: (screen: string) => void;
+  embedded?: boolean;
+  isGuest?: boolean;
 }
 
 const monthlyData = [
@@ -33,7 +35,7 @@ const topCustomers = [
   { id: "5", name: "Vikram Singh", totalAmount: 1540.5, type: "credit" as const },
 ];
 
-export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyticsProps) {
+export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: ReportsAnalyticsProps) {
   const [selectedFilter, setSelectedFilter] = useState<"week" | "month" | "custom">("month");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "individual" | "business">("all");
@@ -63,6 +65,17 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
+        {isGuest ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
+              <BarChart2 className="w-8 h-8 text-gray-400 dark:text-muted-foreground" />
+            </div>
+            <p className="text-gray-400 dark:text-muted-foreground text-sm text-center px-6">
+              Connect Pi Wallet to view your analysis and reports
+            </p>
+          </div>
+        ) : (
+        <>
         {/* Search & Filter Section */}
         <div className="mb-6">
           {/* Section heading */}
@@ -235,6 +248,8 @@ export function ReportsAnalytics({ onNavigate, embedded = false }: ReportsAnalyt
         <p className="text-xs text-gray-500 dark:text-muted-foreground text-center px-4">
           All reports are stored securely via Pi blockchain ledger.
         </p>
+        </>
+        )}
       </div>
 
       {/* Bottom Navigation — only when used as standalone screen */}

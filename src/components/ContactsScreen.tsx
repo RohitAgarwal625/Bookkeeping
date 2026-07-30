@@ -153,17 +153,17 @@ export function ContactsScreen({
                                   </span>
                                 )}
                               </div>
-                              {/* Details label — same size as Individual/Business */}
-                              <span className="text-[10px] text-[#A47CF3] font-medium mt-0.5 inline-block">Details</span>
+                              {/* Details label */}
+                              <span className="text-xs text-[#A47CF3] font-medium mt-0.5 inline-block">Details</span>
                             </div>
 
                             <div className="text-right flex-shrink-0">
                               <p className={`text-sm font-bold ${balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
                                 {balance >= 0 ? "+" : ""}{balance.toFixed(2)} π
                               </p>
-                              {/* Category with emoji */}
-                              <p className="text-gray-400 dark:text-muted-foreground text-[10px] mt-1">
-                                {contact.category === "individual" ? "👤 Individual" : "🏢 Business"}
+                              {/* Category */}
+                              <p className="text-gray-400 dark:text-muted-foreground text-xs mt-1">
+                                {contact.category === "individual" ? "👤 Individual" : "🏷️ Business"}
                               </p>
                             </div>
                           </div>

@@ -322,9 +322,6 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               <span className="flex-1 text-gray-400 dark:text-gray-500 text-base line-through select-none">
                 Select from Contacts
               </span>
-              <span className="text-[10px] bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full font-medium">
-                Unavailable
-              </span>
             </div>
           ) : (
           <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3]`}>
