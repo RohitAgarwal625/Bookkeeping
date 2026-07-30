@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Home, Users, LayoutDashboard, Settings, QrCode } from "lucide-react";
+import { Home, Users, LayoutDashboard, Settings } from "lucide-react";
 
 interface BottomNavProps {
   activeTab: "home" | "contacts" | "pay" | "merchantDashboard" | "settings";
@@ -103,7 +103,9 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
               className="absolute w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
               style={{ top: "-26.8px", background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
             >
-              <QrCode className="w-6 h-6 text-white" />
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="20" fontWeight="bold" fontFamily="serif">π</text>
+              </svg>
             </button>
             {/* Invisible spacer same size as other tabs' icons so "Pay" text aligns exactly */}
             <span className="w-5 h-5 invisible" aria-hidden="true" />
