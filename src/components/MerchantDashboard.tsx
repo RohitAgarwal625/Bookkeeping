@@ -24,6 +24,7 @@ interface MerchantDashboardProps {
   onNavigateToAddEntry: () => void;
   onNavigateToCustomerLedger: (customerName: string) => void;
   onNavigate: (screen: string) => void;
+  isGuest?: boolean;
 }
 
 interface PastTransaction {
@@ -152,7 +153,7 @@ const mockMerchants: MerchantRecord[] = [
     date: "Feb 15, 2026",
     amount: 175.50,
     type: "credit",
-    status: "completed",
+    status: "failed",
     piWalletAddress: "0x8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e",
     description: "Product sale",
     txHash: "0x321fed654cba987fed654cba987fed654cba987fe",
@@ -168,6 +169,7 @@ const mockMerchants: MerchantRecord[] = [
 export function MerchantDashboard({
   onNavigateToCustomerLedger,
   onNavigate,
+  isGuest,
 }: MerchantDashboardProps) {
   const [selectedMerchant, setSelectedMerchant] = useState<MerchantRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<"individual" | "business">("individual");
@@ -177,8 +179,8 @@ export function MerchantDashboard({
   const [walletDraftMap, setWalletDraftMap] = useState<Record<string, string>>({});
   const [walletOverrides, setWalletOverrides] = useState<Record<string, string>>({});
 
-  const individualMerchants = mockMerchants.filter((m) => m.category === "individual");
-  const businessMerchants = mockMerchants.filter((m) => m.category === "business");
+  const individualMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "individual");
+  const businessMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "business");
 
   const handleCopyWallet = (id: string, address: string) => {
     navigator.clipboard.writeText(address).catch(() => {});
@@ -208,14 +210,14 @@ export function MerchantDashboard({
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
-      <header className="bg-white dark:bg-card">
+      <header className="bg-white dark:bg-[#0F1115]">
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "history"
-                ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
-                : "text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-[#12121e]"
+                ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
+                : "text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#080810]"
             }`}
           >
             <History className="w-4 h-4" /> History
@@ -224,8 +226,8 @@ export function MerchantDashboard({
             onClick={() => setActiveView("analysis")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "analysis"
-                ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
-                : "text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-[#12121e]"
+                ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
+                : "text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#080810]"
             }`}
           >
             <BarChart2 className="w-4 h-4" /> Analysis
@@ -280,7 +282,17 @@ export function MerchantDashboard({
 
             {/* Merchants List */}
             <div className="space-y-3">
-              {(activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
+              {(activeCategory === "individual" ? individualMerchants : businessMerchants).length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
+                    <History className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
+                  </div>
+                  <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
+                    {isGuest ? "Connect Pi Wallet to view transaction history" : "No transactions yet"}
+                  </p>
+                </div>
+              ) : (
+                (activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
                 <div
                   key={merchant.id}
                   className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A2BE2]/40 transition-all"
@@ -328,7 +340,8 @@ export function MerchantDashboard({
                     <span className="text-xs text-[#A47CF3] dark:text-[#8A2BE2]">View Details</span>
                   </button>
                 </div>
-              ))}
+              ))
+              )}
             </div>
           </>
         )}
@@ -337,7 +350,7 @@ export function MerchantDashboard({
 
       {/* ── Transaction Detail Modal ───────────────────────────────────── */}
       {selectedMerchant && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -345,7 +358,7 @@ export function MerchantDashboard({
           />
 
           {/* Sheet */}
-          <div className="relative w-full max-w-md bg-white dark:bg-card rounded-t-3xl shadow-2xl max-h-[80vh] overflow-y-auto pb-28">
+          <div className="relative w-full max-w-md bg-white dark:bg-card rounded-t-3xl shadow-2xl max-h-[75vh] overflow-y-auto pb-8">
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 bg-gray-200 dark:bg-border rounded-full" />

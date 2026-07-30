@@ -12,6 +12,7 @@ interface DashboardProps {
   onNavigateToAutoEntry: () => void;
   onNavigateToCustomerLedger: (customerName: string) => void;
   onNavigate: (screen: string) => void;
+  isGuest?: boolean;
 }
 
 const recentEntries = [
@@ -37,6 +38,7 @@ export function Dashboard({
   onNavigateToAutoEntry,
   onNavigateToCustomerLedger,
   onNavigate,
+  isGuest,
 }: DashboardProps) {
   const [showBell, setShowBell] = useState(false);
   const [bellRead, setBellRead] = useState(false);
@@ -116,6 +118,14 @@ export function Dashboard({
         {/* Recent Entries */}
         <div>
           <h3 className="text-gray-900 dark:text-foreground mb-4">Recent Transactions</h3>
+          {isGuest ? (
+            <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border flex flex-col items-center justify-center py-10 gap-3">
+              <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
+                <ArrowDownLeft className="w-6 h-6 text-gray-400 dark:text-muted-foreground" />
+              </div>
+              <p className="text-gray-400 dark:text-muted-foreground text-sm text-center px-4">Connect Pi Wallet to view recent transactions</p>
+            </div>
+          ) : (
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border overflow-hidden">
             {recentEntries.map((transaction, index) => (
               <div
@@ -142,6 +152,7 @@ export function Dashboard({
               </div>
             ))}
           </div>
+          )}
         </div>
 
       </div>

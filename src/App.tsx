@@ -24,6 +24,39 @@ type Screen =
   | "merchantDashboard" | "analyze" | "settings" | "addEntry"
   | "pay" | "contacts" | "autoTransaction" | "qrPay" | "contactDetails";
 
+// Shared keyframe + guest modal component
+function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[300] backdrop-blur-sm bg-black/50 flex items-center justify-center px-6">
+      <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
+      <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+        <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <span className="text-2xl font-black text-white">π</span>
+          </div>
+          <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
+          <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6 leading-relaxed">
+            You need to connect your Pi Wallet to add or update information.
+          </p>
+          <button
+            onClick={onConnect}
+            className="w-full py-3 rounded-full text-white font-bold mb-4"
+            style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+          >
+            Connect Pi Wallet
+          </button>
+          <button
+            onClick={onDismiss}
+            className="w-full py-3 rounded-full font-semibold text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border text-sm"
+          >
+            Continue as Guest
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
   const [userName] = useState("Rahul Verma");
@@ -31,21 +64,23 @@ function AppContent() {
   const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<"individual" | "business">("individual");
-  const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [newContactId, setNewContactId] = useState<string | null>(null);
   const [selectedContactDetails, setSelectedContactDetails] = useState<Contact | null>(null);
   const [showPayModal, setShowPayModal] = useState(false);
+  const [showGuestModal, setShowGuestModal] = useState(false);
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
   const [isGuest, setIsGuest] = useState(false);
-  const [showGuestModal, setShowGuestModal] = useState(false);
 
   const handleConnectWallet = () => {
     setIsGuest(false);
+    setContacts(initialContacts);
     setCurrentScreen("dashboard");
   };
 
   const handleGuestLogin = () => {
     setIsGuest(true);
+    setContacts([]);
     setCurrentScreen("dashboard");
   };
 
@@ -96,7 +131,6 @@ function AppContent() {
       setShowPayModal(true);
       return;
     }
-    // Close the Pay modal when user taps any other nav button
     setShowPayModal(false);
     const validScreens: Screen[] = [
       "home", "dashboard", "addCustomer", "customerLedger",
@@ -118,9 +152,21 @@ function AppContent() {
     setCurrentScreen("pay");
   };
 
+  // When guest taps Pay via Contacts or Pay via QR — show guest guard instead
+  const handlePayViaContacts = () => {
+    setShowPayModal(false);
+    if (isGuest) { setShowGuestModal(true); return; }
+    setCurrentScreen("pay");
+  };
+
+  const handlePayViaQR = () => {
+    setShowPayModal(false);
+    if (isGuest) { setShowGuestModal(true); return; }
+    setCurrentScreen("qrPay");
+  };
+
   const contactNames = contacts.map((c) => c.name);
 
-  // Screens that show the bottom nav
   const navScreens: Screen[] = ["dashboard", "contacts", "merchantDashboard", "analyze", "settings"];
   const activeTab = ((): "home" | "contacts" | "pay" | "merchantDashboard" | "settings" => {
     if (currentScreen === "dashboard") return "home";
@@ -130,6 +176,25 @@ function AppContent() {
     return "settings";
   })();
   const showNav = navScreens.includes(currentScreen);
+
+  // Shared overlays (pay modal + guest modal) rendered on top of any nav screen
+  const SharedOverlays = () => (
+    <>
+      {showPayModal && (
+        <PayMethodModal
+          onPayViaContacts={handlePayViaContacts}
+          onPayViaQR={handlePayViaQR}
+          onClose={() => setShowPayModal(false)}
+        />
+      )}
+      {showGuestModal && (
+        <GuestModal
+          onConnect={() => { setShowGuestModal(false); setCurrentScreen("login"); }}
+          onDismiss={() => setShowGuestModal(false)}
+        />
+      )}
+    </>
+  );
 
   // ── Screens ────────────────────────────────────────────────────────
 
@@ -205,28 +270,7 @@ function AppContent() {
           onNewContactSeen={() => setNewContactId(null)}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
-        {showPayModal && (
-          <PayMethodModal
-            onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
-            onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
-            onClose={() => setShowPayModal(false)}
-          />
-        )}
-        {showGuestModal && (
-          <div className="fixed inset-0 z-[300] backdrop-blur-sm bg-black/50 flex items-center justify-center px-6">
-            <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
-              <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <span className="text-2xl font-black text-white">π</span>
-                </div>
-                <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
-                <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6 leading-relaxed">You need to connect your Pi Wallet to add or update information.</p>
-                <button onClick={() => { setShowGuestModal(false); setCurrentScreen("login"); }} className="w-full py-3 rounded-full text-white font-bold mb-3" style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}>Connect Pi Wallet</button>
-                <button onClick={() => setShowGuestModal(false)} className="w-full py-3 rounded-full font-semibold text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border text-sm">Continue as Guest</button>
-              </div>
-            </div>
-          </div>
-        )}
+        <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
     );
@@ -243,13 +287,7 @@ function AppContent() {
           onLogout={handleLogout}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
-        {showPayModal && (
-          <PayMethodModal
-            onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
-            onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
-            onClose={() => setShowPayModal(false)}
-          />
-        )}
+        <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
     );
@@ -260,6 +298,7 @@ function AppContent() {
       <>
         <ReportsAnalytics onNavigate={handleNavigate} />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
+        <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
     );
@@ -291,15 +330,10 @@ function AppContent() {
           onNavigateToAddEntry={handleNavigateToAddEntry}
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigate={handleNavigate}
+          isGuest={isGuest}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
-        {showPayModal && (
-          <PayMethodModal
-            onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
-            onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
-            onClose={() => setShowPayModal(false)}
-          />
-        )}
+        <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
     );
@@ -316,56 +350,16 @@ function AppContent() {
           onNavigateToAutoEntry={handleNavigateToAutoEntry}
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigate={handleNavigate}
+          isGuest={isGuest}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
-        {showPayModal && (
-          <PayMethodModal
-            onPayViaContacts={() => { setShowPayModal(false); setCurrentScreen("pay"); }}
-            onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
-            onClose={() => setShowPayModal(false)}
-          />
-        )}
-        {showGuestModal && (
-          <div className="fixed inset-0 z-[300] backdrop-blur-sm bg-black/50 flex items-center justify-center px-6">
-            <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
-            <div
-              className="relative w-full max-w-[360px]"
-              style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}
-            >
-              <div
-                className="bg-white dark:bg-card rounded-2xl p-6 text-center"
-                style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}
-              >
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <span className="text-2xl font-black text-white">π</span>
-                </div>
-                <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
-                <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6 leading-relaxed">
-                  You need to connect your Pi Wallet to add or update information.
-                </p>
-                <button
-                  onClick={() => { setShowGuestModal(false); setCurrentScreen("login"); }}
-                  className="w-full py-3 rounded-full text-white font-bold mb-3"
-                  style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
-                >
-                  Connect Pi Wallet
-                </button>
-                <button
-                  onClick={() => setShowGuestModal(false)}
-                  className="w-full py-3 rounded-full font-semibold text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border text-sm"
-                >
-                  Continue as Guest
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
     );
   }
 
-  // Login Screen
+  // ── Login Screen ──────────────────────────────────────────────────
   return (
     <div className="size-full flex items-center justify-center bg-background">
       <div className="w-full max-w-md px-6 py-8 flex flex-col items-center">
@@ -385,9 +379,10 @@ function AppContent() {
         >
           Connect Pi Wallet
         </button>
+        <div className="h-6" />
         <button
           onClick={handleGuestLogin}
-          className="mt-4 w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
+          className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
           style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
         >
           Continue as Guest

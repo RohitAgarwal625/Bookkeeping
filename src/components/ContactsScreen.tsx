@@ -143,8 +143,8 @@ export function ContactsScreen({
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                {/* Name — font size matches old Details label */}
-                                <p className="text-gray-900 dark:text-foreground font-semibold text-[11px] truncate">
+                                {/* Name */}
+                                <p className="text-gray-900 dark:text-foreground font-semibold text-sm truncate">
                                   {contact.name}
                                 </p>
                                 {isNew && (

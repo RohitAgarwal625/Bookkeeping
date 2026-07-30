@@ -1,4 +1,4 @@
-import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, Home, ReceiptText } from "lucide-react";
+import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, Home, ReceiptText, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Contact, getInitials, initialContacts } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -100,7 +100,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   if (screen === "processing") {
     return (
       <div className="size-full flex flex-col bg-background">
-        <Header onBack={onBack} hideBack />
+        <div className="h-14 flex-shrink-0" />
 
         <div className="flex-1 flex flex-col items-center justify-center px-8">
           {/* Pulsing coin with expanding ripple rings */}
@@ -158,7 +158,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   if (screen === "success") {
     return (
       <div className="size-full flex flex-col bg-background relative overflow-hidden">
-        <Header onBack={onBack} hideBack />
+        <div className="h-14 flex-shrink-0" />
         {/* Soft on-theme glow */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full blur-3xl opacity-30 pointer-events-none"
@@ -316,11 +316,18 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             Pioneer
           </label>
           {/* Visually disabled when wallet is typed but not found in contacts */}
-          <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm ${
-            publicKey.trim() && !isVerified
-              ? "border-gray-200 dark:border-gray-700 opacity-50 pointer-events-none"
-              : "border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3]"
-          }`}>
+          {publicKey.trim() && !isVerified ? (
+            <div className="flex items-center gap-3 bg-gray-200 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl px-4 py-3.5 cursor-not-allowed">
+              <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+              <span className="flex-1 text-gray-400 dark:text-gray-500 text-base line-through select-none">
+                Select from Contacts
+              </span>
+              <span className="text-[10px] bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full font-medium">
+                Unavailable
+              </span>
+            </div>
+          ) : (
+          <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3]`}>
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -329,13 +336,13 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               onBlur={handlePioneerBlur}
               onChange={(e) => handlePioneerSearchChange(e.target.value)}
               placeholder="Select from Contacts"
-              disabled={!!(publicKey.trim() && !isVerified)}
               className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium"
             />
             <ChevronDown
               className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
             />
           </div>
+          )}
 
           {/* Not-in-contacts message */}
           {publicKey.trim() && !isVerified && (
