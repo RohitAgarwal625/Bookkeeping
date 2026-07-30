@@ -89,22 +89,24 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
           style={{ overflow: "visible" }}
           aria-hidden="true"
         >
-          <path d={svgPath} fill="none" stroke="currentColor" strokeWidth="3.5" />
+          <path d={svgPath} fill="none" stroke="currentColor" strokeWidth="2" />
         </svg>
 
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           {leftItems.map(renderTab)}
 
           {/* Centre Pay hump button */}
-          <div className="flex-1 flex flex-col items-center justify-end pb-2 relative" style={{ minWidth: 60 }}>
+          <div className="flex-1 flex flex-col items-center justify-center gap-1 h-full relative" style={{ minWidth: 60 }}>
             <button
               ref={btnRef}
               onClick={() => onNavigate?.("pay")}
               className="absolute w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-              style={{ top: "-45px", background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+              style={{ top: "-26.8px", background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
             >
               <QrCode className="w-6 h-6 text-white" />
             </button>
+            {/* Invisible spacer same size as other tabs' icons so "Pay" text aligns exactly */}
+            <span className="w-5 h-5 invisible" aria-hidden="true" />
             <span className={`text-xs font-medium ${activeTab === "pay" ? "text-[#A47CF3]" : "text-gray-400 dark:text-muted-foreground"}`}>
               Pay
             </span>
