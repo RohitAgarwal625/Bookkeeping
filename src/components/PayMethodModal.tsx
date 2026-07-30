@@ -57,7 +57,7 @@ export function PayMethodModal({ onPayViaContacts, onPayViaQR, onClose }: PayMet
             {/* Pay via Contacts */}
             <div className="flex-1 flex flex-col items-center gap-2">
               <button onClick={onPayViaContacts} className="flex flex-col items-center gap-2 group">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#F7C548] to-[#A47CF3] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                   <Users className="w-7 h-7 text-white" />
                 </div>
                 <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Pay via Contacts</span>

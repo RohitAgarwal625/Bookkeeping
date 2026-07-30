@@ -170,10 +170,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
             </label>
             <div className="flex items-center gap-2 mt-2">
               <span className={`w-2.5 h-2.5 rounded-full ${contact.category === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
-              <p className="text-gray-900 dark:text-foreground font-medium capitalize">{contact.category}</p>
-              <span className="text-xs text-gray-400 dark:text-muted-foreground bg-gray-100 dark:bg-secondary px-2 py-0.5 rounded-full">
-                Non-editable
-              </span>
+              <p className="text-gray-900 dark:text-foreground font-medium">{contact.category.charAt(0).toUpperCase() + contact.category.slice(1)}</p>
             </div>
           </div>
 

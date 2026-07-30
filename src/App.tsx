@@ -1,6 +1,6 @@
 import { useState } from "react";
+import penFeatherIcon from "./assets/penfeathericon.png";
 import { BookkeepingLogo } from "./components/BookkeepingLogo";
-import { PiWalletIcon } from "./components/PiWalletIcon";
 import { Dashboard } from "./components/Dashboard";
 import { AddCustomer } from "./components/AddCustomer";
 import { CustomerLedger } from "./components/CustomerLedger";
@@ -364,14 +364,13 @@ function AppContent() {
   return (
     <div className="size-full flex items-center justify-center bg-background">
       <div className="w-full max-w-md px-6 py-8 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-4 mb-8">
+        <div className="flex flex-col items-center gap-2 mb-8">
           <BookkeepingLogo />
-          <h1 className="text-red-600 dark:text-[#8A2BE2] text-2xl font-bold text-center">
-            Bookkeeping Web3
-          </h1>
+          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-base italic text-center">For Bookkeepering you...</p>
         </div>
-        <div className="my-12">
-          <PiWalletIcon />
+        <div className="my-12 flex items-center justify-center">
+          <img src={penFeatherIcon} alt="Pen Feather" className="w-16 h-16 object-contain" />
         </div>
         <button
           onClick={handleConnectWallet}
