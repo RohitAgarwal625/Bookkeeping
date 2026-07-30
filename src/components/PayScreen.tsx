@@ -9,6 +9,7 @@ interface PayScreenProps {
   contacts?: Contact[];
   prefilledAddress?: string;
   onAddressUsed?: () => void;
+  onAddPioneer?: () => void;
 }
 
 type ScreenState = "form" | "processing" | "success";
@@ -16,7 +17,7 @@ type ScreenState = "form" | "processing" | "success";
 const GRADIENT = "linear-gradient(135deg, #A47CF3 0%, #c47ef8 50%, #F7C548 100%)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 
-export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }: PayScreenProps) {
+export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer }: PayScreenProps) {
   const contactList = contacts && contacts.length ? contacts : initialContacts;
 
   const [publicKey, setPublicKey] = useState("");
@@ -157,9 +158,10 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
   if (screen === "success") {
     return (
       <div className="size-full flex flex-col bg-background relative overflow-hidden">
+        <Header onBack={onBack} hideBack />
         {/* Soft on-theme glow */}
         <div
-          className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full blur-3xl opacity-30 pointer-events-none"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full blur-3xl opacity-30 pointer-events-none"
           style={{ background: GRADIENT }}
         />
 
@@ -313,7 +315,12 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Pioneer
           </label>
-          <div className="flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
+          {/* Visually disabled when wallet is typed but not found in contacts */}
+          <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm ${
+            publicKey.trim() && !isVerified
+              ? "border-gray-200 dark:border-gray-700 opacity-50 pointer-events-none"
+              : "border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3]"
+          }`}>
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -322,6 +329,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
               onBlur={handlePioneerBlur}
               onChange={(e) => handlePioneerSearchChange(e.target.value)}
               placeholder="Select from Contacts"
+              disabled={!!(publicKey.trim() && !isVerified)}
               className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium"
             />
             <ChevronDown
@@ -329,7 +337,22 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed }:
             />
           </div>
 
-          {isDropdownOpen && (
+          {/* Not-in-contacts message */}
+          {publicKey.trim() && !isVerified && (
+            <div className="mt-3 px-4 py-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl">
+              <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed mb-2">
+                The wallet address you entered is not saved in your Contact List. Kindly tap on the button given below to add it to your Contacts.
+              </p>
+              <button
+                onClick={onAddPioneer}
+                className="text-xs font-semibold text-[#A47CF3] underline hover:no-underline transition-all"
+              >
+                + Add Pioneer / Enter Details
+              </button>
+            </div>
+          )}
+
+          {isDropdownOpen && !(publicKey.trim() && !isVerified) && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-card border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-40 max-h-64 overflow-y-auto">
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 pt-3 pb-1">
                 Saved Contacts

@@ -36,16 +36,21 @@ function AppContent() {
   const [selectedContactDetails, setSelectedContactDetails] = useState<Contact | null>(null);
   const [showPayModal, setShowPayModal] = useState(false);
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
+  const [isGuest, setIsGuest] = useState(false);
+  const [showGuestModal, setShowGuestModal] = useState(false);
 
   const handleConnectWallet = () => {
+    setIsGuest(false);
     setCurrentScreen("dashboard");
   };
 
   const handleGuestLogin = () => {
+    setIsGuest(true);
     setCurrentScreen("dashboard");
   };
 
   const handleNavigateToAddCustomer = (category: "individual" | "business") => {
+    if (isGuest) { setShowGuestModal(true); return; }
     setSelectedCategory(category);
     setCurrentScreen("addCustomer");
   };
@@ -60,10 +65,12 @@ function AppContent() {
   };
 
   const handleNavigateToAddEntry = () => {
+    if (isGuest) { setShowGuestModal(true); return; }
     setCurrentScreen("addEntry");
   };
 
   const handleNavigateToAutoEntry = () => {
+    if (isGuest) { setShowGuestModal(true); return; }
     setCurrentScreen("autoTransaction");
   };
 
@@ -161,6 +168,7 @@ function AppContent() {
           contacts={contacts}
           prefilledAddress={scannedWalletAddress}
           onAddressUsed={() => setScannedWalletAddress("")}
+          onAddPioneer={() => { handleNavigateToAddCustomer("individual"); }}
         />
         <Toaster position="bottom-center" />
       </>
@@ -203,6 +211,21 @@ function AppContent() {
             onPayViaQR={() => { setShowPayModal(false); setCurrentScreen("qrPay"); }}
             onClose={() => setShowPayModal(false)}
           />
+        )}
+        {showGuestModal && (
+          <div className="fixed inset-0 z-[300] backdrop-blur-sm bg-black/50 flex items-center justify-center px-6">
+            <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+              <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <span className="text-2xl font-black text-white">π</span>
+                </div>
+                <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
+                <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6 leading-relaxed">You need to connect your Pi Wallet to add or update information.</p>
+                <button onClick={() => { setShowGuestModal(false); setCurrentScreen("login"); }} className="w-full py-3 rounded-full text-white font-bold mb-3" style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}>Connect Pi Wallet</button>
+                <button onClick={() => setShowGuestModal(false)} className="w-full py-3 rounded-full font-semibold text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border text-sm">Continue as Guest</button>
+              </div>
+            </div>
+          </div>
         )}
         <Toaster position="bottom-center" />
       </>
@@ -302,6 +325,41 @@ function AppContent() {
             onClose={() => setShowPayModal(false)}
           />
         )}
+        {showGuestModal && (
+          <div className="fixed inset-0 z-[300] backdrop-blur-sm bg-black/50 flex items-center justify-center px-6">
+            <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
+            <div
+              className="relative w-full max-w-[360px]"
+              style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}
+            >
+              <div
+                className="bg-white dark:bg-card rounded-2xl p-6 text-center"
+                style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}
+              >
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <span className="text-2xl font-black text-white">π</span>
+                </div>
+                <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
+                <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6 leading-relaxed">
+                  You need to connect your Pi Wallet to add or update information.
+                </p>
+                <button
+                  onClick={() => { setShowGuestModal(false); setCurrentScreen("login"); }}
+                  className="w-full py-3 rounded-full text-white font-bold mb-3"
+                  style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+                >
+                  Connect Pi Wallet
+                </button>
+                <button
+                  onClick={() => setShowGuestModal(false)}
+                  className="w-full py-3 rounded-full font-semibold text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border text-sm"
+                >
+                  Continue as Guest
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <Toaster position="bottom-center" />
       </>
     );
@@ -322,13 +380,15 @@ function AppContent() {
         </div>
         <button
           onClick={handleConnectWallet}
-          className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+          className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+          style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
         >
           Connect Pi Wallet
         </button>
         <button
           onClick={handleGuestLogin}
-          className="mt-6 text-[#6A0DAD] dark:text-[#A47CF3] underline hover:no-underline transition-all"
+          className="mt-4 w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
+          style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
         >
           Continue as Guest
         </button>

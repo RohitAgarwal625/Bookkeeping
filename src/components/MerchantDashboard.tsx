@@ -4,6 +4,7 @@ import {
   Wallet,
   Hash,
   CheckCircle2,
+  XCircle,
   History,
   BarChart2,
   Copy,
@@ -31,7 +32,7 @@ interface PastTransaction {
   amount: string;
   date: string;
   description: string;
-  status: "completed" | "pending";
+  status: "completed" | "pending" | "failed";
 }
 
 interface MerchantRecord {
@@ -41,7 +42,7 @@ interface MerchantRecord {
   date: string;
   amount: number;
   type: "credit" | "debit";
-  status: "completed" | "pending";
+  status: "completed" | "pending" | "failed";
   piWalletAddress: string;
   description: string;
   txHash: string;
@@ -96,7 +97,7 @@ const mockMerchants: MerchantRecord[] = [
     date: "Feb 18, 2026",
     amount: 450.00,
     type: "credit",
-    status: "completed",
+    status: "failed",
     piWalletAddress: "0x1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d",
     description: "Wholesale order payment",
     txHash: "0x123abc456def789abc123def456789abc123def456",
@@ -214,7 +215,7 @@ export function MerchantDashboard({
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "history"
                 ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
-                : "text-gray-400 dark:text-muted-foreground bg-gray-50 dark:bg-secondary/40"
+                : "text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-[#12121e]"
             }`}
           >
             <History className="w-4 h-4" /> History
@@ -224,7 +225,7 @@ export function MerchantDashboard({
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "analysis"
                 ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
-                : "text-gray-400 dark:text-muted-foreground bg-gray-50 dark:bg-secondary/40"
+                : "text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-[#12121e]"
             }`}
           >
             <BarChart2 className="w-4 h-4" /> Analysis
@@ -302,8 +303,14 @@ export function MerchantDashboard({
                     {/* Status */}
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500 dark:text-muted-foreground">Status:</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${merchant.status === "completed" ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400" : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"}`}>
-                        {merchant.status === "completed" ? "Successful" : merchant.status}
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        merchant.status === "completed"
+                          ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
+                          : merchant.status === "failed"
+                          ? "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
+                          : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"
+                      }`}>
+                        {merchant.status === "completed" ? "Successful" : merchant.status === "failed" ? "Failed" : "Pending"}
                       </span>
                     </div>
                     {/* Date */}
@@ -338,7 +345,7 @@ export function MerchantDashboard({
           />
 
           {/* Sheet */}
-          <div className="relative w-full max-w-md bg-white dark:bg-card rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white dark:bg-card rounded-t-3xl shadow-2xl max-h-[80vh] overflow-y-auto pb-28">
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 bg-gray-200 dark:bg-border rounded-full" />
@@ -397,14 +404,23 @@ export function MerchantDashboard({
                 {/* Status */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className={`w-4 h-4 ${selectedMerchant.status === "completed" ? "text-green-500" : "text-yellow-500"}`} />
+                    {selectedMerchant.status === "completed" ? (
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    ) : selectedMerchant.status === "failed" ? (
+                      <XCircle className="w-4 h-4 text-red-500" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4 text-yellow-500" />
+                    )}
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Status</span>
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${selectedMerchant.status === "completed"
-                    ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400"
-                    : "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400"
-                    }`}>
-                    {selectedMerchant.status === "completed" ? "Successful" : selectedMerchant.status}
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                    selectedMerchant.status === "completed"
+                      ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400"
+                      : selectedMerchant.status === "failed"
+                      ? "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400"
+                      : "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400"
+                  }`}>
+                    {selectedMerchant.status === "completed" ? "Successful" : selectedMerchant.status === "failed" ? "Failed" : "Pending"}
                   </span>
                 </div>
                 {/* Public Key */}

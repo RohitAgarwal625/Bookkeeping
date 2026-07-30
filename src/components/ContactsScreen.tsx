@@ -57,15 +57,19 @@ export function ContactsScreen({
 
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-      {/* Header */}
+      {/* Header — only contains "Contacts" title + separator */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 border-b border-gray-200 dark:border-border z-10 relative">
-        <div className="flex items-center mb-4">
+        <div className="flex items-center">
           <div className="w-8 flex-shrink-0" />
           <h1 className="flex-1 text-xl font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
           <div className="flex-shrink-0">
             <BookkeepingLogo compact />
           </div>
         </div>
+      </header>
+
+      {/* Search bar — sits below the separator line */}
+      <div className="bg-white dark:bg-card px-6 pb-3 pt-3 border-b border-gray-100 dark:border-border">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
@@ -81,7 +85,7 @@ export function ContactsScreen({
             </button>
           )}
         </div>
-      </header>
+      </div>
 
       {/* Contact list */}
       <div className="flex-1 overflow-y-auto pb-24 px-4 pt-4">
@@ -139,7 +143,8 @@ export function ContactsScreen({
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <p className="text-gray-900 dark:text-foreground font-semibold text-sm truncate">
+                                {/* Name — font size matches old Details label */}
+                                <p className="text-gray-900 dark:text-foreground font-semibold text-[11px] truncate">
                                   {contact.name}
                                 </p>
                                 {isNew && (
@@ -148,17 +153,17 @@ export function ContactsScreen({
                                   </span>
                                 )}
                               </div>
-                              {/* Details now sits under the name (logo removed) */}
-                              <span className="text-[11px] text-[#A47CF3] font-medium mt-0.5 inline-block">Details</span>
+                              {/* Details label — same size as Individual/Business */}
+                              <span className="text-[10px] text-[#A47CF3] font-medium mt-0.5 inline-block">Details</span>
                             </div>
 
                             <div className="text-right flex-shrink-0">
                               <p className={`text-sm font-bold ${balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
                                 {balance >= 0 ? "+" : ""}{balance.toFixed(2)} π
                               </p>
-                              {/* Category now sits under the balance */}
-                              <p className="text-gray-400 dark:text-muted-foreground text-xs mt-1">
-                                {contact.category === "individual" ? "Individual" : "Business"}
+                              {/* Category with emoji */}
+                              <p className="text-gray-400 dark:text-muted-foreground text-[10px] mt-1">
+                                {contact.category === "individual" ? "👤 Individual" : "🏢 Business"}
                               </p>
                             </div>
                           </div>
