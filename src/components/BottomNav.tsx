@@ -59,7 +59,7 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
 
   // Full border drawn as one SVG path so corners and notch share identical colour/weight
   const notchR = 28;   // exact button radius (w-14/2 = 28px) — arc traces button edge
-  const cornerR = 32;
+  const cornerR = 16;
   const { w: W, h: H } = navSize;
   const cx = buttonCX;  // measured from actual button position
   // Path: left side up → top-left corner → flat → QR notch up → flat → top-right corner → right side down
