@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Upload } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 
 interface QRScannerScreenProps {
@@ -14,6 +14,32 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const containerId = "qr-reader-container";
   const startedRef = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadQR = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Stop camera first if running
+    if (scannerRef.current) {
+      scannerRef.current.stop().catch(() => {});
+    }
+
+    const uploadScanner = new Html5Qrcode("qr-upload-hidden");
+    uploadScanner
+      .scanFile(file, /* showImage */ false)
+      .then((decoded) => {
+        setScannedValue(decoded);
+        setStatus("success");
+      })
+      .catch(() => {
+        setError("Could not read QR code from the image. Please try another image.");
+        setStatus("error");
+      })
+      .finally(() => {
+        uploadScanner.clear();
+      });
+  };
 
   useEffect(() => {
     if (startedRef.current) return;
@@ -84,7 +110,14 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 px-8 text-center">
             <p className="text-white font-bold text-lg mb-2">Camera Unavailable</p>
             <p className="text-gray-400 text-sm mb-6">{error || "Please allow camera permission and try again."}</p>
-            <button onClick={onBack} className="px-6 py-3 rounded-xl bg-white text-gray-900 font-semibold">Go Back</button>
+            <button onClick={onBack} className="px-6 py-3 rounded-xl bg-white text-gray-900 font-semibold mb-6">Go Back</button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm shadow-lg text-gray-900 dark:text-foreground font-semibold text-sm hover:bg-white dark:hover:bg-card transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              Upload QR Image
+            </button>
           </div>
         )}
       </div>
@@ -106,6 +139,31 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           <style>{`@keyframes scanLine { 0%,100% { top: 10%; } 50% { top: 90%; } }`}</style>
         </div>
       )}
+
+      {/* Upload QR button at the bottom */}
+      {status === "scanning" && (
+        <div className="absolute bottom-8 left-0 right-0 flex justify-center z-20">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm shadow-lg text-gray-900 dark:text-foreground font-semibold text-sm hover:bg-white dark:hover:bg-card transition-colors pointer-events-auto"
+          >
+            <Upload className="w-4 h-4" />
+            Upload QR Image
+          </button>
+        </div>
+      )}
+
+      {/* Hidden file input for QR upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleUploadQR}
+        className="hidden"
+      />
+
+      {/* Hidden container for upload-based QR scanning */}
+      <div id="qr-upload-hidden" style={{ display: "none" }} />
     </div>
   );
 }
