@@ -101,7 +101,7 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
               ref={btnRef}
               onClick={() => onNavigate?.("pay")}
               className="absolute w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-              style={{ top: "-26.8px", background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+              style={{ top: "-28px", background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
             >
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="20" fontWeight="bold" fontFamily="serif">π</text>
