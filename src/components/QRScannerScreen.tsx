@@ -116,7 +116,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
               className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm shadow-lg text-gray-900 dark:text-foreground font-semibold text-sm hover:bg-white dark:hover:bg-card transition-colors"
             >
               <Upload className="w-4 h-4" />
-              Upload QR Image
+              Upload QR
             </button>
           </div>
         )}
