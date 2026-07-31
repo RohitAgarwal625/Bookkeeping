@@ -198,10 +198,10 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                style={{ paddingLeft: "1.25rem" }}
-                className="w-full pr-12 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                style={{ paddingLeft: "1.25rem", paddingRight: "3rem" }}
+                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-[#A47CF3] leading-none select-none">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xl font-semibold text-[#A47CF3] leading-none select-none">
                 π
               </span>
             </div>
@@ -265,7 +265,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
               <button
                 type="button"
                 onClick={() => setShowInfo((v) => !v)}
-                className="flex items-center justify-center w-4 h-4 rounded-full text-gray-400 hover:text-[#A47CF3] transition-colors"
+                className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
               >
                 <Info className="w-3.5 h-3.5" />
               </button>
