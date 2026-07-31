@@ -317,11 +317,17 @@ export function MerchantDashboard({
                     {/* Status */}
                     <div className="flex items-center gap-2">
                       {merchant.status === "completed" ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                        <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
+                            <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
                       ) : merchant.status === "failed" ? (
                         <XCircle className="w-3.5 h-3.5 text-red-500" />
                       ) : (
-                        <AlertCircle className="w-3.5 h-3.5 text-yellow-500" />
+                        <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
+                          <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
+                        </div>
                       )}
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         merchant.status === "completed"
@@ -434,8 +440,8 @@ export function MerchantDashboard({
                     ) : selectedMerchant.status === "failed" ? (
                       <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
                     ) : (
-                      <div className="w-5 h-5 rounded-full border-2 border-yellow-400 flex items-center justify-center flex-shrink-0">
-                        <span className="text-yellow-400 font-black leading-none" style={{ fontSize: "10px" }}>!</span>
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
+                        <span className="font-black leading-none" style={{ fontSize: "10px", color: "#facc15" }}>!</span>
                       </div>
                     )}
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Status</span>
