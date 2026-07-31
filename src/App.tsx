@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import { BookkeepingLogo } from "./components/BookkeepingLogo";
 import { Dashboard } from "./components/Dashboard";
@@ -31,17 +32,11 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
       <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
       <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
         <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-              {/* Pi symbol behind wallet - rotated 45deg, positioned at wallet opening */}
-              <g transform="rotate(45, 17, 13)">
-                <text x="17" y="17" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white">π</text>
-              </g>
-              {/* Wallet body drawn ON TOP to hide bottom half of pi */}
-              <rect x="7" y="14" width="20" height="16" rx="3" fill="white"/>
-              {/* Wallet flap (open, flipped up) */}
-              <path d="M7 14 L7 9 Q7 5 10 5 L24 5 Q27 5 27 9 L27 14" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
-            </svg>
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative overflow-hidden">
+            {/* Pi symbol - positioned so bottom half is hidden by being outside the visible circle area */}
+            <span className="absolute text-white font-bold select-none" style={{ fontSize: "18px", top: "-2px", left: "50%", transform: "translateX(-50%) rotate(45deg)", opacity: 0.95 }}>π</span>
+            {/* Wallet icon on top */}
+            <Wallet className="w-7 h-7 text-white relative" style={{ marginTop: "6px" }} />
           </div>
           <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
           <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6 leading-relaxed">
