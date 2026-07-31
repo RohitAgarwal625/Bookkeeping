@@ -394,7 +394,7 @@ function AppContent() {
           <BookkeepingLogo />
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
           <p className="text-gray-500 dark:text-gray-400 text-base italic">
-            <span className="write-text">For Bookkeeper in you...</span><img
+            <span className="write-text">Ffr bookkeeper in you...</span><img
               src={penFeatherIcon}
               alt=""
               className="write-pen"
