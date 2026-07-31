@@ -121,9 +121,9 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
 
                 {/* Business — disabled */}
                 <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="flex flex-col items-center gap-2 opacity-50 pointer-events-none">
-                    <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-secondary flex items-center justify-center shadow-sm">
-                      <Briefcase className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
+                  <div className="flex flex-col items-center gap-2 cursor-not-allowed">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: "#9ca3af" }}>
+                      <Briefcase className="w-7 h-7" style={{ color: "#ffffff" }} />
                     </div>
                     <span className="text-xs text-gray-400 dark:text-muted-foreground font-medium">Business</span>
                   </div>

@@ -32,7 +32,16 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
       <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
         <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <span className="text-2xl font-black text-white">π</span>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              {/* Vertical wallet body - black */}
+              <rect x="7" y="12" width="20" height="18" rx="3" fill="#1a1a1a"/>
+              {/* Wallet flap (open, flipped up) - black */}
+              <path d="M7 12 L7 8 Q7 4 10 4 L24 4 Q27 4 27 8 L27 12" fill="none" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round"/>
+              {/* Pi symbol - rotated 45deg, half inside half outside wallet opening */}
+              <g transform="rotate(45, 17, 12)">
+                <text x="17" y="16" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white">π</text>
+              </g>
+            </svg>
           </div>
           <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
           <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6 leading-relaxed">
@@ -365,67 +374,77 @@ function AppContent() {
     <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
         @keyframes text-write {
-          0%   { width: 0ch; }
-          100% { width: 23ch; }
+          0%   { width: 0; }
+          100% { width: 100%; }
         }
-        @keyframes fade-in {
-          0%   { opacity: 0; }
-          100% { opacity: 1; }
+        @keyframes pen-move {
+          0%   { left: 0; }
+          100% { left: 100%; }
+        }
+        .write-container {
+          position: relative;
+          display: inline-block;
         }
         .write-text {
           display: inline-block;
           overflow: hidden;
           white-space: nowrap;
-          width: 0ch;
+          width: 0;
           vertical-align: bottom;
           animation: text-write 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
         }
-        .write-pen {
-          display: inline-block;
-          vertical-align: middle;
-          opacity: 0;
-          animation: fade-in 0.01s linear 4.2s forwards;
+        .write-pen-wrapper {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          left: 0;
+          animation: pen-move 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
         }
       `}</style>
-      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "72px 24px 48px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
 
-        {/* Logo + title + tagline + buttons — all grouped together in the upper portion */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", gap: "0" }}>
-          {/* Logo + title + tagline */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px", marginBottom: "48px" }}>
-            <BookkeepingLogo />
-            <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
-            <p className="text-gray-500 dark:text-gray-400 italic" style={{ fontSize: "1.2rem" }}>
-              <span className="write-text">for the bookkeeper in you...</span><img
-                src={penFeatherIcon}
-                alt=""
-                className="write-pen"
-                style={{ width: "3rem", height: "3rem", objectFit: "contain", marginLeft: "1px", verticalAlign: "middle" }}
-              />
-            </p>
-          </div>
-
-          {/* CTA buttons — right below tagline group */}
-          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
-            <button
-              onClick={handleConnectWallet}
-              className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
-              style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
-            >
-              Connect Pi Wallet
-            </button>
-            <button
-              onClick={handleGuestLogin}
-              className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
-              style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
-            >
-              Continue as Guest
-            </button>
-          </div>
+        {/* Group 1 & 2: Logo + Title — positioned after 30% screen height */}
+        <div style={{ marginTop: "18vh", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+          <BookkeepingLogo />
+          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
         </div>
 
-        {/* Footer links — pinned at bottom */}
-        <div className="flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
+        {/* Component 3: Tagline — separate, with pen writing animation */}
+        <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <p className="text-gray-500 dark:text-gray-400 italic" style={{ fontSize: "1.2rem" }}>
+            <span className="write-container">
+              <span className="write-text">for the bookkeeper in you...</span>
+              <span className="write-pen-wrapper">
+                <img
+                  src={penFeatherIcon}
+                  alt=""
+                  style={{ width: "2.8rem", height: "2.8rem", objectFit: "contain" }}
+                />
+              </span>
+            </span>
+          </p>
+        </div>
+
+        {/* Group 4 & 5: CTA buttons — with increased padding between them */}
+        <div style={{ marginTop: "56px", width: "100%", display: "flex", flexDirection: "column", gap: "32px" }}>
+          <button
+            onClick={handleConnectWallet}
+            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+            style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+          >
+            Connect Pi Wallet
+          </button>
+          <button
+            onClick={handleGuestLogin}
+            className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
+            style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
+          >
+            Continue as Guest
+          </button>
+        </div>
+
+        {/* Component 6: Footer links — at the bottom */}
+        <div style={{ marginTop: "auto", paddingBottom: "32px", paddingTop: "48px" }} className="flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
           <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
           <span>•</span>
           <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
