@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle, RefreshCw, ExternalLink, Search, X, Hash, Check } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search, X, Check, Info } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getInitials } from "../types";
@@ -28,6 +28,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
   const [txHash, setTxHash] = useState("");
   const [note, setNote] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const nameInputRef = useRef<HTMLDivElement>(null);
 
   const filteredCustomers = savedCustomers.filter((c) =>
@@ -127,7 +128,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
 
         {/* Manual Entry Card */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
-          <h3 className="text-gray-900 dark:text-foreground mb-4">Add Manual Transaction</h3>
+          <h3 className="text-gray-900 dark:text-foreground mb-4">Manual Transaction</h3>
 
           {/* Name from Database */}
           <div className="mb-4" ref={nameInputRef}>
@@ -156,8 +157,9 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
                     value={customerQuery}
                     onFocus={() => setIsCustomerDropdownOpen(true)}
                     onChange={(e) => { setCustomerQuery(e.target.value); setIsCustomerDropdownOpen(true); }}
-                    placeholder="Search ...."
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all relative z-10"
+                    placeholder="Search from Contacts"
+                    style={{ paddingLeft: "1.25rem" }}
+                    className="w-full pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all relative z-10"
                   />
                   {isCustomerDropdownOpen && filteredCustomers.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-2xl max-h-44 overflow-y-auto z-[9999]">
@@ -165,7 +167,6 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
                         <div
                           key={name}
                           onMouseDown={(e) => {
-                            // Use onMouseDown so it fires before input blur
                             e.preventDefault();
                             setSelectedCustomer(name);
                             setIsCustomerDropdownOpen(false);
@@ -197,9 +198,10 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full pl-4 pr-10 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                style={{ paddingLeft: "1.25rem" }}
+                className="w-full pr-12 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-[#A47CF3] leading-none select-none">
                 π
               </span>
             </div>
@@ -256,29 +258,41 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
             </div>
           </div>
 
-          {/* Transaction Hash Input */}
+          {/* Transaction ID Input */}
           <div className="mb-4">
-            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">
-              Transaction Hash
-            </label>
+            <div className="flex items-center gap-1.5 mb-2">
+              <label className="text-gray-700 dark:text-foreground text-sm">Transaction ID</label>
+              <button
+                type="button"
+                onClick={() => setShowInfo((v) => !v)}
+                className="flex items-center justify-center w-4 h-4 rounded-full text-gray-400 hover:text-[#A47CF3] transition-colors"
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            {/* Info box — appears below label on click */}
+            {showInfo && (
+              <div className="mb-2 w-full bg-gray-100 dark:bg-secondary border border-gray-200 dark:border-border rounded-xl px-4 py-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
+                Use the button given below to retrieve Transaction Hash from Pi Blockchain
+              </div>
+            )}
             <div className="relative">
-              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               <input
                 type="text"
                 value={txHash}
                 onChange={(e) => setTxHash(e.target.value)}
-                placeholder="0x1a2b3c4d..."
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all font-mono text-sm"
+                placeholder="Example: abc123xyz..."
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all font-mono text-sm"
               />
             </div>
           </div>
 
-          {/* View Pi Transactions — moved here, below Transaction Hash */}
+          {/* Pi Blockexplorer button */}
           <button
             onClick={handlePiTransactions}
             className="w-full mb-4 py-3 px-5 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
           >
-            <span className="font-medium text-sm">View Pi Transactions</span>
+            <span className="font-medium text-sm">View Pi Blockexplorer</span>
             <ExternalLink className="w-4 h-4" />
           </button>
 

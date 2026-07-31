@@ -18,6 +18,8 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
   // Pi-wallet validation flow state
   const [isValidated, setIsValidated] = useState(false);
   const [showInvalidPopup, setShowInvalidPopup] = useState(false);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [pendingCustomer, setPendingCustomer] = useState<{ name: string; piWallet: string; category: "individual" | "business" } | null>(null);
 
   const capitalizeWords = (val: string) =>
     val.replace(/\b\w/g, (c) => c.toUpperCase());
@@ -59,11 +61,14 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
   const handleSave = () => {
     if (!isValidated) return;
     if (firstName.trim() && piWallet.trim()) {
-      onSave({
+      const customerData = {
         name: lastName.trim() ? `${firstName.trim()} ${lastName.trim()}` : firstName.trim(),
         piWallet: piWallet.trim(),
         category,
-      });
+      };
+      setPendingCustomer(customerData);
+      setShowSuccessOverlay(true);
+      // Clear form
       setFirstName("");
       setLastName("");
       setPiWallet("");
@@ -73,6 +78,38 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
   };
 
   const allFieldsFilled = Boolean(firstName.trim() && piWallet.trim());
+
+  // ── Success Overlay ─────────────────────────────────────────────
+  if (showSuccessOverlay) {
+    return (
+      <div className="fixed inset-0 z-[500] bg-white dark:bg-[#0F1115] flex flex-col items-center justify-center px-8 animate-in fade-in duration-300">
+        <div className="flex flex-col items-center gap-6 text-center">
+          {/* Green tick circle */}
+          <div className="w-28 h-28 rounded-full bg-green-100 dark:bg-green-950/40 flex items-center justify-center shadow-xl">
+            <Check className="w-16 h-16 text-green-500 dark:text-green-400" strokeWidth={2.5} />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold">
+              Contact Added Successfully!
+            </h2>
+            <p className="text-gray-500 dark:text-muted-foreground text-sm leading-relaxed">
+              {pendingCustomer?.name} has been saved to your contacts.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setShowSuccessOverlay(false);
+              if (pendingCustomer) onSave(pendingCustomer);
+              setPendingCustomer(null);
+            }}
+            className="mt-2 px-12 py-3.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="size-full flex flex-col bg-background">
