@@ -261,11 +261,10 @@ export function MerchantDashboard({
 
               {/* Middle toggle switch — bordered pill for visibility */}
               <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
-                <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
+                <div className="w-10 h-5 rounded-full bg-gray-200 dark:bg-gray-700 relative flex items-center px-0.5">
                   <div
-                    className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
+                    className="w-4 h-4 rounded-full shadow-md transition-transform duration-200 bg-white"
                     style={{
-                      background: "linear-gradient(135deg,#A47CF3,#F7C548)",
                       transform: activeCategory === "business" ? "translateX(20px)" : "translateX(0)",
                     }}
                   />

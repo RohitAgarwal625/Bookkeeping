@@ -69,7 +69,7 @@ export function ContactsScreen({
       </header>
 
       {/* Search bar — sits below the separator line */}
-      <div className="bg-white dark:bg-card px-6 pb-3 pt-3">
+      <div className="bg-white dark:bg-card px-6 pb-3 pt-3 border-b border-gray-100 dark:border-border">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
@@ -144,7 +144,7 @@ export function ContactsScreen({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 {/* Name */}
-                                <p className="text-gray-900 dark:text-foreground font-bold text-sm truncate">
+                                <p className="text-gray-900 dark:text-foreground font-semibold text-sm truncate">
                                   {contact.name}
                                 </p>
                                 {isNew && (
