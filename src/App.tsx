@@ -33,14 +33,14 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
         <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg">
             <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-              {/* Vertical wallet body - black */}
-              <rect x="7" y="12" width="20" height="18" rx="3" fill="#1a1a1a"/>
-              {/* Wallet flap (open, flipped up) - black */}
-              <path d="M7 12 L7 8 Q7 4 10 4 L24 4 Q27 4 27 8 L27 12" fill="none" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round"/>
-              {/* Pi symbol - rotated 45deg, half inside half outside wallet opening */}
-              <g transform="rotate(45, 17, 12)">
-                <text x="17" y="16" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white">π</text>
+              {/* Pi symbol behind wallet - rotated 45deg, positioned at wallet opening */}
+              <g transform="rotate(45, 17, 13)">
+                <text x="17" y="17" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white">π</text>
               </g>
+              {/* Wallet body drawn ON TOP to hide bottom half of pi */}
+              <rect x="7" y="14" width="20" height="16" rx="3" fill="white"/>
+              {/* Wallet flap (open, flipped up) */}
+              <path d="M7 14 L7 9 Q7 5 10 5 L24 5 Q27 5 27 9 L27 14" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round"/>
             </svg>
           </div>
           <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
@@ -411,7 +411,7 @@ function AppContent() {
 
         {/* Component 3: Tagline — separate, with pen writing animation */}
         <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <p className="text-gray-500 dark:text-gray-400 italic" style={{ fontSize: "1.2rem" }}>
+          <p className="text-black dark:text-gray-400 italic" style={{ fontSize: "1.2rem" }}>
             <span className="write-container">
               <span className="write-text">for the bookkeeper in you...</span>
               <span className="write-pen-wrapper">
