@@ -19,13 +19,14 @@ export function PayMethodModal({ onPayViaContacts, onPayViaQR, onClose }: PayMet
         style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}
       >
         <div
-          className="bg-white dark:bg-card rounded-2xl w-full relative"
+          className="bg-white dark:bg-card rounded-2xl w-full relative overflow-visible"
           style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.95), 0 0 28px 6px rgba(255,255,255,0.5), 0 8px 32px rgba(0,0,0,0.2)" }}
         >
           {/* X — top-right outer corner */}
           <button
             onClick={onClose}
-            className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+            className="absolute z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+            style={{ top: "-12px", right: "-12px" }}
           >
             <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
           </button>
