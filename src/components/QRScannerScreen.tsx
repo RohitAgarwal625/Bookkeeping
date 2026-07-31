@@ -124,33 +124,32 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
 
       {/* Viewfinder overlay */}
       {status === "scanning" && (
-        <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
-          <div className="w-64 h-64 relative">
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#A47CF3] rounded-tl-lg" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#A47CF3] rounded-tr-lg" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#A47CF3] rounded-bl-lg" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#A47CF3] rounded-br-lg" />
-            <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#A47CF3] to-transparent"
-              style={{ animation: "scanLine 2s ease-in-out infinite", top: "50%" }} />
+        <>
+          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+            <div className="w-64 h-64 relative">
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#A47CF3] rounded-tl-lg" />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#A47CF3] rounded-tr-lg" />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#A47CF3] rounded-bl-lg" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#A47CF3] rounded-br-lg" />
+              <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#A47CF3] to-transparent"
+                style={{ animation: "scanLine 2s ease-in-out infinite", top: "50%" }} />
+            </div>
+            <p className="text-white text-sm mt-6 text-center px-8 opacity-80">
+              Point camera at a Pi Wallet QR code
+            </p>
+            <style>{`@keyframes scanLine { 0%,100% { top: 10%; } 50% { top: 90%; } }`}</style>
           </div>
-          <p className="text-white text-sm mt-6 text-center px-8 opacity-80">
-            Point camera at a Pi Wallet QR code
-          </p>
-          <style>{`@keyframes scanLine { 0%,100% { top: 10%; } 50% { top: 90%; } }`}</style>
-        </div>
-      )}
-
-      {/* Upload QR button at the bottom */}
-      {status === "scanning" && (
-        <div className="absolute bottom-8 left-0 right-0 flex justify-center z-20">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm shadow-lg text-gray-900 dark:text-foreground font-semibold text-sm hover:bg-white dark:hover:bg-card transition-colors pointer-events-auto"
-          >
-            <Upload className="w-4 h-4" />
-            Upload QR Image
-          </button>
-        </div>
+          {/* Upload QR button pinned to bottom center */}
+          <div style={{ position: "fixed", bottom: 32, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 50 }}>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm shadow-lg text-gray-900 dark:text-foreground font-semibold text-sm hover:bg-white dark:hover:bg-card transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              Upload QR Image
+            </button>
+          </div>
+        </>
       )}
 
       {/* Hidden file input for QR upload */}
