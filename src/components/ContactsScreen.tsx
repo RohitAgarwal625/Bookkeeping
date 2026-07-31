@@ -77,7 +77,7 @@ export function ContactsScreen({
             placeholder="Search from Contacts"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">

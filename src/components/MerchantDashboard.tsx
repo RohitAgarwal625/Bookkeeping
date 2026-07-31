@@ -425,11 +425,17 @@ export function MerchantDashboard({
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     {selectedMerchant.status === "completed" ? (
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <div className="w-5 h-5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none">
+                          <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
                     ) : selectedMerchant.status === "failed" ? (
-                      <XCircle className="w-4 h-4 text-red-500" />
+                      <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
                     ) : (
-                      <AlertCircle className="w-4 h-4 text-yellow-500" />
+                      <div className="w-5 h-5 rounded-full border-2 border-yellow-400 flex items-center justify-center flex-shrink-0">
+                        <span className="text-yellow-400 font-black leading-none" style={{ fontSize: "10px" }}>!</span>
+                      </div>
                     )}
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Status</span>
                   </div>

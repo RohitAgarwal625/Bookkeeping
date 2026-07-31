@@ -120,7 +120,7 @@ export function Dashboard({
         <div>
           <h3 className="text-gray-900 dark:text-foreground mb-4">Recent Transactions</h3>
           {isGuest ? (
-            <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border flex flex-col items-center justify-center py-16 gap-3">
+            <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border flex flex-col items-center justify-center py-28 gap-3 min-h-[260px]">
               <p className="text-gray-400 dark:text-muted-foreground text-sm text-center px-4">Nothing to show here!</p>
             </div>
           ) : (
