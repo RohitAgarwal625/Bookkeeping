@@ -366,7 +366,7 @@ function AppContent() {
       <style>{`
         @keyframes text-write {
           0%   { width: 0ch; }
-          100% { width: 22ch; }
+          100% { width: 23ch; }
         }
         @keyframes fade-in {
           0%   { opacity: 0; }
@@ -384,44 +384,47 @@ function AppContent() {
           display: inline-block;
           vertical-align: middle;
           opacity: 0;
-          animation: fade-in 0.01s linear 1.6s forwards;
+          animation: fade-in 0.01s linear 4.2s forwards;
         }
       `}</style>
-      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "72px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "72px 24px 48px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
 
-        {/* Logo + title + tagline */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
-          <BookkeepingLogo />
-          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-base italic">
-            <span className="write-text">Ffr bookkeeper in you...</span><img
-              src={penFeatherIcon}
-              alt=""
-              className="write-pen"
-              style={{ width: "3rem", height: "3rem", objectFit: "contain", marginLeft: "2px" }}
-            />
-          </p>
+        {/* Logo + title + tagline + buttons — all grouped together in the upper portion */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", gap: "0" }}>
+          {/* Logo + title + tagline */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px", marginBottom: "48px" }}>
+            <BookkeepingLogo />
+            <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
+            <p className="text-gray-500 dark:text-gray-400 italic" style={{ fontSize: "1.2rem" }}>
+              <span className="write-text">For Bookkeeper in you...</span><img
+                src={penFeatherIcon}
+                alt=""
+                className="write-pen"
+                style={{ width: "3rem", height: "3rem", objectFit: "contain", marginLeft: "1px", verticalAlign: "middle" }}
+              />
+            </p>
+          </div>
+
+          {/* CTA buttons — right below tagline group */}
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
+            <button
+              onClick={handleConnectWallet}
+              className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+              style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+            >
+              Connect Pi Wallet
+            </button>
+            <button
+              onClick={handleGuestLogin}
+              className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
+              style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
+            >
+              Continue as Guest
+            </button>
+          </div>
         </div>
 
-        {/* CTA buttons */}
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
-          <button
-            onClick={handleConnectWallet}
-            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
-            style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
-          >
-            Connect Pi Wallet
-          </button>
-          <button
-            onClick={handleGuestLogin}
-            className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
-            style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
-          >
-            Continue as Guest
-          </button>
-        </div>
-
-        {/* Footer links */}
+        {/* Footer links — pinned at bottom */}
         <div className="flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
           <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
           <span>•</span>

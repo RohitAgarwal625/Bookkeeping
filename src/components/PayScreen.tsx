@@ -162,7 +162,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           style={{ background: GRADIENT }}
         />
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", padding: "72px 24px 24px", position: "relative", zIndex: 10 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "32px", padding: "24px", paddingTop: "80px", position: "relative", zIndex: 10 }}>
           {/* Animated success badge */}
           <div className="relative" style={{ animation: "pay-pop 0.5s cubic-bezier(0.16,1,0.3,1)" }}>
             <div className="absolute inset-0 rounded-full blur-xl opacity-60" style={{ background: GRADIENT }} />
@@ -227,27 +227,24 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Bottom actions */}
-        <div
-          style={{ paddingBottom: "48px", paddingTop: "16px", paddingLeft: "20px", paddingRight: "20px" }}
-          className="flex-shrink-0 z-10 flex gap-3"
-        >
-          <button
-            onClick={onBack}
-            className="flex-1 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-white font-bold text-base flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            Home
-          </button>
-          <button
-            onClick={resetForm}
-            className="flex-1 py-4 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2"
-            style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}
-          >
-            Pay Again
-          </button>
+          {/* Bottom actions — pinned to bottom via marginTop auto */}
+          <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "auto" }}>
+            <button
+              onClick={onBack}
+              className="flex-1 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-white font-bold text-base flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+            >
+              <Home className="w-4 h-4" />
+              Home
+            </button>
+            <button
+              onClick={resetForm}
+              className="flex-1 py-4 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2"
+              style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}
+            >
+              Pay Again
+            </button>
+          </div>
         </div>
 
         <style>{`
