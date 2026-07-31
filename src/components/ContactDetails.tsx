@@ -170,7 +170,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
             </label>
             <div className="flex items-center gap-2 mt-2">
               <span className={`w-2.5 h-2.5 rounded-full ${contact.category === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
-              <p className="text-gray-900 dark:text-foreground font-medium capitalize">{contact.category}</p>
+              <p className="text-gray-900 dark:text-foreground font-medium">{contact.category === "individual" ? "Individual" : "Business"}</p>
             </div>
           </div>
 

@@ -277,6 +277,7 @@ function AppContent() {
           onNavigate={handleNavigate}
           newContactId={newContactId}
           onNewContactSeen={() => setNewContactId(null)}
+          isGuest={isGuest}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         <SharedOverlays />

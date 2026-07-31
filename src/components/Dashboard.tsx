@@ -49,12 +49,12 @@ export function Dashboard({
   };
 
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] relative">
+    <div className={`size-full flex flex-col ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"} relative`}>
       {/* Header */}
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border z-20 relative">
+      <header className={`${isGuest ? "bg-gray-50 dark:bg-card" : "bg-white dark:bg-card shadow-sm"} px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border z-20 relative`}>
         <div>
           <p className="text-gray-500 dark:text-muted-foreground text-sm">Welcome,</p>
-          <h2 className="text-gray-900 dark:text-foreground">{userName}</h2>
+          <h2 className="text-gray-900 dark:text-foreground">{isGuest ? "Pioneer" : userName}</h2>
         </div>
         <div className="flex items-center gap-3">
           <button

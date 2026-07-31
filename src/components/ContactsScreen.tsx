@@ -16,6 +16,7 @@ interface ContactsScreenProps {
   onNavigate: (screen: string) => void;
   newContactId: string | null;
   onNewContactSeen: () => void;
+  isGuest?: boolean;
 }
 
 export function ContactsScreen({
@@ -26,6 +27,7 @@ export function ContactsScreen({
   onNavigate,
   newContactId,
   onNewContactSeen,
+  isGuest,
 }: ContactsScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const newContactRef = useRef<HTMLDivElement | null>(null);
@@ -56,9 +58,9 @@ export function ContactsScreen({
   }, [newContactId]);
 
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div className={`size-full flex flex-col ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`}>
       {/* Header — only contains "Contacts" title + separator */}
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 border-b border-gray-200 dark:border-border z-10 relative">
+      <header className={`${isGuest ? "bg-gray-50 dark:bg-card border-b border-gray-200 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border"} px-6 py-4 z-10 relative`}>
         <div className="flex items-center">
           <div className="w-8 flex-shrink-0" />
           <h1 className="flex-1 text-xl font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
@@ -69,7 +71,7 @@ export function ContactsScreen({
       </header>
 
       {/* Search bar — sits below the separator line */}
-      <div className="bg-white dark:bg-card px-6 pb-3 pt-3 border-b border-gray-100 dark:border-border">
+      <div className={`${isGuest ? "bg-gray-50 dark:bg-card" : "bg-white dark:bg-card"} px-6 pb-3 pt-3`}>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
@@ -95,7 +97,12 @@ export function ContactsScreen({
               <User className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
             </div>
             <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
-              {searchQuery ? "No contacts match your search" : "No Contacts to show! Connect Pi Wallet to add a pioneer."}
+              {searchQuery ? "No contacts match your search" : (
+                <>
+                  <span className="block">No Contacts to show!</span>
+                  <span className="block">Connect Pi Wallet to add a pioneer.</span>
+                </>
+              )}
             </p>
           </div>
         ) : (
@@ -143,7 +150,7 @@ export function ContactsScreen({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 {/* Name */}
-                                <p className="text-gray-900 dark:text-foreground font-semibold text-sm truncate">
+                                <p className="text-gray-900 dark:text-foreground font-bold text-sm truncate">
                                   {contact.name}
                                 </p>
                                 {isNew && (
@@ -155,7 +162,7 @@ export function ContactsScreen({
                               {/* Details label — only this triggers navigation */}
                               <span
                                 onClick={() => onNavigateToContactDetails(contact)}
-                                className="text-sm text-[#A47CF3] font-medium mt-0.5 inline-block cursor-pointer"
+                                className="text-sm text-gray-400 dark:text-muted-foreground font-medium mt-0.5 inline-block cursor-pointer"
                               >Details</span>
                             </div>
 
@@ -166,7 +173,7 @@ export function ContactsScreen({
                               {/* Category */}
                               <p className="text-xs mt-1">
                                 {contact.category === "individual"
-                                  ? <span className="text-gray-400 dark:text-muted-foreground">🏷️ Individual</span>
+                                  ? <span className="text-[#A47CF3] dark:text-[#A47CF3]">🏷️ Individual</span>
                                   : <span style={{ color: "#F7C548" }}>🏷️ Business</span>
                                 }
                               </p>

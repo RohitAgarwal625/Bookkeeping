@@ -91,7 +91,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
         <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">{customerName}</h2>
-        <BookkeepingLogo compact />
+        <div className="w-6" />
       </header>
 
       {/* Scrollable Content */}
@@ -104,11 +104,11 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
 
           {/* Credit and Debit Summary */}
           <div className="flex gap-6">
-            <div className="flex-1">
+            <div className="flex-1 text-center">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Debit</p>
               <p className="text-red-600 dark:text-red-400 font-bold">{totalDebit.toFixed(2)} π</p>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 text-center">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Credit</p>
               <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)} π</p>
             </div>
