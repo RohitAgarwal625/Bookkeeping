@@ -59,18 +59,18 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-8">
-        {/* Avatar */}
-        <div className="flex justify-center mb-8">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg">
-            <span className="text-white text-2xl font-bold">{getInitials(displayName)}</span>
+      <div className="flex-1 overflow-y-auto px-6 py-6 pb-32">
+          {/* Avatar */}
+          <div className="flex justify-center mb-8">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg">
+              <span className="text-white text-2xl font-bold">{getInitials(displayName)}</span>
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-5 max-w-md mx-auto">
+          <div className="flex flex-col gap-6 max-w-md mx-auto">
 
           {/* Pioneer (name) — editable */}
-          <div className="bg-white dark:bg-card rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-border p-4">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-border p-5">
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
                 Pioneer
@@ -115,7 +115,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
           </div>
 
           {/* Pi Wallet Address — editable */}
-          <div className="bg-white dark:bg-card rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-border p-4">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-border p-5">
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
                 Pi Wallet Address
@@ -164,7 +164,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
           </div>
 
           {/* Category — non-editable */}
-          <div className="bg-white dark:bg-card rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-border p-4">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-border p-5">
             <label className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
               Category
             </label>
@@ -174,7 +174,15 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
             </div>
           </div>
 
-          {/* Open Ledger */}
+          </div>
+      </div>
+
+      {/* Fixed Open Ledger button — matches PayScreen Pay button position */}
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <div
+          style={{ paddingBottom: "48px", paddingTop: "16px", paddingLeft: "20px", paddingRight: "20px" }}
+          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700 shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
+        >
           <button
             onClick={() => onNavigateToLedger(displayName)}
             className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white font-semibold shadow-md hover:shadow-lg transition-shadow flex items-center justify-center gap-2"

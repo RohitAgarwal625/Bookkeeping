@@ -5,6 +5,8 @@ import {
   Hash,
   CheckCircle2,
   XCircle,
+  AlertCircle,
+  FileText,
   History,
   BarChart2,
   Copy,
@@ -313,7 +315,13 @@ export function MerchantDashboard({
                   <div className="space-y-1.5">
                     {/* Status */}
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 dark:text-muted-foreground">Status:</span>
+                      {merchant.status === "completed" ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                      ) : merchant.status === "failed" ? (
+                        <XCircle className="w-3.5 h-3.5 text-red-500" />
+                      ) : (
+                        <AlertCircle className="w-3.5 h-3.5 text-yellow-500" />
+                      )}
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         merchant.status === "completed"
                           ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
@@ -421,7 +429,7 @@ export function MerchantDashboard({
                     ) : selectedMerchant.status === "failed" ? (
                       <XCircle className="w-4 h-4 text-red-500" />
                     ) : (
-                      <CheckCircle2 className="w-4 h-4 text-yellow-500" />
+                      <AlertCircle className="w-4 h-4 text-yellow-500" />
                     )}
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Status</span>
                   </div>
@@ -456,9 +464,12 @@ export function MerchantDashboard({
                   </span>
                 </div>
                 {/* Note/Memo */}
-                <div className="pt-1 border-t border-gray-100 dark:border-border">
-                  <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Note/Memo</p>
-                  <p className="text-sm text-gray-800 dark:text-foreground">{selectedMerchant.description}</p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#A47CF3]" />
+                    <span className="text-xs text-gray-500 dark:text-muted-foreground">Note/Memo</span>
+                  </div>
+                  <span className="text-xs text-gray-800 dark:text-foreground text-right max-w-[200px]">{selectedMerchant.description}</span>
                 </div>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -97,7 +97,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-32">
         {/* Top Summary Card */}
-        <div className="bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border-2 dark:border-[#8A2BE2]/30 p-6 mb-6 border-2 border-transparent bg-gradient-to-br from-white to-white dark:from-card dark:to-card relative overflow-hidden">
+        <div className="bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border-2 dark:border-[#8A2BE2]/30 p-8 mb-6 border-2 border-transparent bg-gradient-to-br from-white to-white dark:from-card dark:to-card relative overflow-hidden">
           {/* Gradient border effect */}
           <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-br from-[#A47CF3] to-[#F7C548] -z-10" />
           <div className="absolute inset-[2px] bg-white dark:bg-card rounded-2xl -z-10" />
@@ -151,13 +151,6 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
 
       </div>
 
-      {/* Floating Action Button */}
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow z-10"
-      >
-        <Plus className="w-7 h-7 text-white" />
-      </button>
 
       {/* Add Entry Modal */}
       <AddEntryModal

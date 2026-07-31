@@ -6,9 +6,10 @@ interface BalanceCardProps {
   onAddCustomer: (category: "individual" | "business") => void;
   onAddEntry: () => void;
   onAutoEntry: () => void;
+  isGuest?: boolean;
 }
 
-export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceCardProps) {
+export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }: BalanceCardProps) {
   const [showPioneerDialog, setShowPioneerDialog] = useState(false);
   const [showTransactionDialog, setShowTransactionDialog] = useState(false);
   const [pioneerTooltip, setPioneerTooltip] = useState<"individual" | "business" | null>(null);
@@ -27,11 +28,11 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry }: BalanceC
       <div className="grid grid-cols-2 gap-4 mb-2">
         <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 border border-red-200 dark:border-red-800/40">
           <p className="text-red-700 dark:text-red-400 text-xs mb-1">Total Debit</p>
-          <p className="text-red-800 dark:text-red-300 font-bold text-lg">875.30 π</p>
+          <p className="text-red-800 dark:text-red-300 font-bold text-lg">{isGuest ? "- π" : "875.30 π"}</p>
         </div>
         <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-4 border border-green-200 dark:border-green-800/40">
           <p className="text-green-700 dark:text-green-400 text-xs mb-1">Total Credit</p>
-          <p className="text-green-800 dark:text-green-300 font-bold text-lg">1,245.50 π</p>
+          <p className="text-green-800 dark:text-green-300 font-bold text-lg">{isGuest ? "- π" : "1,245.50 π"}</p>
         </div>
       </div>
 

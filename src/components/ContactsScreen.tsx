@@ -71,13 +71,13 @@ export function ContactsScreen({
       {/* Search bar — sits below the separator line */}
       <div className="bg-white dark:bg-card px-6 pb-3 pt-3 border-b border-gray-100 dark:border-border">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
             type="text"
             placeholder="Search from Contacts"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+            className="w-full pl-11 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -94,8 +94,8 @@ export function ContactsScreen({
             <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
               <User className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
             </div>
-            <p className="text-gray-400 dark:text-muted-foreground text-sm">
-              {searchQuery ? "No contacts match your search" : "No contacts yet. Add a Pioneer!"}
+            <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
+              {searchQuery ? "No contacts match your search" : "No Contacts to show! Connect Pi Wallet to add a pioneer."}
             </p>
           </div>
         ) : (
@@ -118,11 +118,10 @@ export function ContactsScreen({
                       <div
                         key={contact.id}
                         ref={isNew ? newContactRef : undefined}
-                        onClick={() => onNavigateToContactDetails(contact)}
-                        className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 cursor-pointer ${
+                        className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 ${
                           isNew
                             ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
-                            : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:border-[#A47CF3]/40 dark:hover:border-[#8A2BE2]/40"
+                            : "bg-white dark:bg-card border border-gray-100 dark:border-border"
                         }`}
                       >
                         <div className="p-4">
@@ -153,8 +152,11 @@ export function ContactsScreen({
                                   </span>
                                 )}
                               </div>
-                              {/* Details label */}
-                              <span className="text-xs text-[#A47CF3] font-medium mt-0.5 inline-block">Details</span>
+                              {/* Details label — only this triggers navigation */}
+                              <span
+                                onClick={() => onNavigateToContactDetails(contact)}
+                                className="text-sm text-[#A47CF3] font-medium mt-0.5 inline-block cursor-pointer"
+                              >Details</span>
                             </div>
 
                             <div className="text-right flex-shrink-0">
@@ -162,8 +164,11 @@ export function ContactsScreen({
                                 {balance >= 0 ? "+" : ""}{balance.toFixed(2)} π
                               </p>
                               {/* Category */}
-                              <p className="text-gray-400 dark:text-muted-foreground text-xs mt-1">
-                                {contact.category === "individual" ? "🏷️ Individual" : "🏷️ Business"}
+                              <p className="text-xs mt-1">
+                                {contact.category === "individual"
+                                  ? <span className="text-gray-400 dark:text-muted-foreground">🏷️ Individual</span>
+                                  : <span style={{ color: "#F7C548" }}>🏷️ Business</span>
+                                }
                               </p>
                             </div>
                           </div>

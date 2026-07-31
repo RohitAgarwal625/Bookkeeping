@@ -64,7 +64,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
+      <div className={`flex-1 overflow-y-auto px-6 pb-24 ${embedded ? "pt-0" : "py-6"}`}>
         {isGuest ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
@@ -77,11 +77,11 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
         ) : (
         <>
         {/* Search & Filter Section */}
-        <div className="mb-6">
+        <div className="mb-4">
           {/* Section heading */}
           <h3 className="text-gray-900 dark:text-foreground font-semibold mb-3">Pioneer Details</h3>
           {/* Search Bar */}
-          <div className="relative mb-4">
+          <div className="relative mb-3">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
             <input
               type="text"
