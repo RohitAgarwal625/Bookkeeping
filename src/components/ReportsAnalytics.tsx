@@ -40,6 +40,8 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "individual" | "business">("all");
   const [showCustomerInfo, setShowCustomerInfo] = useState(false);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   // Calculate totals
   const totalCredit = monthlyData.reduce((sum, month) => sum + month.credit, 0);
@@ -180,11 +182,35 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
           </button>
         </div>
 
+        {/* Inline date range — shown only when Custom is selected */}
+        {selectedFilter === "custom" && (
+          <div className="flex items-center gap-3 mt-4">
+            <div className="flex-1 flex flex-col gap-1">
+              <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">From</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+              />
+            </div>
+            <div className="flex-1 flex flex-col gap-1">
+              <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">To</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Top Customers Section */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
-            <h3 className="text-gray-900 dark:text-foreground">Top Customers</h3>
+            <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
             <button
               onClick={() => setShowCustomerInfo(v => !v)}
               className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
