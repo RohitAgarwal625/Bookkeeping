@@ -362,7 +362,7 @@ function AppContent() {
 
   // ── Login Screen ──────────────────────────────────────────────────
   return (
-    <div className="size-full flex items-center justify-center bg-background">
+    <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
         @keyframes text-write {
           0%   { width: 0ch; }
@@ -387,31 +387,42 @@ function AppContent() {
           animation: fade-in 0.01s linear 1.6s forwards;
         }
       `}</style>
-      <div className="w-full max-w-md px-6 py-8 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-2 mb-8">
+      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "72px 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
+
+        {/* Logo + title + tagline */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
           <BookkeepingLogo />
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
-          {/* Tagline: text reveals left-to-right, pen sits after text in flow so it moves right as text grows — pen writes */}
           <p className="text-gray-500 dark:text-gray-400 text-base italic">
-            <span className="write-text">For Bookkeeper in you...</span><img src={penFeatherIcon} alt="" className="write-pen w-5 h-5 object-contain ml-0.5" />
+            <span className="write-text">For Bookkeeper in you...</span><img
+              src={penFeatherIcon}
+              alt=""
+              className="write-pen"
+              style={{ width: "3rem", height: "3rem", objectFit: "contain", marginLeft: "2px" }}
+            />
           </p>
         </div>
-        <button
-          onClick={handleConnectWallet}
-          className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
-          style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
-        >
-          Connect Pi Wallet
-        </button>
-        <div className="h-6" />
-        <button
-          onClick={handleGuestLogin}
-          className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
-          style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
-        >
-          Continue as Guest
-        </button>
-        <div className="mt-auto pt-12 flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
+
+        {/* CTA buttons */}
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
+          <button
+            onClick={handleConnectWallet}
+            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+            style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+          >
+            Connect Pi Wallet
+          </button>
+          <button
+            onClick={handleGuestLogin}
+            className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
+            style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
+          >
+            Continue as Guest
+          </button>
+        </div>
+
+        {/* Footer links */}
+        <div className="flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
           <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
           <span>•</span>
           <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>

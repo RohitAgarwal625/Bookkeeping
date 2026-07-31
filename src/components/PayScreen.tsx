@@ -99,10 +99,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   // ── Processing Screen (pulse / ripple animation — no spinner) ──────────
   if (screen === "processing") {
     return (
-      <div className="size-full flex flex-col bg-background">
-        <div className="h-14 flex-shrink-0" />
-
-        <div className="flex-1 flex flex-col items-center justify-center px-8">
+      <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 32px" }}>
           {/* Pulsing coin with expanding ripple rings */}
           <div className="relative w-40 h-40 flex items-center justify-center mb-12">
             {[0, 0.7, 1.4].map((delay) => (
@@ -157,17 +155,16 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   // ── Success Screen ─────────────────────────────────────────────────────
   if (screen === "success") {
     return (
-      <div className="size-full flex flex-col bg-background relative overflow-hidden">
-        <div className="h-14 flex-shrink-0" />
+      <div className="bg-background relative" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {/* Soft on-theme glow */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full blur-3xl opacity-30 pointer-events-none"
           style={{ background: GRADIENT }}
         />
 
-        <div className="flex-1 flex flex-col items-center justify-center px-6 z-10">
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", padding: "72px 24px 24px", position: "relative", zIndex: 10 }}>
           {/* Animated success badge */}
-          <div className="relative mb-8" style={{ animation: "pay-pop 0.5s cubic-bezier(0.16,1,0.3,1)" }}>
+          <div className="relative" style={{ animation: "pay-pop 0.5s cubic-bezier(0.16,1,0.3,1)" }}>
             <div className="absolute inset-0 rounded-full blur-xl opacity-60" style={{ background: GRADIENT }} />
             <div
               className="relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
@@ -177,8 +174,10 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             </div>
           </div>
 
-          <p className="text-gray-900 dark:text-white font-bold text-2xl mb-1">Payment Sent!</p>
-          <p className="text-gray-400 text-sm mb-8 text-center">Your payment was processed successfully</p>
+          <div className="text-center">
+            <p className="text-gray-900 dark:text-white font-bold text-2xl mb-1">Payment Sent!</p>
+            <p className="text-gray-400 text-sm text-center">Your payment was processed successfully</p>
+          </div>
 
           {/* Receipt card */}
           <div
@@ -261,13 +260,13 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
   // ── Payment Form (default) ─────────────────────────────────────────────
   return (
-    <div className="size-full min-h-screen flex flex-col bg-background">
+    <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <Header onBack={onBack} />
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-40">
+      <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px 160px" }}>
         {/* Public key */}
-        <div className="mt-4">
+        <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Public key
           </label>
@@ -304,7 +303,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         </div>
 
         {/* or */}
-        <div className="flex items-center gap-3 my-5">
+        <div style={{ marginTop: "28px", marginBottom: "28px" }} className="flex items-center gap-3">
           <div className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
           <span className="text-sm font-medium text-gray-400">or</span>
           <div className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
@@ -388,7 +387,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         </div>
 
         {/* Amount */}
-        <div className="mt-8">
+        <div style={{ marginTop: "28px" }}>
           <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">
             Amount
           </p>
@@ -403,7 +402,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               }}
               min="0"
               placeholder="0.0000001"
-              className="bg-transparent text-center font-black text-gray-900 dark:text-white outline-none w-full placeholder-gray-200 dark:placeholder-gray-800 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none leading-none"
+              className="bg-transparent text-center font-black text-black dark:text-white outline-none w-full placeholder-gray-200 dark:placeholder-gray-800 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none leading-none"
               style={{ fontSize: "clamp(2.5rem, 13vw, 4.25rem)", fontVariantNumeric: "tabular-nums" }}
             />
             <span

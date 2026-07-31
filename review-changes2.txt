@@ -1,0 +1,7 @@
+ On starting screen I want the feather icon to appear just beside three dots and also increase the size of the feather icon a little.
+And all the components of the entire screen are very close each other , align them at equal space between them and align them properly so that they cover the entire screen
+ On pay via contact screen below payment details header section public key and all the components are there and at the bottom pay button is there they is a lot of space available between the amount all the numbers that are written and the table I want that space to be used so align that screen perfectly in such a way that there is equal space between all the components and also add a space public ke it is touching the separation line of the header
+and Change the colour of amount text to black
+and Increase the font size of public key and Pioneer and amount text and keep font size of all three same
+and Same happening with when I click on pay button on this screen the loading animation screen comes move that section in the middle and after that the success screen comes same align the components to use the full screen equally
+ All the info buttons of add Pioneer and add transaction must have black colour.

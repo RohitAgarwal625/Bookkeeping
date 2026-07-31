@@ -105,7 +105,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-secondary/80 transition-colors"
                     aria-label="Individual info"
                   >
-                    <Info className="w-3 h-3 text-gray-400" />
+                    <Info className="w-3 h-3 text-black dark:text-white" />
                   </button>
                   {pioneerTooltip === "individual" && (
                     <div className="w-full bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
@@ -132,7 +132,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-amber-100 dark:hover:bg-secondary/80 transition-colors"
                     aria-label="Business info"
                   >
-                    <Info className="w-3 h-3 text-gray-400" />
+                    <Info className="w-3 h-3 text-black dark:text-white" />
                   </button>
                   <span style={{ padding: "2px 10px" }} className="text-[9px] text-amber-500 bg-amber-50 dark:bg-amber-950/30 rounded-full border border-amber-200 dark:border-amber-800/40 whitespace-nowrap">
                     Coming Soon
@@ -203,7 +203,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-secondary/80 transition-colors"
                     aria-label="Manual info"
                   >
-                    <Info className="w-3 h-3 text-gray-400" />
+                    <Info className="w-3 h-3 text-black dark:text-white" />
                   </button>
                   {manualTooltip && (
                     <div className="w-full bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
@@ -233,7 +233,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-amber-100 dark:hover:bg-secondary/80 transition-colors"
                     aria-label="Automatic info"
                   >
-                    <Info className="w-3 h-3 text-gray-400" />
+                    <Info className="w-3 h-3 text-black dark:text-white" />
                   </button>
                   <span style={{ padding: "2px 10px" }} className="text-[9px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
                     Free · Limited
