@@ -378,13 +378,13 @@ function AppContent() {
           white-space: nowrap;
           width: 0ch;
           vertical-align: bottom;
-          animation: text-write 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards;
+          animation: text-write 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
         }
         .write-pen {
           display: inline-block;
           vertical-align: middle;
           opacity: 0;
-          animation: fade-in 0.01s linear 1.0s forwards;
+          animation: fade-in 0.01s linear 1.6s forwards;
         }
       `}</style>
       <div className="w-full max-w-md px-6 py-8 flex flex-col items-center">
@@ -393,7 +393,7 @@ function AppContent() {
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
           {/* Tagline: text reveals left-to-right, pen sits after text in flow so it moves right as text grows — pen writes */}
           <p className="text-gray-500 dark:text-gray-400 text-base italic">
-            <span className="write-text">For Bookkeepering you...</span><img src={penFeatherIcon} alt="" className="write-pen w-5 h-5 object-contain ml-0.5" />
+            <span className="write-text">For Bookkeeper in you...</span><img src={penFeatherIcon} alt="" className="write-pen w-5 h-5 object-contain ml-0.5" />
           </p>
         </div>
         <button

@@ -1,0 +1,17 @@
+When we click on continuous guest and home screen appears so I want below total debit and total credit dash Pi – pie for both , dash is hyphen in bold
+And in place of connect pi  wallet to view recent transactions , replace it with nothing to show here and also remove the arrow above this text
+ In guess more on contacts screen text is written no contact yet had a Pioneer replace it with no contacts to show exclamation mark connect by wallet to add a Pioneer
+ In connect Pi wallet  mode , on dashboard screen analysis section Pioneer details heading is there above that space is reduce that space, basically all the three Pioneer details search from contacts search bar and all individual business just give equal space between these three and just shift until above so that the space above Pioneer details reduces .
+ On dashboard screen history section, when we click on view details a model appears in that model there is a line above not / memo remove that line.
+Add a symbol of notepad beside it just like other date status public key have .
+
+In this model status is there I want the icon beside status must be green for successful and for pending transaction exclamation mark in yellow colour in a circle both must be yellow
+ On contact screen right now and person clicks on any card contact details screen opens but I want it was must open only when the user clicks on details not the entire card
+
+Also increase the font of details in business a little and give business text golden yellowish colour , the colour which tag icon beside business have that colour
+
+Increase the length or width I don't know the search from contacts bar above and it will the grey area very little space is increase that space a little
+ In contact details screen all the four five components looks very close to each other give equal space between them so that it expands  across the entire screen ,  the open ledger must be in the bottom of the screen you just like pay via contacts screen has pay button in the bottom
+
+
+When I click on open ledger on contact details screen does a plus icon in the bottom right remove that
