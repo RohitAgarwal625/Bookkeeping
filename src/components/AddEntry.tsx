@@ -290,7 +290,8 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
           {/* Pi Blockexplorer button */}
           <button
             onClick={handlePiTransactions}
-            className="w-full mb-4 py-3 px-5 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
           >
             <span className="font-medium text-sm">View Pi Blockexplorer</span>
             <ExternalLink className="w-4 h-4" />
@@ -313,7 +314,8 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
           {/* Save Button */}
           <button
             onClick={handleSaveEntry}
-            className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#6F3C97] to-[#A47CF3] text-white shadow-md hover:shadow-lg transition-all active:scale-98"
+            className="w-full py-3.5 px-6 rounded-xl text-white shadow-md hover:shadow-lg transition-all active:scale-98"
+            style={{ background: "linear-gradient(135deg, #A47CF3 0%, #c47ef8 50%, #F7C548 100%)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
           >
             Add
           </button>

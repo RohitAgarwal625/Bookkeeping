@@ -32,11 +32,12 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
       <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
       <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
         <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative overflow-hidden">
-            {/* Pi symbol - positioned so bottom half is hidden by being outside the visible circle area */}
-            <span className="absolute text-white font-bold select-none" style={{ fontSize: "18px", top: "-2px", left: "50%", transform: "translateX(-50%) rotate(45deg)", opacity: 0.95 }}>π</span>
-            {/* Wallet icon on top */}
-            <Wallet className="w-7 h-7 text-white relative" style={{ marginTop: "6px" }} />
+          {/* Enlarged wallet icon with π clearly inside it */}
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative">
+            <div className="relative flex items-center justify-center">
+              <Wallet className="w-9 h-9 text-white" />
+              <span className="absolute text-white font-black select-none" style={{ fontSize: "11px", lineHeight: 1, marginTop: "2px" }}>π</span>
+            </div>
           </div>
           <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
           <p className="text-sm text-gray-500 dark:text-muted-foreground mb-6 leading-relaxed">
@@ -369,13 +370,17 @@ function AppContent() {
   return (
     <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
         @keyframes text-write {
           0%   { width: 0; }
           100% { width: 100%; }
         }
         @keyframes pen-move {
           0%   { left: 0; }
-          100% { left: 100%; }
+          100% { left: calc(100% - 0px); }
+        }
+        @keyframes pen-stay {
+          0%, 100% { left: calc(100% - 0px); }
         }
         .write-container {
           position: relative;
@@ -392,7 +397,7 @@ function AppContent() {
         .write-pen-wrapper {
           position: absolute;
           top: 50%;
-          transform: translateY(-50%);
+          transform: translateY(-55%);
           left: 0;
           animation: pen-move 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
         }
@@ -405,9 +410,9 @@ function AppContent() {
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
         </div>
 
-        {/* Component 3: Tagline — separate, with pen writing animation */}
+        {/* Component 3: Tagline — separate, with pen writing animation + feather/cursive font */}
         <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <p className="text-black dark:text-gray-400 italic" style={{ fontSize: "1.2rem" }}>
+          <p className="text-black dark:text-gray-400" style={{ fontSize: "1.25rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
             <span className="write-container">
               <span className="write-text">for the bookkeeper in you...</span>
               <span className="write-pen-wrapper">

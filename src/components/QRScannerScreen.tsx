@@ -158,7 +158,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
         type="file"
         accept="image/*"
         onChange={handleUploadQR}
-        className="hidden"
+        style={{ display: "none", position: "absolute", width: 0, height: 0, opacity: 0, pointerEvents: "none" }}
       />
 
       {/* Hidden container for upload-based QR scanning */}
