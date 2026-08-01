@@ -376,8 +376,8 @@ function AppContent() {
           100% { clip-path: inset(0 0% 0 0); }
         }
         @keyframes pen-slide {
-          0%   { left: 0; }
-          100% { left: calc(100% - 2.8rem); }
+          0%   { left: -2.8rem; }
+          100% { left: calc(100% - 0.5rem); }
         }
         .write-container {
           position: relative;
@@ -394,7 +394,7 @@ function AppContent() {
           position: absolute;
           top: 50%;
           transform: translateY(-60%);
-          left: 0;
+          left: -2.8rem;
           animation: pen-slide 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
         }
       `}</style>

@@ -49,9 +49,9 @@ export function Dashboard({
   };
 
   return (
-    <div className={`size-full flex flex-col ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"} relative`}>
+    <div className={`size-full flex flex-col ${isGuest ? "bg-background" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"} relative`}>
       {/* Header */}
-      <header className={`${isGuest ? "bg-gray-50 dark:bg-[#0F1115] border-b border-gray-100 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-transparent dark:border-border"} px-6 py-4 flex justify-between items-center z-20 relative`}>
+      <header className={`${isGuest ? "bg-background border-b border-gray-100 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-transparent dark:border-border"} px-6 py-4 flex justify-between items-center z-20 relative`}>
         <div>
           <p className="text-gray-500 dark:text-muted-foreground text-sm">Welcome,</p>
           <h2 className="text-gray-900 dark:text-foreground">{isGuest ? "Pioneer" : userName}</h2>

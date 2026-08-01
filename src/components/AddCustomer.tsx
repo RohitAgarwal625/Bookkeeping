@@ -227,16 +227,16 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 placeholder="Pi Wallet Address"
                 className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
               />
-              {/* Validation tick — white by default, turns purple once validated */}
+              {/* Validation tick — matches PayScreen style: grey by default, purple filled when validated */}
               <div
-                className={`absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                className={`absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                   isValidated
-                    ? "bg-white border-2 border-[#A47CF3]"
-                    : "bg-gray-300 dark:bg-gray-600"
+                    ? "bg-[#A47CF3] border-[#A47CF3]"
+                    : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
                 }`}
                 title={isValidated ? "Pi Wallet Address validated" : "Not validated yet"}
               >
-                <Check className={`w-4 h-4 ${isValidated ? "text-[#A47CF3]" : "text-white"}`} />
+                <Check className={`w-4 h-4 transition-colors duration-300 ${isValidated ? "text-white" : "text-gray-300 dark:text-gray-500"}`} strokeWidth={3} />
               </div>
             </div>
           </div>

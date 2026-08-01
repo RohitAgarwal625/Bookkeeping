@@ -106,14 +106,12 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
           <div className="flex gap-6">
             <div className="flex-1 text-center py-3">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Debit</p>
-              <p className="text-red-600 dark:text-red-400 font-bold ">{totalDebit.toFixed(2)}</p>
-              <p className="text-red-400 dark:text-red-500 text-sm font-semibold mt-0.5">π</p>
+              <p className="text-red-600 dark:text-red-400 font-bold">{totalDebit.toFixed(2)} <span className="text-red-400 dark:text-red-500 text-sm font-semibold">π</span></p>
             </div>
             <div className="w-px bg-gradient-to-b from-transparent via-gray-200 dark:via-border to-transparent flex-shrink-0" />
             <div className="flex-1 text-center py-3">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Credit</p>
-              <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)}</p>
-              <p className="text-green-400 dark:text-green-500 text-sm font-semibold mt-0.5">π</p>
+              <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)} <span className="text-green-400 dark:text-green-500 text-sm font-semibold">π</span></p>
             </div>
           </div>
         </div>
