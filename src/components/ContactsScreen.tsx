@@ -58,9 +58,9 @@ export function ContactsScreen({
   }, [newContactId]);
 
   return (
-    <div className={`size-full flex flex-col ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`}>
+    <div className={`size-full flex flex-col ${isGuest ? "bg-white dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`}>
       {/* Header — only contains "Contacts" title + separator */}
-      <header className={`${isGuest ? "bg-gray-50 dark:bg-[#0F1115] border-b border-gray-200/60 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border"} px-6 py-4 z-10 relative`}>
+      <header className="bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border px-6 py-4 z-10 relative">
         <div className="flex items-center">
           <div className="w-8 flex-shrink-0" />
           <h1 className="flex-1 text-xl font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
@@ -71,7 +71,7 @@ export function ContactsScreen({
       </header>
 
       {/* Search bar — sits below the separator line */}
-      <div className={`${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-white dark:bg-card"} px-6 pb-3 pt-3`}>
+      <div className="bg-white dark:bg-card px-6 pb-3 pt-3">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
@@ -89,10 +89,10 @@ export function ContactsScreen({
         </div>
       </div>
 
-      {/* Contact list */}
-      <div className={`flex-1 overflow-y-auto pb-24 px-4 pt-4 ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : ""}`}>
+      {/* Contact list — uniform flat background across content area below search bar */}
+      <div className="flex-1 flex flex-col overflow-y-auto pb-24 px-4 pt-4 bg-white dark:bg-[#0F1115]">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1 min-h-[300px] gap-3 h-full">
+          <div className="flex flex-col items-center justify-center flex-1 my-auto min-h-[250px] gap-3">
             <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
               <User className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
             </div>
