@@ -2,9 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   Search,
   X,
-  Building2,
   User,
-  Tag,
 } from "lucide-react";
 import { Contact, getInitials } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -132,56 +130,67 @@ export function ContactsScreen({
                           }`}
                       >
                         <div className="p-4">
-                          {/* Row: avatar + name + balance */}
+                          {/* Row: avatar + name (in line) + right side (category top, details bottom) */}
                           <div className="flex items-center gap-3">
                             <div
                               className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm"
                               style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
                             >
-                              {contact.category === "business" ? (
-                                <Building2 className="w-5 h-5 text-white" />
-                              ) : (
-                                <span className="text-white font-bold text-base">
-                                  {getInitials(contact.name)}
+                              <span className="text-white font-bold text-base">
+                                {getInitials(contact.name)}
+                              </span>
+                            </div>
+
+                            <div className="flex-1 min-w-0 flex items-center gap-2">
+                              {/* Name aligned in same line with initial symbols */}
+                              <p className="text-gray-900 dark:text-foreground font-bold text-base truncate">
+                                {contact.name}
+                              </p>
+                              {isNew && (
+                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#A47CF3]">
+                                  New
                                 </span>
                               )}
                             </div>
 
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                {/* Name */}
-                                <p className="text-gray-900 dark:text-foreground font-bold text-sm truncate">
-                                  {contact.name}
-                                </p>
-                                {isNew && (
-                                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#A47CF3]">
-                                    New
-                                  </span>
-                                )}
-                              </div>
-                              {/* Details label — only this triggers navigation */}
-                              <span
-                                onClick={() => onNavigateToContactDetails(contact)}
-                                className="text-sm text-gray-500 dark:text-foreground font-medium mt-0.5 inline-block cursor-pointer"
-                              >Details</span>
-                            </div>
-
-                            <div className="text-right flex-shrink-0">
-                              <p className={`text-sm font-bold ${balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
-                                {balance >= 0 ? "+" : ""}{balance.toFixed(2)} π
-                              </p>
-                              {/* Category */}
-                              <p className="text-xs mt-1 flex items-center justify-end">
+                            <div className="flex-shrink-0 flex flex-col items-end gap-1.5 w-[95px]">
+                              {/* Category tag at top right with icon aligned in same vertical line */}
+                              <div className="text-sm font-medium w-full flex items-center justify-start">
                                 {contact.category === "individual" ? (
                                   <span className="text-[#A47CF3] dark:text-[#A47CF3] flex items-center gap-1">
-                                    <Tag className="w-3 h-3 text-black dark:text-white" style={{ transform: "rotate(-225deg)" }} strokeWidth={2.2} /> Individual
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 24 24"
+                                      className="w-3.5 h-3.5 fill-current text-black dark:text-white flex-shrink-0"
+                                      style={{ transform: "rotate(-225deg)" }}
+                                    >
+                                      <path d="M21.41 11.58 12.42 2.59A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.41l9 9a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.83ZM6.5 8A1.5 1.5 0 1 1 8 6.5 1.5 1.5 0 0 1 6.5 8Z" />
+                                    </svg>
+                                    Individual
                                   </span>
                                 ) : (
                                   <span style={{ color: "#F7C548" }} className="flex items-center gap-1">
-                                    <Tag className="w-3 h-3 text-black dark:text-white" style={{ transform: "rotate(-225deg)" }} strokeWidth={2.2} /> Business
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 24 24"
+                                      className="w-3.5 h-3.5 fill-current text-black dark:text-white flex-shrink-0"
+                                      style={{ transform: "rotate(-225deg)" }}
+                                    >
+                                      <path d="M21.41 11.58 12.42 2.59A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.41l9 9a2 2 0 0 0 2.82 0l7-7a2 2 0 0 0 0-2.83ZM6.5 8A1.5 1.5 0 1 1 8 6.5 1.5 1.5 0 0 1 6.5 8Z" />
+                                    </svg>
+                                    Business
                                   </span>
                                 )}
-                              </p>
+                              </div>
+                              {/* Details label at bottom right with increased font size */}
+                              <div className="w-full flex justify-end">
+                                <span
+                                  onClick={() => onNavigateToContactDetails(contact)}
+                                  className="text-sm text-gray-500 dark:text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400 font-medium inline-block cursor-pointer transition-colors"
+                                >
+                                  Details
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
