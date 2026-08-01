@@ -67,14 +67,14 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
               className="bg-white dark:bg-card rounded-2xl w-full relative overflow-visible"
               style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.95), 0 0 28px 6px rgba(255,255,255,0.5), 0 8px 32px rgba(0,0,0,0.2)" }}
             >
-            {/* X — top-right outer corner */}
-            <button
-              onClick={(e) => { e.stopPropagation(); closePioneer(); }}
-              className="absolute z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
-              style={{ top: "-12px", right: "-12px" }}
-            >
-              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-            </button>
+              {/* X — top-right outer corner */}
+              <button
+                onClick={(e) => { e.stopPropagation(); closePioneer(); }}
+                className="absolute z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+                style={{ top: "-12px", right: "-12px" }}
+              >
+                <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+              </button>
 
 
               {/* Title above separator */}
@@ -166,14 +166,14 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
               className="bg-white dark:bg-card rounded-2xl w-full relative overflow-visible"
               style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.95), 0 0 28px 6px rgba(255,255,255,0.5), 0 8px 32px rgba(0,0,0,0.2)" }}
             >
-            {/* X — top-right outer corner */}
-            <button
-              onClick={(e) => { e.stopPropagation(); closeTransaction(); }}
-              className="absolute z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
-              style={{ top: "-12px", right: "-12px" }}
-            >
-              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-            </button>
+              {/* X — top-right outer corner */}
+              <button
+                onClick={(e) => { e.stopPropagation(); closeTransaction(); }}
+                className="absolute z-20 w-8 h-8 rounded-full bg-white dark:bg-card shadow-lg border border-gray-100 dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+                style={{ top: "-12px", right: "-12px" }}
+              >
+                <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+              </button>
 
 
               {/* Title above separator */}
@@ -238,7 +238,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <Info className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                   </button>
                   <span style={{ padding: "2px 10px" }} className="text-[9px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
-                    Free · Limited
+                    Free • Limited
                   </span>
                   {autoTooltip && (
                     <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">

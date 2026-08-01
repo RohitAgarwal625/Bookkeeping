@@ -155,7 +155,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                     </div>
                     Automatic
                     <span className="ml-auto text-xs font-normal text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-3 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
-                      Free · Limited
+                      Free • Limited
                     </span>
                   </button>
                   {/* Info icon */}
