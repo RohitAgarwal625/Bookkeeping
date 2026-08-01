@@ -36,7 +36,7 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative">
             <div className="relative flex items-center justify-center">
               <Wallet className="w-9 h-9 text-white" />
-              <span className="absolute text-white font-black select-none" style={{ fontSize: "11px", lineHeight: 1, marginTop: "2px" }}>π</span>
+              <span className="absolute text-white select-none" style={{ fontSize: "12px", lineHeight: 1, marginTop: "2px", fontWeight: 700, marginRight: "5px" }}>π</span>
             </div>
           </div>
           <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
@@ -371,35 +371,31 @@ function AppContent() {
     <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
-        @keyframes text-write {
-          0%   { width: 0; }
-          100% { width: 100%; }
+        @keyframes text-reveal {
+          0%   { clip-path: inset(0 100% 0 0); }
+          100% { clip-path: inset(0 0% 0 0); }
         }
-        @keyframes pen-move {
+        @keyframes pen-slide {
           0%   { left: 0; }
-          100% { left: calc(100% - 0px); }
-        }
-        @keyframes pen-stay {
-          0%, 100% { left: calc(100% - 0px); }
+          100% { left: calc(100% - 2.8rem); }
         }
         .write-container {
           position: relative;
           display: inline-block;
+          white-space: nowrap;
         }
         .write-text {
           display: inline-block;
-          overflow: hidden;
           white-space: nowrap;
-          width: 0;
-          vertical-align: bottom;
-          animation: text-write 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
+          clip-path: inset(0 100% 0 0);
+          animation: text-reveal 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
         }
         .write-pen-wrapper {
           position: absolute;
           top: 50%;
-          transform: translateY(-55%);
+          transform: translateY(-60%);
           left: 0;
-          animation: pen-move 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
+          animation: pen-slide 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
         }
       `}</style>
       <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
@@ -412,7 +408,7 @@ function AppContent() {
 
         {/* Component 3: Tagline — separate, with pen writing animation + feather/cursive font */}
         <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <p className="text-black dark:text-gray-400" style={{ fontSize: "1.25rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
+          <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
             <span className="write-container">
               <span className="write-text">for the bookkeeper in you...</span>
               <span className="write-pen-wrapper">

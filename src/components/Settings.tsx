@@ -540,7 +540,7 @@ export function Settings({
             <Switch
               checked={isDarkMode}
               onCheckedChange={toggleDarkMode}
-              className="data-[state=checked]:bg-white dark:data-[state=checked]:bg-white"
+              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#A47CF3] data-[state=checked]:to-[#F7C548]"
             />
           </div>
         </div>

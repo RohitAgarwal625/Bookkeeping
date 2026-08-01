@@ -53,11 +53,11 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
   const totalCredit = transactions
     .filter((t) => t.type === "credit")
     .reduce((sum, t) => sum + t.amount, 0);
-  
+
   const totalDebit = transactions
     .filter((t) => t.type === "debit")
     .reduce((sum, t) => sum + t.amount, 0);
-  
+
   const balance = totalCredit - totalDebit;
 
   const handleAddEntry = (entry: { amount: number; note: string; type: "credit" | "debit" }) => {
@@ -97,20 +97,23 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-32">
         {/* Top Summary Card */}
-        <div className="bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border-2 dark:border-[#8A2BE2]/30 p-8 mb-6 border-2 border-transparent bg-gradient-to-br from-white to-white dark:from-card dark:to-card relative overflow-hidden">
+        <div className="bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border-2 dark:border-[#8A2BE2]/30 p-8 mb-6 border-2 border-transparent relative overflow-hidden">
           {/* Gradient border effect */}
           <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-br from-[#A47CF3] to-[#F7C548] -z-10" />
           <div className="absolute inset-[2px] bg-white dark:bg-card rounded-2xl -z-10" />
 
           {/* Credit and Debit Summary */}
           <div className="flex gap-6">
-            <div className="flex-1 text-center">
-              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Debit</p>
-              <p className="text-red-600 dark:text-red-400 font-bold">{totalDebit.toFixed(2)} π</p>
+            <div className="flex-1 text-center py-3">
+              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Debit</p>
+              <p className="text-red-600 dark:text-red-400 font-bold ">{totalDebit.toFixed(2)}</p>
+              <p className="text-red-400 dark:text-red-500 text-sm font-semibold mt-0.5">π</p>
             </div>
-            <div className="flex-1 text-center">
-              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">Total Credit</p>
-              <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)} π</p>
+            <div className="w-px bg-gradient-to-b from-transparent via-gray-200 dark:via-border to-transparent flex-shrink-0" />
+            <div className="flex-1 text-center py-3">
+              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Credit</p>
+              <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)}</p>
+              <p className="text-green-400 dark:text-green-500 text-sm font-semibold mt-0.5">π</p>
             </div>
           </div>
         </div>
@@ -136,9 +139,8 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
                       <p className="text-xs text-gray-400 dark:text-muted-foreground mt-1">{transaction.timestamp}</p>
                     </div>
                     <p
-                      className={`font-bold ml-4 ${
-                        transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                      }`}
+                      className={`font-bold ml-4 ${transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                        }`}
                     >
                       {transaction.type === "credit" ? "+" : "-"}{transaction.amount.toFixed(2)} π
                     </p>
