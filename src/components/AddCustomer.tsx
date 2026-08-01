@@ -277,19 +277,16 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
           onClick={() => setShowInvalidPopup(false)}
         >
           <div
-            className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-[88vw] max-w-[360px] p-6 text-center"
+            className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-[88vw] max-w-[360px] p-6 text-center flex flex-col gap-5"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center">
-              <X className="w-6 h-6 text-red-500" />
-            </div>
-            <h3 className="font-semibold text-gray-900 dark:text-foreground mb-1">Invalid Pi Wallet Address</h3>
-            <p className="text-xs text-gray-500 dark:text-muted-foreground mb-5">
+            <h3 className="font-semibold text-gray-900 dark:text-foreground text-base">Invalid Pi Wallet Address</h3>
+            <p className="text-xs text-gray-500 dark:text-muted-foreground leading-relaxed">
               The address you entered could not be validated on the Pi network. Please check and try again.
             </p>
             <button
               onClick={() => setShowInvalidPopup(false)}
-              className="w-full py-3 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow"
+              className="w-full py-3 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow font-medium"
             >
               OK
             </button>

@@ -4,6 +4,7 @@ import {
   X,
   Building2,
   User,
+  Tag,
 } from "lucide-react";
 import { Contact, getInitials } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -170,11 +171,16 @@ export function ContactsScreen({
                                 {balance >= 0 ? "+" : ""}{balance.toFixed(2)} π
                               </p>
                               {/* Category */}
-                              <p className="text-xs mt-1">
-                                {contact.category === "individual"
-                                  ? <span className="text-[#A47CF3] dark:text-[#A47CF3]">🏷️ Individual</span>
-                                  : <span style={{ color: "#F7C548" }}>🏷️ Business</span>
-                                }
+                              <p className="text-xs mt-1 flex items-center justify-end">
+                                {contact.category === "individual" ? (
+                                  <span className="text-[#A47CF3] dark:text-[#A47CF3] flex items-center gap-1">
+                                    <Tag className="w-3 h-3 text-black dark:text-white" strokeWidth={2.2} /> Individual
+                                  </span>
+                                ) : (
+                                  <span style={{ color: "#F7C548" }} className="flex items-center gap-1">
+                                    <Tag className="w-3 h-3 text-black dark:text-white" strokeWidth={2.2} /> Business
+                                  </span>
+                                )}
                               </p>
                             </div>
                           </div>
