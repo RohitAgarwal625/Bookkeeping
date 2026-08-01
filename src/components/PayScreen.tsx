@@ -223,7 +223,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             <div className="px-5 py-4">
               <div className="flex items-center gap-2 text-[#A47CF3]">
                 <ReceiptText className="w-4 h-4" />
-                <span className="text-xs font-semibold">Receipt saved to your ledger</span>
+                <span className="text-xs font-semibold">Transaction saved to your ledger</span>
               </div>
             </div>
           </div>
@@ -283,16 +283,14 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             <div className="w-0.5 h-7 bg-gray-300 dark:bg-gray-500 mx-3 flex-shrink-0 rounded-full" />
             {/* Verification tick */}
             <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all duration-300 ${
-                isVerified
+              className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all duration-300 ${isVerified
                   ? "bg-[#A47CF3] border-[#A47CF3]"
                   : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
-              }`}
+                }`}
             >
               <Check
-                className={`w-4 h-4 transition-colors duration-300 ${
-                  isVerified ? "text-white" : "text-gray-300 dark:text-gray-500"
-                }`}
+                className={`w-4 h-4 transition-colors duration-300 ${isVerified ? "text-white" : "text-gray-300 dark:text-gray-500"
+                  }`}
                 strokeWidth={3}
               />
             </div>
@@ -320,21 +318,21 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               </span>
             </div>
           ) : (
-          <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3]`}>
-            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <input
-              type="text"
-              value={pioneerQuery}
-              onFocus={() => setIsDropdownOpen(true)}
-              onBlur={handlePioneerBlur}
-              onChange={(e) => handlePioneerSearchChange(e.target.value)}
-              placeholder="Select from Contacts"
-              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium"
-            />
-            <ChevronDown
-              className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-            />
-          </div>
+            <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3]`}>
+              <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <input
+                type="text"
+                value={pioneerQuery}
+                onFocus={() => setIsDropdownOpen(true)}
+                onBlur={handlePioneerBlur}
+                onChange={(e) => handlePioneerSearchChange(e.target.value)}
+                placeholder="Select from Contacts"
+                className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium"
+              />
+              <ChevronDown
+                className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+              />
+            </div>
           )}
 
           {/* Not-in-contacts message */}
@@ -362,9 +360,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                   <div
                     key={contact.id}
                     onMouseDown={(e) => { e.preventDefault(); handleSelectPioneer(contact); }}
-                    className={`flex items-center gap-3 px-4 py-3 hover:bg-purple-50 dark:hover:bg-purple-950/30 cursor-pointer transition-colors ${
-                      i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-gray-800" : ""
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 hover:bg-purple-50 dark:hover:bg-purple-950/30 cursor-pointer transition-colors ${i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-gray-800" : ""
+                      }`}
                   >
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-sm font-bold shadow-sm">
                       {getInitials(contact.name)}
@@ -416,11 +413,10 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               <button
                 key={preset}
                 onClick={() => setAmount(preset)}
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
-                  amount === preset
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${amount === preset
                     ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white border-transparent shadow-md"
                     : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-[#A47CF3] hover:text-[#A47CF3]"
-                }`}
+                  }`}
               >
                 {preset} π
               </button>
