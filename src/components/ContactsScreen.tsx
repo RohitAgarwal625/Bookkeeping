@@ -54,13 +54,13 @@ export function ContactsScreen({
     }
     const timer = setTimeout(() => onNewContactSeen(), 3000);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newContactId]);
 
   return (
     <div className={`size-full flex flex-col ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`}>
       {/* Header — only contains "Contacts" title + separator */}
-      <header className={`${isGuest ? "bg-gray-50 dark:bg-card border-b border-gray-200 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border"} px-6 py-4 z-10 relative`}>
+      <header className={`${isGuest ? "bg-gray-50 dark:bg-[#0F1115] border-b border-gray-100 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border"} px-6 py-4 z-10 relative`}>
         <div className="flex items-center">
           <div className="w-8 flex-shrink-0" />
           <h1 className="flex-1 text-xl font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
@@ -71,7 +71,7 @@ export function ContactsScreen({
       </header>
 
       {/* Search bar — sits below the separator line */}
-      <div className={`${isGuest ? "bg-gray-50 dark:bg-card" : "bg-white dark:bg-card"} px-6 pb-3 pt-3`}>
+      <div className={`${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-white dark:bg-card"} px-6 pb-3 pt-3`}>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
@@ -125,11 +125,10 @@ export function ContactsScreen({
                       <div
                         key={contact.id}
                         ref={isNew ? newContactRef : undefined}
-                        className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 ${
-                          isNew
+                        className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 ${isNew
                             ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
                             : "bg-white dark:bg-card border border-gray-100 dark:border-border"
-                        }`}
+                          }`}
                       >
                         <div className="p-4">
                           {/* Row: avatar + name + balance */}
@@ -162,7 +161,7 @@ export function ContactsScreen({
                               {/* Details label — only this triggers navigation */}
                               <span
                                 onClick={() => onNavigateToContactDetails(contact)}
-                                className="text-sm text-gray-400 dark:text-muted-foreground font-medium mt-0.5 inline-block cursor-pointer"
+                                className="text-sm text-gray-500 dark:text-foreground font-medium mt-0.5 inline-block cursor-pointer"
                               >Details</span>
                             </div>
 
