@@ -185,7 +185,7 @@ export function MerchantDashboard({
   const businessMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "business");
 
   const handleCopyWallet = (id: string, address: string) => {
-    navigator.clipboard.writeText(address).catch(() => {});
+    navigator.clipboard.writeText(address).catch(() => { });
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1500);
   };
@@ -216,21 +216,19 @@ export function MerchantDashboard({
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
-            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-              activeView === "history"
+            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "history"
                 ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
                 : "bg-gray-100 text-gray-400 dark:text-gray-500 dark:bg-[#080810]"
-            }`}
+              }`}
           >
             <History className="w-4 h-4" /> History
           </button>
           <button
             onClick={() => setActiveView("analysis")}
-            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-              activeView === "analysis"
+            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "analysis"
                 ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
                 : "bg-gray-100 text-gray-400 dark:text-gray-500 dark:bg-[#080810]"
-            }`}
+              }`}
           >
             <BarChart2 className="w-4 h-4" /> Analysis
           </button>
@@ -249,14 +247,13 @@ export function MerchantDashboard({
         {activeView === "history" && (
           <>
             {/* Individual / Business — rounded segmented toggle with middle switch */}
-            <div className="flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto">
+            <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto">
               <button
                 onClick={() => setActiveCategory("individual")}
-                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${
-                  activeCategory === "individual"
+                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${activeCategory === "individual"
                     ? "bg-white dark:bg-card text-[#A47CF3] shadow"
                     : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
-                }`}
+                  }`}
               >
                 Individual
               </button>
@@ -295,66 +292,65 @@ export function MerchantDashboard({
                 </div>
               ) : (
                 (activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
-                <div
-                  key={merchant.id}
-                  className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A2BE2]/40 transition-all"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-medium">{getInitials(merchant.merchantName)}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-gray-900 dark:text-foreground font-medium truncate">{merchant.merchantName}</p>
-                        <p className="text-xs text-gray-500 dark:text-muted-foreground">{merchant.date}</p>
-                      </div>
-                    </div>
-                    <span className={`font-medium ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                      {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} π
-                    </span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {/* Status */}
-                    <div className="flex items-center gap-2">
-                      {merchant.status === "completed" ? (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
-                          <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
-                            <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
+                  <div
+                    key={merchant.id}
+                    className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A2BE2]/40 transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-medium">{getInitials(merchant.merchantName)}</span>
                         </div>
-                      ) : merchant.status === "failed" ? (
-                        <XCircle className="w-3.5 h-3.5 text-red-500" />
-                      ) : (
-                        <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
-                          <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-gray-900 dark:text-foreground font-medium truncate">{merchant.merchantName}</p>
+                          <p className="text-xs text-gray-500 dark:text-muted-foreground">{merchant.date}</p>
                         </div>
-                      )}
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        merchant.status === "completed"
-                          ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
-                          : merchant.status === "failed"
-                          ? "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
-                          : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"
-                      }`}>
-                        {merchant.status === "completed" ? "Successful" : merchant.status === "failed" ? "Failed" : "Pending"}
+                      </div>
+                      <span className={`font-medium ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                        {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} π
                       </span>
                     </div>
-                    {/* Date */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 dark:text-muted-foreground">Date:</span>
-                      <span className="text-xs text-gray-700 dark:text-gray-300">{merchant.date}</span>
+                    <div className="space-y-1.5">
+                      {/* Status */}
+                      <div className="flex items-center gap-2">
+                        {merchant.status === "completed" ? (
+                          <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
+                              <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </div>
+                        ) : merchant.status === "failed" ? (
+                          <XCircle className="w-3.5 h-3.5 text-red-500" />
+                        ) : (
+                          <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
+                            <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
+                          </div>
+                        )}
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${merchant.status === "completed"
+                            ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
+                            : merchant.status === "failed"
+                              ? "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
+                              : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"
+                          }`}>
+                          {merchant.status === "completed" ? "Successful" : merchant.status === "failed" ? "Failed" : "Pending"}
+                        </span>
+                      </div>
+                      {/* Date */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 dark:text-muted-foreground">Date:</span>
+                        <span className="text-xs text-gray-700 dark:text-gray-300">{merchant.date}</span>
+                      </div>
+                      {/* Note */}
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Note:</span>
+                        <span className="text-xs text-gray-600 dark:text-muted-foreground">{merchant.description}</span>
+                      </div>
                     </div>
-                    {/* Note */}
-                    <div className="flex items-start gap-2">
-                      <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Note:</span>
-                      <span className="text-xs text-gray-600 dark:text-muted-foreground">{merchant.description}</span>
-                    </div>
+                    <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
+                      <span className="text-xs text-[#A47CF3] dark:text-[#8A2BE2]">View Details</span>
+                    </button>
                   </div>
-                  <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
-                    <span className="text-xs text-[#A47CF3] dark:text-[#8A2BE2]">View Details</span>
-                  </button>
-                </div>
-              ))
+                ))
               )}
             </div>
           </>
@@ -434,7 +430,7 @@ export function MerchantDashboard({
                     {selectedMerchant.status === "completed" ? (
                       <div className="w-5 h-5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
                         <svg className="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none">
-                          <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </div>
                     ) : selectedMerchant.status === "failed" ? (
@@ -446,13 +442,12 @@ export function MerchantDashboard({
                     )}
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Status</span>
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    selectedMerchant.status === "completed"
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${selectedMerchant.status === "completed"
                       ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400"
                       : selectedMerchant.status === "failed"
-                      ? "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400"
-                      : "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400"
-                  }`}>
+                        ? "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400"
+                        : "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400"
+                    }`}>
                     {selectedMerchant.status === "completed" ? "Successful" : selectedMerchant.status === "failed" ? "Failed" : "Pending"}
                   </span>
                 </div>
