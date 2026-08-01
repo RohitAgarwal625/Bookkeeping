@@ -45,9 +45,12 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
   if (step === "scanning") {
     const msg = SCAN_MESSAGES[Math.min(scanMsgIndex, SCAN_MESSAGES.length - 1)];
     return (
-      <div className="size-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-8">
+      <div
+        style={{ minHeight: "100dvh", height: "100dvh" }}
+        className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-8 text-center"
+      >
         {/* Bouncing dots */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center justify-center gap-3 mb-8">
           {[0, 0.15, 0.3].map((delay, i) => (
             <span
               key={i}
@@ -60,9 +63,9 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
             />
           ))}
         </div>
-        <p className="text-gray-900 dark:text-foreground font-bold text-xl mb-2 text-center">Fetching Transactions</p>
-        <p className="text-[#A47CF3] text-sm text-center font-medium mb-1">{selectedContact?.name}</p>
-        <p className="text-gray-400 dark:text-muted-foreground text-xs text-center animate-pulse">{msg}</p>
+        <p className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Fetching Transactions</p>
+        <p className="text-[#A47CF3] text-base text-center font-semibold mb-2">{selectedContact?.name}</p>
+        <p className="text-gray-400 dark:text-muted-foreground text-sm text-center animate-pulse">{msg}</p>
         <style>{`@keyframes bounce-dot { 0%, 80%, 100% { transform: translateY(0); opacity: 0.5; } 40% { transform: translateY(-18px); opacity: 1; } }`}</style>
       </div>
     );
@@ -70,30 +73,33 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
 
   if (step === "summary") {
     return (
-      <div className="size-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-8">
-        <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl"
+      <div
+        style={{ minHeight: "100dvh", height: "100dvh" }}
+        className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-8 text-center"
+      >
+        <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
           <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
         </div>
         <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Done!</h2>
-        <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-6">
+        <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-6 max-w-xs">
           <span className="font-bold text-[#A47CF3] text-lg">{txFound.current}</span> transactions found from{" "}
           <span className="font-semibold text-gray-900 dark:text-foreground">{selectedContact?.name}</span> and added to your ledger successfully.
         </p>
-        <div className="w-full bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 mb-8">
+        <div className="w-full max-w-sm bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 mb-8">
           {[
             { label: "Pioneer", value: selectedContact?.name ?? "" },
             { label: "From", value: fromDate },
             { label: "To", value: toDate },
             { label: "Transactions Added", value: String(txFound.current) },
           ].map(({ label, value }) => (
-            <div key={label} className="flex justify-between text-sm py-1.5 border-b border-gray-50 dark:border-border last:border-0">
+            <div key={label} className="flex justify-between text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
               <span className={`font-medium ${label === "Transactions Added" ? "text-[#A47CF3] font-bold" : "text-gray-900 dark:text-foreground"}`}>{value}</span>
             </div>
           ))}
         </div>
-        <button onClick={onBack} className="w-full py-4 rounded-2xl font-bold text-white text-base"
+        <button onClick={onBack} className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base"
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}>
           Back to Home
         </button>
@@ -104,15 +110,15 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
   if (step === "dateRange") {
     const isValid = !!(fromDate && toDate && fromDate <= toDate);
     return (
-      <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-        <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border">
+      <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+        <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border flex-shrink-0">
           <button onClick={() => setStep("selectContact")} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
           <h2 className="text-gray-900 dark:text-foreground font-semibold">Enter Details</h2>
           <BookkeepingLogo compact />
         </header>
-        <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-6">
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 160px" }} className="space-y-6">
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-5 flex items-center gap-3">
             <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold">{getInitials(selectedContact?.name ?? "")}</span>
@@ -138,9 +144,19 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all" />
             </div>
           </div>
+        </div>
+        {/* Bottom pinned action bar matching PayScreen */}
+        <div
+          style={{ paddingBottom: "48px", paddingTop: "16px", paddingLeft: "20px", paddingRight: "20px" }}
+          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700 shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
+        >
           <button disabled={!isValid} onClick={() => { setScanMsgIndex(0); setStep("scanning"); }}
-            className="w-full py-4 rounded-2xl font-bold text-base transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: isValid ? "linear-gradient(135deg,#A47CF3,#F7C548)" : "#e5e7eb", color: isValid ? "#fff" : "#9ca3af" }}>
+            className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              background: isValid ? "linear-gradient(135deg,#A47CF3,#F7C548)" : "#e5e7eb",
+              color: isValid ? "#fff" : "#9ca3af",
+              boxShadow: isValid ? "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" : "none"
+            }}>
             Fetch Transactions
           </button>
         </div>
@@ -150,7 +166,7 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
 
   // Step: selectContact
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border">
         <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />

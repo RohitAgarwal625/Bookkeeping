@@ -459,9 +459,7 @@ export function Settings({
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
-        <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
-          <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
-        </button>
+        <div className="w-8" />
         <h2 className="text-[#D32F2F] dark:text-[#8A2BE2] flex-1 text-center">Settings</h2>
         <BookkeepingLogo compact />
       </header>

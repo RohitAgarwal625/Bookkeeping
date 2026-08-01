@@ -127,8 +127,8 @@ export function ContactsScreen({
                         key={contact.id}
                         ref={isNew ? newContactRef : undefined}
                         className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 ${isNew
-                            ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
-                            : "bg-white dark:bg-card border border-gray-100 dark:border-border"
+                          ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
+                          : "bg-white dark:bg-card border border-gray-100 dark:border-border"
                           }`}
                       >
                         <div className="p-4">
@@ -174,11 +174,11 @@ export function ContactsScreen({
                               <p className="text-xs mt-1 flex items-center justify-end">
                                 {contact.category === "individual" ? (
                                   <span className="text-[#A47CF3] dark:text-[#A47CF3] flex items-center gap-1">
-                                    <Tag className="w-3 h-3 text-black dark:text-white" strokeWidth={2.2} /> Individual
+                                    <Tag className="w-3 h-3 text-black dark:text-white" style={{ transform: "rotate(-225deg)" }} strokeWidth={2.2} /> Individual
                                   </span>
                                 ) : (
                                   <span style={{ color: "#F7C548" }} className="flex items-center gap-1">
-                                    <Tag className="w-3 h-3 text-black dark:text-white" strokeWidth={2.2} /> Business
+                                    <Tag className="w-3 h-3 text-black dark:text-white" style={{ transform: "rotate(-225deg)" }} strokeWidth={2.2} /> Business
                                   </span>
                                 )}
                               </p>
