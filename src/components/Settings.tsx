@@ -155,8 +155,10 @@ export function Settings({
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
-          <h2 className="text-[#D32F2F] dark:text-[#8A2BE2] flex-1 text-center">Edit Profile</h2>
-          <div className="w-8" />
+          <h1 className="text-xl font-bold text-gray-900 dark:text-foreground flex-1 text-center">Edit Profile</h1>
+          <div className="flex-shrink-0">
+            <BookkeepingLogo compact />
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto px-6 py-8 pb-24 flex flex-col items-center gap-6">
@@ -282,8 +284,10 @@ export function Settings({
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
-          <h2 className="text-[#D32F2F] dark:text-[#8A2BE2] flex-1 text-center">FAQs</h2>
-          <div className="w-8" />
+          <h1 className="text-xl font-bold text-gray-900 dark:text-foreground flex-1 text-center">FAQs</h1>
+          <div className="flex-shrink-0">
+            <BookkeepingLogo compact />
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
@@ -365,8 +369,10 @@ export function Settings({
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
-          <h2 className="text-[#D32F2F] dark:text-[#8A2BE2] flex-1 text-center">About Us</h2>
-          <div className="w-8" />
+          <h1 className="text-xl font-bold text-gray-900 dark:text-foreground flex-1 text-center">About Us</h1>
+          <div className="flex-shrink-0">
+            <BookkeepingLogo compact />
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
@@ -459,9 +465,11 @@ export function Settings({
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
-        <div className="w-8" />
-        <h2 className="text-[#D32F2F] dark:text-[#8A2BE2] flex-1 text-center">Settings</h2>
-        <BookkeepingLogo compact />
+        <div className="w-8 flex-shrink-0" />
+        <h1 className="text-xl font-bold text-gray-900 dark:text-foreground flex-1 text-center">Settings</h1>
+        <div className="flex-shrink-0">
+          <BookkeepingLogo compact />
+        </div>
       </header>
 
       {/* Scrollable Content */}
@@ -535,11 +543,22 @@ export function Settings({
               </div>
               <span className="text-gray-900 dark:text-foreground">Enable Dark Mode</span>
             </div>
-            <Switch
-              checked={isDarkMode}
-              onCheckedChange={toggleDarkMode}
-              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#A47CF3] data-[state=checked]:to-[#F7C548]"
-            />
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="flex-shrink-0 p-0.5 rounded-full border-2 border-black dark:border-black shadow-sm focus:outline-none transition-all"
+              aria-label="Toggle dark mode"
+            >
+              <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
+                <div
+                  className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
+                  style={{
+                    background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                    transform: isDarkMode ? "translateX(20px)" : "translateX(0)",
+                  }}
+                />
+              </div>
+            </button>
           </div>
         </div>
 
