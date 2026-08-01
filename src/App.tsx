@@ -377,7 +377,7 @@ function AppContent() {
         }
         @keyframes pen-slide {
           0%   { left: -2.8rem; }
-          100% { left: calc(100% - 0.5rem); }
+          100% { left: calc(100% - 0.2rem); }
         }
         .write-container {
           position: relative;
@@ -395,6 +395,11 @@ function AppContent() {
           top: 50%;
           transform: translateY(-60%);
           left: -2.8rem;
+          width: 2.8rem;
+          height: 2.8rem;
+          min-width: 2.8rem;
+          min-height: 2.8rem;
+          flex-shrink: 0;
           animation: pen-slide 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
         }
       `}</style>
@@ -415,7 +420,7 @@ function AppContent() {
                 <img
                   src={penFeatherIcon}
                   alt=""
-                  style={{ width: "2.8rem", height: "2.8rem", objectFit: "contain" }}
+                  style={{ width: "2.8rem", height: "2.8rem", minWidth: "2.8rem", minHeight: "2.8rem", maxWidth: "2.8rem", maxHeight: "2.8rem", objectFit: "contain", flexShrink: 0 }}
                 />
               </span>
             </span>

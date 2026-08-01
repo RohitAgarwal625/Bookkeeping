@@ -210,16 +210,16 @@ export function MerchantDashboard({
   };
 
   return (
-    <div className={`size-full flex flex-col ${isGuest ? "bg-background" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`}>
+    <div className={`size-full flex flex-col ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`}>
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
-      <header className={`${isGuest ? "bg-background" : "bg-white dark:bg-[#0F1115]"}`}>
+      <header className={`${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-white dark:bg-[#0F1115]"}`}>
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "history"
-                ? `text-[#A47CF3] border-b-2 border-[#A47CF3] ${isGuest ? "bg-background" : "bg-white dark:bg-[#0F1115]"}`
-                : "text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#080810]"
+                ? `text-[#A47CF3] border-b-2 border-[#A47CF3] ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-white dark:bg-[#0F1115]"}`
+                : `${isGuest ? "bg-gray-200/50" : "bg-gray-100"} text-gray-400 dark:text-gray-500 dark:bg-[#080810]`
             }`}
           >
             <History className="w-4 h-4" /> History
@@ -228,8 +228,8 @@ export function MerchantDashboard({
             onClick={() => setActiveView("analysis")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               activeView === "analysis"
-                ? `text-[#A47CF3] border-b-2 border-[#A47CF3] ${isGuest ? "bg-background" : "bg-white dark:bg-[#0F1115]"}`
-                : "text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#080810]"
+                ? `text-[#A47CF3] border-b-2 border-[#A47CF3] ${isGuest ? "bg-gray-50 dark:bg-[#0F1115]" : "bg-white dark:bg-[#0F1115]"}`
+                : `${isGuest ? "bg-gray-200/50" : "bg-gray-100"} text-gray-400 dark:text-gray-500 dark:bg-[#080810]`
             }`}
           >
             <BarChart2 className="w-4 h-4" /> Analysis
