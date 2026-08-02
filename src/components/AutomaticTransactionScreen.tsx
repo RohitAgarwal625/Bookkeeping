@@ -148,7 +148,7 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
         {/* Bottom pinned action bar matching PayScreen */}
         <div
           style={{ paddingBottom: "48px", paddingTop: "16px", paddingLeft: "20px", paddingRight: "20px" }}
-          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700 shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
+          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
         >
           <button disabled={!isValid} onClick={() => { setScanMsgIndex(0); setStep("scanning"); }}
             className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
@@ -157,7 +157,7 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
               color: isValid ? "#fff" : "#9ca3af",
               boxShadow: isValid ? "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" : "none"
             }}>
-            Fetch Transactions
+            Fetch
           </button>
         </div>
       </div>
