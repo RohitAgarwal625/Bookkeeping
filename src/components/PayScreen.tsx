@@ -264,7 +264,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
       <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px 160px" }}>
         {/* Public key */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Public key
           </label>
           <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
@@ -306,7 +306,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
         {/* Pioneer — searchbar + dropdown */}
         <div className="relative z-30">
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Pioneer
           </label>
           {/* Visually disabled when wallet is typed but not found in contacts */}
@@ -382,11 +382,11 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
         {/* Amount */}
         <div style={{ marginTop: "36px" }}>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
+          <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">
             Amount
           </label>
 
-          <div className="flex items-center justify-center w-full mb-5">
+          <div className="flex items-center justify-center w-full mb-8">
             <input
               type="number"
               value={amount}
