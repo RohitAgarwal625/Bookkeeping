@@ -162,7 +162,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           style={{ background: GRADIENT }}
         />
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "32px", padding: "24px", paddingTop: "80px", position: "relative", zIndex: 10 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "32px", padding: "32px", paddingTop: "80px", position: "relative", zIndex: 10 }}>
           {/* Animated success badge */}
           <div className="relative" style={{ animation: "pay-pop 0.5s cubic-bezier(0.16,1,0.3,1)" }}>
             <div className="absolute inset-0 rounded-full blur-xl opacity-60" style={{ background: GRADIENT }} />
