@@ -181,7 +181,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div
           style={{ paddingBottom: "56px", paddingTop: "24px", paddingLeft: "20px", paddingRight: "20px" }}
-          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700 shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
+          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
         >
           <button
             onClick={() => onNavigateToLedger(displayName)}
