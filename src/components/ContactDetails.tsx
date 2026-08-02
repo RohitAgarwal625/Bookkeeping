@@ -186,7 +186,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
           <button
             onClick={() => onNavigateToLedger(displayName)}
             className="w-full py-4 rounded-2xl text-white font-semibold shadow-md hover:shadow-lg transition-shadow flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #A47CF3 0%, #c47ef8 50%, #F7C548 100%)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
           >
             <BookOpen className="w-5 h-5" />
             Open Ledger

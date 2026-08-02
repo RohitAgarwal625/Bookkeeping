@@ -14,7 +14,7 @@ interface PayScreenProps {
 
 type ScreenState = "form" | "processing" | "success";
 
-const GRADIENT = "linear-gradient(135deg, #A47CF3 0%, #c47ef8 50%, #F7C548 100%)";
+const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 
 export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer }: PayScreenProps) {
