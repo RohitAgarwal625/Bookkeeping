@@ -84,22 +84,30 @@ export function Dashboard({
               </button>
             </div>
             <div className="divide-y divide-gray-50 dark:divide-border">
-              {notifications.map((n) => (
-                <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
-                    }`}>
-                    {n.type === "credit" ? (
-                      <ArrowDownLeft className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    ) : (
-                      <ArrowUpRight className="w-4 h-4 text-red-600 dark:text-red-400" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-gray-800 dark:text-foreground text-xs leading-snug">{n.message}</p>
-                    <p className="text-gray-400 dark:text-muted-foreground text-xs mt-0.5">{n.time}</p>
-                  </div>
+              {isGuest ? (
+                <div className="flex items-center justify-center px-4 py-6 text-center">
+                  <p className="text-gray-800 dark:text-foreground text-sm font-semibold">
+                    Welcome Pioneer
+                  </p>
                 </div>
-              ))}
+              ) : (
+                notifications.map((n) => (
+                  <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
+                      }`}>
+                      {n.type === "credit" ? (
+                        <ArrowDownLeft className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      ) : (
+                        <ArrowUpRight className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-800 dark:text-foreground text-xs leading-snug">{n.message}</p>
+                      <p className="text-gray-400 dark:text-muted-foreground text-xs mt-0.5">{n.time}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </>

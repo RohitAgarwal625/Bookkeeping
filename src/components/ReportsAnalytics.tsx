@@ -42,6 +42,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   const [showCustomerInfo, setShowCustomerInfo] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [isCustomSubmitted, setIsCustomSubmitted] = useState(false);
 
   // Calculate totals
   const totalCredit = monthlyData.reduce((sum, month) => sum + month.credit, 0);
@@ -63,12 +64,12 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   };
 
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div className="size-full min-h-screen flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
 
       {/* Scrollable Content */}
       <div className={`flex-1 overflow-y-auto px-6 pb-24 ${embedded ? "pt-0" : "py-6"}`}>
         {isGuest ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh] pb-16 gap-4">
             <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
               <BarChart2 className="w-8 h-8 text-gray-400 dark:text-muted-foreground" />
             </div>
@@ -172,7 +173,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             This Month
           </button>
           <button
-            onClick={() => setSelectedFilter("custom")}
+            onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
             className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "custom"
               ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
               : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
@@ -184,30 +185,44 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
 
         {/* Inline date range — shown only when Custom is selected */}
         {selectedFilter === "custom" && (
-          <div className="flex items-center gap-3 mt-4">
-            <div className="flex-1 flex flex-col gap-1">
-              <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">From</label>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
-              />
+          <div className="flex flex-col gap-3 mt-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 flex flex-col gap-1">
+                <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">From</label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => { setFromDate(e.target.value); setIsCustomSubmitted(false); }}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                />
+              </div>
+              <div className="flex-1 flex flex-col gap-1">
+                <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">To</label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => { setToDate(e.target.value); setIsCustomSubmitted(false); }}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                />
+              </div>
             </div>
-            <div className="flex-1 flex flex-col gap-1">
-              <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">To</label>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
-              />
-            </div>
+            <button
+              onClick={() => setIsCustomSubmitted(true)}
+              className="w-full py-4 rounded-xl text-white font-bold text-base shadow-md transition-all hover:opacity-95 active:scale-[0.99] mt-1"
+              style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
+            >
+              Submit
+            </button>
           </div>
         )}
 
-        {/* Top Customers Section */}
-        <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
+        {selectedFilter === "custom" && !isCustomSubmitted ? (
+          <div className="bg-white dark:bg-card rounded-2xl p-6 text-center shadow-md dark:shadow-none dark:border dark:border-border mb-6">
+            <p className="text-sm text-gray-500 dark:text-muted-foreground">Select date range and click Submit to view details</p>
+          </div>
+        ) : (
+          /* Top Customers Section */
+          <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
             <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
@@ -260,6 +275,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             ))}
           </div>
         </div>
+        )}
 
         {/* Export Report Button */}
         {/* <button

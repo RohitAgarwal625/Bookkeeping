@@ -371,13 +371,22 @@ function AppContent() {
     <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
-        @keyframes text-reveal {
-          0%   { clip-path: inset(0 100% 0 0); }
-          100% { clip-path: inset(0 0% 0 0); }
+        @keyframes logo-zoom-out {
+          0%   { transform: scale(1.4); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
         }
-        @keyframes pen-slide {
-          0%   { left: -2.8rem; }
-          100% { left: calc(100% - 0.2rem); }
+        @keyframes text-reveal {
+          0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
+          1%   { opacity: 1; }
+          100% { clip-path: inset(0 0% 0 0); opacity: 1; }
+        }
+        @keyframes pen-appear-slide {
+          0%   { left: -2.8rem; opacity: 0; }
+          1%   { opacity: 1; }
+          100% { left: calc(100% - 0.2rem); opacity: 1; }
+        }
+        .logo-title-container {
+          animation: logo-zoom-out 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         .write-container {
           position: relative;
@@ -388,7 +397,8 @@ function AppContent() {
           display: inline-block;
           white-space: nowrap;
           clip-path: inset(0 100% 0 0);
-          animation: text-reveal 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
+          opacity: 0;
+          animation: text-reveal 2.2s cubic-bezier(0.4, 0, 0.2, 1) 1.2s forwards;
         }
         .write-pen-wrapper {
           position: absolute;
@@ -400,18 +410,19 @@ function AppContent() {
           min-width: 2.8rem;
           min-height: 2.8rem;
           flex-shrink: 0;
-          animation: pen-slide 2.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
+          opacity: 0;
+          animation: pen-appear-slide 2.2s cubic-bezier(0.4, 0, 0.2, 1) 1.2s forwards;
         }
       `}</style>
       <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
 
-        {/* Group 1 & 2: Logo + Title — positioned after 30% screen height */}
-        <div style={{ marginTop: "18vh", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+        {/* Group 1 & 2: Logo + Title — zoom-out animation first */}
+        <div className="logo-title-container" style={{ marginTop: "18vh", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
           <BookkeepingLogo />
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
         </div>
 
-        {/* Component 3: Tagline — separate, with pen writing animation + feather/cursive font */}
+        {/* Component 3: Tagline — separate, starts after logo zoom-out finishes */}
         <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
             <span className="write-container">
