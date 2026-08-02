@@ -433,7 +433,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         >
           {(isVerified || amount) && (
             <div className="mb-4 px-4 py-3 bg-gray-50 dark:bg-secondary rounded-2xl flex items-center justify-between">
-              <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center gap-3 min-w-0">
                 {isVerified ? (
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0">
                     {getInitials(recipientName)}
