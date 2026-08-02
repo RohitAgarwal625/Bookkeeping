@@ -64,17 +64,18 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   };
 
   return (
-    <div className="size-full min-h-screen flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
 
       {/* Scrollable Content */}
-      <div className={`flex-1 overflow-y-auto px-6 pb-24 ${embedded ? "pt-0" : "py-6"}`}>
+      <div className={`flex-1 flex flex-col px-6 pb-24 ${embedded ? "pt-0" : "py-6"}`}>
         {isGuest ? (
-          <div className="flex-1 flex flex-col items-center justify-center min-h-[50vh] pb-16 gap-4">
-            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
-              <BarChart2 className="w-8 h-8 text-gray-400 dark:text-muted-foreground" />
+          <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10 pb-24 gap-3">
+            <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0">
+              <BarChart2 className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
             </div>
-            <p className="text-gray-400 dark:text-muted-foreground text-sm text-center px-6">
-              Connect Pi Wallet to view your analysis and reports
+            <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
+              <span className="block font-medium">Connect Pi Wallet</span>
+              <span className="block mt-0.5">to view your analysis and reports.</span>
             </p>
           </div>
         ) : (

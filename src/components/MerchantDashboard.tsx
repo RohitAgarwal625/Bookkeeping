@@ -210,15 +210,15 @@ export function MerchantDashboard({
   };
 
   return (
-    <div className={`size-full flex flex-col ${isGuest ? "bg-white dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`}>
+    <div className={`size-full flex flex-col ${isGuest ? "bg-white dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`} style={{ minHeight: "100dvh" }}>
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
       <header className="bg-white dark:bg-[#0F1115]">
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "history"
-                ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
-                : "bg-gray-100 text-gray-400 dark:text-gray-500 dark:bg-[#080810]"
+              ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
+              : "bg-gray-100 text-gray-400 dark:text-gray-500 dark:bg-[#080810]"
               }`}
           >
             <History className="w-4 h-4" /> History
@@ -226,8 +226,8 @@ export function MerchantDashboard({
           <button
             onClick={() => setActiveView("analysis")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "analysis"
-                ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
-                : "bg-gray-100 text-gray-400 dark:text-gray-500 dark:bg-[#080810]"
+              ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
+              : "bg-gray-100 text-gray-400 dark:text-gray-500 dark:bg-[#080810]"
               }`}
           >
             <BarChart2 className="w-4 h-4" /> Analysis
@@ -236,7 +236,7 @@ export function MerchantDashboard({
       </header>
 
       {/* Scrollable Content — uniform flat background across content area below header */}
-      <div className="flex-1 flex flex-col overflow-y-auto px-6 py-6 pb-24 bg-white dark:bg-[#0F1115]">
+      <div className="flex-1 flex flex-col px-6 py-6 bg-white dark:bg-[#0F1115]">
 
         {/* ── Analysis View ── */}
         {activeView === "analysis" && (
@@ -245,14 +245,14 @@ export function MerchantDashboard({
 
         {/* ── History View ── */}
         {activeView === "history" && (
-          <>
+          <div className="flex-1 flex flex-col">
             {/* Individual / Business — rounded segmented toggle with middle switch */}
-            <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto">
+            <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto flex-shrink-0">
               <button
                 onClick={() => setActiveCategory("individual")}
                 className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${activeCategory === "individual"
-                    ? "bg-white dark:bg-card text-[#A47CF3] shadow"
-                    : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+                  ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                  : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
               >
                 Individual
@@ -273,25 +273,33 @@ export function MerchantDashboard({
 
               <button
                 disabled
-                className="flex-1 py-2 text-sm font-semibold rounded-full opacity-40 cursor-not-allowed text-gray-400 dark:text-muted-foreground"
+                className="flex-1 py-2 text-sm font-semibold rounded-full cursor-not-allowed"
+                style={{ color: "#9ca3af" }}
               >
                 Business
               </button>
             </div>
 
             {/* Merchants List */}
-            <div className="space-y-3">
-              {(activeCategory === "individual" ? individualMerchants : businessMerchants).length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-3">
-                  <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
-                    <History className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
-                  </div>
-                  <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
-                    {isGuest ? "Connect Pi Wallet to view transaction history" : "No transactions yet"}
-                  </p>
+            {(activeCategory === "individual" ? individualMerchants : businessMerchants).length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10 pb-24 gap-3">
+                <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0">
+                  <History className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
                 </div>
-              ) : (
-                (activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
+                <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
+                  {isGuest ? (
+                    <>
+                      <span className="block font-medium">No Transaction to show !</span>
+                      <span className="block mt-0.5">Connect Pi Wallet to view your transaction history.</span>
+                    </>
+                  ) : (
+                    "No transactions yet"
+                  )}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {(activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
                   <div
                     key={merchant.id}
                     className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A2BE2]/40 transition-all"
@@ -327,10 +335,10 @@ export function MerchantDashboard({
                           </div>
                         )}
                         <span className={`text-xs px-2 py-0.5 rounded-full ${merchant.status === "completed"
-                            ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
-                            : merchant.status === "failed"
-                              ? "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
-                              : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"
+                          ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
+                          : merchant.status === "failed"
+                            ? "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"
+                            : "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400"
                           }`}>
                           {merchant.status === "completed" ? "Successful" : merchant.status === "failed" ? "Failed" : "Pending"}
                         </span>
@@ -350,10 +358,10 @@ export function MerchantDashboard({
                       <span className="text-xs text-[#A47CF3] dark:text-[#8A2BE2]">View Details</span>
                     </button>
                   </div>
-                ))
-              )}
-            </div>
-          </>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -385,7 +393,7 @@ export function MerchantDashboard({
               </button>
             </div>
 
-            <div className="px-6 py-5">
+            <div className="px-6 pt-4 pb-5">
               {/* Avatar + Amount */}
               <div className="flex flex-col items-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3">
@@ -443,10 +451,10 @@ export function MerchantDashboard({
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Status</span>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${selectedMerchant.status === "completed"
-                      ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400"
-                      : selectedMerchant.status === "failed"
-                        ? "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400"
-                        : "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400"
+                    ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400"
+                    : selectedMerchant.status === "failed"
+                      ? "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400"
+                      : "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400"
                     }`}>
                     {selectedMerchant.status === "completed" ? "Successful" : selectedMerchant.status === "failed" ? "Failed" : "Pending"}
                   </span>

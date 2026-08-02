@@ -57,7 +57,7 @@ export function ContactsScreen({
   }, [newContactId]);
 
   return (
-    <div className={`size-full flex flex-col ${isGuest ? "bg-white dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`}>
+    <div className={`size-full flex flex-col ${isGuest ? "bg-white dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`} style={{ minHeight: "100dvh" }}>
       {/* Header — only contains "Contacts" title + separator */}
       <header className="bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border px-6 py-4 z-10 relative">
         <div className="flex items-center">
@@ -89,17 +89,17 @@ export function ContactsScreen({
       </div>
 
       {/* Contact list — uniform flat background across content area below search bar */}
-      <div className="flex-1 flex flex-col overflow-y-auto pb-24 px-4 pt-4 bg-white dark:bg-[#0F1115]">
+      <div className="flex-1 flex flex-col px-4 pt-4 bg-white dark:bg-[#0F1115]">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1 my-auto min-h-[250px] gap-3">
-            <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center">
+          <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10 pb-24 gap-3">
+            <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0">
               <User className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
             </div>
             <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
               {searchQuery ? "No contacts match your search" : (
                 <>
-                  <span className="block">No Contacts to show!</span>
-                  <span className="block">Connect Pi Wallet to add a pioneer.</span>
+                  <span className="block font-medium">No Contacts to show!</span>
+                  <span className="block mt-0.5">Connect Pi Wallet to add a pioneer.</span>
                 </>
               )}
             </p>
