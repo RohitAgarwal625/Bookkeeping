@@ -381,8 +381,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         </div>
 
         {/* Amount */}
-        <div style={{ marginTop: "28px" }}>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <div style={{ marginTop: "36px" }}>
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
             Amount
           </label>
 
