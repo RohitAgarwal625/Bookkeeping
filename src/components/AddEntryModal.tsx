@@ -127,7 +127,8 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow"
+            className="w-full py-3 px-6 rounded-xl text-white font-medium transition-all"
+            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
           >
             Record Transaction
           </button>

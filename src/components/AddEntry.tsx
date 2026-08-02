@@ -315,7 +315,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
           <button
             onClick={handleSaveEntry}
             className="w-full py-3.5 px-6 rounded-xl text-white shadow-md hover:shadow-lg transition-all active:scale-98"
-            style={{ background: "linear-gradient(135deg, #A47CF3 0%, #c47ef8 50%, #F7C548 100%)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
           >
             Add
           </button>
