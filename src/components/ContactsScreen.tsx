@@ -133,10 +133,10 @@ export function ContactsScreen({
                           {/* Row: avatar + name (in line) + right side (category top, details bottom) */}
                           <div className="flex items-center gap-3">
                             <div
-                              className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm"
+                              className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm"
                               style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
                             >
-                              <span className="text-white font-bold text-base">
+                              <span className="text-white font-bold text-lg">
                                 {getInitials(contact.name)}
                               </span>
                             </div>
