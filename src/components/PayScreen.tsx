@@ -267,7 +267,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Public key
           </label>
-          <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl pl-4 pr-3 py-3.5 transition-all shadow-sm">
+          <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
             <input
               type="text"
               value={isVerified && !isPublicKeyFocused
@@ -277,7 +277,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               onFocus={() => setIsPublicKeyFocused(true)}
               onBlur={() => setIsPublicKeyFocused(false)}
               placeholder="Pi Wallet Address"
-              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium pl-2"
+              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium px-3"
             />
             {/* Vertical divider — 2px wide, clearly visible */}
             <div className="w-0.5 h-7 bg-gray-300 dark:bg-gray-500 mx-3 flex-shrink-0 rounded-full" />
