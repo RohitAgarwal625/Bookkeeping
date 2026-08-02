@@ -229,10 +229,10 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
             <button
               onClick={() => setShowCustomerInfo(v => !v)}
-              className="w-5 h-5 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+              className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
               aria-label="Customer info"
             >
-              <Info className="w-3 h-3 text-gray-400" />
+              <Info className="w-3 h-3 text-black" />
             </button>
             {showCustomerInfo && (
               <span className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-2 py-0.5 rounded-full border border-purple-100 dark:border-purple-800/30">
