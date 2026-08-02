@@ -128,7 +128,7 @@ function AppContent() {
     setContacts((prev) => [...prev, newContact]);
     setNewContactId(newContact.id);
     setSelectedContactDetails(newContact);
-    setCurrentScreen("contactDetails");
+    setCurrentScreen("contacts");
   };
 
   const handleNavigate = (screen: string) => {
