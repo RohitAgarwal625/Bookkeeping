@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronDown, Check, X } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, CheckCircle, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
@@ -82,11 +82,12 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
   // ── Success Overlay ─────────────────────────────────────────────
   if (showSuccessOverlay) {
     return (
-      <div className="fixed inset-0 z-[500] bg-white dark:bg-[#0F1115] flex flex-col items-center justify-center px-8 animate-in fade-in duration-300">
-        <div className="flex flex-col items-center gap-6 text-center">
-          {/* Green tick circle */}
-          <div className="w-28 h-28 rounded-full bg-green-100 dark:bg-green-950/40 flex items-center justify-center shadow-xl">
-            <Check className="w-16 h-16 text-green-500 dark:text-green-400" strokeWidth={2.5} />
+      <div style={{ minHeight: "100dvh" }} className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
+        <div className="flex flex-col items-center gap-6 px-8 text-center" style={{ transform: "translateY(-32px)" }}>
+          {/* Gradient check circle */}
+          <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
+            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+            <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
           <div className="space-y-2">
             <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold">
@@ -102,7 +103,13 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
               if (pendingCustomer) onSave(pendingCustomer);
               setPendingCustomer(null);
             }}
-            className="mt-2 px-12 py-3.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+            className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide"
+            style={{
+              background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+              boxShadow: "0 6px 24px rgba(164,124,243,0.4)",
+              padding: "14px 48px",
+              minWidth: "160px",
+            }}
           >
             Done
           </button>
