@@ -87,7 +87,7 @@ export function Dashboard({
               {isGuest ? (
                 <div className="flex items-center justify-center px-4 py-6 text-center">
                   <p className="text-gray-800 dark:text-foreground text-sm font-semibold">
-                    Welcome Pioneer
+                    Connect Pi Wallet to start your journey with this dApp!
                   </p>
                 </div>
               ) : (
@@ -132,32 +132,32 @@ export function Dashboard({
               <p className="text-gray-400 dark:text-muted-foreground text-sm text-center px-4">Nothing to show here!</p>
             </div>
           ) : (
-          <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border overflow-hidden">
-            {recentEntries.map((transaction, index) => (
-              <div
-                key={transaction.id}
-                onClick={() => onNavigateToCustomerLedger(transaction.customerName)}
-                className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors ${index < recentEntries.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
-                  }`}
-              >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-semibold">{getInitials(transaction.customerName)}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">
-                    {transaction.customerName}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-muted-foreground">{transaction.date}</p>
-                </div>
-                <span className={`text-sm font-medium flex-shrink-0 ${transaction.type === "credit"
+            <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border overflow-hidden">
+              {recentEntries.map((transaction, index) => (
+                <div
+                  key={transaction.id}
+                  onClick={() => onNavigateToCustomerLedger(transaction.customerName)}
+                  className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors ${index < recentEntries.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
+                    }`}
+                >
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm font-semibold">{getInitials(transaction.customerName)}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">
+                      {transaction.customerName}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-muted-foreground">{transaction.date}</p>
+                  </div>
+                  <span className={`text-sm font-medium flex-shrink-0 ${transaction.type === "credit"
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
-                  }`}>
-                  {transaction.type === "credit" ? "+" : "-"}{transaction.amount} π
-                </span>
-              </div>
-            ))}
-          </div>
+                    }`}>
+                    {transaction.type === "credit" ? "+" : "-"}{transaction.amount} π
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
