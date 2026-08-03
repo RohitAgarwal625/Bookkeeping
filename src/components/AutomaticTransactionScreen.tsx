@@ -75,7 +75,7 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
     return (
       <div
         style={{ minHeight: "100dvh", height: "100dvh" }}
-        className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-8 text-center"
+        className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-5 text-center"
       >
         <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
@@ -86,7 +86,7 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
           <span className="font-bold text-[#A47CF3] text-lg">{txFound.current}</span> transactions found from{" "}
           <span className="font-semibold text-gray-900 dark:text-foreground">{selectedContact?.name}</span> and added to your ledger successfully.
         </p>
-        <div className="w-full max-w-sm bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 mb-8">
+        <div className="w-full max-w-sm bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 mb-8 mx-4">
           {[
             { label: "Pioneer", value: selectedContact?.name ?? "" },
             { label: "From", value: fromDate },
@@ -99,7 +99,7 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
             </div>
           ))}
         </div>
-        <button onClick={onBack} className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base"
+        <button onClick={onBack} className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4"
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}>
           Back to Home
         </button>
