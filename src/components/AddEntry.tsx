@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink, Search, X, Check, Info } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getInitials } from "../types";
@@ -84,11 +84,12 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
   // ── Full-screen success overlay ────────────────────────────────────
   if (showSuccess) {
     return (
-      <div className="size-full flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-emerald-50 dark:from-[#0a1a10] dark:to-[#0F1115] animate-in fade-in duration-300">
+      <div className="size-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
         <div className="flex flex-col items-center gap-6 px-8 text-center">
           {/* Animated check circle */}
-          <div className="w-24 h-24 rounded-full bg-green-100 dark:bg-green-950/40 flex items-center justify-center shadow-lg">
-            <Check className="w-14 h-14 text-green-500 dark:text-green-400" strokeWidth={2.5} />
+          <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
+            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+            <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
           <div className="space-y-2">
             <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold">
@@ -100,7 +101,8 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
           </div>
           <button
             onClick={onBack}
-            className="mt-4 px-10 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-md hover:shadow-lg transition-all"
+            className="mt-4 px-10 py-4 rounded-2xl font-bold text-white text-base"
+            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}
           >
             Done
           </button>
