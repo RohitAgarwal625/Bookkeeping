@@ -98,7 +98,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <User className="w-7 h-7 text-white" />
                     </div>
-                    <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Individual</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Individual</span>
                   </button>
                   {/* Info */}
                   <button
@@ -125,7 +125,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: "#9ca3af" }}>
                       <Briefcase className="w-7 h-7" style={{ color: "#ffffff" }} />
                     </div>
-                    <span className="text-xs font-medium" style={{ color: "#9ca3af" }}>Business</span>
+                    <span className="text-sm font-medium" style={{ color: "#9ca3af" }}>Business</span>
                   </div>
                   {/* Info */}
                   <button
@@ -135,7 +135,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   >
                     <Info className="w-3 h-3" style={{ color: "#9ca3af" }} />
                   </button>
-                  <span style={{ padding: "2px 8px", backgroundColor: "#9ca3af", color: "#ffffff" }} className="text-[7.5px] font-medium rounded-full whitespace-nowrap">
+                  <span style={{ padding: "2px 8px", backgroundColor: "#9ca3af", color: "#ffffff", fontSize: "12px" }} className="font-medium rounded-full whitespace-nowrap">
                     Coming Soon
                   </span>
                   {pioneerTooltip === "business" && (
@@ -197,7 +197,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <PenLine className="w-7 h-7 text-white" />
                     </div>
-                    <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Manual</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Manual</span>
                   </button>
                   {/* Info */}
                   <button
@@ -227,7 +227,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <Zap className="w-7 h-7 text-white" />
                     </div>
-                    <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Automatic</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Automatic</span>
                   </button>
                   {/* Info */}
                   <button
@@ -237,7 +237,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   >
                     <Info className="w-3 h-3 text-black" />
                   </button>
-                  <span style={{ padding: "2px 10px" }} className="text-[9px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
+                  <span style={{ padding: "2px 10px", fontSize: "12px" }} className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
                     Free • Limited
                   </span>
                   {autoTooltip && (
