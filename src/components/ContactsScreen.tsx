@@ -147,7 +147,10 @@ export function ContactsScreen({
                                 {contact.name}
                               </p>
                               {isNew && (
-                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#A47CF3]">
+                                <span
+                                  className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3]"
+                                  style={{ padding: "3px 10px", display: "inline-flex", alignItems: "center" }}
+                                >
                                   New
                                 </span>
                               )}
