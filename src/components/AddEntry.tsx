@@ -6,10 +6,11 @@ import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface AddEntryProps {
   onBack: () => void;
+  onSuccess?: (contactName: string) => void;
   contacts?: string[];
 }
 
-export function AddEntry({ onBack, contacts }: AddEntryProps) {
+export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const savedCustomers = contacts ?? [
     "Rajesh Kumar",
     "Priya Sharma",
@@ -30,6 +31,8 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const nameInputRef = useRef<HTMLDivElement>(null);
+  // Save contact name before form is cleared so the Done button can navigate to it
+  const savedContactName = useRef<string>("");
 
   const filteredCustomers = savedCustomers.filter((c) =>
     c.toLowerCase().includes(customerQuery.toLowerCase())
@@ -63,6 +66,9 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
       txHash,
       note,
     });
+
+    // Save the contact name before clearing the form
+    savedContactName.current = selectedCustomer;
 
     // Show full-screen success overlay
     setShowSuccess(true);
@@ -100,7 +106,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
             </p>
           </div>
           <button
-            onClick={onBack}
+            onClick={() => onSuccess ? onSuccess(savedContactName.current) : onBack()}
             className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide"
             style={{
               background: "linear-gradient(135deg,#A47CF3,#F7C548)",

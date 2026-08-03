@@ -224,7 +224,19 @@ function AppContent() {
   if (currentScreen === "addEntry") {
     return (
       <>
-        <AddEntry onBack={handleBackToDashboard} contacts={contactNames} />
+        <AddEntry
+          onBack={handleBackToDashboard}
+          onSuccess={(contactName) => {
+            const contact = contacts.find((c) => c.name === contactName);
+            if (contact) {
+              setSelectedContactDetails(contact);
+              setCurrentScreen("contactDetails");
+            } else {
+              handleBackToDashboard();
+            }
+          }}
+          contacts={contactNames}
+        />
         <Toaster position="bottom-center" />
       </>
     );
