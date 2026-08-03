@@ -1,4 +1,4 @@
-import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, Home, ReceiptText, Lock } from "lucide-react";
+import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, CheckCircle, Home, ReceiptText, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Contact, getInitials, initialContacts } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -164,14 +164,9 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "32px", padding: "32px", paddingTop: "80px", position: "relative", zIndex: 10 }}>
           {/* Animated success badge */}
-          <div className="relative" style={{ animation: "pay-pop 0.5s cubic-bezier(0.16,1,0.3,1)" }}>
-            <div className="absolute inset-0 rounded-full blur-xl opacity-60" style={{ background: GRADIENT }} />
-            <div
-              className="relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
-              style={{ background: GRADIENT, boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}
-            >
-              <Check className="w-12 h-12 text-white" strokeWidth={3} />
-            </div>
+          <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
+            style={{ background: GRADIENT, boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+            <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
 
           <div className="text-center">
