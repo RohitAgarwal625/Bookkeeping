@@ -84,7 +84,7 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
   // ── Full-screen success overlay ────────────────────────────────────
   if (showSuccess) {
     return (
-      <div className="size-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
+      <div style={{ minHeight: "100dvh" }} className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
         <div className="flex flex-col items-center gap-6 px-8 text-center">
           {/* Animated check circle */}
           <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
@@ -101,8 +101,13 @@ export function AddEntry({ onBack, contacts }: AddEntryProps) {
           </div>
           <button
             onClick={onBack}
-            className="mt-4 px-10 py-4 rounded-2xl font-bold text-white text-base"
-            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}
+            className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide"
+            style={{
+              background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+              boxShadow: "0 6px 24px rgba(164,124,243,0.4)",
+              padding: "14px 48px",
+              minWidth: "160px",
+            }}
           >
             Done
           </button>
