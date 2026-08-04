@@ -37,6 +37,44 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
     return `${d} ${months[parseInt(mo, 10) - 1]} ${y.slice(-2)}`;
   };
 
+  const getMaxToDate = (fromStr: string) => {
+    if (!fromStr) return "";
+    const [y, m, d] = fromStr.split("-").map(Number);
+    if (!y || !m || !d) return "";
+    let nextYear = y + 1;
+    let mm = m;
+    let dd = d;
+    if (m === 2 && d === 29) {
+      const isLeap = (nextYear % 4 === 0 && nextYear % 100 !== 0) || (nextYear % 400 === 0);
+      if (!isLeap) dd = 28;
+    }
+    return `${nextYear}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+  };
+
+  const handleFromDateChange = (val: string) => {
+    setFromDate(val);
+    if (!val) return;
+    const maxTo = getMaxToDate(val);
+    if (toDate) {
+      if (toDate < val) {
+        setToDate(val);
+      } else if (toDate > maxTo) {
+        setToDate(maxTo);
+      }
+    }
+  };
+
+  const handleToDateChange = (val: string) => {
+    if (fromDate) {
+      const maxTo = getMaxToDate(fromDate);
+      if (val > maxTo) {
+        setToDate(maxTo);
+        return;
+      }
+    }
+    setToDate(val);
+  };
+
   const filtered = contacts.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -125,7 +163,9 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   }
 
   if (step === "dateRange") {
-    const isValid = !!(fromDate && toDate && fromDate <= toDate);
+    const maxTo = getMaxToDate(fromDate);
+    const isValid = !!(fromDate && toDate && fromDate <= toDate && (!maxTo || toDate <= maxTo));
+
     return (
       <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
         <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border flex-shrink-0">
@@ -136,29 +176,43 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           <BookkeepingLogo compact />
         </header>
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 160px" }} className="space-y-6">
-          <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-5 flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold">{getInitials(selectedContact?.name ?? "")}</span>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-muted-foreground">Fetching for</p>
-              <p className="text-gray-900 dark:text-foreground font-semibold">{selectedContact?.name}</p>
-            </div>
-          </div>
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-5 space-y-5">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-border pb-3">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-foreground">Select Date Range</h3>
+              <span className="text-xs font-medium text-[#A47CF3] bg-purple-50 dark:bg-purple-950/40 px-2.5 py-1 rounded-full">
+                Max 1 Year Validity
+              </span>
+            </div>
+
             <div>
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-medium mb-2">
                 <CalendarDays className="w-4 h-4 text-[#A47CF3]" /> From Date
               </label>
-              <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all" />
+              <input
+                type="date"
+                value={fromDate}
+                max={toDate || undefined}
+                onChange={(e) => handleFromDateChange(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+              />
             </div>
             <div>
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-medium mb-2">
                 <CalendarDays className="w-4 h-4 text-[#A47CF3]" /> To Date
               </label>
-              <input type="date" value={toDate} min={fromDate} onChange={(e) => setToDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all" />
+              <input
+                type="date"
+                value={toDate}
+                min={fromDate || undefined}
+                max={getMaxToDate(fromDate) || undefined}
+                onChange={(e) => handleToDateChange(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+              />
+              {fromDate && (
+                <p className="text-xs text-gray-400 dark:text-muted-foreground mt-1.5">
+                  Max To Date allowed: <span className="font-medium text-gray-700 dark:text-gray-300">{fmtDate(getMaxToDate(fromDate))}</span> (1 year max)
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -167,6 +221,28 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           style={{ paddingBottom: "48px", paddingTop: "16px", paddingLeft: "20px", paddingRight: "20px" }}
           className="bg-white/90 dark:bg-background/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
         >
+          {selectedContact && (
+            <div className="mb-4 bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-base font-bold shadow-md flex-shrink-0">
+                  <span className="text-white font-bold">{getInitials(selectedContact.name)}</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Fetching for</p>
+                  <p className="text-gray-900 dark:text-foreground font-semibold text-sm truncate">
+                    {selectedContact.name}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0 pl-3">
+                <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Validity</p>
+                <p className={`font-semibold text-xs ${fromDate && toDate ? "text-[#6F3C97] dark:text-[#A47CF3]" : "text-gray-400 dark:text-gray-500"}`}>
+                  {fromDate && toDate ? `${fmtDate(fromDate)} - ${fmtDate(toDate)}` : "Max 1 Year"}
+                </p>
+              </div>
+            </div>
+          )}
+
           <button disabled={!isValid} onClick={() => { setScanMsgIndex(0); setStep("scanning"); }}
             className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
