@@ -206,7 +206,11 @@ function AppContent() {
   if (currentScreen === "autoTransaction") {
     return (
       <>
-        <AutomaticTransactionScreen contacts={contacts} onBack={handleBackToDashboard} />
+        <AutomaticTransactionScreen
+          contacts={contacts}
+          onBack={handleBackToDashboard}
+          onNavigateToLedger={handleNavigateToCustomerLedger}
+        />
         <Toaster position="bottom-center" />
       </>
     );
@@ -227,13 +231,7 @@ function AppContent() {
         <AddEntry
           onBack={handleBackToDashboard}
           onSuccess={(contactName) => {
-            const contact = contacts.find((c) => c.name === contactName);
-            if (contact) {
-              setSelectedContactDetails(contact);
-              setCurrentScreen("contactDetails");
-            } else {
-              handleBackToDashboard();
-            }
+            handleNavigateToCustomerLedger(contactName);
           }}
           contacts={contactNames}
         />

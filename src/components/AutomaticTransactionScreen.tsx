@@ -6,6 +6,7 @@ import { BookkeepingLogo } from "./BookkeepingLogo";
 interface AutomaticTransactionScreenProps {
   contacts: Contact[];
   onBack: () => void;
+  onNavigateToLedger: (name: string) => void;
 }
 
 type Step = "selectContact" | "dateRange" | "scanning" | "summary";
@@ -19,7 +20,7 @@ const SCAN_MESSAGES = [
   "Almost done...",
 ];
 
-export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransactionScreenProps) {
+export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedger }: AutomaticTransactionScreenProps) {
   const [step, setStep] = useState<Step>("selectContact");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
@@ -27,6 +28,14 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
   const [toDate, setToDate] = useState("");
   const [scanMsgIndex, setScanMsgIndex] = useState(0);
   const txFound = useRef(Math.floor(Math.random() * 8) + 3);
+
+  // Format ISO date string (YYYY-MM-DD) to "dd MMM yy"
+  const fmtDate = (iso: string) => {
+    if (!iso) return iso;
+    const [y, mo, d] = iso.split("-");
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return `${d} ${months[parseInt(mo, 10) - 1]} ${y.slice(-2)}`;
+  };
 
   const filtered = contacts.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -83,25 +92,33 @@ export function AutomaticTransactionScreen({ contacts, onBack }: AutomaticTransa
         </div>
         <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Done!</h2>
         <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-6 max-w-xs">
-          <span className="font-bold text-[#A47CF3] text-lg">{txFound.current}</span> transactions found from{" "}
+          <span className="font-bold text-[#6F3C97] text-3xl">{txFound.current}</span>{" "}
+          transactions found from{" "}
           <span className="font-semibold text-gray-900 dark:text-foreground">{selectedContact?.name}</span> and added to your ledger successfully.
         </p>
         <div className="w-full max-w-sm bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 mb-8 mx-4">
           {[
             { label: "Pioneer", value: selectedContact?.name ?? "" },
-            { label: "From", value: fromDate },
-            { label: "To", value: toDate },
+            { label: "From", value: fmtDate(fromDate) },
+            { label: "To", value: fmtDate(toDate) },
             { label: "Transactions Added", value: String(txFound.current) },
           ].map(({ label, value }) => (
-            <div key={label} className="flex justify-between text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
+            <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
-              <span className={`font-medium ${label === "Transactions Added" ? "text-[#A47CF3] font-bold" : "text-gray-900 dark:text-foreground"}`}>{value}</span>
+              <span className={`font-medium ${
+                label === "Transactions Added"
+                  ? "text-[#6F3C97] font-bold text-xl"
+                  : "text-gray-900 dark:text-foreground"
+              }`}>{value}</span>
             </div>
           ))}
         </div>
-        <button onClick={onBack} className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4"
-          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}>
-          Back to Home
+        <button
+          onClick={() => onNavigateToLedger(selectedContact?.name ?? "")}
+          className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4"
+          style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 6px 24px rgba(111,60,151,0.45)" }}
+        >
+          Open Ledger
         </button>
       </div>
     );

@@ -105,8 +105,8 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
             }}
             className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide"
             style={{
-              background: "linear-gradient(135deg,#A47CF3,#F7C548)",
-              boxShadow: "0 6px 24px rgba(164,124,243,0.4)",
+              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
+              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
               padding: "14px 48px",
               minWidth: "160px",
             }}
