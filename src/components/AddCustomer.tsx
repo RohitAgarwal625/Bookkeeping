@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronDown, Check, CheckCircle, X } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, CheckCircle, X, Users } from "lucide-react";
 import { useState, useEffect } from "react";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
@@ -103,7 +103,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
               if (pendingCustomer) onSave(pendingCustomer);
               setPendingCustomer(null);
             }}
-            className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide"
+            className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2"
             style={{
               background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
               boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
@@ -111,7 +111,8 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
               minWidth: "160px",
             }}
           >
-            Done
+            <span>Open Contacts</span>
+            <Users className="w-5 h-5" />
           </button>
         </div>
       </div>
