@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, CheckCircle, CalendarDays, Search, X } from "lucide-react";
+import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen } from "lucide-react";
 import { Contact, getInitials } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
@@ -153,10 +153,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </div>
         <button
           onClick={() => onNavigateToLedger(selectedContact?.name ?? "")}
-          className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4"
+          className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
           style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 6px 24px rgba(111,60,151,0.45)" }}
         >
           Open Ledger
+          <BookOpen className="w-5 h-5" />
         </button>
       </div>
     );
