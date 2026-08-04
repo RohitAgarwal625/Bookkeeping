@@ -237,8 +237,8 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
               {/* Validation tick — matches PayScreen style: grey by default, purple filled when validated */}
               <div
                 className={`absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isValidated
-                    ? "bg-[#A47CF3] border-[#A47CF3]"
-                    : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
+                  ? "bg-[#A47CF3] border-[#A47CF3]"
+                  : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
                   }`}
                 title={isValidated ? "Pi Wallet Address validated" : "Not validated yet"}
               >
@@ -283,19 +283,30 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
           onClick={() => setShowInvalidPopup(false)}
         >
           <div
-            className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-[88vw] max-w-[360px] p-6 text-center flex flex-col gap-5"
+            className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-[88vw] max-w-[360px] overflow-hidden text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-semibold text-gray-900 dark:text-foreground text-base">Invalid Pi Wallet Address</h3>
-            <p className="text-xs text-gray-500 dark:text-muted-foreground leading-relaxed">
+            {/* Title */}
+            <div className="px-5 pt-4">
+              <h3 className="font-semibold text-gray-900 dark:text-foreground text-base">Invalid Public Key</h3>
+            </div>
+            {/* Separator */}
+            <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-3" />
+            {/* Body text */}
+            <p className="text-xs text-gray-500 dark:text-muted-foreground leading-relaxed px-5">
               The Pi Wallet address you entered could not be validated on the Pi Network's blockchain. Please check and try again.
             </p>
-            <button
-              onClick={() => setShowInvalidPopup(false)}
-              className="w-full py-3 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow font-medium"
-            >
-              Try Again
-            </button>
+            {/* Separator */}
+            <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-3" />
+            {/* Button */}
+            <div className="px-5 pb-8">
+              <button
+                onClick={() => setShowInvalidPopup(false)}
+                className="w-full py-3 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow font-medium text-sm"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         </div>
       )}
