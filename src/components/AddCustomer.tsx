@@ -288,7 +288,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
           >
             {/* Title */}
             <div className="px-5 pt-4">
-              <h3 className="font-semibold text-gray-900 dark:text-foreground text-base">Invalid Public Key</h3>
+              <h3 className="font-bold text-gray-900 dark:text-foreground text-base">Invalid Public Key</h3>
             </div>
             {/* Separator */}
             <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-3" />
@@ -302,9 +302,10 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
             <div className="px-5 pb-8">
               <button
                 onClick={() => setShowInvalidPopup(false)}
-                className="w-full py-3 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow font-medium text-sm"
+                className="w-full py-3 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow font-medium text-sm flex items-center justify-center gap-2"
               >
                 Try Again
+                <span className="text-base leading-none">↻</span>
               </button>
             </div>
           </div>

@@ -22,7 +22,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
     {
       id: "1",
       description: "Payment received for June order",
-      amount: 250,
+      amount: 450,
       type: "credit",
       timestamp: "2025-10-08 14:30",
     },
@@ -91,7 +91,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
         <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">{customerName}</h2>
-        <div className="w-6" />
+        <BookkeepingLogo compact />
       </header>
 
       {/* Scrollable Content */}

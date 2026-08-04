@@ -247,28 +247,27 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             </div>
           </div>
 
-          {/* Date and Time Input */}
+          {/* Date Input */}
           <div className="mb-4">
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Date</label>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Time</label>
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
-                />
-              </div>
-            </div>
+            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+            />
+          </div>
+
+          {/* Time Input */}
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Time</label>
+            <input
+              type="time"
+              step="1"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+            />
           </div>
 
           {/* Transaction ID Input */}
