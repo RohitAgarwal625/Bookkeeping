@@ -111,7 +111,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   {pioneerTooltip === "individual" && (
                     <div className="w-full bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
                       <p className="font-semibold text-[#A47CF3] mb-0.5">Individual</p>
-                      Add and Save Contact name with Pi Wallet Address.
+                      Choose this option to add a pioneer who has a personal account with the Pi Network.
                     </div>
                   )}
                 </div>
@@ -141,7 +141,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   {pioneerTooltip === "business" && (
                     <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
                       <p className="font-semibold text-amber-500 mb-0.5">Business</p>
-                      Coming soon. For business entities.
+                      Choose this option to add an entity/enterprise with a business account granted by the Pi Network.
                     </div>
                   )}
                 </div>
