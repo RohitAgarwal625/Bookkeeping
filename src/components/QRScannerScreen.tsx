@@ -113,10 +113,14 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
             <button onClick={onBack} className="px-6 py-3 rounded-xl bg-white text-gray-900 font-semibold mb-6">Go Back</button>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm shadow-lg text-gray-900 dark:text-foreground font-semibold text-sm hover:bg-white dark:hover:bg-card transition-colors"
+              className="flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95"
+              style={{
+                background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
+                boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+              }}
             >
+              <span>Upload QR</span>
               <Upload className="w-4 h-4" />
-              Upload QR
             </button>
           </div>
         )}
@@ -143,10 +147,14 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           <div style={{ position: "fixed", bottom: 32, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 50 }}>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm shadow-lg text-gray-900 dark:text-foreground font-semibold text-sm hover:bg-white dark:hover:bg-card transition-colors"
+              className="flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95"
+              style={{
+                background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
+                boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+              }}
             >
+              <span>Upload QR Image</span>
               <Upload className="w-4 h-4" />
-              Upload QR Image
             </button>
           </div>
         </>
