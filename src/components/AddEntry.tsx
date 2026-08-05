@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info, Users } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info, BookOpen } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getInitials } from "../types";
@@ -115,8 +115,8 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
               minWidth: "160px",
             }}
           >
-            <span>Open Contacts</span>
-            <Users className="w-5 h-5" />
+            <span>Open Ledger</span>
+            <BookOpen className="w-5 h-5" />
           </button>
         </div>
       </div>
