@@ -71,15 +71,15 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
 
   if (status === "success") {
     return (
-      <div className="size-full flex flex-col items-center justify-center bg-white dark:bg-[#0F1115] px-8 gap-6">
+      <div className="fixed inset-0 min-h-[100dvh] flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-8 gap-6 z-[100]">
         <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-xl"
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}>
           <CheckCircle className="w-10 h-10 text-white" />
         </div>
         <div className="text-center">
-          <p className="text-gray-900 dark:text-foreground font-bold text-xl mb-2">QR Scanned!</p>
-          <p className="text-gray-500 dark:text-muted-foreground text-sm mb-2">Wallet Address:</p>
-          <p className="text-gray-800 dark:text-gray-200 font-mono text-xs bg-gray-50 dark:bg-secondary rounded-xl px-4 py-3 break-all">
+          <p className="text-white font-bold text-xl mb-2">QR Scanned!</p>
+          <p className="text-gray-400 text-sm mb-2">Wallet Address:</p>
+          <p className="text-gray-200 font-mono text-xs bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3 break-all">
             {scannedValue}
           </p>
         </div>
@@ -94,23 +94,45 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
   }
 
   return (
-    <div className="size-full flex flex-col bg-[#0a0a0a] relative">
+    <div className="fixed inset-0 min-h-[100dvh] w-full flex flex-col bg-[#0a0a0a] z-[100] overflow-hidden">
+      {/* CSS overrides for html5-qrcode injected elements to guarantee dark background */}
+      <style>{`
+        #qr-reader-container {
+          background: #0a0a0a !important;
+          background-color: #0a0a0a !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
+        #qr-reader-container * {
+          background-color: transparent !important;
+        }
+        #qr-reader-container video {
+          object-fit: cover !important;
+          background: #0a0a0a !important;
+        }
+      `}</style>
+
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 px-6 py-5 flex items-center gap-3">
-        <button onClick={onBack} className="p-2 rounded-full bg-black/40 backdrop-blur-sm">
+      <header className="absolute top-0 left-0 right-0 z-10 px-6 py-5 flex items-center gap-3 bg-gradient-to-b from-black/80 to-transparent">
+        <button onClick={onBack} className="p-2 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
         <p className="text-white font-semibold">Scan Pi Wallet QR</p>
       </header>
 
       {/* Camera view */}
-      <div className="flex-1 flex items-center justify-center">
-        <div id={containerId} className="w-full" />
+      <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
+        <div id={containerId} className="w-full h-full bg-[#0a0a0a]" />
         {status === "error" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 px-8 text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 px-8 text-center z-20">
             <p className="text-white font-bold text-lg mb-2">Camera Unavailable</p>
             <p className="text-gray-400 text-sm mb-6">{error || "Please allow camera permission and try again."}</p>
-            <button onClick={onBack} className="px-6 py-3 rounded-xl bg-white text-gray-900 font-semibold mb-6">Go Back</button>
+            <button
+              onClick={onBack}
+              className="px-6 py-3 rounded-xl bg-white/10 text-white font-semibold mb-6 hover:bg-white/20 transition-colors border border-white/20"
+            >
+              Go Back
+            </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95"
@@ -129,7 +151,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
       {/* Viewfinder overlay */}
       {status === "scanning" && (
         <>
-          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10">
             <div className="w-64 h-64 relative">
               <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#A47CF3] rounded-tl-lg" />
               <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#A47CF3] rounded-tr-lg" />
@@ -143,8 +165,13 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
             </p>
             <style>{`@keyframes scanLine { 0%,100% { top: 10%; } 50% { top: 90%; } }`}</style>
           </div>
-          {/* Upload QR button pinned to bottom center */}
-          <div style={{ position: "fixed", bottom: 32, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 50 }}>
+          {/* Upload QR button pinned to bottom center with a dark gradient backdrop */}
+          <div
+            className="fixed bottom-0 left-0 right-0 py-8 flex justify-center z-50 pointer-events-auto"
+            style={{
+              background: "linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.7) 60%, transparent 100%)",
+            }}
+          >
             <button
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95"
