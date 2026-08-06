@@ -27,6 +27,7 @@ interface SettingsProps {
   onNavigate: (screen: string) => void;
   onLogout: () => void;
   isGuest?: boolean;
+  onTriggerGuestModal?: () => void;
 }
 
 const faqData = [
@@ -89,6 +90,7 @@ export function Settings({
   onNavigate,
   onLogout,
   isGuest,
+  onTriggerGuestModal,
 }: SettingsProps) {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [copied, setCopied] = useState(false);
@@ -203,7 +205,14 @@ export function Settings({
                   {displayName}
                 </span>
                 <button
-                  onClick={() => { setIsEditingName(true); setEditingName(displayName); }}
+                  onClick={() => {
+                    if (isGuest) {
+                      onTriggerGuestModal?.();
+                    } else {
+                      setIsEditingName(true);
+                      setEditingName(displayName);
+                    }
+                  }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/20 text-[#A47CF3] hover:bg-purple-100 dark:hover:bg-purple-950/40 transition-colors"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
@@ -246,14 +255,14 @@ export function Settings({
             <div>
               <p className="text-xs text-gray-400 dark:text-muted-foreground mb-1">Legal Name</p>
               <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-secondary rounded-xl border border-gray-200 dark:border-border">
-                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">Rahul Verma</p>
+                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "Pioneer User" : displayName}</p>
                 <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-secondary/80 px-2 py-0.5 rounded-full">From Pi Auth</span>
               </div>
             </div>
             <div>
               <p className="text-xs text-gray-400 dark:text-muted-foreground mb-1">Username</p>
               <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-secondary rounded-xl border border-gray-200 dark:border-border">
-                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">@rahulverma</p>
+                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "@pioneer" : "@pioneer_user"}</p>
                 <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-secondary/80 px-2 py-0.5 rounded-full">From Pi Auth</span>
               </div>
             </div>
@@ -516,7 +525,13 @@ export function Settings({
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveSubScreen(item.id as ActiveSubScreen)}
+                onClick={() => {
+                  if (item.id === "editProfile" && isGuest) {
+                    onTriggerGuestModal?.();
+                  } else {
+                    setActiveSubScreen(item.id as ActiveSubScreen);
+                  }
+                }}
                 className={`w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-secondary transition-colors ${index < settingsItems.length - 1 ? "border-b border-gray-100 dark:border-border" : ""
                   }`}
               >

@@ -64,7 +64,7 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
 
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
-  const [userName] = useState("Rahul Verma");
+  const [userName] = useState("Pioneer User");
   const [piBalance] = useState("370.20");
   const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
@@ -302,6 +302,7 @@ function AppContent() {
           onNavigate={handleNavigate}
           onLogout={handleLogout}
           isGuest={isGuest}
+          onTriggerGuestModal={() => setShowGuestModal(true)}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         <SharedOverlays />

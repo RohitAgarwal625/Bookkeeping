@@ -74,39 +74,42 @@ export function Dashboard({
       {showBell && (
         <>
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
-          <div className="absolute top-[72px] right-4 z-40 w-80 bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <p className="text-gray-900 dark:text-foreground font-semibold text-sm">Alerts</p>
-              </div>
-              <button onClick={() => setShowBell(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full">
-                <X className="w-4 h-4 text-gray-400" />
-              </button>
+          <div className="fixed top-[72px] left-4 right-4 z-40 bg-white dark:bg-card rounded-2xl shadow-2xl border-2 border-gray-400 dark:border-white/50 overflow-hidden">
+            <button
+              onClick={() => setShowBell(false)}
+              className="absolute top-2.5 right-3 z-50 p-1.5 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors"
+            >
+              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+            </button>
+            <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-center">
+              <p className="text-gray-900 dark:text-foreground font-semibold text-sm text-center">Alerts</p>
             </div>
-            <div className="divide-y divide-gray-50 dark:divide-border">
+            <div className="min-h-[140px] flex flex-col justify-center">
               {isGuest ? (
-                <div className="flex items-center justify-center px-4 py-6 text-center">
-                  <p className="text-gray-800 dark:text-foreground text-sm font-semibold">
+                <div className="flex-1 flex items-center justify-center px-6 py-8 text-center">
+                  <p className="text-gray-500 dark:text-muted-foreground text-sm font-medium leading-relaxed">
                     Connect Pi Wallet to start your journey with this dApp!
                   </p>
                 </div>
               ) : (
-                notifications.map((n) => (
-                  <div key={n.id} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
-                      }`}>
-                      {n.type === "credit" ? (
-                        <ArrowDownLeft className="w-4 h-4 text-green-600 dark:text-green-400" />
-                      ) : (
-                        <ArrowUpRight className="w-4 h-4 text-red-600 dark:text-red-400" />
-                      )}
+                <div className="flex-1 px-6 py-4 flex flex-col justify-center divide-y divide-gray-50 dark:divide-border">
+                  {notifications.map((n) => (
+                    <div key={n.id} className="flex items-start gap-3 py-3 hover:bg-gray-50/50 dark:hover:bg-secondary/50 transition-colors">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
+                        }`}>
+                        {n.type === "credit" ? (
+                          <ArrowDownLeft className="w-4 h-4 text-green-600 dark:text-green-400" />
+                        ) : (
+                          <ArrowUpRight className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 text-left">
+                        <p className="text-gray-800 dark:text-foreground text-xs leading-snug">{n.message}</p>
+                        <p className="text-gray-400 dark:text-muted-foreground text-xs mt-0.5">{n.time}</p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-800 dark:text-foreground text-xs leading-snug">{n.message}</p>
-                      <p className="text-gray-400 dark:text-muted-foreground text-xs mt-0.5">{n.time}</p>
-                    </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </div>
