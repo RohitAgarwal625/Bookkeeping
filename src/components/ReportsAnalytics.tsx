@@ -1,4 +1,4 @@
-import { TrendingUp, Users, Search, Info, BarChart2 } from "lucide-react";
+import { Users, Search, Info, BarChart2 } from "lucide-react";
 import { useState } from "react";
 import {
   BarChart,
@@ -79,207 +79,198 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             </p>
           </div>
         ) : (
-        <>
-        {/* Search & Filter Section */}
-        <div className="mb-4">
-          {/* Section heading */}
-          <h3 className="text-gray-900 dark:text-foreground font-semibold mb-3">Pioneer Details</h3>
-          {/* Search Bar */}
-          <div className="relative mb-3">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search from Contacts"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
-            />
-          </div>
+          <>
+            {/* Search & Filter Section */}
+            <div className="mb-4">
+              {/* Section heading */}
+              {/* <h3 className="text-gray-900 dark:text-foreground font-semibold mb-3">Pioneer Details</h3> */}
+              {/* Search Bar */}
+              <div className="relative mb-3">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search from Contacts"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+                />
+              </div>
 
-          {/* Filter Chips — sized to match the This Week / This Month / Custom chips */}
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            <button
-              onClick={() => setFilterType("all")}
-              className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${filterType === "all"
-                ? "bg-[#A47CF3] text-white"
-                : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
-                }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setFilterType("individual")}
-              className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${filterType === "individual"
-                ? "bg-[#A47CF3] text-white"
-                : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
-                }`}
-            >
-              Individual
-            </button>
-            <button
-              disabled
-              className="px-5 py-2 rounded-full text-sm whitespace-nowrap bg-gray-100 dark:bg-secondary text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-border opacity-60 cursor-not-allowed"
-            >
-              Business
-            </button>
-          </div>
-        </div>
+              {/* Filter Chips — sized to match the This Week / This Month / Custom chips */}
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                <button
+                  onClick={() => setFilterType("all")}
+                  className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${filterType === "all"
+                    ? "bg-[#A47CF3] text-white"
+                    : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
+                    }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setFilterType("individual")}
+                  className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${filterType === "individual"
+                    ? "bg-[#A47CF3] text-white"
+                    : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
+                    }`}
+                >
+                  Individual
+                </button>
+                <button
+                  disabled
+                  className="px-5 py-2 rounded-full text-sm whitespace-nowrap bg-gray-100 dark:bg-secondary text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-border opacity-60 cursor-not-allowed"
+                >
+                  Business
+                </button>
+              </div>
+            </div>
 
-        {/* Summary Cards Section - Horizontally Scrollable */}
-        <div className="flex gap-4 overflow-x-auto pb-4 mb-6 -mx-6 px-6 scrollbar-hide">
+          {/* Summary Cards Section - Full-width grid (matches Home Screen) */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
           {/* Total Debit Card */}
-          <div className="min-w-[280px] bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 border-l-4 border-red-500">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 dark:text-muted-foreground text-sm">Total Debit</p>
-              <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
-              <span className="text-2xl text-red-600 dark:text-red-400">π</span>
-            </div>
+          <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 border border-red-200 dark:border-red-800/40 flex flex-col items-center justify-center text-center">
+            <p className="text-red-700 dark:text-red-400 text-xs mb-1 font-bold">Total Debit</p>
+            <p className="text-red-800 dark:text-red-300 font-bold text-lg flex items-baseline justify-center gap-1.5">
+              <span>{totalDebit.toFixed(2)}</span><span>π</span>
+            </p>
           </div>
 
           {/* Total Credit Card */}
-          <div className="min-w-[280px] bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 border-l-4 border-green-500">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 dark:text-muted-foreground text-sm">Total Credit</p>
-              <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400 rotate-180" />
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
-              <span className="text-2xl text-green-600 dark:text-green-400">π</span>
-            </div>
+          <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-4 border border-green-200 dark:border-green-800/40 flex flex-col items-center justify-center text-center">
+            <p className="text-green-700 dark:text-green-400 text-xs mb-1 font-bold">Total Credit</p>
+            <p className="text-green-800 dark:text-green-300 font-bold text-lg flex items-baseline justify-center gap-1.5">
+              <span>{totalCredit.toFixed(2)}</span><span>π</span>
+            </p>
           </div>
-
         </div>
 
-        {/* Category Filters */}
-        <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-          <button
-            onClick={() => setSelectedFilter("week")}
-            className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "week"
-              ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
-              : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
-              }`}
-          >
-            This Week
-          </button>
-          <button
-            onClick={() => setSelectedFilter("month")}
-            className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "month"
-              ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
-              : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
-              }`}
-          >
-            This Month
-          </button>
-          <button
-            onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
-            className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "custom"
-              ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
-              : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
-              }`}
-          >
-            Custom
-          </button>
-        </div>
-
-        {/* Inline date range — shown only when Custom is selected */}
-        {selectedFilter === "custom" && (
-          <div className="flex flex-col gap-3 mt-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="flex-1 flex flex-col gap-1">
-                <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">From</label>
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => { setFromDate(e.target.value); setIsCustomSubmitted(false); }}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
-                />
-              </div>
-              <div className="flex-1 flex flex-col gap-1">
-                <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">To</label>
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => { setToDate(e.target.value); setIsCustomSubmitted(false); }}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
-                />
-              </div>
+            {/* Category Filters */}
+            <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+              <button
+                onClick={() => setSelectedFilter("week")}
+                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "week"
+                  ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  }`}
+              >
+                This Week
+              </button>
+              <button
+                onClick={() => setSelectedFilter("month")}
+                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "month"
+                  ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  }`}
+              >
+                This Month
+              </button>
+              <button
+                onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
+                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "custom"
+                  ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  }`}
+              >
+                Custom
+              </button>
             </div>
-            <button
-              onClick={() => setIsCustomSubmitted(true)}
-              className="w-full py-4 rounded-xl text-white font-bold text-base shadow-md transition-all hover:opacity-95 active:scale-[0.99] mt-1"
-              style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
-            >
-              Submit
-            </button>
-          </div>
-        )}
 
-        {selectedFilter === "custom" && !isCustomSubmitted ? (
-          <div className="bg-white dark:bg-card rounded-2xl p-6 text-center shadow-md dark:shadow-none dark:border dark:border-border mb-6">
-            <p className="text-sm text-gray-500 dark:text-muted-foreground">Select date range and click Submit to view details</p>
-          </div>
-        ) : (
-          /* Top Customers Section */
-          <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
-            <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
-            <button
-              onClick={() => setShowCustomerInfo(v => !v)}
-              className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
-              aria-label="Customer info"
-            >
-              <Info className="w-3 h-3 text-black" />
-            </button>
-            {showCustomerInfo && (
-              <span className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-2 py-0.5 rounded-full border border-purple-100 dark:border-purple-800/30">
-                {filteredCustomers.length} Pioneer{filteredCustomers.length !== 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-          <div className="space-y-3">
-            {filteredCustomers.map((customer, index) => (
-              <div key={customer.id}>
+            {/* Inline date range — shown only when Custom is selected */}
+            {selectedFilter === "custom" && (
+              <div className="flex flex-col gap-3 mt-4 mb-4">
                 <div className="flex items-center gap-3">
-                  {/* Profile Icon */}
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-sm">
-                      {getInitials(customer.name)}
-                    </span>
+                  <div className="flex-1 flex flex-col gap-1">
+                    <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">From</label>
+                    <input
+                      type="date"
+                      value={fromDate}
+                      onChange={(e) => { setFromDate(e.target.value); setIsCustomSubmitted(false); }}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                    />
                   </div>
-
-                  {/* Customer Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-gray-900 dark:text-foreground text-sm truncate">{customer.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-muted-foreground">
-                      {customer.type === "credit" ? "Credited" : "Debited"}
-                    </p>
-                  </div>
-
-                  {/* Amount */}
-                  <div className="text-right">
-                    <p
-                      className={`text-sm ${customer.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                        }`}
-                    >
-                      {customer.totalAmount.toFixed(2)} π
-                    </p>
+                  <div className="flex-1 flex flex-col gap-1">
+                    <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">To</label>
+                    <input
+                      type="date"
+                      value={toDate}
+                      onChange={(e) => { setToDate(e.target.value); setIsCustomSubmitted(false); }}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                    />
                   </div>
                 </div>
-                {index < filteredCustomers.length - 1 && (
-                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-border to-transparent my-3" />
-                )}
+                <button
+                  onClick={() => setIsCustomSubmitted(true)}
+                  className="w-full py-4 rounded-xl text-white font-bold text-base shadow-md transition-all hover:opacity-95 active:scale-[0.99] mt-1"
+                  style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
+                >
+                  Submit
+                </button>
               </div>
-            ))}
-          </div>
-        </div>
-        )}
+            )}
 
-        {/* Export Report Button */}
-        {/* <button
+            {selectedFilter === "custom" && !isCustomSubmitted ? (
+              <div className="bg-white dark:bg-card rounded-2xl p-6 text-center shadow-md dark:shadow-none dark:border dark:border-border mb-6">
+                <p className="text-sm text-gray-500 dark:text-muted-foreground">Select date range and click Submit to view details</p>
+              </div>
+            ) : (
+              /* Top Customers Section */
+              <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
+                  <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
+                  <button
+                    onClick={() => setShowCustomerInfo(v => !v)}
+                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    aria-label="Customer info"
+                  >
+                    <Info className="w-3 h-3 text-black" />
+                  </button>
+                  {showCustomerInfo && (
+                    <span className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-2 py-0.5 rounded-full border border-purple-100 dark:border-purple-800/30">
+                      {filteredCustomers.length} Pioneer{filteredCustomers.length !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  {filteredCustomers.map((customer, index) => (
+                    <div key={customer.id}>
+                      <div className="flex items-center gap-3">
+                        {/* Profile Icon */}
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm">
+                            {getInitials(customer.name)}
+                          </span>
+                        </div>
+
+                        {/* Customer Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-gray-900 dark:text-foreground text-sm truncate">{customer.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-muted-foreground">
+                            {customer.type === "credit" ? "Credited" : "Debited"}
+                          </p>
+                        </div>
+
+                        {/* Amount */}
+                        <div className="text-right">
+                          <p
+                            className={`text-sm ${customer.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                              }`}
+                          >
+                            {customer.totalAmount.toFixed(2)} π
+                          </p>
+                        </div>
+                      </div>
+                      {index < filteredCustomers.length - 1 && (
+                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-border to-transparent my-3" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Export Report Button */}
+            {/* <button
           onClick={handleExportReport}
           className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow flex items-center justify-center gap-2 mb-2"
         >
@@ -287,11 +278,11 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
           Export Report (PDF)
         </button> */}
 
-        {/* Footer Caption */}
-        <p className="text-xs text-gray-500 dark:text-muted-foreground text-center px-4">
-          All reports are stored securely via Pi blockchain ledger.
-        </p>
-        </>
+            {/* Footer Caption */}
+            <p className="text-xs text-gray-500 dark:text-muted-foreground text-center px-4">
+              All reports are stored securely via Pi blockchain ledger.
+            </p>
+          </>
         )}
       </div>
 

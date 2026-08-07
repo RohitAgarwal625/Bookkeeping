@@ -42,7 +42,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
             <UserPlus className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Add Pioneer</span>
+          <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Add Contact</span>
         </button>
         <button onClick={() => setShowTransactionDialog(true)} className="flex flex-col items-center gap-2 py-2 group">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
@@ -79,7 +79,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
 
               {/* Title above separator */}
               <div className="px-5 pt-4 text-center">
-                <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Pioneer</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Contact</h3>
               </div>
               {/* Separator line */}
               <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-2" />

@@ -38,7 +38,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
             <UserPlus className="w-7 h-7 text-white" />
           </div>
-          <span className="text-xs text-gray-700 dark:text-gray-300">Add Pioneer</span>
+          <span className="text-xs text-gray-700 dark:text-gray-300">Add Contact</span>
         </button>
 
         {/* Add Transaction Button */}
@@ -65,7 +65,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 pointer-events-none">
             <div className="pointer-events-auto bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-full max-w-xs overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 dark:border-border flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Pioneer</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Contact</h3>
                 <button onClick={() => setShowPioneerDialog(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full">
                   <X className="w-4 h-4 text-gray-400" />
                 </button>
