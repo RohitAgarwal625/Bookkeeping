@@ -39,6 +39,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   const [selectedFilter, setSelectedFilter] = useState<"week" | "month" | "custom">("month");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "individual" | "business">("all");
+  const [analyticsCategory, setAnalyticsCategory] = useState<"individual" | "business">("individual");
   const [showCustomerInfo, setShowCustomerInfo] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -80,12 +81,45 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
           </div>
         ) : (
           <>
-            {/* Search & Filter Section */}
+            {/* Individual / Business toggle — same design as History */}
+            <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-4 max-w-xs mx-auto flex-shrink-0">
+              <button
+                onClick={() => setAnalyticsCategory("individual")}
+                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "individual"
+                  ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                  : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+                  }`}
+              >
+                Individual
+              </button>
+
+              {/* Middle toggle switch */}
+              <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
+                <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
+                  <div
+                    className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
+                    style={{
+                      background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                      transform: analyticsCategory === "business" ? "translateX(20px)" : "translateX(0)",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={() => setAnalyticsCategory("business")}
+                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "business"
+                  ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                  : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+                  }`}
+              >
+                Business
+              </button>
+            </div>
+
+            {/* Search Bar */}
             <div className="mb-4">
-              {/* Section heading */}
-              {/* <h3 className="text-gray-900 dark:text-foreground font-semibold mb-3">Pioneer Details</h3> */}
-              {/* Search Bar */}
-              <div className="relative mb-3">
+              <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
                 <input
                   type="text"
@@ -94,34 +128,6 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
                 />
-              </div>
-
-              {/* Filter Chips — sized to match the This Week / This Month / Custom chips */}
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                <button
-                  onClick={() => setFilterType("all")}
-                  className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${filterType === "all"
-                    ? "bg-[#A47CF3] text-white"
-                    : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
-                    }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setFilterType("individual")}
-                  className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${filterType === "individual"
-                    ? "bg-[#A47CF3] text-white"
-                    : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border"
-                    }`}
-                >
-                  Individual
-                </button>
-                <button
-                  disabled
-                  className="px-5 py-2 rounded-full text-sm whitespace-nowrap bg-gray-100 dark:bg-secondary text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-border opacity-60 cursor-not-allowed"
-                >
-                  Business
-                </button>
               </div>
             </div>
 
@@ -149,7 +155,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               <button
                 onClick={() => setSelectedFilter("week")}
                 className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "week"
-                  ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
+                  ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
               >
@@ -158,7 +164,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               <button
                 onClick={() => setSelectedFilter("month")}
                 className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "month"
-                  ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
+                  ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
               >
@@ -167,7 +173,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               <button
                 onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
                 className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "custom"
-                  ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md"
+                  ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
               >

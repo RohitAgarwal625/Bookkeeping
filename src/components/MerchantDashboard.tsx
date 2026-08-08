@@ -175,7 +175,7 @@ export function MerchantDashboard({
 }: MerchantDashboardProps) {
   const [selectedMerchant, setSelectedMerchant] = useState<MerchantRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<"individual" | "business">("individual");
-  const [activeView, setActiveView] = useState<"history" | "analysis">("history");
+  const [activeView, setActiveView] = useState<"history" | "analytics">("history");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [editingWalletId, setEditingWalletId] = useState<string | null>(null);
   const [walletDraftMap, setWalletDraftMap] = useState<Record<string, string>>({});
@@ -224,13 +224,13 @@ export function MerchantDashboard({
             <History className="w-4 h-4" /> History
           </button>
           <button
-            onClick={() => setActiveView("analysis")}
-            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "analysis"
+            onClick={() => setActiveView("analytics")}
+            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "analytics"
               ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
               : "bg-gray-100 text-gray-900 dark:text-foreground dark:bg-[#080810]"
               }`}
           >
-            <BarChart2 className="w-4 h-4" /> Analysis
+            <BarChart2 className="w-4 h-4" /> Analytics
           </button>
         </div>
       </header>
@@ -238,8 +238,8 @@ export function MerchantDashboard({
       {/* Scrollable Content — uniform flat background across content area below header */}
       <div className="flex-1 flex flex-col px-6 py-6 bg-white dark:bg-[#0F1115]">
 
-        {/* ── Analysis View ── */}
-        {activeView === "analysis" && (
+        {/* ── Analytics View ── */}
+        {activeView === "analytics" && (
           <ReportsAnalytics onNavigate={onNavigate} embedded isGuest={isGuest} />
         )}
 
