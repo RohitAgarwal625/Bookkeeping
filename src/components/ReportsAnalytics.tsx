@@ -28,17 +28,16 @@ const monthlyData = [
 ];
 
 const topCustomers = [
-  { id: "1", name: "Rajesh Kumar", totalAmount: 2450.5, type: "credit" as const },
-  { id: "2", name: "Priya Sharma", totalAmount: 1825.75, type: "debit" as const },
-  { id: "3", name: "Amit Patel", totalAmount: 3120.0, type: "credit" as const },
-  { id: "4", name: "Sneha Gupta", totalAmount: 980.25, type: "debit" as const },
-  { id: "5", name: "Vikram Singh", totalAmount: 1540.5, type: "credit" as const },
-];
+  { id: "1", name: "Rajesh Kumar", transactions: 14 },
+  { id: "2", name: "Priya Sharma", transactions: 9 },
+  { id: "3", name: "Amit Patel", transactions: 21 },
+  { id: "4", name: "Sneha Gupta", transactions: 6 },
+  { id: "5", name: "Vikram Singh", transactions: 17 },
+].sort((a, b) => b.transactions - a.transactions);
 
 export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: ReportsAnalyticsProps) {
   const [selectedFilter, setSelectedFilter] = useState<"week" | "month" | "custom">("month");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "individual" | "business">("all");
   const [analyticsCategory, setAnalyticsCategory] = useState<"individual" | "business">("individual");
   const [showCustomerInfo, setShowCustomerInfo] = useState(false);
   const [fromDate, setFromDate] = useState("");
@@ -49,14 +48,9 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   const totalCredit = monthlyData.reduce((sum, month) => sum + month.credit, 0);
   const totalDebit = monthlyData.reduce((sum, month) => sum + month.debit, 0);
 
-  // Filter customers based on search query and category
+  // Filter customers based on search query
   const filteredCustomers = topCustomers.filter((customer) => {
-    const matchesSearch = customer.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter =
-      filterType === "all" ||
-      (filterType === "individual" && customer.type === "credit") ||
-      (filterType === "business" && customer.type === "debit");
-    return matchesSearch && matchesFilter;
+    return customer.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   const handleExportReport = () => {
@@ -241,10 +235,15 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   {filteredCustomers.map((customer, index) => (
                     <div key={customer.id}>
                       <div className="flex items-center gap-3">
-                        {/* Profile Icon */}
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-sm">
-                            {getInitials(customer.name)}
+                        {/* Rank + Profile Icon */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center">
+                            <span className="text-white text-sm">
+                              {getInitials(customer.name)}
+                            </span>
+                          </div>
+                          <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-[#A47CF3] text-white text-[9px] font-bold flex items-center justify-center shadow">
+                            {index + 1}
                           </span>
                         </div>
 
@@ -252,18 +251,15 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                         <div className="flex-1 min-w-0">
                           <p className="text-gray-900 dark:text-foreground text-sm truncate">{customer.name}</p>
                           <p className="text-xs text-gray-500 dark:text-muted-foreground">
-                            {customer.type === "credit" ? "Credited" : "Debited"}
+                            {customer.transactions} transaction{customer.transactions !== 1 ? "s" : ""}
                           </p>
                         </div>
 
-                        {/* Amount */}
-                        <div className="text-right">
-                          <p
-                            className={`text-sm ${customer.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                              }`}
-                          >
-                            {customer.totalAmount.toFixed(2)} π
-                          </p>
+                        {/* Transaction count badge */}
+                        <div className="flex-shrink-0">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-800/30 text-[#A47CF3] text-xs font-semibold">
+                            {customer.transactions}
+                          </span>
                         </div>
                       </div>
                       {index < filteredCustomers.length - 1 && (
