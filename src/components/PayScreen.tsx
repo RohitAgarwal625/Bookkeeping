@@ -341,8 +341,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 className="w-full py-3 px-4 rounded-xl text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                 style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 4px 16px rgba(111,60,151,0.35)" }}
               >
-                <UserPlus className="w-4 h-4" />
                 <span>Add Contact</span>
+                <UserPlus className="w-4 h-4" />
               </button>
             </div>
           )}
