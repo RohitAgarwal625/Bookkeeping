@@ -123,23 +123,21 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   if (showSuccess) {
     return (
       <div style={{ minHeight: "100dvh" }} className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
-        <div className="flex flex-col items-center gap-6 px-8 text-center" style={{ transform: "translateY(-32px)" }}>
+        <div className="flex flex-col items-center px-8 text-center" style={{ transform: "translateY(-32px)" }}>
           {/* Animated check circle */}
           <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
             style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
             <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
-          <div className="space-y-2">
-            <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold">
-              Transaction Saved Successfully
-            </h2>
-            <p className="text-gray-500 dark:text-muted-foreground text-sm">
-              Your transaction has been recorded.
-            </p>
-          </div>
+          <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold mb-2">
+            Transaction Saved Successfully
+          </h2>
+          <p className="text-gray-500 dark:text-muted-foreground text-sm mb-6">
+            Your transaction has been recorded.
+          </p>
           <button
             onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current) : onBack()}
-            className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2"
+            className="rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2"
             style={{
               background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
               boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
