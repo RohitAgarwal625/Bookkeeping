@@ -125,24 +125,24 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </div>
             </div>
 
-          {/* Summary Cards Section - Full-width grid (matches Home Screen) */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {/* Total Debit Card */}
-          <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 border border-red-200 dark:border-red-800/40 flex flex-col items-center justify-center text-center">
-            <p className="text-red-700 dark:text-red-400 text-xs mb-1 font-bold">Total Debit</p>
-            <p className="text-red-800 dark:text-red-300 font-bold text-lg flex items-baseline justify-center gap-1.5">
-              <span>{totalDebit.toFixed(2)}</span><span>π</span>
-            </p>
-          </div>
+            {/* Summary Cards Section - Full-width grid (matches Home Screen) */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {/* Total Debit Card */}
+              <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 border border-red-200 dark:border-red-800/40 flex flex-col items-center justify-center text-center">
+                <p className="text-red-700 dark:text-red-400 text-xs mb-1 font-bold">Total Debit</p>
+                <p className="text-red-800 dark:text-red-300 font-bold text-lg flex items-baseline justify-center gap-1.5">
+                  <span>{totalDebit.toFixed(2)}</span><span>π</span>
+                </p>
+              </div>
 
-          {/* Total Credit Card */}
-          <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-4 border border-green-200 dark:border-green-800/40 flex flex-col items-center justify-center text-center">
-            <p className="text-green-700 dark:text-green-400 text-xs mb-1 font-bold">Total Credit</p>
-            <p className="text-green-800 dark:text-green-300 font-bold text-lg flex items-baseline justify-center gap-1.5">
-              <span>{totalCredit.toFixed(2)}</span><span>π</span>
-            </p>
-          </div>
-        </div>
+              {/* Total Credit Card */}
+              <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-4 border border-green-200 dark:border-green-800/40 flex flex-col items-center justify-center text-center">
+                <p className="text-green-700 dark:text-green-400 text-xs mb-1 font-bold">Total Credit</p>
+                <p className="text-green-800 dark:text-green-300 font-bold text-lg flex items-baseline justify-center gap-1.5">
+                  <span>{totalCredit.toFixed(2)}</span><span>π</span>
+                </p>
+              </div>
+            </div>
 
             {/* Category Filters */}
             <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
@@ -227,7 +227,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   </button>
                   {showCustomerInfo && (
                     <span className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-2 py-0.5 rounded-full border border-purple-100 dark:border-purple-800/30">
-                      {filteredCustomers.length} Pioneer{filteredCustomers.length !== 1 ? "s" : ""}
+                      The list ranks Contacts from highest to lowest by the number of transactions.
                     </span>
                   )}
                 </div>
@@ -235,15 +235,10 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   {filteredCustomers.map((customer, index) => (
                     <div key={customer.id}>
                       <div className="flex items-center gap-3">
-                        {/* Rank + Profile Icon */}
-                        <div className="relative flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center">
-                            <span className="text-white text-sm">
-                              {getInitials(customer.name)}
-                            </span>
-                          </div>
-                          <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-[#A47CF3] text-white text-[9px] font-bold flex items-center justify-center shadow">
-                            {index + 1}
+                        {/* Profile Icon */}
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm">
+                            {getInitials(customer.name)}
                           </span>
                         </div>
 
@@ -253,13 +248,6 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                           <p className="text-xs text-gray-500 dark:text-muted-foreground">
                             {customer.transactions} transaction{customer.transactions !== 1 ? "s" : ""}
                           </p>
-                        </div>
-
-                        {/* Transaction count badge */}
-                        <div className="flex-shrink-0">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-800/30 text-[#A47CF3] text-xs font-semibold">
-                            {customer.transactions}
-                          </span>
                         </div>
                       </div>
                       {index < filteredCustomers.length - 1 && (
