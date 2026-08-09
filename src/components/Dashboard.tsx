@@ -74,7 +74,7 @@ export function Dashboard({
       {showBell && (
         <>
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
-          <div className="fixed top-[72px] left-4 right-4 z-40 bg-white dark:bg-card rounded-2xl shadow-2xl border-2 border-gray-400 dark:border-white/50 overflow-hidden">
+          <div className="fixed top-[72px] left-0 right-0 z-40 bg-white dark:bg-card rounded-b-2xl shadow-xl border-b-2 border-gray-400 dark:border-white/50 overflow-hidden">
             <button
               onClick={() => setShowBell(false)}
               className="absolute top-2.5 right-3 z-50 p-1.5 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors"
@@ -92,9 +92,9 @@ export function Dashboard({
                   </p>
                 </div>
               ) : (
-                <div className="flex-1 px-6 py-4 flex flex-col justify-center divide-y divide-gray-50 dark:divide-border">
+                <div className="flex-1 w-full flex flex-col justify-center divide-y divide-gray-100 dark:divide-border/60">
                   {notifications.map((n) => (
-                    <div key={n.id} className="flex items-start gap-3 py-3 hover:bg-gray-50/50 dark:hover:bg-secondary/50 transition-colors">
+                    <div key={n.id} className="flex items-start gap-3 px-6 py-4 hover:bg-gray-50/80 dark:hover:bg-secondary/50 transition-colors w-full">
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
                         }`}>
                         {n.type === "credit" ? (
