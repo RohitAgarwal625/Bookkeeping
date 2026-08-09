@@ -184,15 +184,16 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                           setCategory(opt);
                           setIsCategoryOpen(false);
                         }}
+                        style={isBusiness ? { backgroundColor: "#9ca3af" } : undefined}
                         className={`flex items-center justify-between px-4 py-3 transition-colors ${
                           isBusiness
-                            ? "cursor-not-allowed bg-gray-50/50 dark:bg-secondary/20"
+                            ? "cursor-not-allowed text-white"
                             : "cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-[#9ca3af]"}`} />
-                          <span className={`font-medium capitalize ${isBusiness ? "text-[#9ca3af]" : "text-gray-900 dark:text-foreground"}`}>
+                          <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-white"}`} />
+                          <span className={`font-medium capitalize ${isBusiness ? "text-white" : "text-gray-900 dark:text-foreground"}`}>
                             {opt === "business" ? "Business" : "Individual"}
                           </span>
                         </div>
