@@ -175,47 +175,28 @@ export function Settings({
 
           {/* Name Edit */}
           <div className="w-full bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
-                  Display Name
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowDisplayNameInfo((v) => !v)}
-                  className="w-4 h-4 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                  aria-label="Display Name info"
-                >
-                  <Info className="w-3 h-3 text-black dark:text-foreground" />
-                </button>
-              </div>
-
-              {!isEditingName && (
-                <button
-                  onClick={() => {
-                    if (isGuest) {
-                      onTriggerGuestModal?.();
-                    } else {
-                      setIsEditingName(true);
-                      setEditingName(displayName);
-                    }
-                  }}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
-                  aria-label="Edit Display Name"
-                >
-                  <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
-                </button>
-              )}
+            <div className="flex items-center gap-1.5 mb-2">
+              <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
+                Display Name
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowDisplayNameInfo((v) => !v)}
+                className="w-4 h-4 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Display Name info"
+              >
+                <Info className="w-3 h-3 text-black dark:text-foreground" />
+              </button>
             </div>
 
             {showDisplayNameInfo && (
-              <div className="mb-3 w-full bg-gray-100 dark:bg-secondary border border-gray-200 dark:border-border rounded-xl p-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
+              <div className="my-3 w-full bg-gray-100 dark:bg-secondary border border-gray-200 dark:border-border rounded-xl p-3.5 px-4 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
                 Your Display Name is a customizable label which will be visible to other users of this dApp in the future.
               </div>
             )}
 
             {isEditingName ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mt-2">
                 <input
                   type="text"
                   value={editingName}
@@ -238,9 +219,25 @@ export function Settings({
                 </button>
               </div>
             ) : (
-              <span className="text-gray-900 dark:text-foreground font-medium text-lg">
-                {displayName}
-              </span>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-gray-900 dark:text-foreground font-medium text-lg">
+                  {displayName}
+                </span>
+                <button
+                  onClick={() => {
+                    if (isGuest) {
+                      onTriggerGuestModal?.();
+                    } else {
+                      setIsEditingName(true);
+                      setEditingName(displayName);
+                    }
+                  }}
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  aria-label="Edit Display Name"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
+                </button>
+              </div>
             )}
           </div>
 
