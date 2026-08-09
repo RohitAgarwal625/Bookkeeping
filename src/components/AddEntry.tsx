@@ -166,7 +166,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
         >
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">Enter Details</h2>
+        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center font-semibold">Manual Transaction</h2>
         <BookkeepingLogo compact />
       </header>
 
@@ -175,7 +175,6 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
 
         {/* Manual Entry Card */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
-          <h3 className="text-gray-900 dark:text-foreground mb-4">Manual Transaction</h3>
 
           {/* Name from Database */}
           <div className="mb-4" ref={nameInputRef}>

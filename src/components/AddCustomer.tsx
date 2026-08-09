@@ -164,9 +164,9 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all flex items-center justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${category === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${category === "individual" ? "bg-purple-400" : "bg-[#9ca3af]"}`} />
                   <span className="font-medium capitalize">
-                    {category === "business" ? "Business (coming soon)" : "Individual"}
+                    {category === "business" ? "Business" : "Individual"}
                   </span>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isCategoryOpen ? "rotate-180" : ""}`} />
@@ -174,21 +174,32 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
 
               {isCategoryOpen && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-xl overflow-hidden z-30">
-                  {(["individual", "business"] as const).map((opt) => (
-                    <div
-                      key={opt}
-                      onClick={() => { setCategory(opt); setIsCategoryOpen(false); }}
-                      className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary transition-colors ${opt !== "business" ? "border-b border-gray-50 dark:border-border" : ""}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
-                        <span className="text-gray-900 dark:text-foreground font-medium capitalize">
-                          {opt === "business" ? "Business (coming soon)" : "Individual"}
-                        </span>
+                  {(["individual", "business"] as const).map((opt) => {
+                    const isBusiness = opt === "business";
+                    return (
+                      <div
+                        key={opt}
+                        onClick={() => {
+                          if (isBusiness) return;
+                          setCategory(opt);
+                          setIsCategoryOpen(false);
+                        }}
+                        className={`flex items-center justify-between px-4 py-3 transition-colors ${
+                          isBusiness
+                            ? "cursor-not-allowed bg-gray-50/50 dark:bg-secondary/20"
+                            : "cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-[#9ca3af]"}`} />
+                          <span className={`font-medium capitalize ${isBusiness ? "text-[#9ca3af]" : "text-gray-900 dark:text-foreground"}`}>
+                            {opt === "business" ? "Business" : "Individual"}
+                          </span>
+                        </div>
+                        {category === opt && <Check className="w-4 h-4 text-[#A47CF3]" />}
                       </div>
-                      {category === opt && <Check className="w-4 h-4 text-[#A47CF3]" />}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

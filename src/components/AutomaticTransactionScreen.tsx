@@ -180,7 +180,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           <button onClick={() => setStep("selectContact")} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
-          <h2 className="text-gray-900 dark:text-foreground font-semibold">Enter Details</h2>
+          <h2 className="text-gray-900 dark:text-foreground font-semibold">Automatic Transaction</h2>
           <BookkeepingLogo compact />
         </header>
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 160px" }} className="space-y-6">
@@ -272,7 +272,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground font-semibold">Select Pioneer</h2>
+        <h2 className="text-gray-900 dark:text-foreground font-semibold">Automatic Transaction</h2>
         <BookkeepingLogo compact />
       </header>
       <div className="flex-1 overflow-y-auto px-6 py-4">

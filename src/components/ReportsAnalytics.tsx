@@ -215,20 +215,22 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             ) : (
               /* Top Customers Section */
               <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
-                  <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
-                  <button
-                    onClick={() => setShowCustomerInfo(v => !v)}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
-                    aria-label="Customer info"
-                  >
-                    <Info className="w-3 h-3 text-black" />
-                  </button>
+                <div className="mb-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
+                    <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
+                    <button
+                      onClick={() => setShowCustomerInfo(v => !v)}
+                      className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                      aria-label="Customer info"
+                    >
+                      <Info className="w-3 h-3 text-black" />
+                    </button>
+                  </div>
                   {showCustomerInfo && (
-                    <span className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-2 py-0.5 rounded-full border border-purple-100 dark:border-purple-800/30">
+                    <div className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
                       The list ranks Contacts from highest to lowest by the number of transactions.
-                    </span>
+                    </div>
                   )}
                 </div>
                 <div className="space-y-3">
