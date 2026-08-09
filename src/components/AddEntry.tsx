@@ -183,16 +183,15 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 </div>
               ) : (
                 <>
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none z-10" />
                   <input
                     type="text"
                     value={customerQuery}
                     onFocus={() => setIsCustomerDropdownOpen(true)}
                     onChange={(e) => { setCustomerQuery(e.target.value); setIsCustomerDropdownOpen(true); }}
                     placeholder="Search from Contacts"
-                    style={{ paddingLeft: "1.25rem" }}
-                    className="w-full pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all relative z-10"
+                    className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
                   />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
                   {isCustomerDropdownOpen && filteredCustomers.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-2xl max-h-44 overflow-y-auto z-[9999]">
                       {filteredCustomers.map((name) => (
