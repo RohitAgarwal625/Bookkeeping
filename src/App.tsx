@@ -33,11 +33,15 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
       <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
       <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
         <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
-          {/* Enlarged wallet icon with π clearly inside it */}
+          {/* Enlarged wallet icon with Pi icon from Pay button centered inside it */}
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative">
-            <div className="relative flex items-center justify-center">
+            <div className="relative flex items-center justify-center w-10 h-10">
               <Wallet className="w-9 h-9 text-white" />
-              <span className="absolute text-white select-none" style={{ fontSize: "12px", lineHeight: 1, marginTop: "2px", fontWeight: 700, marginRight: "5px" }}>π</span>
+              <div className="absolute inset-0 flex items-center justify-center pt-0.5 pr-1">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="18" fontWeight="bold" fontFamily="serif">π</text>
+                </svg>
+              </div>
             </div>
           </div>
           <h3 className="font-bold text-gray-900 dark:text-foreground text-lg mb-2">Connect Pi Wallet</h3>
