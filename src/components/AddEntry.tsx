@@ -174,6 +174,16 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
         {/* Manual Entry Card */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
 
+          {/* Pi Blockexplorer button */}
+          <button
+            onClick={handlePiTransactions}
+            className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
+          >
+            <span className="font-medium text-sm">View Pi Transactions</span>
+            <ExternalLink className="w-4 h-4" />
+          </button>
+
           {/* Name from Database */}
           <div className="mb-4" ref={nameInputRef}>
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Pioneer</label>
@@ -314,7 +324,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             {/* Info box — appears below label on click */}
             {showInfo && (
               <div className="mb-2 w-full bg-gray-100 dark:bg-secondary border border-gray-200 dark:border-border rounded-xl px-4 py-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
-                Use the button given below to retrieve Transaction Hash from Pi Blockchain
+                Use the button given above to retrieve Transaction Hash from Pi Blockchain
               </div>
             )}
             <div className="relative">
@@ -327,16 +337,6 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
               />
             </div>
           </div>
-
-          {/* Pi Blockexplorer button */}
-          <button
-            onClick={handlePiTransactions}
-            className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
-          >
-            <span className="font-medium text-sm">View Pi Transactions</span>
-            <ExternalLink className="w-4 h-4" />
-          </button>
 
           {/* Note Input */}
           <div className="mb-6">

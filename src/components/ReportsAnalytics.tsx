@@ -191,32 +191,34 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </div>
             )}
 
-            {/* Summary Cards Section - Equal-width grid with smaller font size */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              {/* Total Debit Card */}
-              <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-red-500 flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Debit</p>
-                  <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
+            {/* Summary Cards Section - Only shown when filter is NOT custom */}
+            {selectedFilter !== "custom" && (
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {/* Total Debit Card */}
+                <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-red-500 flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Debit</p>
+                    <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-bold text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
+                    <span className="text-sm font-bold text-red-600 dark:text-red-400">π</span>
+                  </div>
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
-                  <span className="text-sm font-bold text-red-600 dark:text-red-400">π</span>
-                </div>
-              </div>
 
-              {/* Total Credit Card */}
-              <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-green-500 flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Credit</p>
-                  <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400 rotate-180" />
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
-                  <span className="text-sm font-bold text-green-600 dark:text-green-400">π</span>
+                {/* Total Credit Card */}
+                <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-green-500 flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Credit</p>
+                    <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400 rotate-180" />
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-bold text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">π</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {selectedFilter === "custom" && !isCustomSubmitted ? (
               <div className="bg-white dark:bg-card rounded-2xl p-6 text-center shadow-md dark:shadow-none dark:border dark:border-border mb-6">

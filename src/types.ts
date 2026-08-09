@@ -45,7 +45,7 @@ export const initialContacts: Contact[] = [
   {
     id: "2",
     name: "Amit Patel",
-    category: "business",
+    category: "individual",
     piWalletAddress: "0x1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d",
     txHash: "0x123abc456def789abc123def456789abc123def456",
     lastSeen: "Feb 18, 2026",
@@ -65,7 +65,7 @@ export const initialContacts: Contact[] = [
   {
     id: "4",
     name: "Rajesh Kumar",
-    category: "business",
+    category: "individual",
     piWalletAddress: "0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e",
     txHash: "0xabc123def456789abc123def456789abc123def456789",
     lastSeen: "Feb 20, 2026",
@@ -85,7 +85,7 @@ export const initialContacts: Contact[] = [
   {
     id: "6",
     name: "Vikram Singh",
-    category: "business",
+    category: "individual",
     piWalletAddress: "0x2f3c4b5a6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a",
     txHash: "0x456def789abc123def456789abc123def456789abc",
     lastSeen: "Feb 16, 2026",

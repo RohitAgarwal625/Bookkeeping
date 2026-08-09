@@ -274,14 +274,14 @@ export function Settings({
             <div>
               <p className="text-xs text-gray-400 dark:text-muted-foreground mb-1">Legal Name</p>
               <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-secondary rounded-xl border border-gray-200 dark:border-border">
-                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "Pioneer User" : displayName}</p>
+                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "Guest User" : displayName}</p>
                 <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-secondary/80 px-2 py-0.5 rounded-full">From Pi Auth</span>
               </div>
             </div>
             <div>
               <p className="text-xs text-gray-400 dark:text-muted-foreground mb-1">Username</p>
               <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-secondary rounded-xl border border-gray-200 dark:border-border">
-                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "@pioneer" : "@pioneer_user"}</p>
+                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "@guest_user" : "@pioneer_user"}</p>
                 <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-secondary/80 px-2 py-0.5 rounded-full">From Pi Auth</span>
               </div>
             </div>

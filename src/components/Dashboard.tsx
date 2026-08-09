@@ -54,7 +54,7 @@ export function Dashboard({
       <header className={`${isGuest ? "bg-background border-b border-gray-100 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-transparent dark:border-border"} px-6 py-4 flex justify-between items-center z-20 relative`}>
         <div>
           <p className="text-gray-500 dark:text-muted-foreground text-sm">Welcome,</p>
-          <h2 className="text-gray-900 dark:text-foreground">{isGuest ? "Pioneer" : userName}</h2>
+          <h2 className="text-gray-900 dark:text-foreground">{isGuest ? "Guest User" : userName}</h2>
         </div>
         <div className="flex items-center gap-3">
           <button
