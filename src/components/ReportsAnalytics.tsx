@@ -1,4 +1,4 @@
-import { Users, Search, Info, BarChart2 } from "lucide-react";
+import { Users, Search, Info, BarChart2, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import {
   BarChart,
@@ -127,27 +127,8 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </div>
             </div>
 
-            {/* Summary Cards Section - Full-width grid (matches Home Screen) */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              {/* Total Debit Card */}
-              <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 border border-red-200 dark:border-red-800/40 flex flex-col items-center justify-center text-center">
-                <p className="text-red-700 dark:text-red-400 text-xs mb-1 font-bold">Total Debit</p>
-                <p className="text-red-800 dark:text-red-300 font-bold text-lg flex items-baseline justify-center gap-1.5">
-                  <span>{totalDebit.toFixed(2)}</span><span>π</span>
-                </p>
-              </div>
-
-              {/* Total Credit Card */}
-              <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-4 border border-green-200 dark:border-green-800/40 flex flex-col items-center justify-center text-center">
-                <p className="text-green-700 dark:text-green-400 text-xs mb-1 font-bold">Total Credit</p>
-                <p className="text-green-800 dark:text-green-300 font-bold text-lg flex items-baseline justify-center gap-1.5">
-                  <span>{totalCredit.toFixed(2)}</span><span>π</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Category Filters */}
-            <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+            {/* Category Filters - Positioned below Search Bar */}
+            <div className="flex gap-3 mb-4 overflow-x-auto pb-2 scrollbar-hide">
               <button
                 onClick={() => setSelectedFilter("week")}
                 className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "week"
@@ -179,7 +160,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
 
             {/* Inline date range — shown only when Custom is selected */}
             {selectedFilter === "custom" && (
-              <div className="flex flex-col gap-3 mt-4 mb-4">
+              <div className="flex flex-col gap-3 mb-4">
                 <div className="flex items-center gap-3">
                   <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">From</label>
@@ -210,6 +191,33 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </div>
             )}
 
+            {/* Summary Cards Section - Equal-width grid with smaller font size */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {/* Total Debit Card */}
+              <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-red-500 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Debit</p>
+                  <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xl font-bold text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
+                  <span className="text-sm font-bold text-red-600 dark:text-red-400">π</span>
+                </div>
+              </div>
+
+              {/* Total Credit Card */}
+              <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-green-500 flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Credit</p>
+                  <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400 rotate-180" />
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xl font-bold text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
+                  <span className="text-sm font-bold text-green-600 dark:text-green-400">π</span>
+                </div>
+              </div>
+            </div>
+
             {selectedFilter === "custom" && !isCustomSubmitted ? (
               <div className="bg-white dark:bg-card rounded-2xl p-6 text-center shadow-md dark:shadow-none dark:border dark:border-border mb-6">
                 <p className="text-sm text-gray-500 dark:text-muted-foreground">Select date range and click Submit to view details</p>
@@ -222,11 +230,12 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                     <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
                     <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
                     <button
+                      type="button"
                       onClick={() => setShowCustomerInfo(v => !v)}
-                      className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
                       aria-label="Customer info"
                     >
-                      <Info className="w-3 h-3 text-black" />
+                      <Info className="w-3.5 h-3.5" />
                     </button>
                   </div>
                   {showCustomerInfo && (
