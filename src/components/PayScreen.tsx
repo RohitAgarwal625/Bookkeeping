@@ -252,11 +252,11 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
   // ── Payment Form (default) ─────────────────────────────────────────────
   return (
-    <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+    <div className="bg-background" style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }}>
       <Header onBack={onBack} />
 
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px 160px" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px 220px" }}>
         {/* Public key */}
         <div>
           <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">

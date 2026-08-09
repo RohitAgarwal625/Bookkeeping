@@ -111,7 +111,7 @@ export function ContactsScreen({
               <div key={letter} className="mb-3">
                 {/* Alphabet section divider */}
                 <div className="px-1 py-1 mb-1 flex items-center gap-2">
-                  <span className="text-xs font-extrabold text-[#A47CF3]">{letter}</span>
+                  <span className="text-base font-extrabold text-black dark:text-white">{letter}</span>
                   <div className="flex-1 h-px bg-purple-100 dark:bg-[#2A1F3D]" />
                 </div>
 
