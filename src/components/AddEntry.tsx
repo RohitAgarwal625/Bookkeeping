@@ -1,5 +1,5 @@
 import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info, BookOpen } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -34,6 +34,21 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   // Save contact name and transaction before form is cleared
   const savedContactName = useRef<string>("");
   const savedTransaction = useRef<Transaction | undefined>(undefined);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (nameInputRef.current && !nameInputRef.current.contains(event.target as Node)) {
+        setIsCustomerDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
 
   const filteredCustomers = savedCustomers.filter((c) =>
     c.toLowerCase().includes(customerQuery.toLowerCase())
