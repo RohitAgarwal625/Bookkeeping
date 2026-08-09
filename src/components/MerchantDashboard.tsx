@@ -321,19 +321,21 @@ export function MerchantDashboard({
                     <div className="space-y-1.5">
                       {/* Status */}
                       <div className="flex items-center gap-2">
-                        {merchant.status === "completed" ? (
-                          <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
-                            <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
-                              <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </div>
-                        ) : merchant.status === "failed" ? (
-                          <XCircle className="w-3.5 h-3.5 text-red-500" />
-                        ) : (
-                          <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
-                            <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
-                          </div>
-                        )}
+                        <div className="w-10 flex-shrink-0 flex items-center">
+                          {merchant.status === "completed" ? (
+                            <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </div>
+                          ) : merchant.status === "failed" ? (
+                            <XCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                          ) : (
+                            <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
+                              <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
+                            </div>
+                          )}
+                        </div>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${merchant.status === "completed"
                           ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                           : merchant.status === "failed"
@@ -345,12 +347,12 @@ export function MerchantDashboard({
                       </div>
                       {/* Date */}
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500 dark:text-muted-foreground">Date:</span>
+                        <span className="text-xs text-gray-500 dark:text-muted-foreground w-10 flex-shrink-0">Date:</span>
                         <span className="text-xs text-gray-700 dark:text-gray-300">{merchant.date}</span>
                       </div>
                       {/* Note */}
                       <div className="flex items-start gap-2">
-                        <span className="text-xs text-gray-500 dark:text-muted-foreground whitespace-nowrap">Note:</span>
+                        <span className="text-xs text-gray-500 dark:text-muted-foreground w-10 flex-shrink-0 whitespace-nowrap">Note:</span>
                         <span className="text-xs text-gray-600 dark:text-muted-foreground">{merchant.description}</span>
                       </div>
                     </div>
