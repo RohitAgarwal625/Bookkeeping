@@ -243,7 +243,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   {autoTooltip && (
                     <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
                       <p className="font-semibold text-amber-500 mb-0.5">Automatic</p>
-                      Recommended for adding multiple transactions all at once. Free for limited time.
+                      Recommended for adding multiple transactions all at once. Free for limited time only.
                     </div>
                   )}
                 </div>

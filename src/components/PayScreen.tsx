@@ -260,7 +260,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         {/* Public key */}
         <div>
           <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Public key
+            Public Key
           </label>
           <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
             <input
@@ -279,8 +279,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             {/* Verification tick */}
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all duration-300 ${isVerified
-                  ? "bg-[#A47CF3] border-[#A47CF3]"
-                  : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
+                ? "bg-[#A47CF3] border-[#A47CF3]"
+                : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
                 }`}
             >
               <Check
@@ -411,8 +411,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 key={preset}
                 onClick={() => setAmount(preset)}
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${amount === preset
-                    ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white border-transparent shadow-md"
-                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-[#A47CF3] hover:text-[#A47CF3]"
+                  ? "bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white border-transparent shadow-md"
+                  : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-[#A47CF3] hover:text-[#A47CF3]"
                   }`}
               >
                 {preset} π
