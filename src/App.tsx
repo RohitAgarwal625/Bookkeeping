@@ -407,9 +407,9 @@ function AppContent() {
           100% { transform: scale(1); opacity: 1; }
         }
         @keyframes text-reveal {
-          0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
+          0%   { clip-path: inset(-10px 100% -10px -10px); opacity: 0; }
           1%   { opacity: 1; }
-          100% { clip-path: inset(0 0% 0 0); opacity: 1; }
+          100% { clip-path: inset(-10px -10px -10px -10px); opacity: 1; }
         }
         @keyframes pen-appear-slide {
           0%   { left: -2.8rem; opacity: 0; }
@@ -427,7 +427,8 @@ function AppContent() {
         .write-text {
           display: inline-block;
           white-space: nowrap;
-          clip-path: inset(0 100% 0 0);
+          padding-left: 4px;
+          clip-path: inset(-10px 100% -10px -10px);
           opacity: 0;
           animation: text-reveal 2.2s cubic-bezier(0.4, 0, 0.2, 1) 1.2s forwards;
         }
