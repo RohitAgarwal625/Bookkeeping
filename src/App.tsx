@@ -37,9 +37,9 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative">
             <div className="relative flex items-center justify-center w-10 h-10">
               <Wallet className="w-9 h-9 text-white" />
-              <div className="absolute inset-0 flex items-center justify-center pt-0.5 pr-1">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="18" fontWeight="bold" fontFamily="serif">π</text>
+              <div className="absolute inset-0 flex items-center justify-center pt-1.5" style={{ transform: "translateX(-2.5px)" }}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="20" fontWeight="bold" fontFamily="serif">π</text>
                 </svg>
               </div>
             </div>
