@@ -56,7 +56,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
 
   const handlePiTransactions = () => {
     // Redirect to Pi Browser transactions page
-    window.open("https://pibrowser.com/transactions", "_blank");
+    window.open("wallet.pinet.com", "_blank");
   };
 
   const handleSaveEntry = () => {
@@ -334,7 +334,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
             style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
           >
-            <span className="font-medium text-sm">View Pi Blockexplorer</span>
+            <span className="font-medium text-sm">View Pi Transactions</span>
             <ExternalLink className="w-4 h-4" />
           </button>
 
