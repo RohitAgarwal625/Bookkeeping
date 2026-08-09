@@ -237,6 +237,39 @@ export function MerchantDashboard({
 
       {/* Scrollable Content — uniform flat background across content area below header */}
       <div className="flex-1 flex flex-col px-6 py-6 bg-white dark:bg-[#0F1115]">
+        {/* Individual / Business — rounded segmented toggle with middle switch (shared for History & Analytics) */}
+        <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto flex-shrink-0">
+          <button
+            onClick={() => setActiveCategory("individual")}
+            className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${activeCategory === "individual"
+              ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+              : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+              }`}
+          >
+            Individual
+          </button>
+
+          {/* Middle toggle switch — bordered pill for visibility */}
+          <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
+            <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
+              <div
+                className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
+                style={{
+                  background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                  transform: activeCategory === "business" ? "translateX(20px)" : "translateX(0)",
+                }}
+              />
+            </div>
+          </div>
+
+          <button
+            disabled
+            className="flex-1 py-2 text-sm font-semibold rounded-full cursor-not-allowed"
+            style={{ color: "#9ca3af" }}
+          >
+            Business
+          </button>
+        </div>
 
         {/* ── Analytics View ── */}
         {activeView === "analytics" && (
@@ -246,40 +279,6 @@ export function MerchantDashboard({
         {/* ── History View ── */}
         {activeView === "history" && (
           <div className="flex-1 flex flex-col">
-            {/* Individual / Business — rounded segmented toggle with middle switch */}
-            <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto flex-shrink-0">
-              <button
-                onClick={() => setActiveCategory("individual")}
-                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${activeCategory === "individual"
-                  ? "bg-white dark:bg-card text-[#A47CF3] shadow"
-                  : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
-                  }`}
-              >
-                Individual
-              </button>
-
-              {/* Middle toggle switch — bordered pill for visibility */}
-              <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
-                <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
-                  <div
-                    className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
-                    style={{
-                      background: "linear-gradient(135deg,#A47CF3,#F7C548)",
-                      transform: activeCategory === "business" ? "translateX(20px)" : "translateX(0)",
-                    }}
-                  />
-                </div>
-              </div>
-
-              <button
-                disabled
-                className="flex-1 py-2 text-sm font-semibold rounded-full cursor-not-allowed"
-                style={{ color: "#9ca3af" }}
-              >
-                Business
-              </button>
-            </div>
-
             {/* Merchants List */}
             {(activeCategory === "individual" ? individualMerchants : businessMerchants).length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10 pb-24 gap-3">

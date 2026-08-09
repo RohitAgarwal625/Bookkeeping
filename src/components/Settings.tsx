@@ -13,6 +13,7 @@ import {
   Edit2,
   X,
   Save,
+  Pencil,
 } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "./ui/switch";
@@ -100,6 +101,7 @@ export function Settings({
   const [displayName, setDisplayName] = useState(initialUserName);
   const [editingName, setEditingName] = useState(initialUserName);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [showDisplayNameInfo, setShowDisplayNameInfo] = useState(false);
 
   // FAQs state
   const [openFaq, setOpenFaq] = useState<string | null>(null);
@@ -127,22 +129,22 @@ export function Settings({
       id: "editProfile",
       label: "Edit Profile",
       icon: User,
-      iconColor: "text-[#D32F2F] dark:text-[#8A2BE2]",
-      iconBg: "bg-red-50 dark:bg-purple-950/20",
+      iconColor: "text-black dark:text-foreground",
+      iconBg: "bg-gray-100 dark:bg-secondary",
     },
     {
       id: "faqs",
       label: "FAQs",
       icon: HelpCircle,
-      iconColor: "text-gray-700 dark:text-gray-300",
+      iconColor: "text-black dark:text-foreground",
       iconBg: "bg-gray-100 dark:bg-secondary",
     },
     {
       id: "aboutUs",
       label: "About Us",
       icon: Info,
-      iconColor: "text-[#A47CF3] dark:text-[#8A2BE2]",
-      iconBg: "bg-purple-50 dark:bg-purple-950/20",
+      iconColor: "text-black dark:text-foreground",
+      iconBg: "bg-gray-100 dark:bg-secondary",
     },
   ];
 
@@ -167,15 +169,51 @@ export function Settings({
           {/* Profile Avatar */}
           <div className="flex flex-col items-center gap-3">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg overflow-hidden">
-              <span className="text-white text-2xl">{getInitials(displayName)}</span>
+              <span className="text-white text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
             </div>
           </div>
 
           {/* Name Edit */}
           <div className="w-full bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
-            <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-3 font-medium">
-              Display Name
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
+                  Display Name
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowDisplayNameInfo((v) => !v)}
+                  className="w-4 h-4 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Display Name info"
+                >
+                  <Info className="w-3 h-3 text-black dark:text-foreground" />
+                </button>
+              </div>
+
+              {!isEditingName && (
+                <button
+                  onClick={() => {
+                    if (isGuest) {
+                      onTriggerGuestModal?.();
+                    } else {
+                      setIsEditingName(true);
+                      setEditingName(displayName);
+                    }
+                  }}
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  aria-label="Edit Display Name"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
+                </button>
+              )}
+            </div>
+
+            {showDisplayNameInfo && (
+              <div className="mb-3 w-full bg-gray-100 dark:bg-secondary border border-gray-200 dark:border-border rounded-xl p-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
+                Your Display Name is a customizable label which will be visible to other users of this dApp in the future.
+              </div>
+            )}
+
             {isEditingName ? (
               <div className="flex items-center gap-2">
                 <input
@@ -200,25 +238,9 @@ export function Settings({
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-between">
-                <span className="text-gray-900 dark:text-foreground font-medium text-lg">
-                  {displayName}
-                </span>
-                <button
-                  onClick={() => {
-                    if (isGuest) {
-                      onTriggerGuestModal?.();
-                    } else {
-                      setIsEditingName(true);
-                      setEditingName(displayName);
-                    }
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/20 text-[#A47CF3] hover:bg-purple-100 dark:hover:bg-purple-950/40 transition-colors"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                  <span className="text-xs font-medium">Edit</span>
-                </button>
-              </div>
+              <span className="text-gray-900 dark:text-foreground font-medium text-lg">
+                {displayName}
+              </span>
             )}
           </div>
 
@@ -487,7 +509,7 @@ export function Settings({
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-6 mb-6">
           <div className="flex flex-col items-center mb-4">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3 overflow-hidden">
-              <span className="text-white text-2xl">{isGuest ? "?" : getInitials(displayName)}</span>
+              <span className="text-white text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
             </div>
 
             <h3 className="text-gray-900 dark:text-foreground mb-1">{isGuest ? "Guest User" : displayName}</h3>

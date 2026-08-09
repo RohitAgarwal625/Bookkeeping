@@ -75,41 +75,43 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
           </div>
         ) : (
           <>
-            {/* Individual / Business toggle — same design as History */}
-            <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-4 max-w-xs mx-auto flex-shrink-0">
-              <button
-                onClick={() => setAnalyticsCategory("individual")}
-                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "individual"
-                  ? "bg-white dark:bg-card text-[#A47CF3] shadow"
-                  : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
-                  }`}
-              >
-                Individual
-              </button>
+            {/* Individual / Business toggle — only shown when not embedded (MerchantDashboard handles it when embedded) */}
+            {!embedded && (
+              <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-4 max-w-xs mx-auto flex-shrink-0">
+                <button
+                  onClick={() => setAnalyticsCategory("individual")}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "individual"
+                    ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                    : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+                    }`}
+                >
+                  Individual
+                </button>
 
-              {/* Middle toggle switch */}
-              <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
-                <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
-                  <div
-                    className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
-                    style={{
-                      background: "linear-gradient(135deg,#A47CF3,#F7C548)",
-                      transform: analyticsCategory === "business" ? "translateX(20px)" : "translateX(0)",
-                    }}
-                  />
+                {/* Middle toggle switch */}
+                <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
+                  <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
+                    <div
+                      className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
+                      style={{
+                        background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                        transform: analyticsCategory === "business" ? "translateX(20px)" : "translateX(0)",
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <button
-                onClick={() => setAnalyticsCategory("business")}
-                className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "business"
-                  ? "bg-white dark:bg-card text-[#A47CF3] shadow"
-                  : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
-                  }`}
-              >
-                Business
-              </button>
-            </div>
+                <button
+                  onClick={() => setAnalyticsCategory("business")}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "business"
+                    ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                    : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+                    }`}
+                >
+                  Business
+                </button>
+              </div>
+            )}
 
             {/* Search Bar */}
             <div className="mb-4">
