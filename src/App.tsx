@@ -18,7 +18,8 @@ import { AutomaticTransactionScreen } from "./components/AutomaticTransactionScr
 import { QRScannerScreen } from "./components/QRScannerScreen";
 import { PayMethodModal } from "./components/PayMethodModal";
 import { BottomNav } from "./components/BottomNav";
-import { Contact, initialContacts } from "./types";
+import { Contact, initialContacts, Transaction } from "./types";
+
 
 type Screen =
   | "login" | "dashboard" | "addCustomer" | "customerLedger"
@@ -76,6 +77,7 @@ function AppContent() {
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
   const [isGuest, setIsGuest] = useState(false);
+  const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
 
   const handleConnectWallet = () => {
     setIsGuest(false);
@@ -95,10 +97,17 @@ function AppContent() {
     setCurrentScreen("addCustomer");
   };
 
-  const handleNavigateToCustomerLedger = (customerName: string) => {
+  const handleNavigateToCustomerLedger = (customerName: string, newTransactions?: Transaction[]) => {
     setSelectedCustomer(customerName);
+    if (newTransactions && newTransactions.length > 0) {
+      setPendingNewTransactions((prev) => ({
+        ...prev,
+        [customerName]: [...newTransactions, ...(prev[customerName] || [])],
+      }));
+    }
     setCurrentScreen("customerLedger");
   };
+
 
   const handleBackToDashboard = () => {
     setCurrentScreen("dashboard");
@@ -230,8 +239,8 @@ function AppContent() {
       <>
         <AddEntry
           onBack={handleBackToDashboard}
-          onSuccess={(contactName) => {
-            handleNavigateToCustomerLedger(contactName);
+          onSuccess={(contactName, newTransaction) => {
+            handleNavigateToCustomerLedger(contactName, newTransaction ? [newTransaction] : undefined);
           }}
           contacts={contactNames}
         />
@@ -324,7 +333,18 @@ function AppContent() {
 
   if (currentScreen === "customerLedger") {
     return (
-      <CustomerLedger customerName={selectedCustomer} onBack={handleBackToDashboard} />
+      <CustomerLedger
+        customerName={selectedCustomer}
+        initialNewTransactions={pendingNewTransactions[selectedCustomer]}
+        onBack={() => {
+          setPendingNewTransactions((prev) => {
+            const next = { ...prev };
+            delete next[selectedCustomer];
+            return next;
+          });
+          handleBackToDashboard();
+        }}
+      />
     );
   }
 

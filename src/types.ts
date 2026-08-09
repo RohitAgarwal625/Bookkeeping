@@ -1,3 +1,12 @@
+export interface Transaction {
+  id: string;
+  description: string;
+  amount: number;
+  type: "credit" | "debit";
+  timestamp: string;
+  isNew?: boolean;
+}
+
 export interface Contact {
   id: string;
   name: string;
@@ -8,6 +17,7 @@ export interface Contact {
   totalCredit: number;
   totalDebit: number;
 }
+
 
 /**
  * Generate display-picture initials from a full name.

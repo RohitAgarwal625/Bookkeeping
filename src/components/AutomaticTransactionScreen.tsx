@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen } from "lucide-react";
-import { Contact, getInitials } from "../types";
+import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface AutomaticTransactionScreenProps {
   contacts: Contact[];
   onBack: () => void;
-  onNavigateToLedger: (name: string) => void;
+  onNavigateToLedger: (name: string, newTransactions?: Transaction[]) => void;
 }
+
 
 type Step = "selectContact" | "dateRange" | "scanning" | "summary";
 
@@ -152,7 +153,24 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           ))}
         </div>
         <button
-          onClick={() => onNavigateToLedger(selectedContact?.name ?? "")}
+          onClick={() => {
+            const count = txFound.current;
+            const newTxs: Transaction[] = Array.from({ length: count }).map((_, index) => ({
+              id: `auto-${Date.now()}-${index}`,
+              description: `Pi Blockchain Sync #${count - index}`,
+              amount: Math.floor(Math.random() * 150) + 15,
+              type: index % 2 === 0 ? "credit" : "debit",
+              timestamp: new Date(Date.now() - index * 1800000).toLocaleString("en-IN", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              isNew: true,
+            }));
+            onNavigateToLedger(selectedContact?.name ?? "", newTxs);
+          }}
           className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
           style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 6px 24px rgba(111,60,151,0.45)" }}
         >

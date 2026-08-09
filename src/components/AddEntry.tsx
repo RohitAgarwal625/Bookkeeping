@@ -1,12 +1,12 @@
 import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info, BookOpen } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
-import { getInitials } from "../types";
+import { getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface AddEntryProps {
   onBack: () => void;
-  onSuccess?: (contactName: string) => void;
+  onSuccess?: (contactName: string, newTransaction?: Transaction) => void;
   contacts?: string[];
 }
 
@@ -31,8 +31,9 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const nameInputRef = useRef<HTMLDivElement>(null);
-  // Save contact name before form is cleared so the Done button can navigate to it
+  // Save contact name and transaction before form is cleared
   const savedContactName = useRef<string>("");
+  const savedTransaction = useRef<Transaction | undefined>(undefined);
 
   const filteredCustomers = savedCustomers.filter((c) =>
     c.toLowerCase().includes(customerQuery.toLowerCase())
@@ -57,6 +58,21 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
       return;
     }
 
+    const newTx: Transaction = {
+      id: Date.now().toString(),
+      description: note.trim() || `Manual ${transactionType === "credit" ? "Credit" : "Debit"} Entry`,
+      amount: parseFloat(amount),
+      type: transactionType,
+      timestamp: date && time ? `${date} ${time}` : new Date().toLocaleString("en-IN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      isNew: true,
+    };
+
     console.log("Saving manual entry:", {
       customer: selectedCustomer,
       amount: parseFloat(amount),
@@ -67,8 +83,9 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
       note,
     });
 
-    // Save the contact name before clearing the form
+    // Save the contact name and transaction before clearing the form
     savedContactName.current = selectedCustomer;
+    savedTransaction.current = newTx;
 
     // Show full-screen success overlay
     setShowSuccess(true);
@@ -106,7 +123,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             </p>
           </div>
           <button
-            onClick={() => onSuccess ? onSuccess(savedContactName.current) : onBack()}
+            onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current) : onBack()}
             className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2"
             style={{
               background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
@@ -122,6 +139,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
       </div>
     );
   }
+
 
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">

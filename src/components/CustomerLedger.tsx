@@ -2,52 +2,52 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
-
-interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  type: "credit" | "debit";
-  timestamp: string;
-}
+import { Transaction } from "../types";
 
 interface CustomerLedgerProps {
   customerName: string;
   onBack: () => void;
+  initialNewTransactions?: Transaction[];
 }
 
-export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
+export function CustomerLedger({ customerName, onBack, initialNewTransactions }: CustomerLedgerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: "1",
-      description: "Payment received for June order",
-      amount: 450,
-      type: "credit",
-      timestamp: "2025-10-08 14:30",
-    },
-    {
-      id: "2",
-      description: "New order - 50kg rice",
-      amount: 180,
-      type: "debit",
-      timestamp: "2025-10-07 10:15",
-    },
-    {
-      id: "3",
-      description: "Partial payment",
-      amount: 100,
-      type: "credit",
-      timestamp: "2025-10-05 16:45",
-    },
-    {
-      id: "4",
-      description: "Order - wheat flour 25kg",
-      amount: 90,
-      type: "debit",
-      timestamp: "2025-10-03 09:20",
-    },
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const base: Transaction[] = [
+      {
+        id: "1",
+        description: "Payment received for June order",
+        amount: 450,
+        type: "credit",
+        timestamp: "2025-10-08 14:30",
+      },
+      {
+        id: "2",
+        description: "New order - 50kg rice",
+        amount: 180,
+        type: "debit",
+        timestamp: "2025-10-07 10:15",
+      },
+      {
+        id: "3",
+        description: "Partial payment",
+        amount: 100,
+        type: "credit",
+        timestamp: "2025-10-05 16:45",
+      },
+      {
+        id: "4",
+        description: "Order - wheat flour 25kg",
+        amount: 90,
+        type: "debit",
+        timestamp: "2025-10-03 09:20",
+      },
+    ];
+    if (initialNewTransactions && initialNewTransactions.length > 0) {
+      return [...initialNewTransactions, ...base];
+    }
+    return base;
+  });
 
   // Calculate balance
   const totalCredit = transactions
@@ -73,6 +73,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
         hour: "2-digit",
         minute: "2-digit",
       }),
+      isNew: true,
     };
     setTransactions([newTransaction, ...transactions]);
     setIsModalOpen(false);
@@ -129,15 +130,29 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
               {transactions.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className="bg-white dark:bg-card rounded-xl shadow-sm dark:shadow-none dark:border dark:border-border p-4 hover:shadow-md dark:hover:border-[#8A2BE2]/40 transition-shadow"
+                  className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
+                    transaction.isNew
+                      ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
+                      : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#8A2BE2]/40"
+                  }`}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1">
-                      <p className="text-gray-900 dark:text-foreground">{transaction.description}</p>
+                    <div className="flex-1 min-w-0 pr-2">
+                      <div className="flex items-center gap-2">
+                        <p className="text-gray-900 dark:text-foreground font-medium truncate">{transaction.description}</p>
+                        {transaction.isNew && (
+                          <span
+                            className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3]"
+                            style={{ padding: "3px 10px", display: "inline-flex", alignItems: "center" }}
+                          >
+                            New
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-400 dark:text-muted-foreground mt-1">{transaction.timestamp}</p>
                     </div>
                     <p
-                      className={`font-bold ml-4 ${transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                      className={`font-bold ml-4 flex-shrink-0 ${transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                         }`}
                     >
                       {transaction.type === "credit" ? "+" : "-"}{transaction.amount.toFixed(2)} π
@@ -148,6 +163,7 @@ export function CustomerLedger({ customerName, onBack }: CustomerLedgerProps) {
             </div>
           )}
         </div>
+
 
       </div>
 
