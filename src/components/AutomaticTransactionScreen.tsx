@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen } from "lucide-react";
+import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info } from "lucide-react";
 import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
@@ -27,6 +27,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [showInfo, setShowInfo] = useState(false);
   const [scanMsgIndex, setScanMsgIndex] = useState(0);
   const txFound = useRef(Math.floor(Math.random() * 8) + 3);
 
@@ -186,11 +187,28 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 24px" }} className="space-y-6">
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-6 md:p-7 space-y-6">
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-border pb-4">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-foreground">Select Date Range</h3>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-foreground">Select Date Range</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowInfo((v) => !v)}
+                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                  title="Date Range Limit Info"
+                  aria-label="Date Range Limit Info"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
               <span className="text-xs font-medium text-[#A47CF3] bg-purple-50 dark:bg-purple-950/40 px-3 py-1 rounded-full">
                 Max 1 Year Period
               </span>
             </div>
+
+            {showInfo && (
+              <div className="bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border rounded-2xl p-4 px-5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed shadow-sm">
+                Please select a date range of 366 days or fewer. This limit helps loading data fast and keeps waiting time less. To fetch for a longer period, please run an additional search for the next date range.
+              </div>
+            )}
 
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold mb-2">
@@ -245,7 +263,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               <div className="text-right flex-shrink-0 pl-3">
                 <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Period</p>
                 <p className={`font-semibold text-sm leading-none ${fromDate && toDate ? "text-[#6F3C97] dark:text-[#A47CF3]" : "text-gray-400 dark:text-gray-500"}`}>
-                  {fromDate && toDate ? `${fmtDate(fromDate)} - ${fmtDate(toDate)}` : "Max 1 Year"}
+                  {fromDate && toDate ? `${fmtDate(fromDate)} - ${fmtDate(toDate)}` : "Maximum Limit: 1 Year"}
                 </p>
               </div>
             </div>
