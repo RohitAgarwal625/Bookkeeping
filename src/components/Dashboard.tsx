@@ -1,4 +1,4 @@
-import { Bell, X, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { Bell, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { BalanceCard } from "./BalanceCard";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -75,12 +75,6 @@ export function Dashboard({
         <>
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
           <div className="fixed top-[72px] left-0 right-0 z-40 bg-white dark:bg-card rounded-b-2xl shadow-xl border-b-2 border-gray-400 dark:border-white/50 overflow-hidden">
-            <button
-              onClick={() => setShowBell(false)}
-              className="absolute top-2.5 right-3 z-50 p-1.5 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors"
-            >
-              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-            </button>
             <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-center">
               <p className="text-gray-900 dark:text-foreground font-semibold text-sm text-center">Alerts</p>
             </div>
