@@ -174,17 +174,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
         {/* Manual Entry Card */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
 
-          {/* Pi Blockexplorer button */}
-          <button
-            onClick={handlePiTransactions}
-            className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
-          >
-            <span className="font-medium text-sm">View Pi Transactions</span>
-            <ExternalLink className="w-4 h-4" />
-          </button>
-
-          {/* Name from Database */}
+          {/* 1. Pioneer */}
           <div className="mb-4" ref={nameInputRef}>
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Pioneer</label>
             <div className="relative z-50">
@@ -240,76 +230,17 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             </div>
           </div>
 
-          {/* Amount Input */}
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Amount</label>
-            <div className="relative">
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
-                style={{ paddingLeft: "1.25rem", paddingRight: "3rem" }}
-                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xl font-semibold text-[#A47CF3] leading-none select-none">
-                π
-              </span>
-            </div>
-          </div>
+          {/* 2. View Pi Transactions button */}
+          <button
+            onClick={handlePiTransactions}
+            className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
+          >
+            <span className="font-medium text-sm">View Pi Transactions</span>
+            <ExternalLink className="w-4 h-4" />
+          </button>
 
-          {/* Transaction Type Toggle */}
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">
-              Transaction Type
-            </label>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setTransactionType("debit")}
-                className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "debit"
-                  ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md"
-                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
-                  }`}
-              >
-                Debit
-              </button>
-              <button
-                onClick={() => setTransactionType("credit")}
-                className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "credit"
-                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
-                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
-                  }`}
-              >
-                Credit
-              </button>
-            </div>
-          </div>
-
-          {/* Date Input */}
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
-            />
-          </div>
-
-          {/* Time Input */}
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Time</label>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
-            />
-          </div>
-
-          {/* Transaction ID Input */}
+          {/* 3. Transaction ID Input */}
           <div className="mb-4">
             <div className="flex items-center gap-1.5 mb-2">
               <label className="text-gray-700 dark:text-foreground text-sm">Transaction ID</label>
@@ -338,21 +269,121 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             </div>
           </div>
 
-          {/* Note Input */}
+          {/* 4. Amount Input */}
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Amount</label>
+            <div className="relative">
+              <input
+                type="number"
+                step="0.00000001"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00000001"
+                style={{ paddingLeft: "1.25rem", paddingRight: "3.5rem" }}
+                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+              />
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-2xl font-bold text-[#A47CF3] leading-none select-none">
+                π
+              </span>
+            </div>
+          </div>
+
+          {/* 5. Transaction Type Toggle */}
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">
+              Transaction Type
+            </label>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setTransactionType("debit")}
+                className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "debit"
+                  ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md"
+                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  }`}
+              >
+                Debit
+              </button>
+              <button
+                onClick={() => setTransactionType("credit")}
+                className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "credit"
+                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
+                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  }`}
+              >
+                Credit
+              </button>
+            </div>
+          </div>
+
+          {/* 6. Date Input */}
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+            />
+          </div>
+
+          {/* 7. Time Input (Standard HH / MM Dropdowns) */}
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Time</label>
+            <div className="flex gap-3 items-center">
+              <div className="flex-1">
+                <select
+                  value={time ? time.split(":")[0] : ""}
+                  onChange={(e) => {
+                    const hh = e.target.value;
+                    const mm = time ? (time.split(":")[1] || "00") : "00";
+                    setTime(hh ? `${hh}:${mm}` : "");
+                  }}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all cursor-pointer"
+                >
+                  <option value="" disabled>HH</option>
+                  {Array.from({ length: 24 }, (_, i) => {
+                    const val = i.toString().padStart(2, "0");
+                    return <option key={val} value={val}>{val}</option>;
+                  })}
+                </select>
+              </div>
+              <span className="text-gray-500 dark:text-muted-foreground font-bold text-lg">:</span>
+              <div className="flex-1">
+                <select
+                  value={time ? time.split(":")[1] : ""}
+                  onChange={(e) => {
+                    const mm = e.target.value;
+                    const hh = time ? (time.split(":")[0] || "00") : "00";
+                    setTime(mm ? `${hh}:${mm}` : "");
+                  }}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all cursor-pointer"
+                >
+                  <option value="" disabled>MM</option>
+                  {Array.from({ length: 60 }, (_, i) => {
+                    const val = i.toString().padStart(2, "0");
+                    return <option key={val} value={val}>{val}</option>;
+                  })}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* 8. Memo Input */}
           <div className="mb-6">
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">
-              Note <span className="text-gray-400 dark:text-muted-foreground">(optional)</span>
+              Memo <span className="text-gray-400 dark:text-muted-foreground">(optional)</span>
             </label>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Add a note or description..."
+              placeholder="Add a memo or description..."
               rows={3}
               className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent resize-none transition-all"
             />
           </div>
 
-          {/* Save Button */}
+          {/* 9. Save Button */}
           <button
             onClick={handleSaveEntry}
             className="w-full py-3.5 px-6 rounded-xl text-white shadow-md hover:shadow-lg transition-all active:scale-98"
