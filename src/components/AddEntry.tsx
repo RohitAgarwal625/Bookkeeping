@@ -280,10 +280,9 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00000001"
-                style={{ paddingLeft: "1.25rem", paddingRight: "3.5rem" }}
-                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                className="w-full pl-4 pr-10 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-3xl font-black text-[#A47CF3] leading-none select-none">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground text-base">
                 π
               </span>
             </div>
