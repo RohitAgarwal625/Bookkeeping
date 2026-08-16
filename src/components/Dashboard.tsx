@@ -54,7 +54,7 @@ export function Dashboard({
       <header className={`${isGuest ? "bg-background border-b border-gray-100 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-transparent dark:border-border"} px-6 py-4 flex justify-between items-center z-20 relative`}>
         <div>
           <p className="text-gray-500 dark:text-muted-foreground text-sm">Welcome,</p>
-          <h2 className="text-gray-900 dark:text-foreground">{isGuest ? "Guest User" : userName}</h2>
+          <h2 className="text-gray-900 dark:text-foreground font-semibold">{isGuest ? "Guest User" : userName}</h2>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -70,11 +70,11 @@ export function Dashboard({
         </div>
       </header>
 
-      {/* Bell Notification Dropdown */}
+      {/* Bell Notification Dropdown — Positioned directly after header separation line */}
       {showBell && (
-        <>
+        <div className="relative z-30">
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
-          <div className="fixed top-[72px] left-0 right-0 z-40 bg-white dark:bg-card rounded-b-2xl shadow-xl border-b-2 border-gray-400 dark:border-white/50 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card rounded-b-2xl shadow-xl border-b-2 border-gray-400 dark:border-white/50 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-center">
               <p className="text-gray-900 dark:text-foreground font-semibold text-sm text-center">Alerts</p>
             </div>
@@ -107,7 +107,7 @@ export function Dashboard({
               )}
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* Scrollable Content */}
