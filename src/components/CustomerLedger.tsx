@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
-import { Transaction } from "../types";
+import { Transaction, sortTransactionsDescending } from "../types";
 
 interface CustomerLedgerProps {
   customerName: string;
@@ -44,9 +44,9 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
       },
     ];
     if (initialNewTransactions && initialNewTransactions.length > 0) {
-      return [...initialNewTransactions, ...base];
+      return sortTransactionsDescending([...initialNewTransactions, ...base]);
     }
-    return base;
+    return sortTransactionsDescending(base);
   });
 
   // Calculate balance
@@ -61,21 +61,22 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
   const balance = totalCredit - totalDebit;
 
   const handleAddEntry = (entry: { amount: number; note: string; type: "credit" | "debit" }) => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+
     const newTransaction: Transaction = {
       id: Date.now().toString(),
       description: entry.note,
       amount: entry.amount,
       type: entry.type,
-      timestamp: new Date().toLocaleString("en-IN", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      timestamp: `${yyyy}-${mm}-${dd} ${hh}:${min}`,
       isNew: true,
     };
-    setTransactions([newTransaction, ...transactions]);
+    setTransactions((prev) => sortTransactionsDescending([newTransaction, ...prev]));
     setIsModalOpen(false);
   };
 

@@ -31,6 +31,54 @@ export function getInitials(fullName: string): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
+/**
+ * Parses timestamp string into unix timestamp (milliseconds).
+ * Handles formats like:
+ * - "YYYY-MM-DD HH:MM" or "YYYY-MM-DD"
+ * - "DD/MM/YYYY, HH:MM" or "DD/MM/YYYY"
+ * - Standard Date string format
+ */
+export function parseTransactionTimestamp(timestamp: string): number {
+  if (!timestamp) return 0;
+
+  // "YYYY-MM-DD HH:MM" or "YYYY-MM-DD"
+  if (/^\d{4}-\d{2}-\d{2}/.test(timestamp)) {
+    const formatted = timestamp.replace(" ", "T");
+    const d = new Date(formatted);
+    if (!isNaN(d.getTime())) return d.getTime();
+  }
+
+  // "DD/MM/YYYY, HH:MM" or "DD/MM/YYYY"
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(timestamp)) {
+    const [datePart, timePart] = timestamp.split(",");
+    const parts = datePart.trim().split("/");
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const year = parseInt(parts[2], 10);
+
+    let hour = 0;
+    let minute = 0;
+    if (timePart) {
+      const tParts = timePart.trim().split(":");
+      hour = parseInt(tParts[0], 10) || 0;
+      minute = parseInt(tParts[1], 10) || 0;
+    }
+
+    const d = new Date(year, month - 1, day, hour, minute);
+    if (!isNaN(d.getTime())) return d.getTime();
+  }
+
+  const d = new Date(timestamp);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+
+/**
+ * Sorts transactions by timestamp in descending order (newest first, oldest last).
+ */
+export function sortTransactionsDescending(transactions: Transaction[]): Transaction[] {
+  return [...transactions].sort((a, b) => parseTransactionTimestamp(b.timestamp) - parseTransactionTimestamp(a.timestamp));
+}
+
 export const initialContacts: Contact[] = [
   {
     id: "1",
