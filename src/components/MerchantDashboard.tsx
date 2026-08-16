@@ -305,15 +305,15 @@ export function MerchantDashboard({
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3 flex-1">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                          <span className="text-white font-medium">{getInitials(merchant.merchantName)}</span>
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-semibold">{getInitials(merchant.merchantName)}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-gray-900 dark:text-foreground font-medium truncate">{merchant.merchantName}</p>
+                          <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{merchant.merchantName}</p>
                           <p className="text-xs text-gray-500 dark:text-muted-foreground">{merchant.date}</p>
                         </div>
                       </div>
-                      <span className={`font-medium ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                      <span className={`text-sm font-medium flex-shrink-0 ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
                         {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} π
                       </span>
                     </div>

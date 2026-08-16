@@ -252,18 +252,20 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                       <div className="flex items-center gap-3">
                         {/* Profile Icon */}
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-sm">
+                          <span className="text-white text-sm font-semibold">
                             {getInitials(customer.name)}
                           </span>
                         </div>
 
-                        {/* Customer Info */}
+                        {/* Customer Info — Left side name */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-gray-900 dark:text-foreground text-sm truncate">{customer.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-muted-foreground">
-                            {customer.transactions} transaction{customer.transactions !== 1 ? "s" : ""}
-                          </p>
+                          <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{customer.name}</p>
                         </div>
+
+                        {/* Right side figure (no. of transactions without the word transaction) */}
+                        <span className="text-sm font-medium text-gray-900 dark:text-foreground flex-shrink-0">
+                          {customer.transactions}
+                        </span>
                       </div>
                       {index < filteredCustomers.length - 1 && (
                         <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-border to-transparent my-3" />
