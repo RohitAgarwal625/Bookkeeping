@@ -31,12 +31,17 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   const [scanMsgIndex, setScanMsgIndex] = useState(0);
   const txFound = useRef(Math.floor(Math.random() * 8) + 3);
 
-  // Format ISO date string (YYYY-MM-DD) to "dd MMM yy"
+  // Format ISO date string (YYYY-MM-DD) to "DD Month, YYYY" (e.g. 19 August, 2026)
   const fmtDate = (iso: string) => {
     if (!iso) return iso;
     const [y, mo, d] = iso.split("-");
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    return `${d} ${months[parseInt(mo, 10) - 1]} ${y.slice(-2)}`;
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const monthName = months[parseInt(mo, 10) - 1] || "";
+    const dayNum = parseInt(d, 10);
+    return `${dayNum} ${monthName}, ${y}`;
   };
 
   const getMaxToDate = (fromStr: string) => {
@@ -130,11 +135,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
           <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
         </div>
-        <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Done!</h2>
+        <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Done !</h2>
         <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-6 max-w-xs">
           <span className="font-bold text-[#6F3C97] text-3xl">{txFound.current}</span>{" "}
-          transactions found from{" "}
-          <span className="font-semibold text-gray-900 dark:text-foreground">{selectedContact?.name}</span> and added to your ledger successfully.
+          transactions found with{" "}
+          <span className="font-semibold text-gray-900 dark:text-foreground">{selectedContact?.name}</span> and were added to your ledger successfully.
         </p>
         <div className="w-full max-w-sm bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 mb-8 mx-4">
           {[
@@ -145,11 +150,10 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
-              <span className={`font-medium ${
-                label === "Transactions Added"
+              <span className={`font-medium ${label === "Transactions Added"
                   ? "text-[#6F3C97] font-bold text-xl"
                   : "text-gray-900 dark:text-foreground"
-              }`}>{value}</span>
+                }`}>{value}</span>
             </div>
           ))}
         </div>
