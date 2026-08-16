@@ -174,8 +174,10 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           </div>
 
           <div className="text-center">
-            <p className="text-gray-900 dark:text-white font-bold text-2xl mb-1">Payment Sent!</p>
-            <p className="text-gray-400 text-sm text-center">Your payment was processed successfully</p>
+            <p className="text-gray-900 dark:text-white font-bold text-2xl mb-1">Done !</p>
+            <p className="text-gray-400 text-sm text-center">
+              Your payment was processed successfully & the transaction is added to your ledger.
+            </p>
           </div>
 
           {/* Receipt card */}
