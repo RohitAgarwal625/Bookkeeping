@@ -190,7 +190,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </header>
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 24px" }} className="space-y-6">
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-6 md:p-7 space-y-6">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-border pb-4">
+            <div className="border-b border-gray-100 dark:border-border pb-4 space-y-3">
               <div className="flex items-center gap-1.5">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-foreground">Select Date Range</h3>
                 <button
@@ -203,16 +203,13 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                   <Info className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <span className="text-xs font-medium text-[#A47CF3] bg-purple-50 dark:bg-purple-950/40 px-3 py-1 rounded-full">
-                Max 1 Year Period
-              </span>
-            </div>
 
-            {showInfo && (
-              <div className="bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border rounded-2xl p-4 px-5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed shadow-sm">
-                Please select a date range of 366 days or fewer. This limit helps loading data fast and keeps waiting time less. To fetch for a longer period, please run an additional search for the next date range.
-              </div>
-            )}
+              {showInfo && (
+                <div className="bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border rounded-2xl p-4 px-5 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed shadow-sm">
+                  Please select a date range of 366 days or fewer. This limit helps loading data fast and keeps waiting time less. To fetch for a longer period, please run an additional search for the next date range.
+                </div>
+              )}
+            </div>
 
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold mb-2">
