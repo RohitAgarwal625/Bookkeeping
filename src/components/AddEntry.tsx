@@ -56,7 +56,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
 
   const handlePiTransactions = () => {
     // Redirect to Pi Browser transactions page
-    window.open("wallet.pinet.com", "_blank");
+    window.open("https://wallet.pinet.com", "_blank");
   };
 
   const handleSaveEntry = () => {
@@ -144,12 +144,10 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
           </p>
           <button
             onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current) : onBack()}
-            className="rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2"
+            className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
             style={{
               background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
               boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
-              padding: "14px 48px",
-              minWidth: "160px",
             }}
           >
             <span>Open Ledger</span>
@@ -262,7 +260,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             {/* Info box — appears below label on click */}
             {showInfo && (
               <div className="mb-2 w-full bg-gray-100 dark:bg-secondary border border-gray-200 dark:border-border rounded-xl px-4 py-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
-                Use the button given above to retrieve Transaction Hash from Pi Blockchain
+                Use the button given above to retrieve Transaction Hash and other details from Pi Blockchain via the 'History' section of your Pi Wallet.
               </div>
             )}
             <div className="relative">

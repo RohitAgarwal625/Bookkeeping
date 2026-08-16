@@ -12,6 +12,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [piWallet, setPiWallet] = useState("");
+  const [isWalletFocused, setIsWalletFocused] = useState(false);
   const [category, setCategory] = useState<"individual" | "business">(defaultCategory);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
@@ -239,13 +240,18 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
               Public Key
             </label>
             <div className="relative">
-              <input
+              <textarea
                 id="piWallet"
-                type="text"
-                value={piWallet}
-                onChange={(e) => handleWalletChange(e.target.value)}
+                value={!isWalletFocused && piWallet.length > 10
+                  ? `${piWallet.slice(0, 5)}.....${piWallet.slice(-5)}`
+                  : piWallet}
+                onChange={(e) => handleWalletChange(e.target.value.replace(/[\r\n]/g, ""))}
+                onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }}
+                onFocus={() => setIsWalletFocused(true)}
+                onBlur={() => setIsWalletFocused(false)}
                 placeholder="Pi Wallet Address"
-                className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+                rows={isWalletFocused && piWallet.length > 20 ? Math.min(4, Math.max(1, Math.ceil(piWallet.length / 20))) : 1}
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all resize-none break-all leading-snug overflow-hidden text-base font-medium"
               />
               {/* Validation tick — matches PayScreen style: grey by default, purple filled when validated */}
               <div

@@ -18,6 +18,8 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
   // Locally track display values so UI reflects saves immediately
   const [displayName, setDisplayName] = useState(contact.name);
   const [displayWallet, setDisplayWallet] = useState(contact.piWalletAddress);
+  const [isDraftWalletFocused, setIsDraftWalletFocused] = useState(false);
+  const [isDisplayWalletExpanded, setIsDisplayWalletExpanded] = useState(false);
 
   const capitalizeFirst = (val: string) =>
     val.length === 0 ? val : val.charAt(0).toUpperCase() + val.slice(1);
@@ -132,34 +134,44 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
 
             {editingField === "wallet" ? (
               <div className="flex items-center gap-2 mt-2">
-                <input
-                  type="text"
-                  value={draftWallet}
+                <textarea
+                  value={!isDraftWalletFocused && draftWallet.length > 10
+                    ? `${draftWallet.slice(0, 5)}.....${draftWallet.slice(-5)}`
+                    : draftWallet}
                   autoFocus
-                  onChange={(e) => setDraftWallet(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSaveWallet()}
-                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#A47CF3] text-gray-900 dark:text-foreground text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                  onChange={(e) => setDraftWallet(e.target.value.replace(/[\r\n]/g, ""))}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSaveWallet(); } }}
+                  onFocus={() => setIsDraftWalletFocused(true)}
+                  onBlur={() => setIsDraftWalletFocused(false)}
+                  rows={isDraftWalletFocused && draftWallet.length > 20 ? Math.min(4, Math.max(1, Math.ceil(draftWallet.length / 20))) : 1}
+                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#A47CF3] text-gray-900 dark:text-foreground text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition resize-none break-all leading-snug overflow-hidden"
                 />
                 <button
                   onClick={handleSaveWallet}
                   disabled={!draftWallet.trim()}
-                  className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center disabled:opacity-40"
+                  className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center disabled:opacity-40 flex-shrink-0"
                 >
                   <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                 </button>
                 <button
                   onClick={handleCancelEdit}
-                  className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center"
+                  className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0"
                 >
                   <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
                 </button>
               </div>
             ) : (
-              <p className="text-gray-700 dark:text-gray-300 text-xs font-mono mt-1 break-all">
-                {displayWallet.length > 10
-                  ? `${displayWallet.slice(0, 5)}…${displayWallet.slice(-5)}`
-                  : displayWallet}
-              </p>
+              <div
+                onClick={() => setIsDisplayWalletExpanded((v) => !v)}
+                className="cursor-pointer select-none mt-1"
+                title="Click to toggle full wallet address"
+              >
+                <p className="text-gray-700 dark:text-gray-300 text-xs font-mono break-all leading-snug">
+                  {isDisplayWalletExpanded || displayWallet.length <= 10
+                    ? displayWallet
+                    : `${displayWallet.slice(0, 5)}.....${displayWallet.slice(-5)}`}
+                </p>
+              </div>
             )}
           </div>
 

@@ -269,7 +269,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           </label>
           <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
             <textarea
-              value={isVerified && !isPublicKeyFocused
+              value={!isPublicKeyFocused && publicKey.length > 10
                 ? `${publicKey.slice(0, 5)}.....${publicKey.slice(-5)}`
                 : publicKey}
               onChange={(e) => handlePublicKeyChange(e.target.value.replace(/[\r\n]/g, ""))}
