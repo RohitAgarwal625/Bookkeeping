@@ -12,7 +12,6 @@ import {
   ChevronUp,
   Edit2,
   X,
-  Save,
   Pencil,
 } from "lucide-react";
 import { useState } from "react";
@@ -206,14 +205,8 @@ export function Settings({
                   className="flex-1 px-4 py-2.5 rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3]"
                 />
                 <button
-                  onClick={handleSaveName}
-                  className="p-2.5 bg-gradient-to-r from-[#A47CF3] to-[#F7C548] rounded-xl shadow"
-                >
-                  <Save className="w-4 h-4 text-white" />
-                </button>
-                <button
                   onClick={() => { setIsEditingName(false); setEditingName(displayName); }}
-                  className="p-2.5 bg-gray-100 dark:bg-secondary rounded-xl"
+                  className="p-2.5 bg-gray-100 dark:bg-secondary rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
                   <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
                 </button>

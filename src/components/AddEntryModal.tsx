@@ -23,7 +23,7 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
     }
 
     if (!note.trim()) {
-      alert("Please enter a note");
+      alert("Please enter a memo");
       return;
     }
 
@@ -102,23 +102,23 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
             <div className="relative">
               <input
                 type="number"
-                step="0.01"
+                step="0.00000001"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
+                placeholder="0.00000001"
                 className="w-full py-3 pl-4 pr-10 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#A47CF3] focus:ring-2 focus:ring-[#A47CF3]/20 outline-none transition-all"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground">π</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-2xl font-black text-[#A47CF3] leading-none select-none">π</span>
             </div>
           </div>
 
-          {/* Note Field */}
+          {/* Memo Field */}
           <div className="mb-6">
-            <label className="block text-gray-700 dark:text-foreground mb-2">Note</label>
+            <label className="block text-gray-700 dark:text-foreground mb-2">Memo</label>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Enter description or note"
+              placeholder="Enter description or memo"
               rows={3}
               className="w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#A47CF3] focus:ring-2 focus:ring-[#A47CF3]/20 outline-none transition-all resize-none"
             />

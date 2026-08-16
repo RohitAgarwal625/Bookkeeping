@@ -262,6 +262,7 @@ function AppContent() {
           prefilledAddress={scannedWalletAddress}
           onAddressUsed={() => setScannedWalletAddress("")}
           onAddPioneer={() => { handleNavigateToAddCustomer("individual"); }}
+          onNavigateToLedger={handleNavigateToCustomerLedger}
         />
         <Toaster position="bottom-center" />
       </>

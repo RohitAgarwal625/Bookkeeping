@@ -1,4 +1,4 @@
-import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, CheckCircle, Home, ReceiptText, Lock, UserPlus } from "lucide-react";
+import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, CheckCircle, Home, Lock, UserPlus, BookOpen } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Contact, getInitials, initialContacts } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -10,6 +10,7 @@ interface PayScreenProps {
   prefilledAddress?: string;
   onAddressUsed?: () => void;
   onAddPioneer?: () => void;
+  onNavigateToLedger?: (customerName: string) => void;
 }
 
 type ScreenState = "form" | "processing" | "success";
@@ -17,7 +18,7 @@ type ScreenState = "form" | "processing" | "success";
 const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 
-export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer }: PayScreenProps) {
+export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger }: PayScreenProps) {
   const contactList = contacts && contacts.length ? contacts : initialContacts;
 
   const [publicKey, setPublicKey] = useState("");
@@ -207,24 +208,27 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 </span>
               </div>
             </div>
-
-            {/* Dashed divider (receipt tear) */}
-            <div className="relative flex items-center px-4 py-1">
-              <div className="w-5 h-5 rounded-full bg-background absolute -left-2.5" />
-              <div className="flex-1 border-dashed border-t-2 border-gray-100 dark:border-gray-700" />
-              <div className="w-5 h-5 rounded-full bg-background absolute -right-2.5" />
-            </div>
-
-            <div className="px-5 py-4">
-              <div className="flex items-center gap-2 text-[#A47CF3]">
-                <ReceiptText className="w-4 h-4" />
-                <span className="text-xs font-semibold">Transaction saved to your ledger</span>
-              </div>
-            </div>
           </div>
 
+          {/* Open Ledger button below modal box — matching AutomaticTransactionScreen style */}
+          <button
+            onClick={() => {
+              if (onNavigateToLedger && recipientName) {
+                onNavigateToLedger(recipientName);
+              }
+            }}
+            className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2"
+            style={{
+              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
+              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+            }}
+          >
+            Open Ledger
+            <BookOpen className="w-5 h-5" />
+          </button>
+
           {/* Bottom actions — pinned to bottom via marginTop auto */}
-          <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "auto" }}>
+          <div style={{ display: "flex", gap: "12px", width: "100%", maxWidth: "24rem", marginTop: "auto" }}>
             <button
               onClick={onBack}
               className="flex-1 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-white font-bold text-base flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
