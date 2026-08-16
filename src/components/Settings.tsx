@@ -174,18 +174,36 @@ export function Settings({
 
           {/* Name Edit */}
           <div className="w-full bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
-            <div className="flex items-center gap-1.5 mb-2">
-              <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
-                Display Name
-              </p>
-              <button
-                type="button"
-                onClick={() => setShowDisplayNameInfo((v) => !v)}
-                className="w-4 h-4 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                aria-label="Display Name info"
-              >
-                <Info className="w-3 h-3 text-black dark:text-foreground" />
-              </button>
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
+                  Display Name
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowDisplayNameInfo((v) => !v)}
+                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                  aria-label="Display Name info"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              {!isEditingName && (
+                <button
+                  onClick={() => {
+                    if (isGuest) {
+                      onTriggerGuestModal?.();
+                    } else {
+                      setIsEditingName(true);
+                      setEditingName(displayName);
+                    }
+                  }}
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  aria-label="Edit Display Name"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
+                </button>
+              )}
             </div>
 
             {showDisplayNameInfo && (
@@ -205,32 +223,23 @@ export function Settings({
                   className="flex-1 px-4 py-2.5 rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3]"
                 />
                 <button
+                  onClick={handleSaveName}
+                  disabled={!editingName.trim()}
+                  className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center disabled:opacity-40"
+                >
+                  <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                </button>
+                <button
                   onClick={() => { setIsEditingName(false); setEditingName(displayName); }}
-                  className="p-2.5 bg-gray-100 dark:bg-secondary rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center"
                 >
                   <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-gray-900 dark:text-foreground font-medium text-lg">
-                  {displayName}
-                </span>
-                <button
-                  onClick={() => {
-                    if (isGuest) {
-                      onTriggerGuestModal?.();
-                    } else {
-                      setIsEditingName(true);
-                      setEditingName(displayName);
-                    }
-                  }}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
-                  aria-label="Edit Display Name"
-                >
-                  <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
-                </button>
-              </div>
+              <p className="text-gray-900 dark:text-foreground font-medium text-base mt-1">
+                {displayName}
+              </p>
             )}
           </div>
 
@@ -247,11 +256,7 @@ export function Settings({
                 onClick={handleCopyAddress}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
               >
-                {copied ? (
-                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                ) : (
-                  <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-                )}
+                <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
               </button>
             </div>
             <p className="text-xs text-gray-400 dark:text-muted-foreground mt-2">
@@ -511,7 +516,7 @@ export function Settings({
                 <>
                   <p className="text-gray-500 dark:text-muted-foreground text-sm font-mono">{truncatedAddress}</p>
                   <button onClick={handleCopyAddress} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded transition-colors">
-                    {copied ? <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" /> : <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />}
+                    <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
                   </button>
                 </>
               )}
