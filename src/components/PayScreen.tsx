@@ -67,6 +67,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     setPublicKey(contact.piWalletAddress);
     setPioneerQuery(contact.name);
     setIsDropdownOpen(false);
+    (document.activeElement as HTMLElement)?.blur();
   };
 
   const handlePioneerSearchChange = (value: string) => {
@@ -267,16 +268,17 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             Public Key
           </label>
           <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
-            <input
-              type="text"
+            <textarea
               value={isVerified && !isPublicKeyFocused
-                ? `${publicKey.slice(0, 5)}…${publicKey.slice(-5)}`
+                ? `${publicKey.slice(0, 5)}.....${publicKey.slice(-5)}`
                 : publicKey}
-              onChange={(e) => handlePublicKeyChange(e.target.value)}
+              onChange={(e) => handlePublicKeyChange(e.target.value.replace(/[\r\n]/g, ""))}
+              onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }}
               onFocus={() => setIsPublicKeyFocused(true)}
               onBlur={() => setIsPublicKeyFocused(false)}
               placeholder="Pi Wallet Address"
-              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium px-3"
+              rows={isPublicKeyFocused && publicKey.length > 20 ? Math.min(4, Math.max(1, Math.ceil(publicKey.length / 20))) : 1}
+              className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium px-3 resize-none break-all leading-snug overflow-hidden"
             />
             {/* Vertical divider — 2px wide, clearly visible */}
             <div className="w-0.5 h-7 bg-gray-300 dark:bg-gray-500 mx-3 flex-shrink-0 rounded-full" />
@@ -369,7 +371,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-gray-900 dark:text-white font-medium truncate">{contact.name}</p>
-                      <p className="text-gray-400 dark:text-gray-500 text-xs truncate font-mono">{contact.piWalletAddress.length > 10 ? `${contact.piWalletAddress.slice(0, 5)}…${contact.piWalletAddress.slice(-5)}` : contact.piWalletAddress}</p>
+                      <p className="text-gray-400 dark:text-gray-500 text-xs truncate font-mono">{contact.piWalletAddress.length > 10 ? `${contact.piWalletAddress.slice(0, 5)}.....${contact.piWalletAddress.slice(-5)}` : contact.piWalletAddress}</p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
                   </div>
