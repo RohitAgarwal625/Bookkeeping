@@ -272,7 +272,10 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
           {/* 4. Amount Input */}
           <div className="mb-4">
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Amount</label>
-            <div className="relative">
+            <div className="relative flex items-center">
+              <span className="absolute left-4 text-gray-500 dark:text-muted-foreground text-base font-semibold pointer-events-none z-10 select-none">
+                π
+              </span>
               <input
                 type="number"
                 step="0.00000001"
@@ -280,11 +283,8 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00000001"
-                className="w-full pl-4 pr-10 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted-foreground text-base">
-                π
-              </span>
             </div>
           </div>
 
