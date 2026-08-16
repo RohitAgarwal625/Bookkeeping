@@ -191,99 +191,97 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </div>
             )}
 
-            {/* Summary Cards Section - Shown for week/month OR when custom filter is submitted */}
+            {/* Analytics Content: Shown for week/month OR when custom filter is submitted */}
             {(selectedFilter !== "custom" || isCustomSubmitted) && (
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {/* Total Debit Card */}
-                <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-red-500 flex flex-col">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Debit</p>
-                    <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-bold text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
-                    <span className="text-sm font-bold text-red-600 dark:text-red-400">π</span>
-                  </div>
-                </div>
-
-                {/* Total Credit Card */}
-                <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-green-500 flex flex-col">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Credit</p>
-                    <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400 rotate-180" />
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-bold text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
-                    <span className="text-sm font-bold text-green-600 dark:text-green-400">π</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedFilter === "custom" && !isCustomSubmitted ? (
-              <div className="bg-white dark:bg-card rounded-2xl p-6 text-center shadow-md dark:shadow-none dark:border dark:border-border mb-6">
-                <p className="text-sm text-gray-500 dark:text-muted-foreground">Select date range and click Submit to view details</p>
-              </div>
-            ) : (
-              /* Top Customers Section */
-              <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
-                <div className="mb-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
-                    <h3 className="text-gray-900 dark:text-foreground">Top Pioneers</h3>
-                    <button
-                      type="button"
-                      onClick={() => setShowCustomerInfo(v => !v)}
-                      className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
-                      aria-label="Customer info"
-                    >
-                      <Info className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  {showCustomerInfo && (
-                    <div className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
-                      The list ranks Contacts from highest to lowest by the number of transactions.
+              <>
+                {/* Summary Cards Section */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  {/* Total Debit Card */}
+                  <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-red-500 flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Debit</p>
+                      <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
-                  )}
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xl font-bold text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
+                      <span className="text-sm font-bold text-red-600 dark:text-red-400">π</span>
+                    </div>
+                  </div>
+
+                  {/* Total Credit Card */}
+                  <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-green-500 flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Credit</p>
+                      <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400 rotate-180" />
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xl font-bold text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
+                      <span className="text-sm font-bold text-green-600 dark:text-green-400">π</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  {filteredCustomers.map((customer, index) => (
-                    <div key={customer.id}>
-                      <div className="flex items-center gap-3">
-                        {/* Profile Icon */}
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-sm font-semibold">
-                            {getInitials(customer.name)}
-                          </span>
-                        </div>
 
-                        {/* Customer Info — Left side name */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{customer.name}</p>
-                        </div>
-
-                        {/* Right side figure (no. of transactions without the word transaction) */}
-                        <span className="text-sm font-medium text-gray-900 dark:text-foreground flex-shrink-0">
-                          {customer.transactions}
-                        </span>
+                {/* Top Customers Section */}
+                <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
+                  <div className="mb-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
+                      <h3 className="text-gray-900 dark:text-foreground font-semibold">Top Pioneers</h3>
+                      <button
+                        type="button"
+                        onClick={() => setShowCustomerInfo(v => !v)}
+                        className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                        aria-label="Customer info"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    {showCustomerInfo && (
+                      <div className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
+                        The list ranks Contacts from highest to lowest by the number of transactions.
                       </div>
-                      {index < filteredCustomers.length - 1 && (
-                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-border to-transparent my-3" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    {filteredCustomers.map((customer, index) => (
+                      <div key={customer.id}>
+                        <div className="flex items-center gap-3">
+                          {/* Profile Icon */}
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-sm font-semibold">
+                              {getInitials(customer.name)}
+                            </span>
+                          </div>
 
-            {/* Export Report Button */}
-            {/* <button
-          onClick={handleExportReport}
-          className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow flex items-center justify-center gap-2 mb-2"
-        >
-          <Download className="w-5 h-5" />
-          Export Report (PDF)
-        </button> */}
+                          {/* Customer Info — Left side name */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{customer.name}</p>
+                          </div>
+
+                          {/* Right side figure (black circle outline with white bg and black text) */}
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                            style={{
+                              border: "2px solid #000000",
+                              backgroundColor: "#ffffff",
+                              color: "#000000",
+                              width: "28px",
+                              height: "28px",
+                              borderRadius: "9999px",
+                            }}
+                          >
+                            {customer.transactions}
+                          </div>
+                        </div>
+                        {index < filteredCustomers.length - 1 && (
+                          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-border to-transparent my-3" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Footer Caption */}
             <p className="text-xs text-gray-500 dark:text-muted-foreground text-center px-4">
