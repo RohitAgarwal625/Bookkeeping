@@ -159,11 +159,25 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </div>
         <button
           onClick={() => {
-            // When backend API is integrated, fetched transactions from Pi Blockchain will be passed here:
-            // e.g., const fetchedTransactions: Transaction[] = await fetchTransactionsFromApi(selectedContact, fromDate, toDate);
-            const fetchedTransactions: Transaction[] = [];
-            const newTxs = fetchedTransactions.map((tx) => ({ ...tx, isNew: true }));
-            onNavigateToLedger(selectedContact?.name ?? "", newTxs);
+            const dummyTxs: Transaction[] = [
+              {
+                id: `auto-${Date.now()}-1`,
+                description: "Auto Sync: Pi Blockchain Payment",
+                amount: 3.14159,
+                type: "credit",
+                timestamp: "Just now",
+                isNew: true,
+              },
+              {
+                id: `auto-${Date.now()}-2`,
+                description: "Auto Sync: Ledger Settlement",
+                amount: 25.50,
+                type: "debit",
+                timestamp: "Just now",
+                isNew: true,
+              },
+            ];
+            onNavigateToLedger(selectedContact?.name ?? "", dummyTxs);
           }}
           className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
           style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 6px 24px rgba(111,60,151,0.45)" }}

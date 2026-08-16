@@ -389,7 +389,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
         {/* Amount */}
         <div style={{ marginTop: "36px" }}>
-          <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">
+          <label className="block text-base font-semibold text-gray-700 dark:text-gray-300 mb-4 text-center">
             Amount
           </label>
 
@@ -436,11 +436,10 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         </div>
       </div>
 
-      {/* Fixed Pay button */}
+      {/* Fixed Pay button container (no background card/panel behind it) */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div
           style={{ paddingBottom: "48px", paddingTop: "16px", paddingLeft: "20px", paddingRight: "20px" }}
-          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
         >
           {(isVerified || amount) && (
             <div className="mb-4 bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 flex items-center justify-between">
