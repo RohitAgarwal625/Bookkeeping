@@ -137,10 +137,10 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
           <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold mb-2">
-            Transaction Saved Successfully
+            Done !
           </h2>
           <p className="text-gray-500 dark:text-muted-foreground text-sm mb-6">
-            Your transaction has been recorded.
+            Your transaction has been recorded successfully.
           </p>
           <button
             onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current) : onBack()}

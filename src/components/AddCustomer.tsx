@@ -92,10 +92,10 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
           </div>
           <div className="space-y-2">
             <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold">
-              Contact Added Successfully!
+              Done !
             </h2>
             <p className="text-gray-500 dark:text-muted-foreground text-sm leading-relaxed">
-              {pendingCustomer?.name} has been saved to your contacts.
+              {pendingCustomer?.name} has been saved to your Contact List successfully.
             </p>
           </div>
           <button
