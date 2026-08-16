@@ -198,18 +198,18 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             <div className="px-5 py-4 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-400 text-sm">Paid To</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
-                    {getInitials(recipientName)}
-                  </div>
-                  <span className="text-gray-900 dark:text-white font-semibold text-sm">{recipientName}</span>
-                </div>
+                <span className="text-gray-900 dark:text-white font-semibold text-sm">{recipientName}</span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-gray-400 text-sm">Status</span>
-                <span className="px-3 py-0.5 rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 text-xs font-bold">
-                  ✓ Successful
+                <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 text-xs font-medium flex items-center gap-1.5">
+                  <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  Successful
                 </span>
               </div>
             </div>
