@@ -258,16 +258,16 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                             <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{customer.name}</p>
                           </div>
 
-                          {/* Right side figure (black circle outline with white bg and black text) */}
+                          {/* Right side figure (black circle outline with white bg and black text, font size text-sm 14px matching Home screen) */}
                           <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0"
                             style={{
                               border: "2px solid #000000",
                               backgroundColor: "#ffffff",
                               color: "#000000",
-                              width: "28px",
-                              height: "28px",
-                              borderRadius: "9999px",
+                              fontSize: "14px",
+                              fontWeight: 600,
+                              lineHeight: "1",
                             }}
                           >
                             {customer.transactions}
