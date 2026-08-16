@@ -141,7 +141,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           transactions found with{" "}
           <span className="font-bold text-gray-500 dark:text-muted-foreground">{selectedContact?.name}</span> and were added to your ledger successfully.
         </p>
-        <div className="w-full max-w-sm bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 mb-8 mx-4">
+        <div className="w-full max-w-sm bg-white dark:bg-card shadow-md dark:border dark:border-border p-4 mb-8 mx-4" style={{ borderRadius: "24px", overflow: "hidden" }}>
           {[
             { label: "Pioneer", value: selectedContact?.name ?? "" },
             { label: "From", value: fmtDate(fromDate) },

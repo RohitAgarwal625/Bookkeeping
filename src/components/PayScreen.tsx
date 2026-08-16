@@ -182,8 +182,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
           {/* Receipt card */}
           <div
-            className="w-full max-w-sm bg-white dark:bg-card rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden"
-            style={{ animation: "pay-fade-up 0.5s 0.12s both" }}
+            className="w-full max-w-sm bg-white dark:bg-card border border-gray-100 dark:border-gray-700 shadow-xl"
+            style={{ borderRadius: "24px", overflow: "hidden", animation: "pay-fade-up 0.5s 0.12s both" }}
           >
             <div className="flex flex-col items-center py-6 border-b border-gray-100 dark:border-gray-800">
               <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Amount Paid</p>
