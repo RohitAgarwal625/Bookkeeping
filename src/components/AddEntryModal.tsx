@@ -118,7 +118,7 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Enter description or memo"
+              placeholder="Add a note or description..."
               rows={3}
               className="w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#A47CF3] focus:ring-2 focus:ring-[#A47CF3]/20 outline-none transition-all resize-none"
             />
