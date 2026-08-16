@@ -117,10 +117,12 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               />
             ))}
             <div
-              className="relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
+              className="relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl flex-shrink-0"
               style={{ background: GRADIENT, animation: "pay-bob 1.8s ease-in-out infinite" }}
             >
-              <span className="text-4xl font-black text-white leading-none">π</span>
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="22" fontWeight="bold" fontFamily="serif">π</text>
+              </svg>
             </div>
           </div>
 
