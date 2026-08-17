@@ -210,7 +210,7 @@ export function MerchantDashboard({
   };
 
   return (
-    <div className={`size-full flex flex-col ${isGuest ? "bg-white dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`} style={{ minHeight: "100dvh" }}>
+    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
       <header className="bg-white dark:bg-[#0F1115]">
         <div className="flex">
@@ -218,7 +218,7 @@ export function MerchantDashboard({
             onClick={() => setActiveView("history")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "history"
               ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
-              : "bg-gray-100 text-gray-900 dark:text-foreground dark:bg-[#080810]"
+              : "bg-gray-100 text-gray-900 dark:text-muted-foreground dark:bg-[#080810]"
               }`}
           >
             <History className="w-4 h-4" /> History
@@ -227,7 +227,7 @@ export function MerchantDashboard({
             onClick={() => setActiveView("analytics")}
             className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "analytics"
               ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
-              : "bg-gray-100 text-gray-900 dark:text-foreground dark:bg-[#080810]"
+              : "bg-gray-100 text-gray-900 dark:text-muted-foreground dark:bg-[#080810]"
               }`}
           >
             <BarChart2 className="w-4 h-4" /> Analytics
@@ -236,7 +236,7 @@ export function MerchantDashboard({
       </header>
 
       {/* Scrollable Content — uniform flat background across content area below header */}
-      <div className="flex-1 flex flex-col px-6 py-6 bg-white dark:bg-[#0F1115]">
+      <div className="flex-1 flex flex-col px-6 py-6">
         {/* Individual / Business — rounded segmented toggle with middle switch (shared for History & Analytics) */}
         <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto flex-shrink-0">
           <button
