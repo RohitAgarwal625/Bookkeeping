@@ -29,15 +29,15 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   const [toDate, setToDate] = useState("");
   const [showInfo, setShowInfo] = useState(false);
   const [scanMsgIndex, setScanMsgIndex] = useState(0);
-  const txFound = useRef(4);
+  const txFound = useRef(6);
 
-  // Format ISO date string (YYYY-MM-DD) to "DD Month, YYYY" (e.g. 19 August, 2026)
+  // Format ISO date string (YYYY-MM-DD) to "DD MMM, YYYY" (e.g. 19 Aug, 2026)
   const fmtDate = (iso: string) => {
     if (!iso) return iso;
     const [y, mo, d] = iso.split("-");
     const months = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ];
     const monthName = months[parseInt(mo, 10) - 1] || "";
     const dayNum = parseInt(d, 10);
@@ -192,6 +192,22 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 timestamp: "Just now",
                 isNew: true,
               },
+              {
+                id: `auto-${Date.now()}-5`,
+                description: "Auto Sync: Network Refund",
+                amount: 12.00,
+                type: "credit",
+                timestamp: "Just now",
+                isNew: true,
+              },
+              {
+                id: `auto-${Date.now()}-6`,
+                description: "Auto Sync: Node Service Fee",
+                amount: 1.50,
+                type: "debit",
+                timestamp: "Just now",
+                isNew: true,
+              },
             ];
             onNavigateToLedger(selectedContact?.name ?? "", dummyTxs);
           }}
@@ -215,7 +231,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           <button onClick={() => setStep("selectContact")} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
-          <h2 className="text-gray-900 dark:text-foreground font-semibold">Automatic Transaction</h2>
+          <h2 className="text-gray-900 dark:text-foreground font-bold text-lg">Automatic Transaction</h2>
           <BookkeepingLogo compact />
         </header>
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 24px" }} className="space-y-6">
@@ -321,7 +337,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground font-semibold">Automatic Transaction</h2>
+        <h2 className="text-gray-900 dark:text-foreground font-bold text-lg">Automatic Transaction</h2>
         <BookkeepingLogo compact />
       </header>
       <div className="flex-1 overflow-y-auto px-6 py-4">

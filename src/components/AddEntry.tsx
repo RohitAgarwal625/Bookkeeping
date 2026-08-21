@@ -53,6 +53,17 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
     c.toLowerCase().includes(customerQuery.toLowerCase())
   );
 
+  const handleAmountChange = (val: string) => {
+    if (val === "") {
+      setAmount("");
+      return;
+    }
+    // Limit to at most 7 digits before decimal and at most 7 digits after decimal
+    if (/^\d{0,7}(\.\d{0,7})?$/.test(val)) {
+      setAmount(val);
+    }
+  };
+
   const handlePiTransactions = () => {
     // Redirect to Pi Browser transactions page
     window.open("https://wallet.pinet.com", "_blank");
@@ -168,7 +179,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
         >
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center font-semibold">Manual Transaction</h2>
+        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center font-bold text-lg">Manual Transaction</h2>
         <BookkeepingLogo compact />
       </header>
 
@@ -208,7 +219,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
                   />
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
-                  {isCustomerDropdownOpen && filteredCustomers.length > 0 && (
+                  {isCustomerDropdownOpen && customerQuery.trim().length > 0 && filteredCustomers.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-2xl max-h-44 overflow-y-auto z-[9999]">
                       {filteredCustomers.map((name) => (
                         <div
@@ -278,14 +289,13 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Amount</label>
             <div className="relative">
               <input
-                type="number"
-                step="0.00000001"
-                min="0"
+                type="text"
+                inputMode="decimal"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00000001"
+                onChange={(e) => handleAmountChange(e.target.value)}
+                placeholder="0.0000000"
                 style={{ paddingLeft: "1.25rem", paddingRight: "3rem" }}
-                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xl font-semibold text-black dark:text-white leading-none select-none">
                 π

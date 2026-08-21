@@ -64,7 +64,7 @@ const mockMerchants: MerchantRecord[] = [
     type: "credit",
     status: "completed",
     piWalletAddress: "0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e",
-    description: "Payment for electronics order",
+    description: "Mentorship & Consultation fees.",
     txHash: "0xabc123def456789abc123def456789abc123def456789",
     totalCredit: 1350.00,
     totalDebit: 200.00,
@@ -78,19 +78,18 @@ const mockMerchants: MerchantRecord[] = [
     id: "2",
     merchantName: "Nikolas Kokkalis",
     category: "individual",
-    date: "Feb 19, 2026",
-    amount: 85.25,
+    date: "Feb 17, 2026",
+    amount: 220.75,
     type: "debit",
-    status: "completed",
-    piWalletAddress: "0x9f8e7d6c5b4a3e2d1c0b9a8f7e6d5c4b3a2e1d0c",
-    description: "Grocery supplies purchase",
-    txHash: "0xdef789abc123def456789abc123def456789abc123",
-    totalCredit: 450.00,
-    totalDebit: 730.50,
+    status: "pending",
+    piWalletAddress: "0x5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f",
+    description: "Mentorship & Consultation fees.",
+    txHash: "0x789def123abc456def789abc123def456789abc123",
+    totalCredit: 320.00,
+    totalDebit: 515.75,
     pastTransactions: [
-      { id: "p4", type: "debit", amount: "280.00", date: "Feb 16, 2026", description: "Monthly supplies", status: "completed" },
-      { id: "p5", type: "credit", amount: "450.00", date: "Feb 08, 2026", description: "Advance payment received", status: "completed" },
-      { id: "p6", type: "debit", amount: "170.00", date: "Jan 28, 2026", description: "Extra produce", status: "completed" },
+      { id: "p9", type: "debit", amount: "320.00", date: "Feb 12, 2026", description: "Stationery order", status: "completed" },
+      { id: "p10", type: "credit", amount: "320.00", date: "Feb 01, 2026", description: "Payment received", status: "completed" },
     ],
   },
   {
@@ -102,49 +101,13 @@ const mockMerchants: MerchantRecord[] = [
     type: "credit",
     status: "failed",
     piWalletAddress: "0x1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d",
-    description: "Wholesale order payment",
+    description: "Mentorship & Consultation fees.",
     txHash: "0x123abc456def789abc123def456789abc123def456",
     totalCredit: 1875.00,
     totalDebit: 0,
     pastTransactions: [
       { id: "p7", type: "credit", amount: "800.00", date: "Feb 14, 2026", description: "Bulk goods order", status: "completed" },
       { id: "p8", type: "credit", amount: "450.00", date: "Feb 02, 2026", description: "Seasonal stock", status: "completed" },
-    ],
-  },
-  {
-    id: "4",
-    merchantName: "Nikolas Kokkalis",
-    category: "individual",
-    date: "Feb 17, 2026",
-    amount: 220.75,
-    type: "debit",
-    status: "pending",
-    piWalletAddress: "0x5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f",
-    description: "Office supplies — pending delivery",
-    txHash: "0x789def123abc456def789abc123def456789abc123",
-    totalCredit: 320.00,
-    totalDebit: 515.75,
-    pastTransactions: [
-      { id: "p9", type: "debit", amount: "320.00", date: "Feb 12, 2026", description: "Stationery order", status: "completed" },
-      { id: "p10", type: "credit", amount: "320.00", date: "Feb 01, 2026", description: "Payment received", status: "completed" },
-    ],
-  },
-  {
-    id: "5",
-    merchantName: "Nikolas Kokkalis",
-    category: "individual",
-    date: "Feb 15, 2026",
-    amount: 175.50,
-    type: "credit",
-    status: "completed",
-    piWalletAddress: "0x8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e",
-    description: "Product sale",
-    txHash: "0x321fed654cba987fed654cba987fed654cba987fe",
-    totalCredit: 680.50,
-    totalDebit: 0,
-    pastTransactions: [
-      { id: "p14", type: "credit", amount: "280.00", date: "Feb 09, 2026", description: "Skincare bundle", status: "completed" },
-      { id: "p15", type: "credit", amount: "225.00", date: "Jan 30, 2026", description: "Wellness products", status: "completed" },
     ],
   },
 ];
@@ -377,25 +340,25 @@ export function MerchantDashboard({
 
             <div className="px-6 pt-4 pb-5">
               {/* Avatar + Amount */}
-              <div className="flex flex-col items-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3">
-                  <span className="text-white text-2xl font-bold">
+              <div className="flex flex-col items-center mb-5">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-md mb-2">
+                  <span className="text-white text-base font-bold">
                     {getInitials(selectedMerchant.merchantName)}
                   </span>
                 </div>
-                <h4 className="text-gray-900 dark:text-foreground font-bold text-xl">
+                <h4 className="text-gray-900 dark:text-foreground font-bold text-lg">
                   {selectedMerchant.merchantName}
                 </h4>
-                <div className={`flex items-center gap-1.5 mt-2 px-4 py-1.5 rounded-full ${selectedMerchant.type === "credit"
+                <div className={`flex items-center gap-1.5 mt-1.5 px-3 py-1 rounded-full ${selectedMerchant.type === "credit"
                   ? "bg-green-100 dark:bg-green-950/30"
                   : "bg-red-100 dark:bg-red-950/30"
                   }`}>
                   {selectedMerchant.type === "credit" ? (
-                    <ArrowDownLeft className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <ArrowDownLeft className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
                   ) : (
-                    <ArrowUpRight className="w-4 h-4 text-red-600 dark:text-red-400" />
+                    <ArrowUpRight className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
                   )}
-                  <span className={`font-bold text-xl ${selectedMerchant.type === "credit"
+                  <span className={`font-bold text-base ${selectedMerchant.type === "credit"
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                     }`}>
@@ -409,7 +372,7 @@ export function MerchantDashboard({
                 {/* Date */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#A47CF3]" />
+                    <Clock className="w-3.5 h-3.5 text-[#A47CF3]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Date</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground">{selectedMerchant.date}</span>
@@ -418,16 +381,16 @@ export function MerchantDashboard({
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     {selectedMerchant.status === "completed" ? (
-                      <div className="w-5 h-5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none">
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
                           <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </div>
                     ) : selectedMerchant.status === "failed" ? (
-                      <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                      <XCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
                     ) : (
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
-                        <span className="font-black leading-none" style={{ fontSize: "10px", color: "#facc15" }}>!</span>
+                      <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "1.5px solid #facc15" }}>
+                        <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
                       </div>
                     )}
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Status</span>
@@ -444,7 +407,7 @@ export function MerchantDashboard({
                 {/* Public Key */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Wallet className="w-4 h-4 text-[#A47CF3]" />
+                    <Wallet className="w-3.5 h-3.5 text-[#A47CF3]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Public Key</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono truncate max-w-[180px]">
@@ -454,7 +417,7 @@ export function MerchantDashboard({
                 {/* Tx ID */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Hash className="w-4 h-4 text-[#A47CF3]" />
+                    <Hash className="w-3.5 h-3.5 text-[#A47CF3]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Tx ID</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono">
@@ -464,7 +427,7 @@ export function MerchantDashboard({
                 {/* Note/Memo */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#A47CF3]" />
+                    <FileText className="w-3.5 h-3.5 text-[#A47CF3]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Note/Memo</span>
                   </div>
                   <span className="text-xs text-gray-800 dark:text-foreground text-right max-w-[200px]">{selectedMerchant.description}</span>

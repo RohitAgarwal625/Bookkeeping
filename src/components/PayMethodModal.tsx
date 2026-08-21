@@ -10,7 +10,6 @@ export function PayMethodModal({ onPayViaContacts, onPayViaQR, onClose }: PayMet
   return (
     <div
       className="fixed inset-0 z-[200] backdrop-blur-sm bg-black/40 flex items-center justify-center px-6"
-      onClick={onClose}
     >
       <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
       <div
@@ -38,7 +37,7 @@ export function PayMethodModal({ onPayViaContacts, onPayViaQR, onClose }: PayMet
           {/* Separator */}
           <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-2" />
           {/* Subtitle */}
-          <p className="text-xs text-gray-500 dark:text-muted-foreground text-center pb-1">Choose payment method</p>
+          <p className="text-xs text-gray-500 dark:text-muted-foreground text-center pb-1">Choose payment method !</p>
 
           {/* Two columns */}
           <div className="px-6 pb-6 pt-3 flex items-start gap-0">

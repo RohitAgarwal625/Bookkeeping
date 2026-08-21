@@ -27,12 +27,20 @@ const monthlyData = [
   { month: "Jun", credit: 6800, debit: 5200 },
 ];
 
-const topCustomers = [
-  { id: "1", name: "Chengdiao Fan", transactions: 14 },
-  { id: "2", name: "Nikolas Kokkalis", transactions: 21 },
-  { id: "3", name: "Pavel Durov", transactions: 17 },
-  { id: "4", name: "Satoshi Nakamoto", transactions: 9 },
-  { id: "5", name: "Vitalik Buterin", transactions: 6 },
+const topCustomersMonthly = [
+  { id: "1", name: "Chengdiao Fan", transactions: 178 },
+  { id: "2", name: "Nikolas Kokkalis", transactions: 88 },
+  { id: "3", name: "Pavel Durov", transactions: 56 },
+  { id: "4", name: "Satoshi Nakamoto", transactions: 34 },
+  { id: "5", name: "Vitalik Buterin", transactions: 18 },
+].sort((a, b) => b.transactions - a.transactions);
+
+const topCustomersWeekly = [
+  { id: "1", name: "Chengdiao Fan", transactions: 21 },
+  { id: "2", name: "Nikolas Kokkalis", transactions: 17 },
+  { id: "3", name: "Pavel Durov", transactions: 14 },
+  { id: "5", name: "Vitalik Buterin", transactions: 9 },
+  { id: "4", name: "Satoshi Nakamoto", transactions: 6 },
 ].sort((a, b) => b.transactions - a.transactions);
 
 export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: ReportsAnalyticsProps) {
@@ -53,8 +61,10 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   };
   const totals = getTotals();
 
+  const activeTopCustomers = selectedFilter === "week" ? topCustomersWeekly : topCustomersMonthly;
+
   // Filter customers based on search query
-  const filteredCustomers = topCustomers.filter((customer) => {
+  const filteredCustomers = activeTopCustomers.filter((customer) => {
     return customer.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
@@ -141,7 +151,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
               >
-                This Week
+                Weekly
               </button>
               <button
                 onClick={() => setSelectedFilter("month")}
@@ -150,7 +160,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
               >
-                This Month
+                Monthly
               </button>
               <button
                 onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
@@ -231,7 +241,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   <div className="mb-4 space-y-2">
                     <div className="flex items-center gap-2">
                       <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
-                      <h3 className="text-gray-900 dark:text-foreground font-semibold">Top Pioneers</h3>
+                      <h3 className="text-gray-900 dark:text-foreground font-semibold">Top Pioneers ({selectedFilter === "week" ? "Weekly" : "Monthly"})</h3>
                       <button
                         type="button"
                         onClick={() => setShowCustomerInfo(v => !v)}
@@ -260,7 +270,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
 
                           {/* Customer Info — Left side name */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{customer.name}</p>
+                            <p className="text-gray-900 dark:text-foreground text-[15px] font-semibold truncate">{customer.name}</p>
                           </div>
 
                           {/* Right side figure (black circle outline with white bg and black text, font size text-sm 14px matching Home screen) */}

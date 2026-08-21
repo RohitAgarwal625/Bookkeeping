@@ -219,7 +219,15 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           <button
             onClick={() => {
               if (onNavigateToLedger && recipientName) {
-                onNavigateToLedger(recipientName);
+                const newPaidTx: Transaction = {
+                  id: `pay-${Date.now()}`,
+                  description: note || "Payment via Pi Network",
+                  amount: parseFloat(amount) || 0,
+                  type: "debit",
+                  timestamp: "Just now",
+                  isNew: true,
+                };
+                onNavigateToLedger(recipientName, [newPaidTx]);
               }
             }}
             className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2"

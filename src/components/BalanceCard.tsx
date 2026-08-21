@@ -91,26 +91,34 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
 
                 {/* Individual */}
                 <div className="flex-1 flex flex-col items-center gap-2">
-                  <button
-                    onClick={() => { closePioneer(); onAddCustomer("individual"); }}
-                    className="flex flex-col items-center gap-2 group"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                      <User className="w-7 h-7 text-white" />
+                  <div className="flex flex-col items-center gap-2">
+                    <button
+                      onClick={() => { closePioneer(); onAddCustomer("individual"); }}
+                      className="flex flex-col items-center gap-2 group"
+                    >
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                        <User className="w-7 h-7 text-white" />
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => { closePioneer(); onAddCustomer("individual"); }}
+                        className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors"
+                      >
+                        Individual
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "individual" ? null : "individual"); }}
+                        className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                        aria-label="Individual info"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Individual</span>
-                  </button>
-                  {/* Info */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "individual" ? null : "individual"); }}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
-                    aria-label="Individual info"
-                  >
-                    <Info className="w-3 h-3 text-black" />
-                  </button>
+                  </div>
                   {pioneerTooltip === "individual" && (
                     <div className="w-full border border-gray-600 dark:border-muted-foreground rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
-                      {/* <p className="font-semibold text-[#A47CF3] mb-0.5">Individual</p> */}
                       Choose this option to add a pioneer who has a personal account with the Pi Network.
                     </div>
                   )}
@@ -200,7 +208,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <PenLine className="w-7 h-7 text-white" />
                     </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Manual</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 font-bold">Manual</span>
                   </button>
                   {/* Info */}
                   <button
@@ -230,7 +238,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <Zap className="w-7 h-7 text-white" />
                     </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Automatic</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 font-bold">Automatic</span>
                   </button>
                   {/* Info */}
                   <button

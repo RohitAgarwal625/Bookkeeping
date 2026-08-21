@@ -130,10 +130,9 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
         >
           <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-foreground" />
         </button>
-        <h1
-          className="font-medium"
-          style={{ color: isDark ? "#ffffff" : "#D32F2F" }}
-        >Enter Details</h1>
+        <h1 className="font-bold text-gray-900 dark:text-foreground text-lg">
+          Enter Details
+        </h1>
         {/* App logo replaces tick mark */}
         <BookkeepingLogo compact />
       </header>
