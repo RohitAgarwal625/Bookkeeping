@@ -12,12 +12,11 @@ interface AddEntryProps {
 
 export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const savedCustomers = contacts ?? [
-    "Rajesh Kumar",
-    "Priya Sharma",
-    "Amit Patel",
-    "Sneha Gupta",
-    "Vikram Singh",
-    "Ananya Reddy",
+    "Chengdiao Fan",
+    "Nikolas Kokkalis",
+    "Pavel Durov",
+    "Satoshi Nakamoto",
+    "Vitalik Buterin",
   ];
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [customerQuery, setCustomerQuery] = useState("");

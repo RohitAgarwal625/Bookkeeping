@@ -28,11 +28,11 @@ const monthlyData = [
 ];
 
 const topCustomers = [
-  { id: "1", name: "Rajesh Kumar", transactions: 14 },
-  { id: "2", name: "Priya Sharma", transactions: 9 },
-  { id: "3", name: "Amit Patel", transactions: 21 },
-  { id: "4", name: "Sneha Gupta", transactions: 6 },
-  { id: "5", name: "Vikram Singh", transactions: 17 },
+  { id: "1", name: "Chengdiao Fan", transactions: 14 },
+  { id: "2", name: "Nikolas Kokkalis", transactions: 21 },
+  { id: "3", name: "Pavel Durov", transactions: 17 },
+  { id: "4", name: "Satoshi Nakamoto", transactions: 9 },
+  { id: "5", name: "Vitalik Buterin", transactions: 6 },
 ].sort((a, b) => b.transactions - a.transactions);
 
 export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: ReportsAnalyticsProps) {
@@ -44,9 +44,14 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   const [toDate, setToDate] = useState("");
   const [isCustomSubmitted, setIsCustomSubmitted] = useState(false);
 
-  // Calculate totals
-  const totalCredit = monthlyData.reduce((sum, month) => sum + month.credit, 0);
-  const totalDebit = monthlyData.reduce((sum, month) => sum + month.debit, 0);
+  // Calculate totals based on selected filter
+  const getTotals = () => {
+    if (selectedFilter === "week") {
+      return { debit: "5,000.65", credit: "12,500.00" };
+    }
+    return { debit: "25,580.78", credit: "1,02,000.00" };
+  };
+  const totals = getTotals();
 
   // Filter customers based on search query
   const filteredCustomers = topCustomers.filter((customer) => {
@@ -203,7 +208,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                       <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-bold text-red-600 dark:text-red-400">{totalDebit.toFixed(2)}</span>
+                      <span className="text-xl font-bold text-red-600 dark:text-red-400">{totals.debit}</span>
                       <span className="text-sm font-bold text-red-600 dark:text-red-400">π</span>
                     </div>
                   </div>
@@ -215,7 +220,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                       <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400 rotate-180" />
                     </div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-bold text-green-600 dark:text-green-400">{totalCredit.toFixed(2)}</span>
+                      <span className="text-xl font-bold text-green-600 dark:text-green-400">{totals.credit}</span>
                       <span className="text-sm font-bold text-green-600 dark:text-green-400">π</span>
                     </div>
                   </div>

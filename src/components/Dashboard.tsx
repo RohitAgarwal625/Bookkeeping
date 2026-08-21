@@ -16,11 +16,11 @@ interface DashboardProps {
 }
 
 const recentEntries = [
-  { id: "1", customerName: "Rajesh Kumar", type: "credit" as const, amount: "450.00", date: "Today, 14:30" },
-  { id: "2", customerName: "Priya Sharma", type: "debit" as const, amount: "280.50", date: "Today, 11:15" },
-  { id: "3", customerName: "Amit Patel", type: "credit" as const, amount: "625.00", date: "Yesterday, 17:45" },
-  { id: "4", customerName: "Sneha Gupta", type: "debit" as const, amount: "195.75", date: "Yesterday, 15:20" },
-  { id: "5", customerName: "Vikram Singh", type: "credit" as const, amount: "330.00", date: "2 days ago, 13:00" },
+  { id: "1", customerName: "Nicolas Kokkalis", type: "credit" as const, amount: "450.00", date: "Today, 14:30" },
+  { id: "2", customerName: "Pavel Durov", type: "debit" as const, amount: "280.50", date: "Today, 11:15" },
+  { id: "3", customerName: "Vitalik Buterin", type: "credit" as const, amount: "625.00", date: "Yesterday, 17:45" },
+  { id: "4", customerName: "Satoshi Nakamoto", type: "debit" as const, amount: "195.75", date: "Yesterday, 15:20" },
+  { id: "5", customerName: "Chengdiao Fan", type: "credit" as const, amount: "330.00", date: "2 days ago, 13:00" },
 ];
 
 const notifications = recentEntries.slice(0, 2).map((t) => ({

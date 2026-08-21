@@ -57,8 +57,8 @@ interface MerchantRecord {
 const mockMerchants: MerchantRecord[] = [
   {
     id: "1",
-    merchantName: "Rajesh Kumar",
-    category: "business",
+    merchantName: "Nikolas Kokkalis",
+    category: "individual",
     date: "Feb 20, 2026",
     amount: 125.50,
     type: "credit",
@@ -76,7 +76,7 @@ const mockMerchants: MerchantRecord[] = [
   },
   {
     id: "2",
-    merchantName: "Priya Sharma",
+    merchantName: "Nikolas Kokkalis",
     category: "individual",
     date: "Feb 19, 2026",
     amount: 85.25,
@@ -95,8 +95,8 @@ const mockMerchants: MerchantRecord[] = [
   },
   {
     id: "3",
-    merchantName: "Amit Patel",
-    category: "business",
+    merchantName: "Nikolas Kokkalis",
+    category: "individual",
     date: "Feb 18, 2026",
     amount: 450.00,
     type: "credit",
@@ -113,7 +113,7 @@ const mockMerchants: MerchantRecord[] = [
   },
   {
     id: "4",
-    merchantName: "Sneha Gupta",
+    merchantName: "Nikolas Kokkalis",
     category: "individual",
     date: "Feb 17, 2026",
     amount: 220.75,
@@ -131,31 +131,12 @@ const mockMerchants: MerchantRecord[] = [
   },
   {
     id: "5",
-    merchantName: "Vikram Singh",
-    category: "business",
-    date: "Feb 16, 2026",
-    amount: 330.00,
-    type: "credit",
-    status: "completed",
-    piWalletAddress: "0x2f3c4b5a6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a",
-    description: "Service payment — Consulting",
-    txHash: "0x456def789abc123def456789abc123def456789abc",
-    totalCredit: 1200.00,
-    totalDebit: 150.00,
-    pastTransactions: [
-      { id: "p11", type: "credit", amount: "540.00", date: "Feb 10, 2026", description: "Consulting session Q1", status: "completed" },
-      { id: "p12", type: "debit", amount: "150.00", date: "Feb 03, 2026", description: "Expense reimbursement", status: "completed" },
-      { id: "p13", type: "credit", amount: "330.00", date: "Jan 25, 2026", description: "Strategy workshop", status: "completed" },
-    ],
-  },
-  {
-    id: "6",
-    merchantName: "Ananya Reddy",
+    merchantName: "Nikolas Kokkalis",
     category: "individual",
     date: "Feb 15, 2026",
     amount: 175.50,
     type: "credit",
-    status: "failed",
+    status: "completed",
     piWalletAddress: "0x8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e",
     description: "Product sale",
     txHash: "0x321fed654cba987fed654cba987fed654cba987fe",
@@ -216,21 +197,21 @@ export function MerchantDashboard({
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
-            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "history"
+            className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "history"
               ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
               : "bg-gray-100 text-gray-900 dark:text-muted-foreground dark:bg-[#080810]"
               }`}
           >
-            <History className="w-4 h-4" /> History
+            <History className="w-5 h-5 stroke-[2.5px]" /> History
           </button>
           <button
             onClick={() => setActiveView("analytics")}
-            className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${activeView === "analytics"
+            className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "analytics"
               ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
               : "bg-gray-100 text-gray-900 dark:text-muted-foreground dark:bg-[#080810]"
               }`}
           >
-            <BarChart2 className="w-4 h-4" /> Analytics
+            <BarChart2 className="w-5 h-5 stroke-[2.5px]" /> Analytics
           </button>
         </div>
       </header>

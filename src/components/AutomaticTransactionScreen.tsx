@@ -29,7 +29,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   const [toDate, setToDate] = useState("");
   const [showInfo, setShowInfo] = useState(false);
   const [scanMsgIndex, setScanMsgIndex] = useState(0);
-  const txFound = useRef(Math.floor(Math.random() * 8) + 3);
+  const txFound = useRef(4);
 
   // Format ISO date string (YYYY-MM-DD) to "DD Month, YYYY" (e.g. 19 August, 2026)
   const fmtDate = (iso: string) => {
@@ -170,8 +170,24 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               },
               {
                 id: `auto-${Date.now()}-2`,
+                description: "Auto Sync: Pi Peer Direct",
+                amount: 14.20,
+                type: "debit",
+                timestamp: "Just now",
+                isNew: true,
+              },
+              {
+                id: `auto-${Date.now()}-3`,
                 description: "Auto Sync: Ledger Settlement",
                 amount: 25.50,
+                type: "credit",
+                timestamp: "Just now",
+                isNew: true,
+              },
+              {
+                id: `auto-${Date.now()}-4`,
+                description: "Auto Sync: Micro Settlement",
+                amount: 8.75,
                 type: "debit",
                 timestamp: "Just now",
                 isNew: true,

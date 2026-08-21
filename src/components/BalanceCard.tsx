@@ -28,11 +28,11 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
       <div className="grid grid-cols-2 gap-4 mb-2">
         <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-4 border border-red-200 dark:border-red-800/40 flex flex-col items-center justify-center text-center">
           <p className="text-red-700 dark:text-red-400 text-xs mb-1 font-bold">Total Debit</p>
-          <p className="text-red-800 dark:text-red-300 font-bold text-lg flex items-baseline justify-center gap-1.5"><span>{isGuest ? "-" : "875.30"}</span><span>π</span></p>
+          <p className="text-red-800 dark:text-red-300 font-bold text-lg flex items-baseline justify-center gap-1.5"><span>{isGuest ? "-" : "7,50,000.75"}</span><span>π</span></p>
         </div>
         <div className="bg-green-50 dark:bg-green-950/20 rounded-xl p-4 border border-green-200 dark:border-green-800/40 flex flex-col items-center justify-center text-center">
           <p className="text-green-700 dark:text-green-400 text-xs mb-1 font-bold">Total Credit</p>
-          <p className="text-green-800 dark:text-green-300 font-bold text-lg flex items-baseline justify-center gap-1.5"><span>{isGuest ? "-" : "1,245.50"}</span><span>π</span></p>
+          <p className="text-green-800 dark:text-green-300 font-bold text-lg flex items-baseline justify-center gap-1.5"><span>{isGuest ? "-" : "10,05,000.25"}</span><span>π</span></p>
         </div>
       </div>
 
