@@ -41,6 +41,11 @@ export function getInitials(fullName: string): string {
 export function parseTransactionTimestamp(timestamp: string): number {
   if (!timestamp) return 0;
 
+  const lower = timestamp.trim().toLowerCase();
+  if (lower === "just now" || lower === "now" || lower.includes("just now")) {
+    return Date.now();
+  }
+
   // "YYYY-MM-DD HH:MM" or "YYYY-MM-DD"
   if (/^\d{4}-\d{2}-\d{2}/.test(timestamp)) {
     const formatted = timestamp.replace(" ", "T");
@@ -69,14 +74,19 @@ export function parseTransactionTimestamp(timestamp: string): number {
   }
 
   const d = new Date(timestamp);
-  return isNaN(d.getTime()) ? 0 : d.getTime();
+  return isNaN(d.getTime()) ? Date.now() : d.getTime();
 }
 
 /**
  * Sorts transactions by timestamp in descending order (newest first, oldest last).
+ * New transactions (isNew: true) are always placed at the very top.
  */
 export function sortTransactionsDescending(transactions: Transaction[]): Transaction[] {
-  return [...transactions].sort((a, b) => parseTransactionTimestamp(b.timestamp) - parseTransactionTimestamp(a.timestamp));
+  return [...transactions].sort((a, b) => {
+    if (a.isNew && !b.isNew) return -1;
+    if (!a.isNew && b.isNew) return 1;
+    return parseTransactionTimestamp(b.timestamp) - parseTransactionTimestamp(a.timestamp);
+  });
 }
 
 export const initialContacts: Contact[] = [
