@@ -61,7 +61,7 @@ const mockMerchants: MerchantRecord[] = [
     category: "individual",
     date: "Feb 20, 2026",
     amount: 125.50,
-    type: "credit",
+    type: "debit",
     status: "completed",
     piWalletAddress: "0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e",
     description: "Mentorship & Consultation fees.",
@@ -98,7 +98,7 @@ const mockMerchants: MerchantRecord[] = [
     category: "individual",
     date: "Feb 18, 2026",
     amount: 450.00,
-    type: "credit",
+    type: "debit",
     status: "failed",
     piWalletAddress: "0x1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d",
     description: "Mentorship & Consultation fees.",
@@ -180,7 +180,7 @@ export function MerchantDashboard({
       </header>
 
       {/* Scrollable Content — uniform flat background across content area below header */}
-      <div className="flex-1 flex flex-col px-6 py-6">
+      <div className="flex-1 flex flex-col px-6 py-6" style={{ paddingBottom: "160px" }}>
         {/* Individual / Business — rounded segmented toggle with middle switch (shared for History & Analytics) */}
         <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto flex-shrink-0">
           <button
@@ -272,7 +272,7 @@ export function MerchantDashboard({
                               </svg>
                             </div>
                           ) : merchant.status === "failed" ? (
-                            <XCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                            <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" strokeWidth={2.6} />
                           ) : (
                             <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
                               <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
