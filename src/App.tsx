@@ -112,6 +112,14 @@ function AppContent() {
     setCurrentScreen("customerLedger");
   };
 
+  const handlePaymentSuccess = (customerName: string, newTx: Transaction) => {
+    if (!customerName) return;
+    setPendingNewTransactions((prev) => ({
+      ...prev,
+      [customerName]: [newTx, ...(prev[customerName] || [])],
+    }));
+  };
+
 
   const handleBackToDashboard = () => {
     setCurrentScreen("dashboard");
@@ -263,6 +271,7 @@ function AppContent() {
           onAddressUsed={() => setScannedWalletAddress("")}
           onAddPioneer={() => { handleNavigateToAddCustomer("individual"); }}
           onNavigateToLedger={handleNavigateToCustomerLedger}
+          onPaymentSuccess={handlePaymentSuccess}
         />
         <Toaster position="bottom-center" />
       </>
@@ -341,14 +350,7 @@ function AppContent() {
       <CustomerLedger
         customerName={selectedCustomer}
         initialNewTransactions={pendingNewTransactions[selectedCustomer]}
-        onBack={() => {
-          setPendingNewTransactions((prev) => {
-            const next = { ...prev };
-            delete next[selectedCustomer];
-            return next;
-          });
-          handleBackToDashboard();
-        }}
+        onBack={handleBackToDashboard}
       />
     );
   }
