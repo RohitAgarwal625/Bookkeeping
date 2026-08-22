@@ -217,8 +217,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <Info className="w-3.5 h-3.5" />
                   </button>
                   {manualTooltip && (
-                    <div className="w-full bg-purple-50 dark:bg-purple-950/20 border border-[#A47CF3] rounded-xl px-3 py-2 text-xs text-[#A47CF3] text-center">
-                      {/* <p className="font-semibold text-[#A47CF3] mb-0.5">Manual</p> */}
+                    <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
                       Recommended for adding one or few missing transaction(s) one by one.
                     </div>
                   )}
