@@ -112,7 +112,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <Info className="w-3.5 h-3.5" />
                   </button>
                   {pioneerTooltip === "individual" && (
-                    <div className="w-full text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-2 rounded-xl border border-purple-100 dark:border-purple-800/30 text-center">
+                    <div
+                      className="w-full text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-2 rounded-xl text-center"
+                      style={{ border: "1.5px solid #A47CF3" }}
+                    >
                       Choose this option to add a pioneer who has a personal account with the Pi Network.
                     </div>
                   )}
@@ -142,7 +145,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     Coming Soon
                   </span>
                   {pioneerTooltip === "business" && (
-                    <div className="w-full text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 rounded-xl border border-amber-100 dark:border-amber-800/30 text-center">
+                    <div
+                      className="w-full text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 rounded-xl text-center"
+                      style={{ border: "1.5px solid #f59e0b" }}
+                    >
                       Choose this option to add an entity/enterprise with a business account granted by the Pi Network.
                     </div>
                   )}
@@ -211,7 +217,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <Info className="w-3.5 h-3.5" />
                   </button>
                   {manualTooltip && (
-                    <div className="w-full bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-800/30 rounded-xl px-3 py-2 text-xs text-[#A47CF3] text-center">
+                    <div className="w-full bg-purple-50 dark:bg-purple-950/20 border border-[#A47CF3] rounded-xl px-3 py-2 text-xs text-[#A47CF3] text-center">
                       {/* <p className="font-semibold text-[#A47CF3] mb-0.5">Manual</p> */}
                       Recommended for adding one or few missing transaction(s) one by one.
                     </div>
