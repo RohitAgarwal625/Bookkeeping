@@ -149,7 +149,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                       style={{ borderColor: "#9ca3af", color: "#9ca3af" }}
                     >
                       {/* <p className="font-semibold text-amber-500 mb-0.5">Business</p> */}
-                      Choose this option to add an entity/enterprise with a business account granted by the Pi Network.
+                      Choose this option to add an entity with a business account granted by the Pi Network.
                     </div>
                   )}
                 </div>
