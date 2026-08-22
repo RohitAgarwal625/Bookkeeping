@@ -91,34 +91,28 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
 
                 {/* Individual */}
                 <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="flex flex-col items-center gap-2">
-                    <button
-                      onClick={() => { closePioneer(); onAddCustomer("individual"); }}
-                      className="flex flex-col items-center gap-2 group"
-                    >
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                        <User className="w-7 h-7 text-white" />
-                      </div>
-                    </button>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => { closePioneer(); onAddCustomer("individual"); }}
-                        className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors"
-                      >
-                        Individual
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "individual" ? null : "individual"); }}
-                        className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
-                        aria-label="Individual info"
-                      >
-                        <Info className="w-3.5 h-3.5" />
-                      </button>
+                  <button
+                    onClick={() => { closePioneer(); onAddCustomer("individual"); }}
+                    className="flex flex-col items-center gap-2 group"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                      <User className="w-7 h-7 text-white" />
                     </div>
-                  </div>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+                      Individual
+                    </span>
+                  </button>
+                  {/* Info button below label */}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "individual" ? null : "individual"); }}
+                    className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                    aria-label="Individual info"
+                  >
+                    <Info className="w-3.5 h-3.5" />
+                  </button>
                   {pioneerTooltip === "individual" && (
-                    <div className="w-full border border-gray-600 dark:border-muted-foreground rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
+                    <div className="w-full text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-2 rounded-xl border border-purple-100 dark:border-purple-800/30 text-center">
                       Choose this option to add a pioneer who has a personal account with the Pi Network.
                     </div>
                   )}
@@ -135,23 +129,20 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     </div>
                     <span className="text-sm font-medium" style={{ color: "#9ca3af" }}>Business</span>
                   </div>
-                  {/* Info */}
+                  {/* Info button below label */}
                   <button
+                    type="button"
                     onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "business" ? null : "business"); }}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors cursor-pointer"
                     aria-label="Business info"
                   >
-                    <Info className="w-3 h-3" style={{ color: "#9ca3af" }} />
+                    <Info className="w-3.5 h-3.5" />
                   </button>
                   <span style={{ padding: "2px 8px", backgroundColor: "#9ca3af", color: "#ffffff", fontSize: "12px" }} className="font-medium rounded-full whitespace-nowrap">
                     Coming Soon
                   </span>
                   {pioneerTooltip === "business" && (
-                    <div
-                      className="w-full bg-gray-50 dark:bg-secondary border rounded-xl px-3 py-2 text-xs text-center"
-                      style={{ borderColor: "#9ca3af", color: "#9ca3af" }}
-                    >
-                      {/* <p className="font-semibold text-amber-500 mb-0.5">Business</p> */}
+                    <div className="w-full text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 rounded-xl border border-amber-100 dark:border-amber-800/30 text-center">
                       Choose this option to add an entity/enterprise with a business account granted by the Pi Network.
                     </div>
                   )}
@@ -212,14 +203,15 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   </button>
                   {/* Info */}
                   <button
+                    type="button"
                     onClick={(e) => { e.stopPropagation(); setManualTooltip(v => !v); setAutoTooltip(false); }}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
                     aria-label="Manual info"
                   >
-                    <Info className="w-3 h-3 text-black" />
+                    <Info className="w-3.5 h-3.5" />
                   </button>
                   {manualTooltip && (
-                    <div className="w-full bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
+                    <div className="w-full bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-800/30 rounded-xl px-3 py-2 text-xs text-[#A47CF3] text-center">
                       {/* <p className="font-semibold text-[#A47CF3] mb-0.5">Manual</p> */}
                       Recommended for adding one or few missing transaction(s) one by one.
                     </div>
@@ -242,11 +234,12 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   </button>
                   {/* Info */}
                   <button
+                    type="button"
                     onClick={(e) => { e.stopPropagation(); setAutoTooltip(v => !v); setManualTooltip(false); }}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
                     aria-label="Automatic info"
                   >
-                    <Info className="w-3 h-3 text-black" />
+                    <Info className="w-3.5 h-3.5" />
                   </button>
                   <span style={{ padding: "2px 10px", fontSize: "12px" }} className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
                     Free • Limited
