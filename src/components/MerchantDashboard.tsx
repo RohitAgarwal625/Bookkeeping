@@ -387,7 +387,7 @@ export function MerchantDashboard({
                         </svg>
                       </div>
                     ) : selectedMerchant.status === "failed" ? (
-                      <XCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                      <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" strokeWidth={2.6} />
                     ) : (
                       <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "1.5px solid #facc15" }}>
                         <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
@@ -421,7 +421,7 @@ export function MerchantDashboard({
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Tx ID</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono">
-                    {selectedMerchant.txHash.slice(0, 14)}...
+                    {selectedMerchant.status === "pending" ? "-" : `${selectedMerchant.txHash.slice(0, 14)}...`}
                   </span>
                 </div>
                 {/* Note/Memo */}
