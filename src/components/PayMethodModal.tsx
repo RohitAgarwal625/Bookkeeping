@@ -37,7 +37,7 @@ export function PayMethodModal({ onPayViaContacts, onPayViaQR, onClose }: PayMet
           {/* Separator */}
           <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-2" />
           {/* Subtitle */}
-          <p className="text-xs text-gray-500 dark:text-muted-foreground text-center pb-1">Choose payment method !</p>
+          <p className="text-xs text-gray-500 dark:text-muted-foreground text-center pb-1">Choose payment method!</p>
 
           {/* Two columns */}
           <div className="px-6 pb-6 pt-3 flex items-start gap-0">
