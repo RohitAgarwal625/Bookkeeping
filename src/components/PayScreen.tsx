@@ -24,6 +24,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
   const [publicKey, setPublicKey] = useState("");
   const [pioneerQuery, setPioneerQuery] = useState("");
+  const [paidRecipientName, setPaidRecipientName] = useState("");
   const [amount, setAmount] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [screen, setScreen] = useState<ScreenState>("form");
@@ -90,24 +91,24 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     setScreen("form");
     setPublicKey("");
     setPioneerQuery("");
+    setPaidRecipientName("");
     setAmount("");
     setIsDropdownOpen(false);
   };
 
   const handlePay = () => {
     setScreen("processing");
-    const targetName = recipientName || pioneerQuery;
-    if (targetName) {
-      const newPaidTx: Transaction = {
-        id: `pay-${Date.now()}`,
-        description: "Payment via Pi Network",
-        amount: parseFloat(amount) || 0,
-        type: "debit",
-        timestamp: "Just now",
-        isNew: true,
-      };
-      onPaymentSuccess?.(targetName, newPaidTx);
-    }
+    const targetName = recipientName || pioneerQuery || (publicKey ? `${publicKey.slice(0, 6)}...${publicKey.slice(-4)}` : "Pioneer Contact");
+    setPaidRecipientName(targetName);
+    const newPaidTx: Transaction = {
+      id: `pay-${Date.now()}`,
+      description: "Payment via Pi Network",
+      amount: parseFloat(amount) || 0,
+      type: "debit",
+      timestamp: "Just now",
+      isNew: true,
+    };
+    onPaymentSuccess?.(targetName, newPaidTx);
     setTimeout(() => setScreen("success"), 2200);
   };
 
@@ -211,7 +212,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             <div className="px-5 py-4 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-400 text-sm">Paid To</span>
-                <span className="text-gray-900 dark:text-white font-semibold text-sm">{recipientName}</span>
+                <span className="text-gray-900 dark:text-white font-semibold text-sm">{paidRecipientName || recipientName || pioneerQuery || "Pioneer Contact"}</span>
               </div>
 
               <div className="flex items-center justify-between">
@@ -231,12 +232,12 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           {/* Open Ledger button below modal box — matching AutomaticTransactionScreen style */}
           <button
             onClick={() => {
-              const targetName = recipientName || pioneerQuery;
-              if (onNavigateToLedger && targetName) {
+              const targetName = paidRecipientName || recipientName || pioneerQuery || "Pioneer Contact";
+              if (onNavigateToLedger) {
                 onNavigateToLedger(targetName);
               }
             }}
-            className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2"
+            className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 cursor-pointer relative z-30"
             style={{
               background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
               boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
