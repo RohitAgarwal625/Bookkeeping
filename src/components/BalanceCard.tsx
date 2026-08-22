@@ -132,23 +132,23 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     </div>
                     <span className="text-sm font-medium" style={{ color: "#9ca3af" }}>Business</span>
                   </div>
-                  {/* Info button below label */}
+                  {/* Info */}
                   <button
-                    type="button"
                     onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "business" ? null : "business"); }}
-                    className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors cursor-pointer"
+                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
                     aria-label="Business info"
                   >
-                    <Info className="w-3.5 h-3.5" />
+                    <Info className="w-3 h-3" style={{ color: "#9ca3af" }} />
                   </button>
                   <span style={{ padding: "2px 8px", backgroundColor: "#9ca3af", color: "#ffffff", fontSize: "12px" }} className="font-medium rounded-full whitespace-nowrap">
                     Coming Soon
                   </span>
                   {pioneerTooltip === "business" && (
                     <div
-                      className="w-full text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 rounded-xl text-center"
-                      style={{ border: "1.5px solid #f59e0b" }}
+                      className="w-full bg-gray-50 dark:bg-secondary border rounded-xl px-3 py-2 text-xs text-center"
+                      style={{ borderColor: "#9ca3af", color: "#9ca3af" }}
                     >
+                      {/* <p className="font-semibold text-amber-500 mb-0.5">Business</p> */}
                       Choose this option to add an entity/enterprise with a business account granted by the Pi Network.
                     </div>
                   )}
