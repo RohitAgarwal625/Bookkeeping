@@ -84,7 +84,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
               {/* Separator line */}
               <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-2" />
               {/* Subtitle BELOW separator */}
-              <p className="text-xs text-gray-500 dark:text-muted-foreground text-center pb-1">Select pioneer type</p>
+              <p className="text-xs text-gray-500 dark:text-muted-foreground text-center pb-1">Choose account type!</p>
 
               {/* Two columns */}
               <div className="px-6 pb-6 pt-3 flex items-start gap-0">

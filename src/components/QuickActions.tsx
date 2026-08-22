@@ -70,7 +70,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                   <X className="w-4 h-4 text-gray-400" />
                 </button>
               </div>
-              <p className="px-5 pt-4 pb-2 text-sm text-gray-500 dark:text-muted-foreground">Select pioneer type</p>
+              <p className="px-5 pt-4 pb-2 text-sm text-gray-500 dark:text-muted-foreground">Choose account type!</p>
               <div className="px-5 pb-6 flex flex-col gap-3">
                 {/* Individual */}
                 <button
