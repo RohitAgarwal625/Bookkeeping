@@ -418,32 +418,6 @@ export function Settings({
             </p>
           </div>
 
-          {/* Mission Section */}
-          <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">🎯</span>
-              </div>
-              <h3 className="text-gray-900 dark:text-foreground font-semibold">Our Mission</h3>
-            </div>
-            <p className="text-gray-600 dark:text-muted-foreground text-sm leading-relaxed">
-              Our mission is to <span className="text-[#A47CF3] font-semibold">unify the payment system within the Pi Network</span> — creating a seamless, borderless financial ecosystem where every merchant, trader, and individual can transact freely using Pi as a universal currency.
-            </p>
-          </div>
-
-          {/* Vision */}
-          <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#F7C548] to-[#A47CF3] flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs">🌐</span>
-              </div>
-              <h3 className="text-gray-900 dark:text-foreground font-semibold">Our Vision</h3>
-            </div>
-            <p className="text-gray-600 dark:text-muted-foreground text-sm leading-relaxed">
-              We envision a world where small businesses and individuals in every corner of the globe can participate in the digital economy without barriers. Pi Bookkeeping Web3 is the bridge between traditional commerce and the decentralized future — built on trust, transparency, and the power of Pi.
-            </p>
-          </div>
-
           {/* What We Do */}
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-4">
             <div className="flex items-center gap-2 mb-4">
@@ -478,7 +452,7 @@ export function Settings({
           </div>
 
           <p className="text-xs text-center text-gray-400 dark:text-muted-foreground px-4">
-            © 2026 Pi Bookkeeping Web3 · Built with ❤️ for the Pi Community
+            © 2026 Pi Bookkeeping Web3 · Built with 💜 for the Pi Community
           </p>
         </div>
 
