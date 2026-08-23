@@ -143,10 +143,10 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             </div>
 
             {/* Category Filters - Positioned below Search Bar */}
-            <div className="flex gap-3 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex w-full gap-2 mb-4">
               <button
                 onClick={() => setSelectedFilter("week")}
-                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "week"
+                className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "week"
                   ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
@@ -155,7 +155,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </button>
               <button
                 onClick={() => setSelectedFilter("month")}
-                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "month"
+                className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "month"
                   ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
@@ -164,7 +164,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </button>
               <button
                 onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
-                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "custom"
+                className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "custom"
                   ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
