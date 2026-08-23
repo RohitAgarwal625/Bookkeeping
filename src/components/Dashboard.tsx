@@ -111,7 +111,7 @@ export function Dashboard({
       )}
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
+      <div className="flex-1 overflow-y-auto px-6 py-6" style={{ paddingBottom: "111px" }}>
         {/* Balance Card — contains Add Pioneer & Add Transaction buttons */}
         <BalanceCard
           piBalance={piBalance}

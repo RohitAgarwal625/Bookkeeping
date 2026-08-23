@@ -89,7 +89,7 @@ export function ContactsScreen({
       </div>
 
       {/* Contact list content area */}
-      <div className="flex-1 px-4 pt-4" style={{ paddingBottom: "100px" }}>
+      <div className="flex-1 px-4 pt-4" style={{ paddingBottom: "111px" }}>
         {filtered.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-20 gap-3">
             <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0">

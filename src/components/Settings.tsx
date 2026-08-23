@@ -165,7 +165,7 @@ export function Settings({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-8 pb-24 flex flex-col items-center gap-6">
+        <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center gap-6" style={{ paddingBottom: "111px" }}>
           {/* Profile Avatar */}
           <div className="flex flex-col items-center gap-3">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg overflow-hidden">
@@ -317,7 +317,7 @@ export function Settings({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
+        <div className="flex-1 overflow-y-auto px-6 py-6" style={{ paddingBottom: "111px" }}>
           {/* Intro banner */}
           <div className="bg-gradient-to-r from-[#A47CF3]/10 to-[#F7C548]/10 dark:from-purple-950/30 dark:to-yellow-950/20 rounded-2xl p-4 mb-6 border border-purple-100 dark:border-purple-800/30">
             <div className="flex items-center gap-3">
@@ -402,7 +402,7 @@ export function Settings({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
+        <div className="flex-1 overflow-y-auto px-6 py-6" style={{ paddingBottom: "111px" }}>
           {/* Hero */}
           <div className="bg-gradient-to-br from-[#A47CF3] to-[#F7C548] rounded-2xl p-6 mb-6 text-white shadow-lg">
             <div className="flex items-center gap-3 mb-4">
@@ -474,7 +474,7 @@ export function Settings({
       </header>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
+      <div className="flex-1 overflow-y-auto px-6 py-6" style={{ paddingBottom: "111px" }}>
         {/* Profile Section */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-6 mb-6">
           <div className="flex flex-col items-center mb-4">
