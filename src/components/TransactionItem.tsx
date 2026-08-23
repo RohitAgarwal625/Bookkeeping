@@ -38,7 +38,7 @@ export function TransactionItem({ transaction, isLast, onClick }: TransactionIte
 
         {/* Customer Info */}
         <div>
-          <p className="text-gray-900 dark:text-foreground text-sm">{transaction.customerName}</p>
+          <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{transaction.customerName}</p>
           <p className="text-gray-500 dark:text-muted-foreground text-xs">{transaction.date}</p>
         </div>
       </div>

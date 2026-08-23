@@ -272,7 +272,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
 
                           {/* Customer Info — Left side name */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-gray-900 dark:text-foreground text-[15px] font-semibold truncate">{customer.name}</p>
+                            <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{customer.name}</p>
                           </div>
 
                           {/* Right side figure (black circle outline with white bg and black text, font size text-sm 14px matching Home screen) */}
