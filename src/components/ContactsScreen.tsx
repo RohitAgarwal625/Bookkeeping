@@ -64,7 +64,7 @@ export function ContactsScreen({
         <header className="px-6 py-4">
           <div className="flex items-center">
             <div className="w-8 flex-shrink-0" />
-            <h1 className="flex-1 text-2xl font-extrabold text-gray-900 dark:text-foreground text-center">Contacts</h1>
+            <h1 className="flex-1 text-base font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
             <div className="flex-shrink-0">
               <BookkeepingLogo compact />
             </div>

@@ -13,7 +13,7 @@ interface AddEntryProps {
 export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const savedCustomers = contacts ?? [
     "Chengdiao Fan",
-    "Nikolas Kokkalis",
+    "Nicolas Kokkalis",
     "Pavel Durov",
     "Satoshi Nakamoto",
     "Vitalik Buterin",

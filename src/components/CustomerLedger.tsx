@@ -16,31 +16,31 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
     const base: Transaction[] = [
       {
         id: "1",
-        description: "Payment received for June order",
+        description: "Mentorship & Consultation fees.",
         amount: 450,
-        type: "credit",
-        timestamp: "2025-10-08 14:30",
+        type: "debit",
+        timestamp: "2026-02-20 14:30",
       },
       {
         id: "2",
-        description: "New order - 50kg rice",
-        amount: 180,
+        description: "Trademark compliance fee.",
+        amount: 100,
         type: "debit",
-        timestamp: "2025-10-07 10:15",
+        timestamp: "2026-02-18 10:15",
       },
       {
         id: "3",
-        description: "Partial payment",
+        description: "Scholarship grant.",
         amount: 100,
         type: "credit",
-        timestamp: "2025-10-05 16:45",
+        timestamp: "2026-02-15 16:45",
       },
       {
         id: "4",
-        description: "Order - wheat flour 25kg",
+        description: "Workshop fee.",
         amount: 90,
         type: "debit",
-        timestamp: "2025-10-03 09:20",
+        timestamp: "2026-02-10 09:20",
       },
     ];
     if (initialNewTransactions && initialNewTransactions.length > 0) {

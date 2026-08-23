@@ -57,7 +57,7 @@ interface MerchantRecord {
 const mockMerchants: MerchantRecord[] = [
   {
     id: "1",
-    merchantName: "Nikolas Kokkalis",
+    merchantName: "Nicolas Kokkalis",
     category: "individual",
     date: "Feb 20, 2026",
     amount: 450.00,
@@ -66,17 +66,17 @@ const mockMerchants: MerchantRecord[] = [
     piWalletAddress: "0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e",
     description: "Mentorship & Consultation fees.",
     txHash: "0xabc123def456789abc123def456789abc123def456789",
-    totalCredit: 1350.00,
-    totalDebit: 200.00,
+    totalCredit: 100.00,
+    totalDebit: 640.00,
     pastTransactions: [
-      { id: "p1", type: "credit", amount: "600.00", date: "Feb 18, 2026", description: "Hardware components", status: "completed" },
-      { id: "p2", type: "debit", amount: "200.00", date: "Feb 10, 2026", description: "Return/refund", status: "completed" },
-      { id: "p3", type: "credit", amount: "300.00", date: "Feb 05, 2026", description: "Software subscription", status: "completed" },
+      { id: "p1", type: "debit", amount: "100.00", date: "Feb 18, 2026", description: "Trademark compliance fee.", status: "completed" },
+      { id: "p2", type: "credit", amount: "100.00", date: "Feb 15, 2026", description: "Scholarship grant.", status: "completed" },
+      { id: "p3", type: "debit", amount: "90.00", date: "Feb 10, 2026", description: "Workshop fee.", status: "completed" },
     ],
   },
   {
     id: "2",
-    merchantName: "Nikolas Kokkalis",
+    merchantName: "Nicolas Kokkalis",
     category: "individual",
     date: "Feb 17, 2026",
     amount: 450.00,
@@ -94,7 +94,7 @@ const mockMerchants: MerchantRecord[] = [
   },
   {
     id: "3",
-    merchantName: "Nikolas Kokkalis",
+    merchantName: "Nicolas Kokkalis",
     category: "individual",
     date: "Feb 18, 2026",
     amount: 450.00,
