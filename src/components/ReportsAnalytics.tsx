@@ -240,16 +240,18 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
                   <div className="mb-4 space-y-2">
                     <div className="flex items-center gap-2">
-                      <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
-                      <h3 className="text-gray-900 dark:text-foreground font-semibold">Top Pioneers</h3>
-                      <button
-                        type="button"
-                        onClick={() => setShowCustomerInfo(v => !v)}
-                        className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
-                        aria-label="Customer info"
-                      >
-                        <Info className="w-4 h-4" />
-                      </button>
+                      <Users className="w-5 h-5 text-gray-700 dark:text-foreground flex-shrink-0" />
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="text-gray-900 dark:text-foreground font-semibold">Top Pioneers</h3>
+                        <button
+                          type="button"
+                          onClick={() => setShowCustomerInfo(v => !v)}
+                          className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                          aria-label="Customer info"
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                     {showCustomerInfo && (
                       <div className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
