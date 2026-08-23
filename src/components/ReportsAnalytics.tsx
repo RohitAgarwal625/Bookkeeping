@@ -74,10 +74,10 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   };
 
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
+    <div className={`size-full flex flex-col ${embedded ? "" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`} style={embedded ? undefined : { minHeight: "100dvh" }}>
 
       {/* Scrollable Content */}
-      <div className={`flex-1 flex flex-col px-6 pb-24 ${embedded ? "pt-0" : "py-6"}`}>
+      <div className={`flex-1 flex flex-col ${embedded ? "pt-0 pb-0" : "px-6 py-6"}`} style={!embedded ? { paddingBottom: "80px" } : undefined}>
         {isGuest ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10 pb-24 gap-3">
             <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0">

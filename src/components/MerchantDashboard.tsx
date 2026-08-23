@@ -180,7 +180,7 @@ export function MerchantDashboard({
       </header>
 
       {/* Scrollable Content — uniform flat background across content area below header */}
-      <div className="flex-1 flex flex-col px-6 py-6" style={{ paddingBottom: "160px" }}>
+      <div className="flex-1 flex flex-col px-6 py-6" style={{ paddingBottom: "80px" }}>
         {/* Individual / Business — rounded segmented toggle with middle switch (shared for History & Analytics) */}
         <div className="w-full flex items-center bg-gray-100 dark:bg-secondary p-1 rounded-full mb-6 max-w-xs mx-auto flex-shrink-0">
           <button
