@@ -264,7 +264,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 onClick={() => setShowInfo((v) => !v)}
                 className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-4 h-4" />
               </button>
             </div>
             {/* Info box — appears below label on click */}

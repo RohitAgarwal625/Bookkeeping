@@ -13,6 +13,7 @@ import {
   Edit2,
   X,
   Pencil,
+  Check,
 } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "./ui/switch";
@@ -185,7 +186,7 @@ export function Settings({
                   className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
                   aria-label="Display Name info"
                 >
-                  <Info className="w-3.5 h-3.5" />
+                  <Info className="w-4 h-4" />
                 </button>
               </div>
               {!isEditingName && (
