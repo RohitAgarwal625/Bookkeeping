@@ -29,7 +29,7 @@ const monthlyData = [
 
 const topCustomersMonthly = [
   { id: "1", name: "Chengdiao Fan", transactions: 178 },
-  { id: "2", name: "Nikolas Kokkalis", transactions: 88 },
+  { id: "2", name: "Nicolas Kokkalis", transactions: 88 },
   { id: "3", name: "Pavel Durov", transactions: 56 },
   { id: "4", name: "Satoshi Nakamoto", transactions: 34 },
   { id: "5", name: "Vitalik Buterin", transactions: 18 },
@@ -37,7 +37,7 @@ const topCustomersMonthly = [
 
 const topCustomersWeekly = [
   { id: "1", name: "Chengdiao Fan", transactions: 21 },
-  { id: "2", name: "Nikolas Kokkalis", transactions: 17 },
+  { id: "2", name: "Nicolas Kokkalis", transactions: 17 },
   { id: "3", name: "Pavel Durov", transactions: 14 },
   { id: "5", name: "Vitalik Buterin", transactions: 9 },
   { id: "4", name: "Satoshi Nakamoto", transactions: 6 },
