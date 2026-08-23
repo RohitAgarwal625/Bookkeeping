@@ -57,37 +57,34 @@ export function ContactsScreen({
   }, [newContactId]);
 
   return (
-    <div className="min-h-dvh w-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] relative">
-      {/* Sticky Header + Search Bar */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-card border-b border-gray-200 dark:border-border shadow-sm">
-        {/* Header — title + logo */}
-        <header className="px-6 py-4">
-          <div className="flex items-center">
-            <div className="w-8 flex-shrink-0" />
-            <h1 className="flex-1 text-base font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
-            <div className="flex-shrink-0">
-              <BookkeepingLogo compact />
-            </div>
+    <div className={`size-full flex flex-col ${isGuest ? "bg-white dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`} style={{ minHeight: "100dvh" }}>
+      {/* Header — only contains "Contacts" title + separator */}
+      <header className="bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border px-6 py-4 z-10 relative">
+        <div className="flex items-center">
+          <div className="w-8 flex-shrink-0" />
+          <h1 className="flex-1 text-base font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
+          <div className="flex-shrink-0">
+            <BookkeepingLogo compact />
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Search bar — sits below the header */}
-        <div className="px-6 pb-3 pt-1 border-t border-gray-100 dark:border-border/60">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
-            <input
-              type="text"
-              placeholder="Search from Contacts"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                <X className="w-4 h-4 text-gray-400" />
-              </button>
-            )}
-          </div>
+      {/* Search bar — sits below the separator line */}
+      <div className="bg-white dark:bg-card px-6 pb-3 pt-3">
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
+          <input
+            type="text"
+            placeholder="Search from Contacts"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+              <X className="w-4 h-4 text-gray-400" />
+            </button>
+          )}
         </div>
       </div>
 
