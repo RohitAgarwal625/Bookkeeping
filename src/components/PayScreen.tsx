@@ -517,7 +517,7 @@ function Header({ onBack, hideBack = false }: { onBack: () => void; hideBack?: b
             </button>
           )}
         </div>
-        <h1 className="text-gray-900 dark:text-foreground font-semibold text-center">Payment Details</h1>
+        <h1 className="font-bold text-gray-900 dark:text-foreground text-lg text-center">Payment Details</h1>
         <BookkeepingLogo compact />
       </div>
     </header>
