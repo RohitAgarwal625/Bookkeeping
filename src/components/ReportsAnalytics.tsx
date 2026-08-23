@@ -29,7 +29,7 @@ const monthlyData = [
 
 const topCustomersMonthly = [
   { id: "1", name: "Chengdiao Fan", transactions: 178 },
-  { id: "2", name: "Nicolas Kokkalis", transactions: 88 },
+  { id: "2", name: "Nikolas Kokkalis", transactions: 88 },
   { id: "3", name: "Pavel Durov", transactions: 56 },
   { id: "4", name: "Satoshi Nakamoto", transactions: 34 },
   { id: "5", name: "Vitalik Buterin", transactions: 18 },
@@ -37,7 +37,7 @@ const topCustomersMonthly = [
 
 const topCustomersWeekly = [
   { id: "1", name: "Chengdiao Fan", transactions: 21 },
-  { id: "2", name: "Nicolas Kokkalis", transactions: 17 },
+  { id: "2", name: "Nikolas Kokkalis", transactions: 17 },
   { id: "3", name: "Pavel Durov", transactions: 14 },
   { id: "5", name: "Vitalik Buterin", transactions: 9 },
   { id: "4", name: "Satoshi Nakamoto", transactions: 6 },
@@ -77,7 +77,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
 
       {/* Scrollable Content */}
-      <div className={`flex-1 flex flex-col pb-24 ${embedded ? "px-0 pt-0" : "px-4 sm:px-6 py-6"}`}>
+      <div className={`flex-1 flex flex-col px-6 pb-24 ${embedded ? "pt-0" : "py-6"}`}>
         {isGuest ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10 pb-24 gap-3">
             <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0">
@@ -143,10 +143,10 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             </div>
 
             {/* Category Filters - Positioned below Search Bar */}
-            <div className="w-full flex gap-2 mb-4">
+            <div className="flex gap-3 mb-4 overflow-x-auto pb-2 scrollbar-hide">
               <button
                 onClick={() => setSelectedFilter("week")}
-                className={`flex-1 py-2 px-2 sm:px-4 rounded-full text-xs sm:text-sm font-semibold text-center transition-all min-w-0 ${selectedFilter === "week"
+                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "week"
                   ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
@@ -155,7 +155,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </button>
               <button
                 onClick={() => setSelectedFilter("month")}
-                className={`flex-1 py-2 px-2 sm:px-4 rounded-full text-xs sm:text-sm font-semibold text-center transition-all min-w-0 ${selectedFilter === "month"
+                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "month"
                   ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
@@ -164,7 +164,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </button>
               <button
                 onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
-                className={`flex-1 py-2 px-2 sm:px-4 rounded-full text-xs sm:text-sm font-semibold text-center transition-all min-w-0 ${selectedFilter === "custom"
+                className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-all ${selectedFilter === "custom"
                   ? "bg-[#A47CF3] text-white shadow-md"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
@@ -176,29 +176,29 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             {/* Inline date range — shown only when Custom is selected */}
             {selectedFilter === "custom" && (
               <div className="flex flex-col gap-3 mb-4">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0 flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">From</label>
                     <input
                       type="date"
                       value={fromDate}
                       onChange={(e) => { setFromDate(e.target.value); setIsCustomSubmitted(false); }}
-                      className="w-full px-2 sm:px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition min-w-0"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
                     />
                   </div>
-                  <div className="flex-1 min-w-0 flex flex-col gap-1">
+                  <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-gray-500 dark:text-muted-foreground font-medium">To</label>
                     <input
                       type="date"
                       value={toDate}
                       onChange={(e) => { setToDate(e.target.value); setIsCustomSubmitted(false); }}
-                      className="w-full px-2 sm:px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition min-w-0"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
                     />
                   </div>
                 </div>
                 <button
                   onClick={() => setIsCustomSubmitted(true)}
-                  className="w-full py-3.5 sm:py-4 rounded-xl text-white font-bold text-sm sm:text-base shadow-md transition-all hover:opacity-95 active:scale-[0.99] mt-1"
+                  className="w-full py-4 rounded-xl text-white font-bold text-base shadow-md transition-all hover:opacity-95 active:scale-[0.99] mt-1"
                   style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
                 >
                   Submit
@@ -210,42 +210,42 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             {(selectedFilter !== "custom" || isCustomSubmitted) && (
               <>
                 {/* Summary Cards Section */}
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+                <div className="grid grid-cols-2 gap-4 mb-6">
                   {/* Total Debit Card */}
-                  <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-3.5 sm:p-4 border-l-4 border-red-500 flex flex-col min-w-0 overflow-hidden">
+                  <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-red-500 flex flex-col">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-gray-600 dark:text-muted-foreground text-xs sm:text-sm font-medium truncate">Total Debit</p>
-                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                      <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Debit</p>
+                      <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
-                    <div className="flex items-baseline gap-1 min-w-0 overflow-hidden">
-                      <span className="text-lg sm:text-xl font-bold text-red-600 dark:text-red-400 truncate">{totals.debit}</span>
-                      <span className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400 flex-shrink-0">π</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xl font-bold text-red-600 dark:text-red-400">{totals.debit}</span>
+                      <span className="text-sm font-bold text-red-600 dark:text-red-400">π</span>
                     </div>
                   </div>
 
                   {/* Total Credit Card */}
-                  <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-3.5 sm:p-4 border-l-4 border-green-500 flex flex-col min-w-0 overflow-hidden">
+                  <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 border-l-4 border-green-500 flex flex-col">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-gray-600 dark:text-muted-foreground text-xs sm:text-sm font-medium truncate">Total Credit</p>
-                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 rotate-180 flex-shrink-0" />
+                      <p className="text-gray-600 dark:text-muted-foreground text-sm font-medium">Total Credit</p>
+                      <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400 rotate-180" />
                     </div>
-                    <div className="flex items-baseline gap-1 min-w-0 overflow-hidden">
-                      <span className="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400 truncate">{totals.credit}</span>
-                      <span className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400 flex-shrink-0">π</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xl font-bold text-green-600 dark:text-green-400">{totals.credit}</span>
+                      <span className="text-sm font-bold text-green-600 dark:text-green-400">π</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Top Customers Section */}
-                <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-4 sm:p-5 mb-6">
+                <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-6">
                   <div className="mb-4 space-y-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                      <Users className="w-5 h-5 text-gray-700 dark:text-foreground flex-shrink-0" />
-                      <h3 className="text-gray-900 dark:text-foreground font-semibold text-sm sm:text-base truncate">Top Pioneers ({selectedFilter === "week" ? "Weekly" : "Monthly"})</h3>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-5 h-5 text-gray-700 dark:text-foreground" />
+                      <h3 className="text-gray-900 dark:text-foreground font-semibold">Top Pioneers ({selectedFilter === "week" ? "Weekly" : "Monthly"})</h3>
                       <button
                         type="button"
                         onClick={() => setShowCustomerInfo(v => !v)}
-                        className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors flex-shrink-0"
+                        className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
                         aria-label="Customer info"
                       >
                         <Info className="w-3.5 h-3.5" />
