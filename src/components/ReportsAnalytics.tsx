@@ -130,16 +130,28 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
 
             {/* Search Bar */}
             <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  (document.activeElement as HTMLElement)?.blur();
+                }}
+                className="relative"
+              >
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
                 <input
                   type="text"
                   placeholder="Search from Contacts"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      (e.target as HTMLElement).blur();
+                    }
+                  }}
+                  enterKeyHint="go"
                   className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all"
                 />
-              </div>
+              </form>
             </div>
 
             {/* Category Filters - Positioned below Search Bar */}

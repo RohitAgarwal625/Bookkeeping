@@ -78,6 +78,12 @@ export function ContactsScreen({
             placeholder="Search from Contacts"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                (e.target as HTMLElement).blur();
+              }
+            }}
+            enterKeyHint="go"
             className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary border border-transparent focus:border-gray-300 dark:focus:border-gray-600 text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none caret-[#A47CF3] transition"
           />
           {searchQuery && (
