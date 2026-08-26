@@ -355,7 +355,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               </span>
             </div>
           ) : (
-            <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm border-gray-100 dark:border-gray-700 focus-within:border-[#A47CF3]`}>
+            <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm border-gray-100 dark:border-gray-700 focus-within:border-gray-300 dark:focus-within:border-gray-600`}>
               <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <input
                 type="text"
@@ -364,7 +364,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 onBlur={handlePioneerBlur}
                 onChange={(e) => handlePioneerSearchChange(e.target.value)}
                 placeholder="Select from Contacts"
-                className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium"
+                className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base font-medium caret-[#A47CF3]"
               />
               <ChevronDown
                 className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
