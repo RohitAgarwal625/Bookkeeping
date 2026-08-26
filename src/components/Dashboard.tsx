@@ -16,7 +16,7 @@ interface DashboardProps {
 }
 
 const recentEntries = [
-  { id: "1", customerName: "Nicolas Kokkalis", type: "credit" as const, amount: "450.00", date: "Today, 14:30" },
+  { id: "1", customerName: "Nicolas Kokkalis", type: "debit" as const, amount: "450.00", date: "Today, 14:30" },
   { id: "2", customerName: "Pavel Durov", type: "debit" as const, amount: "280.50", date: "Today, 11:15" },
   { id: "3", customerName: "Vitalik Buterin", type: "credit" as const, amount: "625.00", date: "Yesterday, 17:45" },
   { id: "4", customerName: "Satoshi Nakamoto", type: "debit" as const, amount: "195.75", date: "Yesterday, 15:20" },

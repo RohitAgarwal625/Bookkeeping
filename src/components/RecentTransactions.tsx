@@ -4,7 +4,7 @@ const mockTransactions = [
   {
     id: "1",
     customerName: "Nicolas Kokkalis",
-    type: "credit" as const,
+    type: "debit" as const,
     amount: "450.00",
     date: "Today, 14:30",
   },
