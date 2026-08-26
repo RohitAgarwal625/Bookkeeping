@@ -315,6 +315,23 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               />
             </div>
           </div>
+
+          {/* Not-in-contacts message — displayed directly below Public Key field box (above 'or' divider) */}
+          {publicKey.trim() && !isVerified && (
+            <div className="mt-3 px-4 py-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl">
+              <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed mb-3">
+                The wallet address you entered is not saved in your Contact List. Kindly tap on the button given below to add it to your Contacts.
+              </p>
+              <button
+                onClick={onAddPioneer}
+                className="w-full py-3 px-4 rounded-xl text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 4px 16px rgba(111,60,151,0.35)" }}
+              >
+                <span>Add Contact</span>
+                <UserPlus className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* or */}
@@ -352,23 +369,6 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               <ChevronDown
                 className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
               />
-            </div>
-          )}
-
-          {/* Not-in-contacts message */}
-          {publicKey.trim() && !isVerified && (
-            <div className="mt-3 px-4 py-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl">
-              <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed mb-3">
-                The wallet address you entered is not saved in your Contact List. Kindly tap on the button given below to add it to your Contacts.
-              </p>
-              <button
-                onClick={onAddPioneer}
-                className="w-full py-3 px-4 rounded-xl text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 4px 16px rgba(111,60,151,0.35)" }}
-              >
-                <span>Add Contact</span>
-                <UserPlus className="w-4 h-4" />
-              </button>
             </div>
           )}
 
