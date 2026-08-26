@@ -14,6 +14,7 @@ import {
   Check,
   ArrowDownLeft,
   ArrowUpRight,
+  Info,
 } from "lucide-react";
 import { useState } from "react";
 import { ReportsAnalytics } from "./ReportsAnalytics";
@@ -124,6 +125,7 @@ export function MerchantDashboard({
   const [editingWalletId, setEditingWalletId] = useState<string | null>(null);
   const [walletDraftMap, setWalletDraftMap] = useState<Record<string, string>>({});
   const [walletOverrides, setWalletOverrides] = useState<Record<string, string>>({});
+  const [showTxIdInfo, setShowTxIdInfo] = useState(false);
 
   const individualMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "individual");
   const businessMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "business");
@@ -317,7 +319,7 @@ export function MerchantDashboard({
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setSelectedMerchant(null)}
+            onClick={() => { setSelectedMerchant(null); setShowTxIdInfo(false); }}
           />
 
           {/* Sheet */}
@@ -331,7 +333,7 @@ export function MerchantDashboard({
             <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-border">
               <h3 className="text-gray-900 dark:text-foreground font-bold text-lg">Transaction Details</h3>
               <button
-                onClick={() => setSelectedMerchant(null)}
+                onClick={() => { setSelectedMerchant(null); setShowTxIdInfo(false); }}
                 className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center"
               >
                 <X className="w-4 h-4 text-gray-600 dark:text-muted-foreground" />
@@ -419,11 +421,24 @@ export function MerchantDashboard({
                   <div className="flex items-center gap-2">
                     <Hash className="w-3.5 h-3.5 text-[#A47CF3]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Tx ID</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowTxIdInfo(v => !v)}
+                      className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                      aria-label="Transaction ID info"
+                    >
+                      <Info className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono">
                     {selectedMerchant.status === "pending" ? "-" : `${selectedMerchant.txHash.slice(0, 14)}...`}
                   </span>
                 </div>
+                {showTxIdInfo && (
+                  <div className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
+                    A unique identifier for each transaction recorded on the Pi blockchain ledger.
+                  </div>
+                )}
                 {/* Note/Memo */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
