@@ -79,12 +79,10 @@ export function parseTransactionTimestamp(timestamp: string): number {
 
 /**
  * Sorts transactions by timestamp in descending order (newest first, oldest last).
- * New transactions (isNew: true) are always placed at the very top.
+ * New transactions are mixed in by their actual date, not pinned to the top.
  */
 export function sortTransactionsDescending(transactions: Transaction[]): Transaction[] {
   return [...transactions].sort((a, b) => {
-    if (a.isNew && !b.isNew) return -1;
-    if (!a.isNew && b.isNew) return 1;
     return parseTransactionTimestamp(b.timestamp) - parseTransactionTimestamp(a.timestamp);
   });
 }

@@ -159,13 +159,33 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </div>
         <button
           onClick={() => {
+            // Spread 6 dummy transactions evenly across the selected date range
+            const from = new Date(fromDate);
+            const to = new Date(toDate);
+            const rangeMs = to.getTime() - from.getTime();
+            const count = txFound.current;
+
+            const randomTimestamp = (index: number) => {
+              // Spread evenly with some jitter so they don't land on the exact same second
+              const fraction = count > 1 ? index / (count - 1) : 0.5;
+              const jitter = (Math.random() - 0.5) * (rangeMs / count) * 0.6;
+              const ms = from.getTime() + fraction * rangeMs + jitter;
+              const d = new Date(Math.max(from.getTime(), Math.min(to.getTime(), ms)));
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const dd = String(d.getDate()).padStart(2, "0");
+              const hh = String(d.getHours()).padStart(2, "0");
+              const min = String(d.getMinutes()).padStart(2, "0");
+              return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+            };
+
             const dummyTxs: Transaction[] = [
               {
                 id: `auto-${Date.now()}-1`,
                 description: "Auto Sync: Pi Blockchain Payment",
                 amount: 3.14159,
                 type: "credit",
-                timestamp: "Just now",
+                timestamp: randomTimestamp(0),
                 isNew: true,
               },
               {
@@ -173,7 +193,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Pi Peer Direct",
                 amount: 14.20,
                 type: "debit",
-                timestamp: "Just now",
+                timestamp: randomTimestamp(1),
                 isNew: true,
               },
               {
@@ -181,7 +201,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Ledger Settlement",
                 amount: 25.50,
                 type: "credit",
-                timestamp: "Just now",
+                timestamp: randomTimestamp(2),
                 isNew: true,
               },
               {
@@ -189,7 +209,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Micro Settlement",
                 amount: 8.75,
                 type: "debit",
-                timestamp: "Just now",
+                timestamp: randomTimestamp(3),
                 isNew: true,
               },
               {
@@ -197,7 +217,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Network Refund",
                 amount: 12.00,
                 type: "credit",
-                timestamp: "Just now",
+                timestamp: randomTimestamp(4),
                 isNew: true,
               },
               {
@@ -205,7 +225,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Node Service Fee",
                 amount: 1.50,
                 type: "debit",
-                timestamp: "Just now",
+                timestamp: randomTimestamp(5),
                 isNew: true,
               },
             ];
