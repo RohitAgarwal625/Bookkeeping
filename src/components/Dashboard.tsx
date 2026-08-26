@@ -103,27 +103,15 @@ export function Dashboard({
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
           <div
             ref={alertRef}
-            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card shadow-xl overflow-hidden"
-            style={{ borderBottomLeftRadius: alertCornerR, borderBottomRightRadius: alertCornerR }}
+            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card shadow-xl border-b-2 border-x-2 border-gray-200 dark:border-border rounded-b-2xl overflow-hidden"
           >
-            {/* SVG border outline mirroring navigation bar corners & border style */}
-            <svg
-              className="absolute inset-0 pointer-events-none text-gray-400 dark:text-white/50"
-              width="100%"
-              height="100%"
-              style={{ overflow: "visible" }}
-              aria-hidden="true"
-            >
-              <path d={alertSvgPath} fill="none" stroke="currentColor" strokeWidth="2" />
-            </svg>
-
             <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-center">
               <p className="text-gray-900 dark:text-foreground font-semibold text-sm text-center">Alerts</p>
             </div>
             <div className="min-h-[140px] flex flex-col justify-center">
               {isGuest ? (
-                <div className="flex-1 flex items-center justify-center px-6 py-8 text-center">
-                  <p className="text-gray-500 dark:text-muted-foreground text-sm font-medium leading-relaxed">
+                <div className="flex-1 flex items-center justify-center px-3 py-8 text-center overflow-hidden">
+                  <p className="text-gray-500 dark:text-muted-foreground text-[11px] sm:text-xs font-medium whitespace-nowrap text-center max-w-full">
                     Connect Pi Wallet to start your journey with this dApp!
                   </p>
                 </div>
