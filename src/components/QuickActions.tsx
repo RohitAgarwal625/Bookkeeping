@@ -78,7 +78,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                   className="w-full py-3 rounded-xl border border-gray-200 dark:border-border hover:bg-purple-50 dark:hover:bg-secondary text-gray-900 dark:text-foreground font-medium transition-colors flex items-center gap-3 px-4"
                 >
                   <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
-                  <span className="text-base font-bold">Individual</span>
+                  <span className="text-lg font-bold">Individual</span>
                 </button>
                 {/* Business (coming soon) — disabled */}
                 <button
@@ -86,7 +86,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                   className="w-full py-3 rounded-xl border border-gray-100 dark:border-border/50 bg-gray-50 dark:bg-secondary/40 text-gray-400 dark:text-muted-foreground font-medium cursor-not-allowed flex items-center gap-3 px-4"
                 >
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-300/60" />
-                  <span className="text-base font-bold">Business</span>
+                  <span className="text-lg font-bold">Business</span>
                   <span style={{ fontSize: "7px" }} className="ml-auto font-normal text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/40">
                     Coming Soon
                   </span>
@@ -126,7 +126,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
                       <PenLine className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-base font-bold">Manual</span>
+                    <span className="text-lg font-bold">Manual</span>
                   </button>
                   {/* Info icon */}
                   <button
@@ -153,7 +153,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
                       <Zap className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-base font-bold">Automatic</span>
+                    <span className="text-lg font-bold">Automatic</span>
                     <span style={{ fontSize: "7px" }} className="ml-auto font-normal text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-3 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
                       Free • Limited
                     </span>

@@ -98,7 +98,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <User className="w-7 h-7 text-white" />
                     </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-bold hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <span className="text-base text-gray-700 dark:text-gray-300 font-bold hover:text-gray-900 dark:hover:text-white transition-colors">
                       Individual
                     </span>
                   </button>
@@ -129,7 +129,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: "#9ca3af" }}>
                       <Briefcase className="w-7 h-7" style={{ color: "#ffffff" }} />
                     </div>
-                    <span className="text-sm font-bold" style={{ color: "#9ca3af" }}>Business</span>
+                    <span className="text-base font-bold" style={{ color: "#9ca3af" }}>Business</span>
                   </div>
                   {/* Info */}
                   <button
@@ -204,7 +204,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <PenLine className="w-7 h-7 text-white" />
                     </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-bold">Manual</span>
+                    <span className="text-base text-gray-700 dark:text-gray-300 font-bold">Manual</span>
                   </button>
                   {/* Info */}
                   <button
@@ -233,7 +233,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <Zap className="w-7 h-7 text-white" />
                     </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-bold">Automatic</span>
+                    <span className="text-base text-gray-700 dark:text-gray-300 font-bold">Automatic</span>
                   </button>
                   {/* Info */}
                   <button
