@@ -1,5 +1,5 @@
 import { Bell, ArrowDownLeft, ArrowUpRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BalanceCard } from "./BalanceCard";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { getInitials } from "../types";
@@ -42,11 +42,38 @@ export function Dashboard({
 }: DashboardProps) {
   const [showBell, setShowBell] = useState(false);
   const [bellRead, setBellRead] = useState(false);
+  const [alertSize, setAlertSize] = useState({ w: 390, h: 180 });
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showBell) return;
+    const update = () => {
+      requestAnimationFrame(() => {
+        if (alertRef.current) {
+          const rect = alertRef.current.getBoundingClientRect();
+          setAlertSize({ w: rect.width, h: rect.height });
+        }
+      });
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [showBell]);
 
   const handleBellClick = () => {
     setShowBell((prev) => !prev);
     setBellRead(true);
   };
+
+  const alertCornerR = 16;
+  const alertSvgPath = [
+    `M 0,0`,
+    `L 0,${alertSize.h - alertCornerR}`,
+    `A ${alertCornerR},${alertCornerR} 0 0,0 ${alertCornerR},${alertSize.h}`,
+    `L ${alertSize.w - alertCornerR},${alertSize.h}`,
+    `A ${alertCornerR},${alertCornerR} 0 0,0 ${alertSize.w},${alertSize.h - alertCornerR}`,
+    `L ${alertSize.w},0`,
+  ].join(" ");
 
   return (
     <div className={`size-full flex flex-col ${isGuest ? "bg-background" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"} relative`}>
@@ -74,7 +101,22 @@ export function Dashboard({
       {showBell && (
         <div className="relative z-30">
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
-          <div className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card rounded-b-2xl shadow-xl border-b-2 border-gray-400 dark:border-white/50 overflow-hidden">
+          <div
+            ref={alertRef}
+            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card shadow-xl overflow-hidden"
+            style={{ borderBottomLeftRadius: alertCornerR, borderBottomRightRadius: alertCornerR }}
+          >
+            {/* SVG border outline mirroring navigation bar corners & border style */}
+            <svg
+              className="absolute inset-0 pointer-events-none text-gray-400 dark:text-white/50"
+              width="100%"
+              height="100%"
+              style={{ overflow: "visible" }}
+              aria-hidden="true"
+            >
+              <path d={alertSvgPath} fill="none" stroke="currentColor" strokeWidth="2" />
+            </svg>
+
             <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-center">
               <p className="text-gray-900 dark:text-foreground font-semibold text-sm text-center">Alerts</p>
             </div>
