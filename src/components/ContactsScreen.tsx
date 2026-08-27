@@ -57,9 +57,9 @@ export function ContactsScreen({
   }, [newContactId]);
 
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
+    <div className="size-full flex flex-col bg-background" style={{ minHeight: "100dvh" }}>
       {/* Header — only contains "Contacts" title + separator */}
-      <header className="bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border px-6 py-4 z-10 relative">
+      <header className="bg-background shadow-sm border-b border-gray-200 dark:border-border px-6 py-4 z-10 relative">
         <div className="flex items-center">
           <div className="w-8 flex-shrink-0" />
           <h1 className="flex-1 text-base font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
@@ -70,7 +70,7 @@ export function ContactsScreen({
       </header>
 
       {/* Search bar — sits below the separator line */}
-      <div className="bg-white dark:bg-card px-6 pb-3 pt-3 border-b border-gray-100 dark:border-border">
+      <div className="bg-background px-6 pb-3 pt-3 border-b border-gray-100 dark:border-border">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
