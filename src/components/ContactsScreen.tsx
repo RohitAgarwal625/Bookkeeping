@@ -57,7 +57,7 @@ export function ContactsScreen({
   }, [newContactId]);
 
   return (
-    <div className={`size-full flex flex-col ${isGuest ? "bg-white dark:bg-[#0F1115]" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`} style={{ minHeight: "100dvh" }}>
+    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
       {/* Header — only contains "Contacts" title + separator */}
       <header className="bg-white dark:bg-card shadow-sm border-b border-gray-200 dark:border-border px-6 py-4 z-10 relative">
         <div className="flex items-center">
@@ -70,7 +70,7 @@ export function ContactsScreen({
       </header>
 
       {/* Search bar — sits below the separator line */}
-      <div className="bg-white dark:bg-card px-6 pb-3 pt-3">
+      <div className="bg-white dark:bg-card px-6 pb-3 pt-3 border-b border-gray-100 dark:border-border">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
@@ -95,9 +95,9 @@ export function ContactsScreen({
       </div>
 
       {/* Contact list content area */}
-      <div className="flex-1 px-4 pt-4" style={{ paddingBottom: "111px" }}>
+      <div className={filtered.length === 0 ? "flex-1 flex flex-col px-4 pt-4" : "flex-1 px-4 pt-4"} style={filtered.length === 0 ? undefined : { paddingBottom: "111px" }}>
         {filtered.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center py-20 gap-3">
+          <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10 pb-24 gap-3">
             <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0">
               <User className="w-7 h-7 text-gray-400 dark:text-muted-foreground" />
             </div>
