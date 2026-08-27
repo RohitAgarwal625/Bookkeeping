@@ -246,7 +246,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   >
                     <Info className="w-3 h-3 text-black" />
                   </button>
-                  <span style={{ padding: "2px 8px", fontSize: "10px" }} className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
+                  <span style={{ padding: "2px 8px", fontSize: "10px" }} className="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-full border border-red-200 dark:border-red-800/40 whitespace-nowrap">
                     Free • Limited
                   </span>
                   {autoTooltip && (

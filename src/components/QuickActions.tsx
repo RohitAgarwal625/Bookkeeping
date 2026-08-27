@@ -157,7 +157,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                       <Zap className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-lg font-bold">Automatic</span>
-                    <span style={{ fontSize: "10px" }} className="ml-auto font-normal text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-2.5 py-0.5 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
+                    <span style={{ fontSize: "10px" }} className="ml-auto font-normal text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-2.5 py-0.5 rounded-full border border-red-200 dark:border-red-800/40 whitespace-nowrap">
                       Free • Limited
                     </span>
                   </button>
