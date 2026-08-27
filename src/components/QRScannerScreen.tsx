@@ -204,15 +204,17 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
       {status === "scanning" && (
         <>
           <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10">
-            <div className="w-64 h-64 relative">
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#A47CF3] rounded-tl-lg" />
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#A47CF3] rounded-tr-lg" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#A47CF3] rounded-bl-lg" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#A47CF3] rounded-br-lg" />
-              <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#A47CF3] to-transparent"
+            <div className="w-64 h-64 relative rounded-2xl border-2 border-white/80 shadow-2xl">
+              {/* Corner accents */}
+              <div className="absolute -top-0.5 -left-0.5 w-8 h-8 border-t-4 border-l-4 border-[#A47CF3] rounded-tl-xl" />
+              <div className="absolute -top-0.5 -right-0.5 w-8 h-8 border-t-4 border-r-4 border-[#A47CF3] rounded-tr-xl" />
+              <div className="absolute -bottom-0.5 -left-0.5 w-8 h-8 border-b-4 border-l-4 border-[#A47CF3] rounded-bl-xl" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-8 h-8 border-b-4 border-r-4 border-[#A47CF3] rounded-br-xl" />
+              {/* Animated scan line */}
+              <div className="absolute inset-x-3 h-0.5 bg-gradient-to-r from-transparent via-[#A47CF3] to-transparent shadow-[0_0_8px_#A47CF3]"
                 style={{ animation: "scanLine 2s ease-in-out infinite", top: "50%" }} />
             </div>
-            <p className="text-white text-sm mt-6 text-center px-8 opacity-80">
+            <p className="text-white text-sm mt-6 text-center px-8 opacity-90 font-medium drop-shadow-md">
               Point camera at a Pi Wallet QR code
             </p>
             <style>{`@keyframes scanLine { 0%,100% { top: 10%; } 50% { top: 90%; } }`}</style>
