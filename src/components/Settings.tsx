@@ -208,7 +208,7 @@ export function Settings({
             </div>
 
             {showDisplayNameInfo && (
-              <div className="my-3 w-full text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
+              <div className="my-3 w-full bg-gray-100 dark:bg-secondary border border-gray-200 dark:border-border rounded-xl p-3.5 px-4 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
                 Your Display Name is a customizable label which will be visible to other users of this dApp in the future.
               </div>
             )}
