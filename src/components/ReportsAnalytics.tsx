@@ -261,7 +261,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                           className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
                           aria-label="Customer info"
                         >
-                          <Info className="w-4 h-4" />
+                          <Info className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>

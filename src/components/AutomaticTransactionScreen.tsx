@@ -266,7 +266,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                   title="Date Range Limit Info"
                   aria-label="Date Range Limit Info"
                 >
-                  <Info className="w-4 h-4" />
+                  <Info className="w-3.5 h-3.5" />
                 </button>
               </div>
 
