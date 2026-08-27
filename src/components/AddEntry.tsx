@@ -390,7 +390,8 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             </label>
             <textarea
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(e) => setNote(e.target.value.slice(0, 100))}
+              maxLength={100}
               placeholder="Add a note or description..."
               rows={3}
               className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent resize-none transition-all"

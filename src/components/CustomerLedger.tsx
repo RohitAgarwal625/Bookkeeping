@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil, Check, X } from "lucide-react";
 import { useState } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -12,6 +12,8 @@ interface CustomerLedgerProps {
 
 export function CustomerLedger({ customerName, onBack, initialNewTransactions }: CustomerLedgerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingNote, setEditingNote] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
     const base: Transaction[] = [
       {
@@ -105,6 +107,27 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
     return sortTransactionsDescending(base);
   });
 
+  const handleStartEdit = (t: Transaction) => {
+    setEditingId(t.id);
+    setEditingNote(t.description);
+  };
+
+  const handleSaveEdit = (id: string) => {
+    const trimmed = editingNote.trim();
+    if (trimmed) {
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, description: trimmed.slice(0, 100) } : t))
+      );
+    }
+    setEditingId(null);
+    setEditingNote("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingNote("");
+  };
+
   // Calculate balance
   const totalCredit = transactions
     .filter((t) => t.type === "credit")
@@ -126,7 +149,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
 
     const newTransaction: Transaction = {
       id: Date.now().toString(),
-      description: entry.note,
+      description: entry.note.slice(0, 100),
       amount: entry.amount,
       type: entry.type,
       timestamp: `${yyyy}-${mm}-${dd} ${hh}:${min}`,
@@ -138,7 +161,6 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
 
   const handleSettleBalance = () => {
     console.log("Settling balance for", customerName);
-    // In a real app, this would create a settlement transaction
   };
 
   return (
@@ -184,44 +206,97 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
             </div>
           ) : (
             <div className="space-y-3">
-              {transactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
-                    transaction.isNew
-                      ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
-                      : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#8A2BE2]/40"
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1 min-w-0 pr-2">
-                      <div className="flex items-center gap-2">
-                        <p className="text-gray-900 dark:text-foreground font-medium truncate">{transaction.description}</p>
-                        {transaction.isNew && (
-                          <span
-                            className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3]"
-                            style={{ padding: "3px 10px", display: "inline-flex", alignItems: "center" }}
-                          >
-                            New
-                          </span>
+              {transactions.map((transaction) => {
+                const isEditing = editingId === transaction.id;
+
+                return (
+                  <div
+                    key={transaction.id}
+                    className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
+                      transaction.isNew
+                        ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
+                        : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#8A2BE2]/40"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        {isEditing ? (
+                          <div className="flex items-center gap-2 mb-1">
+                            <input
+                              type="text"
+                              value={editingNote}
+                              onChange={(e) => setEditingNote(e.target.value.slice(0, 100))}
+                              onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(transaction.id)}
+                              maxLength={100}
+                              autoFocus
+                              placeholder="Edit note..."
+                              className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveEdit(transaction.id)}
+                              disabled={!editingNote.trim()}
+                              className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center disabled:opacity-40 flex-shrink-0"
+                              aria-label="Save note"
+                            >
+                              <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCancelEdit}
+                              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0"
+                              aria-label="Cancel editing"
+                            >
+                              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-2">
+                            <p className="text-gray-900 dark:text-foreground font-medium text-sm leading-relaxed break-words flex-1">
+                              {transaction.description}
+                            </p>
+                            {transaction.isNew && (
+                              <span
+                                className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3]"
+                                style={{ padding: "3px 10px", display: "inline-flex", alignItems: "center" }}
+                              >
+                                New
+                              </span>
+                            )}
+                          </div>
                         )}
+
+                        {/* Timestamp & Edit Button — positioned lower in the card */}
+                        <div className="flex items-center gap-2 mt-3">
+                          <p className="text-xs text-gray-400 dark:text-muted-foreground">{transaction.timestamp}</p>
+                          {!isEditing && (
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(transaction)}
+                              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                              aria-label="Edit Note"
+                            >
+                              <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-400 dark:text-muted-foreground mt-1">{transaction.timestamp}</p>
-                    </div>
-                    <p
-                      className={`font-bold ml-4 flex-shrink-0 ${transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+
+                      {/* Transaction Amount */}
+                      <p
+                        className={`font-bold ml-2 flex-shrink-0 ${
+                          transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                         }`}
-                    >
-                      {transaction.type === "credit" ? "+" : "-"}{transaction.amount.toFixed(2)} π
-                    </p>
+                      >
+                        {transaction.type === "credit" ? "+" : "-"}{transaction.amount.toFixed(2)} π
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
-
-
       </div>
 
 

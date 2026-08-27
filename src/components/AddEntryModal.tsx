@@ -117,7 +117,8 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
             <label className="block text-gray-700 dark:text-foreground mb-2">Memo</label>
             <textarea
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(e) => setNote(e.target.value.slice(0, 100))}
+              maxLength={100}
               placeholder="Add a note or description..."
               rows={3}
               className="w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#A47CF3] focus:ring-2 focus:ring-[#A47CF3]/20 outline-none transition-all resize-none"
