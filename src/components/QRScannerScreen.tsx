@@ -69,9 +69,41 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
     };
   }, []);
 
+  // Handle mobile hardware/gesture/browser back button navigation
+  useEffect(() => {
+    window.history.pushState({ screen: "qrScanner" }, "");
+    const handlePopState = () => {
+      onBack();
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [onBack]);
+
+  const handleBack = () => {
+    if (window.history.state?.screen === "qrScanner") {
+      window.history.back();
+    } else {
+      onBack();
+    }
+  };
+
   if (status === "success") {
     return (
       <div className="fixed inset-0 min-h-[100dvh] flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-8 gap-6 z-[100]">
+        {/* Header Back Button */}
+        <header className="absolute top-0 left-0 right-0 z-20 px-6 py-5 flex items-center gap-3">
+          <button
+            onClick={handleBack}
+            className="p-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-colors active:scale-95"
+            aria-label="Go Back"
+          >
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </button>
+          <p className="text-white font-semibold">QR Scanned</p>
+        </header>
+
         <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-xl"
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}>
           <CheckCircle className="w-10 h-10 text-white" />
@@ -88,7 +120,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}>
           Pay this Address
         </button>
-        <button onClick={onBack} className="text-gray-400 text-sm underline">Cancel</button>
+        <button onClick={handleBack} className="text-gray-400 text-sm underline">Cancel</button>
       </div>
     );
   }
@@ -130,7 +162,11 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
 
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-20 px-6 py-5 flex items-center gap-3 bg-gradient-to-b from-black/80 to-transparent">
-        <button onClick={onBack} className="p-2 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
+        <button
+          onClick={handleBack}
+          className="p-2.5 rounded-full bg-black/50 backdrop-blur-md border border-white/10 hover:bg-black/70 transition-colors active:scale-95 cursor-pointer"
+          aria-label="Go Back"
+        >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
         <p className="text-white font-semibold">Scan Pi Wallet QR</p>
@@ -144,8 +180,8 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
             <p className="text-white font-bold text-lg mb-2">Camera Unavailable</p>
             <p className="text-gray-400 text-sm mb-6">{error || "Please allow camera permission and try again."}</p>
             <button
-              onClick={onBack}
-              className="px-6 py-3 rounded-xl bg-white/10 text-white font-semibold mb-6 hover:bg-white/20 transition-colors border border-white/20"
+              onClick={handleBack}
+              className="px-6 py-3 rounded-xl bg-white/10 text-white font-semibold mb-6 hover:bg-white/20 transition-colors border border-white/20 active:scale-95"
             >
               Go Back
             </button>
