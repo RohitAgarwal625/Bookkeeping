@@ -95,25 +95,41 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
 
   return (
     <div className="fixed inset-0 min-h-[100dvh] w-full flex flex-col bg-[#0a0a0a] z-[100] overflow-hidden">
-      {/* CSS overrides for html5-qrcode injected elements to guarantee dark background */}
+      {/* CSS overrides for html5-qrcode injected elements to guarantee full-screen video without letterboxing */}
       <style>{`
         #qr-reader-container {
-          background: #0a0a0a !important;
-          background-color: #0a0a0a !important;
+          position: absolute !important;
+          inset: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          min-height: 100% !important;
+          padding: 0 !important;
           border: none !important;
           box-shadow: none !important;
+          overflow: hidden !important;
+          background: #0a0a0a !important;
         }
         #qr-reader-container * {
           background-color: transparent !important;
         }
         #qr-reader-container video {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          min-width: 100% !important;
+          min-height: 100% !important;
           object-fit: cover !important;
-          background: #0a0a0a !important;
+          z-index: 1 !important;
+        }
+        #qr-reader-container canvas {
+          display: none !important;
         }
       `}</style>
 
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 px-6 py-5 flex items-center gap-3 bg-gradient-to-b from-black/80 to-transparent">
+      <header className="absolute top-0 left-0 right-0 z-20 px-6 py-5 flex items-center gap-3 bg-gradient-to-b from-black/80 to-transparent">
         <button onClick={onBack} className="p-2 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
@@ -121,8 +137,8 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
       </header>
 
       {/* Camera view */}
-      <div className="flex-1 flex items-center justify-center bg-[#0a0a0a]">
-        <div id={containerId} className="w-full h-full bg-[#0a0a0a]" />
+      <div className="absolute inset-0 w-full h-full bg-[#0a0a0a] overflow-hidden">
+        <div id={containerId} className="w-full h-full" />
         {status === "error" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 px-8 text-center z-20">
             <p className="text-white font-bold text-lg mb-2">Camera Unavailable</p>
