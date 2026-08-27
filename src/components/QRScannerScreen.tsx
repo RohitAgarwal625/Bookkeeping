@@ -165,25 +165,21 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
             </p>
             <style>{`@keyframes scanLine { 0%,100% { top: 10%; } 50% { top: 90%; } }`}</style>
           </div>
-          {/* Upload QR button pinned to bottom center with a dark gradient backdrop */}
-          <div
-            className="fixed bottom-0 left-0 right-0 py-8 flex justify-center z-50 pointer-events-auto"
+          {/* Upload QR button — floating pill, no background wrapper */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="fixed flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm transition-transform active:scale-95 z-50"
             style={{
-              background: "linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.7) 60%, transparent 100%)",
+              bottom: "32px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
+              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
             }}
           >
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95"
-              style={{
-                background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-                boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
-              }}
-            >
-              <span>Upload QR Image</span>
-              <Upload className="w-4 h-4" />
-            </button>
-          </div>
+            <span>Upload QR Image</span>
+            <Upload className="w-4 h-4" />
+          </button>
         </>
       )}
 
