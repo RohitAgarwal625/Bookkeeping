@@ -219,7 +219,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   </span>
                   {manualTooltip && (
                     <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
-                      Recommended for adding one or few missing transaction(s) one by one.
+                      Recommended for adding one or a few missing transaction(s) one by one.
                     </div>
                   )}
                 </div>

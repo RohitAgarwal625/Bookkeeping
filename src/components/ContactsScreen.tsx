@@ -70,7 +70,7 @@ export function ContactsScreen({
       </header>
 
       {/* Search bar — sits below the separator line */}
-      <div className="bg-background px-6 pb-3 pt-3 border-b border-gray-100 dark:border-border">
+      <div className="bg-background px-6 pb-3 pt-3">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           <input
