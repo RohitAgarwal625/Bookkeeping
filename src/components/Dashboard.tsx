@@ -122,7 +122,7 @@ export function Dashboard({
             <div className="min-h-[140px] flex flex-col justify-center">
               {isGuest ? (
                 <div className="flex-1 flex items-center justify-center px-3 py-8 text-center overflow-hidden">
-                  <p className="text-gray-500 dark:text-muted-foreground text-[11px] sm:text-xs font-medium whitespace-nowrap text-center max-w-full">
+                  <p className="text-gray-500 dark:text-muted-foreground text-sm font-medium whitespace-nowrap text-center max-w-full">
                     Connect Pi Wallet to start your journey with this dApp!
                   </p>
                 </div>
