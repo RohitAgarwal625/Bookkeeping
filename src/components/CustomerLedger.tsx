@@ -256,16 +256,12 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                           />
                         </div>
 
-                        {/* Bottom action row: character counter on left, save & cancel buttons on right */}
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="text-[11px] text-gray-400 dark:text-muted-foreground font-medium">
-                            {editingNote.length}/100 characters
-                          </span>
-                          <div className="flex items-center gap-2">
+                        {/* Bottom action row: save & cancel buttons on right */}
+                        <div className="flex items-center justify-end gap-2 pt-1">
                             <button
                               type="button"
                               onClick={handleCancelEdit}
-                              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary hover:bg-gray-200 dark:hover:bg-secondary/80 flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
+                              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
                               aria-label="Cancel editing"
                               title="Cancel"
                             >
@@ -275,26 +271,27 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                               type="button"
                               onClick={() => handleSaveEdit(transaction.id)}
                               disabled={!editingNote.trim()}
-                              className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0 transition-colors shadow-sm"
+                              style={{ background: "#22c55e" }}
+                              className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-40 flex-shrink-0 transition-colors shadow-sm"
                               aria-label="Save note"
                               title="Save Note"
                             >
                               <Check className="w-4 h-4 text-white" />
                             </button>
-                          </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-gray-900 dark:text-foreground font-medium text-sm leading-relaxed break-words">
+                      <div className="flex justify-between items-start gap-2">
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div className="flex items-start gap-2">
+                            <p
+                              style={{ wordBreak: "break-word", overflowWrap: "break-word", minWidth: 0, flex: 1 }}
+                              className="text-gray-900 dark:text-foreground font-medium text-sm leading-relaxed"
+                            >
                               {transaction.description}
                             </p>
                             {transaction.isNew && (
-                              <span
-                                className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3] px-2 py-0.5"
-                              >
+                              <span className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3] px-2 py-0.5">
                                 New
                               </span>
                             )}
@@ -314,10 +311,10 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                           </div>
                         </div>
 
-                        {/* Transaction Amount */}
-                        <div className="text-right flex-shrink-0 pl-2">
+                        {/* Transaction Amount — fixed right side, never shrinks */}
+                        <div className="flex-shrink-0 text-right" style={{ minWidth: "fit-content" }}>
                           <p
-                            className={`font-bold text-sm sm:text-base whitespace-nowrap ${
+                            className={`font-bold text-sm whitespace-nowrap ${
                               transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                             }`}
                           >
