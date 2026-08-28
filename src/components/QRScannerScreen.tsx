@@ -169,6 +169,12 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           object-fit: cover !important;
           z-index: 1 !important;
         }
+        #qr-shaded-region {
+          display: none !important;
+        }
+        #qr-reader-container canvas {
+          display: none !important;
+        }
       `}</style>
 
       {/* Header */}
@@ -211,25 +217,34 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
         )}
       </div>
 
-      {/* Viewfinder overlay */}
+      {/* Viewfinder overlay — exact replica of html5-qrcode's shaded region + white corner brackets from commit b50e8224 */}
       {status === "scanning" && (
         <>
           <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10">
-            <div className="w-64 h-64 relative" style={{ boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.48)' }}>
-              {/* White corner brackets (replaces library's removed overlay) */}
-              <div className="absolute" style={{ top: -3, left: -3, width: 40, height: 5, backgroundColor: '#fff' }} />
-              <div className="absolute" style={{ top: -3, left: -3, width: 5, height: 40, backgroundColor: '#fff' }} />
-              <div className="absolute" style={{ top: -3, right: -3, width: 40, height: 5, backgroundColor: '#fff' }} />
-              <div className="absolute" style={{ top: -3, right: -3, width: 5, height: 40, backgroundColor: '#fff' }} />
-              <div className="absolute" style={{ bottom: -3, left: -3, width: 40, height: 5, backgroundColor: '#fff' }} />
-              <div className="absolute" style={{ bottom: -3, left: -3, width: 5, height: 40, backgroundColor: '#fff' }} />
-              <div className="absolute" style={{ bottom: -3, right: -3, width: 40, height: 5, backgroundColor: '#fff' }} />
-              <div className="absolute" style={{ bottom: -3, right: -3, width: 5, height: 40, backgroundColor: '#fff' }} />
-              {/* Purple corner brackets */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#A47CF3] rounded-tl-lg" />
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#A47CF3] rounded-tr-lg" />
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#A47CF3] rounded-bl-lg" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#A47CF3] rounded-br-lg" />
+            {/* 250x250 focus box with darkened surround and white corner brackets */}
+            <div className="relative" style={{ width: '250px', height: '250px' }}>
+              {/* Darkened overlay outside the focus box — matches library's rgba(0,0,0,0.48) */}
+              <div className="absolute inset-0" style={{ boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.48)' }} />
+
+              {/* 8 white corner bracket divs — pixel-exact match to html5-qrcode insertShaderBorders */}
+              {/* Top-left horizontal */}
+              <div style={{ position: 'absolute', top: '-5px', left: '0px', width: '40px', height: '5px', backgroundColor: '#ffffff' }} />
+              {/* Top-left vertical */}
+              <div style={{ position: 'absolute', top: '-5px', left: '-5px', width: '5px', height: '45px', backgroundColor: '#ffffff' }} />
+              {/* Top-right horizontal */}
+              <div style={{ position: 'absolute', top: '-5px', right: '0px', width: '40px', height: '5px', backgroundColor: '#ffffff' }} />
+              {/* Top-right vertical */}
+              <div style={{ position: 'absolute', top: '-5px', right: '-5px', width: '5px', height: '45px', backgroundColor: '#ffffff' }} />
+              {/* Bottom-left horizontal */}
+              <div style={{ position: 'absolute', bottom: '-5px', left: '0px', width: '40px', height: '5px', backgroundColor: '#ffffff' }} />
+              {/* Bottom-left vertical */}
+              <div style={{ position: 'absolute', bottom: '-5px', left: '-5px', width: '5px', height: '45px', backgroundColor: '#ffffff' }} />
+              {/* Bottom-right horizontal */}
+              <div style={{ position: 'absolute', bottom: '-5px', right: '0px', width: '40px', height: '5px', backgroundColor: '#ffffff' }} />
+              {/* Bottom-right vertical */}
+              <div style={{ position: 'absolute', bottom: '-5px', right: '-5px', width: '5px', height: '45px', backgroundColor: '#ffffff' }} />
+
+              {/* Animated scan line */}
               <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#A47CF3] to-transparent"
                 style={{ animation: "scanLine 2s ease-in-out infinite", top: "50%" }} />
             </div>
