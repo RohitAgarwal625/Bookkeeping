@@ -97,16 +97,20 @@ export function Dashboard({
         </div>
       </header>
 
-      {/* Bell Notification Dropdown — Positioned directly after header separation line */}
+      {/* Bell Notification Dropdown — starts flush from header separation line */}
       {showBell && (
         <div className="relative z-30">
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
           <div
             ref={alertRef}
-            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card shadow-xl overflow-hidden"
-            style={{ borderBottomLeftRadius: alertCornerR, borderBottomRightRadius: alertCornerR }}
+            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card overflow-hidden"
+            style={{
+              borderBottomLeftRadius: alertCornerR,
+              borderBottomRightRadius: alertCornerR,
+              boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)",
+            }}
           >
-            {/* SVG border outline mirroring navigation bar corners & border style */}
+            {/* SVG border — exact same grey halo approach as BottomNav separation line */}
             <svg
               className="absolute inset-0 pointer-events-none text-gray-400 dark:text-white/50"
               width="100%"
