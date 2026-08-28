@@ -218,58 +218,91 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                         : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#8A2BE2]/40"
                     }`}
                   >
-                    <div className="flex justify-between items-start gap-3">
-                      <div className="flex-1 min-w-0">
-                        {isEditing ? (
-                          <div className="flex items-center gap-2 mb-1">
-                            <input
-                              type="text"
-                              value={editingNote}
-                              onChange={(e) => setEditingNote(e.target.value.slice(0, 100))}
-                              onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(transaction.id)}
-                              maxLength={100}
-                              autoFocus
-                              placeholder="Edit note..."
-                              className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3]"
-                            />
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        {/* Top row in edit mode: Title/Status and Amount */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-semibold text-[#A47CF3] uppercase tracking-wider">
+                            Edit Note
+                          </span>
+                          <p
+                            className={`font-bold text-sm sm:text-base flex-shrink-0 ${
+                              transaction.type === "credit"
+                                ? "text-green-600 dark:text-green-400"
+                                : "text-red-600 dark:text-red-400"
+                            }`}
+                          >
+                            {transaction.type === "credit" ? "+" : "-"}
+                            {transaction.amount.toFixed(2)} π
+                          </p>
+                        </div>
+
+                        {/* Full-width Textarea with max 100 chars */}
+                        <div className="relative">
+                          <textarea
+                            value={editingNote}
+                            onChange={(e) => setEditingNote(e.target.value.slice(0, 100))}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSaveEdit(transaction.id);
+                              }
+                            }}
+                            maxLength={100}
+                            autoFocus
+                            rows={2}
+                            placeholder="Edit note (max 100 characters)..."
+                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] resize-none"
+                          />
+                        </div>
+
+                        {/* Bottom action row: character counter on left, save & cancel buttons on right */}
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-[11px] text-gray-400 dark:text-muted-foreground font-medium">
+                            {editingNote.length}/100 characters
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={handleCancelEdit}
+                              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary hover:bg-gray-200 dark:hover:bg-secondary/80 flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
+                              aria-label="Cancel editing"
+                              title="Cancel"
+                            >
+                              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+                            </button>
                             <button
                               type="button"
                               onClick={() => handleSaveEdit(transaction.id)}
                               disabled={!editingNote.trim()}
-                              className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center disabled:opacity-40 flex-shrink-0"
+                              className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0 transition-colors shadow-sm"
                               aria-label="Save note"
+                              title="Save Note"
                             >
-                              <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleCancelEdit}
-                              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0"
-                              aria-label="Cancel editing"
-                            >
-                              <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+                              <Check className="w-4 h-4 text-white" />
                             </button>
                           </div>
-                        ) : (
-                          <div className="flex items-start gap-2">
-                            <p className="text-gray-900 dark:text-foreground font-medium text-sm leading-relaxed break-words flex-1">
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-gray-900 dark:text-foreground font-medium text-sm leading-relaxed break-words">
                               {transaction.description}
                             </p>
                             {transaction.isNew && (
                               <span
-                                className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3]"
-                                style={{ padding: "3px 10px", display: "inline-flex", alignItems: "center" }}
+                                className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3] px-2 py-0.5"
                               >
                                 New
                               </span>
                             )}
                           </div>
-                        )}
 
-                        {/* Timestamp & Edit Button — positioned lower in the card */}
-                        <div className="flex items-center gap-2 mt-3">
-                          <p className="text-xs text-gray-400 dark:text-muted-foreground">{transaction.timestamp}</p>
-                          {!isEditing && (
+                          {/* Timestamp & Edit Button */}
+                          <div className="flex items-center gap-2 mt-2">
+                            <p className="text-xs text-gray-400 dark:text-muted-foreground">{transaction.timestamp}</p>
                             <button
                               type="button"
                               onClick={() => handleStartEdit(transaction)}
@@ -278,19 +311,21 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                             >
                               <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
                             </button>
-                          )}
+                          </div>
+                        </div>
+
+                        {/* Transaction Amount */}
+                        <div className="text-right flex-shrink-0 pl-2">
+                          <p
+                            className={`font-bold text-sm sm:text-base whitespace-nowrap ${
+                              transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                            }`}
+                          >
+                            {transaction.type === "credit" ? "+" : "-"}{transaction.amount.toFixed(2)} π
+                          </p>
                         </div>
                       </div>
-
-                      {/* Transaction Amount */}
-                      <p
-                        className={`font-bold ml-2 flex-shrink-0 ${
-                          transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                        }`}
-                      >
-                        {transaction.type === "credit" ? "+" : "-"}{transaction.amount.toFixed(2)} π
-                      </p>
-                    </div>
+                    )}
                   </div>
                 );
               })}

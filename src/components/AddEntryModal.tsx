@@ -114,14 +114,19 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
 
           {/* Memo Field */}
           <div className="mb-6">
-            <label className="block text-gray-700 dark:text-foreground mb-2">Memo</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-gray-700 dark:text-foreground text-sm font-medium">Memo</label>
+              <span className="text-[11px] text-gray-400 dark:text-muted-foreground">
+                {note.length}/100
+              </span>
+            </div>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value.slice(0, 100))}
               maxLength={100}
               placeholder="Add a note or description..."
               rows={3}
-              className="w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#A47CF3] focus:ring-2 focus:ring-[#A47CF3]/20 outline-none transition-all resize-none"
+              className="w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#A47CF3] focus:ring-2 focus:ring-[#A47CF3]/20 outline-none transition-all resize-none text-sm"
             />
           </div>
 

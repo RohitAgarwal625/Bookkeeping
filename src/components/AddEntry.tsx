@@ -385,16 +385,21 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
 
           {/* 8. Memo Input */}
           <div className="mb-6">
-            <label className="block text-gray-700 dark:text-foreground text-sm mb-2">
-              Memo <span className="text-gray-400 dark:text-muted-foreground">(optional)</span>
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-gray-700 dark:text-foreground text-sm font-medium">
+                Memo <span className="text-gray-400 dark:text-muted-foreground font-normal">(optional)</span>
+              </label>
+              <span className="text-[11px] text-gray-400 dark:text-muted-foreground">
+                {note.length}/100
+              </span>
+            </div>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value.slice(0, 100))}
               maxLength={100}
               placeholder="Add a note or description..."
               rows={3}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent resize-none transition-all"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent resize-none transition-all text-sm"
             />
           </div>
 
