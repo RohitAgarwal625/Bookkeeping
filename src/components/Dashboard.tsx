@@ -117,7 +117,7 @@ export function Dashboard({
               <path d={alertSvgPath} fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
             <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-center">
-              <p className="text-gray-900 dark:text-foreground font-semibold text-[11px] sm:text-xs text-center">Alerts</p>
+              <p className="text-gray-900 dark:text-foreground font-semibold text-sm text-center">Alerts</p>
             </div>
             <div className="min-h-[140px] flex flex-col justify-center">
               {isGuest ? (
@@ -139,8 +139,8 @@ export function Dashboard({
                         )}
                       </div>
                       <div className="flex-1 min-w-0 text-left">
-                        <p className="text-gray-500 dark:text-muted-foreground text-[11px] sm:text-xs font-medium">{n.message}</p>
-                        <p className="text-gray-400 dark:text-muted-foreground text-[10px] sm:text-[11px] mt-0.5">{n.time}</p>
+                        <p className="text-gray-800 dark:text-foreground text-xs leading-snug">{n.message}</p>
+                        <p className="text-gray-400 dark:text-muted-foreground text-xs mt-0.5">{n.time}</p>
                       </div>
                     </div>
                   ))}
