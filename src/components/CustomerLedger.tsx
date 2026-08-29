@@ -270,9 +270,9 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-32">
         {/* Top Summary Card */}
-        <div className="bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border-2 dark:border-[#8A2BE2]/30 p-8 mb-6 border-2 border-transparent relative overflow-hidden">
+        <div className="bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border dark:border-border p-8 mb-6 relative overflow-hidden">
           {/* Gradient border effect */}
-          <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-br from-[#A47CF3] to-[#F7C548] -z-10" />
+          <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-br from-[#A47CF3] to-[#F7C548] -z-10 opacity-70" />
           <div className="absolute inset-[2px] bg-white dark:bg-card rounded-2xl -z-10" />
 
           {/* Credit and Debit Summary */}
@@ -291,7 +291,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
 
         {/* Recent Transactions Section */}
         <div className="mb-6">
-          <h3 className="text-gray-900 dark:text-foreground mb-4">All Transactions</h3>
+          <h3 className="text-gray-900 dark:text-foreground font-semibold text-base mb-4">All Transactions</h3>
 
           {transactions.length === 0 ? (
             <div className="text-center py-12 text-gray-500 dark:text-muted-foreground">
@@ -307,8 +307,8 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                     key={transaction.id}
                     className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
                       transaction.isNew
-                        ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
-                        : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#8A2BE2]/40"
+                        ? "bg-purple-50 dark:bg-card border-2 border-[#A47CF3] dark:border-[#A47CF3] shadow-[0_0_12px_rgba(164,124,243,0.12)]"
+                        : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#A47CF3]/40"
                     }`}
                   >
                     {isEditing ? (
@@ -345,7 +345,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                             autoFocus
                             rows={2}
                             placeholder="Edit note (max 100 characters)..."
-                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] resize-none"
+                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#A47CF3]/60 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] resize-none"
                           />
                         </div>
 
@@ -354,7 +354,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                             <button
                               type="button"
                               onClick={handleCancelEdit}
-                              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
+                              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary hover:bg-gray-200 dark:hover:bg-secondary/80 flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
                               aria-label="Cancel editing"
                               title="Cancel"
                             >
@@ -396,10 +396,10 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                             <button
                               type="button"
                               onClick={() => handleStartEdit(transaction)}
-                              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-secondary/80 text-gray-500 dark:text-muted-foreground transition-colors"
                               aria-label="Edit Note"
                             >
-                              <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
+                              <Pencil className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </div>
