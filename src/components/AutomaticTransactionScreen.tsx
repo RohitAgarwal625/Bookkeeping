@@ -173,7 +173,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Pi Peer Direct",
                 amount: 14.20,
                 type: "debit",
-                timestamp: "2026-08-26 11:30",
+                timestamp: "2026-07-14 11:30",
                 isNew: true,
               },
               {
@@ -181,7 +181,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Ledger Settlement",
                 amount: 25.50,
                 type: "credit",
-                timestamp: "2026-08-18 09:15",
+                timestamp: "2026-04-18 09:15",
                 isNew: true,
               },
             ];

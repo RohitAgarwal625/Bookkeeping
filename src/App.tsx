@@ -348,6 +348,7 @@ function AppContent() {
   if (currentScreen === "customerLedger") {
     return (
       <CustomerLedger
+        key={`${selectedCustomer}-${(pendingNewTransactions[selectedCustomer] || []).map(t => t.id).join('-')}`}
         customerName={selectedCustomer}
         initialNewTransactions={pendingNewTransactions[selectedCustomer]}
         onBack={handleBackToDashboard}

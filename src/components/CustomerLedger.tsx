@@ -21,84 +21,84 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
         description: "Mentorship & Consultation fees.",
         amount: 450,
         type: "debit",
-        timestamp: "2026-08-25 14:30",
+        timestamp: "2026-06-22 14:30",
       },
       {
         id: "2",
         description: "Trademark compliance fee.",
         amount: 100,
         type: "debit",
-        timestamp: "2026-08-20 10:15",
+        timestamp: "2026-05-10 10:15",
       },
       {
         id: "3",
         description: "Scholarship grant.",
         amount: 100,
         type: "credit",
-        timestamp: "2026-08-14 16:45",
+        timestamp: "2026-03-25 16:45",
       },
       {
         id: "4",
         description: "Workshop fee.",
         amount: 90,
         type: "debit",
-        timestamp: "2026-08-07 09:20",
+        timestamp: "2026-02-18 09:20",
       },
       {
         id: "5",
         description: "Advisory session payment.",
         amount: 75,
         type: "credit",
-        timestamp: "2026-07-28 11:00",
+        timestamp: "2026-01-20 11:00",
       },
       {
         id: "6",
         description: "Research collaboration fee.",
         amount: 200,
         type: "debit",
-        timestamp: "2026-07-15 15:45",
+        timestamp: "2025-12-12 15:45",
       },
       {
         id: "7",
         description: "Referral bonus received.",
         amount: 50,
         type: "credit",
-        timestamp: "2026-07-03 14:30",
+        timestamp: "2025-11-05 14:30",
       },
       {
         id: "8",
         description: "Project milestone payment.",
         amount: 130,
         type: "debit",
-        timestamp: "2026-06-20 09:20",
+        timestamp: "2025-10-15 09:20",
       },
       {
         id: "9",
         description: "Network node reward.",
         amount: 60,
         type: "credit",
-        timestamp: "2026-06-05 13:10",
+        timestamp: "2025-09-08 13:10",
       },
       {
         id: "10",
         description: "Consultation retainer fee.",
         amount: 180,
         type: "debit",
-        timestamp: "2026-05-18 10:00",
+        timestamp: "2025-08-01 10:00",
       },
       {
         id: "11",
         description: "Community grant disbursement.",
         amount: 95,
         type: "credit",
-        timestamp: "2026-04-30 16:00",
+        timestamp: "2025-06-20 16:00",
       },
       {
         id: "12",
         description: "Platform service fee.",
         amount: 40,
         type: "debit",
-        timestamp: "2026-03-12 08:45",
+        timestamp: "2025-05-10 08:45",
       },
     ];
     if (initialNewTransactions && initialNewTransactions.length > 0) {
@@ -106,6 +106,99 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
     }
     return sortTransactionsDescending(base);
   });
+
+  // Keep transactions in sync if initialNewTransactions updates
+  useEffect(() => {
+    const base: Transaction[] = [
+      {
+        id: "1",
+        description: "Mentorship & Consultation fees.",
+        amount: 450,
+        type: "debit",
+        timestamp: "2026-06-22 14:30",
+      },
+      {
+        id: "2",
+        description: "Trademark compliance fee.",
+        amount: 100,
+        type: "debit",
+        timestamp: "2026-05-10 10:15",
+      },
+      {
+        id: "3",
+        description: "Scholarship grant.",
+        amount: 100,
+        type: "credit",
+        timestamp: "2026-03-25 16:45",
+      },
+      {
+        id: "4",
+        description: "Workshop fee.",
+        amount: 90,
+        type: "debit",
+        timestamp: "2026-02-18 09:20",
+      },
+      {
+        id: "5",
+        description: "Advisory session payment.",
+        amount: 75,
+        type: "credit",
+        timestamp: "2026-01-20 11:00",
+      },
+      {
+        id: "6",
+        description: "Research collaboration fee.",
+        amount: 200,
+        type: "debit",
+        timestamp: "2025-12-12 15:45",
+      },
+      {
+        id: "7",
+        description: "Referral bonus received.",
+        amount: 50,
+        type: "credit",
+        timestamp: "2025-11-05 14:30",
+      },
+      {
+        id: "8",
+        description: "Project milestone payment.",
+        amount: 130,
+        type: "debit",
+        timestamp: "2025-10-15 09:20",
+      },
+      {
+        id: "9",
+        description: "Network node reward.",
+        amount: 60,
+        type: "credit",
+        timestamp: "2025-09-08 13:10",
+      },
+      {
+        id: "10",
+        description: "Consultation retainer fee.",
+        amount: 180,
+        type: "debit",
+        timestamp: "2025-08-01 10:00",
+      },
+      {
+        id: "11",
+        description: "Community grant disbursement.",
+        amount: 95,
+        type: "credit",
+        timestamp: "2025-06-20 16:00",
+      },
+      {
+        id: "12",
+        description: "Platform service fee.",
+        amount: 40,
+        type: "debit",
+        timestamp: "2025-05-10 08:45",
+      },
+    ];
+    if (initialNewTransactions && initialNewTransactions.length > 0) {
+      setTransactions(sortTransactionsDescending([...initialNewTransactions, ...base]));
+    }
+  }, [initialNewTransactions]);
 
   const handleStartEdit = (t: Transaction) => {
     setEditingId(t.id);
