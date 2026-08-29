@@ -1,5 +1,5 @@
 import { ArrowLeft, Pencil, Check, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { Transaction, sortTransactionsDescending } from "../types";
