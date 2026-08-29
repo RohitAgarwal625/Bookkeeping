@@ -51,8 +51,6 @@ export function PayMethodModal({ onPayViaContacts, onPayViaQR, onClose }: PayMet
               </button>
             </div>
 
-            {/* Vertical divider */}
-            <div className="w-px bg-gray-100 dark:bg-border mx-6 self-stretch flex-shrink-0" />
 
             {/* Pay via Contacts */}
             <div className="flex-1 flex flex-col items-center gap-2">

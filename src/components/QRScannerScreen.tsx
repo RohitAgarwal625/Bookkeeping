@@ -69,6 +69,24 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
     };
   }, []);
 
+  // Remove the library's shaded region from the DOM to eliminate the grey vertical line.
+  // We replicate its appearance (dark overlay + white corners) in our own viewfinder overlay.
+  useEffect(() => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const observer = new MutationObserver(() => {
+      const shadedRegion = document.getElementById("qr-shaded-region");
+      if (shadedRegion) {
+        shadedRegion.remove();
+      }
+    });
+    observer.observe(container, { childList: true, subtree: true });
+    // Also remove if already present
+    const existing = document.getElementById("qr-shaded-region");
+    if (existing) existing.remove();
+    return () => observer.disconnect();
+  }, []);
+
   // Handle mobile hardware/gesture/browser back button navigation
   useEffect(() => {
     window.history.pushState({ screen: "qrScanner" }, "");
@@ -137,7 +155,6 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           min-height: 100% !important;
           padding: 0 !important;
           border: none !important;
-          box-shadow: none !important;
           overflow: hidden !important;
           background: #0a0a0a !important;
         }
@@ -151,15 +168,6 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           min-height: 100% !important;
           object-fit: cover !important;
           z-index: 1 !important;
-        }
-        #qr-shaded-region {
-          position: absolute !important;
-          inset: 0 !important;
-          z-index: 2 !important;
-          pointer-events: none !important;
-        }
-        #qr-shaded-region > div {
-          background-color: #ffffff !important;
         }
       `}</style>
 
@@ -207,7 +215,17 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
       {status === "scanning" && (
         <>
           <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10">
-            <div className="w-64 h-64 relative">
+            <div className="w-64 h-64 relative" style={{ boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.48)' }}>
+              {/* White corner brackets (replaces library's removed overlay) */}
+              <div className="absolute" style={{ top: -3, left: -3, width: 40, height: 5, backgroundColor: '#fff' }} />
+              <div className="absolute" style={{ top: -3, left: -3, width: 5, height: 40, backgroundColor: '#fff' }} />
+              <div className="absolute" style={{ top: -3, right: -3, width: 40, height: 5, backgroundColor: '#fff' }} />
+              <div className="absolute" style={{ top: -3, right: -3, width: 5, height: 40, backgroundColor: '#fff' }} />
+              <div className="absolute" style={{ bottom: -3, left: -3, width: 40, height: 5, backgroundColor: '#fff' }} />
+              <div className="absolute" style={{ bottom: -3, left: -3, width: 5, height: 40, backgroundColor: '#fff' }} />
+              <div className="absolute" style={{ bottom: -3, right: -3, width: 40, height: 5, backgroundColor: '#fff' }} />
+              <div className="absolute" style={{ bottom: -3, right: -3, width: 5, height: 40, backgroundColor: '#fff' }} />
+              {/* Purple corner brackets */}
               <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#A47CF3] rounded-tl-lg" />
               <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#A47CF3] rounded-tr-lg" />
               <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#A47CF3] rounded-bl-lg" />
