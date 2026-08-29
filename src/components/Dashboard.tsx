@@ -66,13 +66,18 @@ export function Dashboard({
   };
 
   const alertCornerR = 16;
+  const strokeW = 2;
+  const offset = strokeW / 2; // 1px
+  const r = alertCornerR - offset;
+  const w = alertSize.w - offset;
+  const h = alertSize.h - offset;
   const alertSvgPath = [
-    `M 0,0`,
-    `L 0,${alertSize.h - alertCornerR}`,
-    `A ${alertCornerR},${alertCornerR} 0 0,0 ${alertCornerR},${alertSize.h}`,
-    `L ${alertSize.w - alertCornerR},${alertSize.h}`,
-    `A ${alertCornerR},${alertCornerR} 0 0,0 ${alertSize.w},${alertSize.h - alertCornerR}`,
-    `L ${alertSize.w},0`,
+    `M ${offset},0`,
+    `L ${offset},${h - r}`,
+    `A ${r},${r} 0 0,0 ${offset + r},${h}`,
+    `L ${w - r},${h}`,
+    `A ${r},${r} 0 0,0 ${w},${h - r}`,
+    `L ${w},0`,
   ].join(" ");
 
   return (
