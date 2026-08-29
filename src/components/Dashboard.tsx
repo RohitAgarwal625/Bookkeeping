@@ -103,7 +103,7 @@ export function Dashboard({
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
           <div
             ref={alertRef}
-            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card overflow-hidden"
+            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card"
             style={{
               borderBottomLeftRadius: alertCornerR,
               borderBottomRightRadius: alertCornerR,
