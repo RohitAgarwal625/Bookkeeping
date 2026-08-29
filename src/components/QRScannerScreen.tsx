@@ -222,7 +222,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
         <>
           <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10">
             {/* 250x250 focus box with darkened surround and white corner brackets */}
-            <div className="relative" style={{ width: '250px', height: '250px' }}>
+            <div className="relative flex items-center justify-center" style={{ width: '250px', height: '250px' }}>
               {/* Darkened overlay outside the focus box — matches library's rgba(0,0,0,0.48) */}
               <div className="absolute inset-0" style={{ boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.48)' }} />
 
@@ -247,10 +247,12 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
               {/* Animated scan line */}
               <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#A47CF3] to-transparent"
                 style={{ animation: "scanLine 2s ease-in-out infinite", top: "50%" }} />
+
+              {/* Centered instruction text */}
+              <p className="text-white text-sm text-center px-4 opacity-80 z-10 select-none">
+                Point camera at a Pi Wallet QR code
+              </p>
             </div>
-            <p className="text-white text-sm mt-6 text-center px-8 opacity-80">
-              Point camera at a Pi Wallet QR code
-            </p>
             <style>{`@keyframes scanLine { 0%,100% { top: 10%; } 50% { top: 90%; } }`}</style>
           </div>
           {/* Upload QR button — perfectly centered single-line floating pill */}
