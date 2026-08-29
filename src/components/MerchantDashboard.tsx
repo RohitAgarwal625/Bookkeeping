@@ -164,7 +164,7 @@ export function MerchantDashboard({
             onClick={() => setActiveView("history")}
             className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "history"
               ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-card"
-              : "bg-gray-100 text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:bg-secondary/40 dark:hover:text-foreground"
+              : "bg-gray-100 text-gray-700 hover:text-gray-900 dark:bg-secondary dark:text-muted-foreground dark:hover:text-foreground"
               }`}
           >
             <History className="w-5 h-5 stroke-[2.5px]" /> History
@@ -173,7 +173,7 @@ export function MerchantDashboard({
             onClick={() => setActiveView("analytics")}
             className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "analytics"
               ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-card"
-              : "bg-gray-100 text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:bg-secondary/40 dark:hover:text-foreground"
+              : "bg-gray-100 text-gray-700 hover:text-gray-900 dark:bg-secondary dark:text-muted-foreground dark:hover:text-foreground"
               }`}
           >
             <BarChart2 className="w-5 h-5 stroke-[2.5px]" /> Analytics
