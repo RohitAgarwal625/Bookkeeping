@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 import { ReportsAnalytics } from "./ReportsAnalytics";
 import { getInitials } from "../types";
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 interface MerchantDashboardProps {
   userName: string;
@@ -127,6 +128,8 @@ export function MerchantDashboard({
   const [walletOverrides, setWalletOverrides] = useState<Record<string, string>>({});
   const [showTxIdInfo, setShowTxIdInfo] = useState(false);
 
+  const { isDarkMode: isDark } = useDarkMode();
+
   const individualMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "individual");
   const businessMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "business");
 
@@ -158,22 +161,24 @@ export function MerchantDashboard({
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
-      <header className="bg-white dark:bg-card border-b border-gray-200 dark:border-border">
+      <header style={{ background: isDark ? "#0F1115" : "#ffffff" }}>
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
+            style={{ background: activeView === "history" ? (isDark ? "#0F1115" : "#ffffff") : (isDark ? "#252830" : "#f3f4f6") }}
             className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "history"
-              ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-card"
-              : "bg-gray-100 text-gray-700 hover:text-gray-900 dark:bg-secondary dark:text-muted-foreground dark:hover:text-foreground"
+              ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
+              : "text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:hover:text-foreground"
               }`}
           >
             <History className="w-5 h-5 stroke-[2.5px]" /> History
           </button>
           <button
             onClick={() => setActiveView("analytics")}
+            style={{ background: activeView === "analytics" ? (isDark ? "#0F1115" : "#ffffff") : (isDark ? "#252830" : "#f3f4f6") }}
             className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "analytics"
-              ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-card"
-              : "bg-gray-100 text-gray-700 hover:text-gray-900 dark:bg-secondary dark:text-muted-foreground dark:hover:text-foreground"
+              ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
+              : "text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:hover:text-foreground"
               }`}
           >
             <BarChart2 className="w-5 h-5 stroke-[2.5px]" /> Analytics
