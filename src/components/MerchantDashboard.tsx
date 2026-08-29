@@ -307,7 +307,7 @@ export function MerchantDashboard({
                       </div>
                     </div>
                     <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
-                      <span className="text-xs text-[#A47CF3] dark:text-[#8A2BE2]">View Details</span>
+                      <span className="text-xs text-[#A47CF3] dark:text-[#A47CF3] font-medium">View Details</span>
                     </button>
                   </div>
                 ))}
