@@ -211,7 +211,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           <BookkeepingLogo compact />
         </header>
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 24px" }} className="space-y-6">
-          <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-6 md:p-7 space-y-6">
+          <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-6 md:p-7 space-y-8">
             <div className="border-b border-gray-100 dark:border-border pb-4 space-y-3">
               <div className="flex items-center gap-1.5">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-foreground">Select Date Range</h3>
@@ -233,8 +233,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               )}
             </div>
 
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold mb-2">
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold">
                 <CalendarDays className="w-4 h-4 text-[#A47CF3]" /> From Date
               </label>
               <input
@@ -245,8 +245,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
               />
             </div>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold mb-2">
+            <div className="space-y-3 pt-2">
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold">
                 <CalendarDays className="w-4 h-4 text-[#A47CF3]" /> To Date
               </label>
               <input
