@@ -105,10 +105,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   {/* Info button below label */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "individual" ? null : "individual"); }}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="w-5 h-5 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Individual info"
                   >
-                    <Info className="w-3 h-3 text-black" />
+                    <Info className="w-3 h-3 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   {pioneerTooltip === "individual" && (
                     <div
@@ -134,10 +134,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   {/* Info */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setPioneerTooltip(t => t === "business" ? null : "business"); }}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="w-5 h-5 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Business info"
                   >
-                    <Info className="w-3 h-3" style={{ color: "#9ca3af" }} />
+                    <Info className="w-3 h-3 text-gray-400 dark:text-muted-foreground" />
                   </button>
                   <span style={{ padding: "2px 8px", backgroundColor: "#9ca3af", color: "#ffffff", fontSize: "10px" }} className="font-medium rounded-full whitespace-nowrap">
                     Coming Soon
@@ -209,10 +209,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   {/* Info */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setManualTooltip(v => !v); setAutoTooltip(false); }}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="w-5 h-5 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Manual info"
                   >
-                    <Info className="w-3 h-3 text-black" />
+                    <Info className="w-3 h-3 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   <span style={{ padding: "2px 8px", fontSize: "10px" }} className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
                     Free • Lifetime
@@ -241,10 +241,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   {/* Info */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setAutoTooltip(v => !v); setManualTooltip(false); }}
-                    className="w-5 h-5 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="w-5 h-5 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Automatic info"
                   >
-                    <Info className="w-3 h-3 text-black" />
+                    <Info className="w-3 h-3 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   <span style={{ padding: "2px 8px", fontSize: "10px" }} className="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-full border border-red-200 dark:border-red-800/40 whitespace-nowrap">
                     Free • Limited

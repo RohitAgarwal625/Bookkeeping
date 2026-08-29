@@ -134,10 +134,10 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                   {/* Info icon */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setManualTooltip((v) => !v); setAutoTooltip(false); }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Manual info"
                   >
-                    <Info className="w-3.5 h-3.5 text-black" />
+                    <Info className="w-3.5 h-3.5 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   {manualTooltip && (
                     <div className="mt-2 mx-0 bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
@@ -164,10 +164,10 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                   {/* Info icon */}
                   <button
                     onClick={(e) => { e.stopPropagation(); setAutoTooltip((v) => !v); setManualTooltip(false); }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Automatic info"
                   >
-                    <Info className="w-3.5 h-3.5 text-black" />
+                    <Info className="w-3.5 h-3.5 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   {autoTooltip && (
                     <div className="mt-2 mx-0 bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl p-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
