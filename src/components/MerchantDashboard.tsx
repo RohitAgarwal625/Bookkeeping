@@ -158,13 +158,13 @@ export function MerchantDashboard({
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
-      <header className="bg-white dark:bg-[#0F1115]">
+      <header className="bg-white dark:bg-card border-b border-gray-200 dark:border-border">
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
             className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "history"
-              ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
-              : "bg-gray-100 text-gray-900 dark:text-muted-foreground dark:bg-[#080810]"
+              ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-card"
+              : "bg-gray-100 text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:bg-secondary/40 dark:hover:text-foreground"
               }`}
           >
             <History className="w-5 h-5 stroke-[2.5px]" /> History
@@ -172,8 +172,8 @@ export function MerchantDashboard({
           <button
             onClick={() => setActiveView("analytics")}
             className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "analytics"
-              ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-[#0F1115]"
-              : "bg-gray-100 text-gray-900 dark:text-muted-foreground dark:bg-[#080810]"
+              ? "text-[#A47CF3] border-b-2 border-[#A47CF3] bg-white dark:bg-card"
+              : "bg-gray-100 text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:bg-secondary/40 dark:hover:text-foreground"
               }`}
           >
             <BarChart2 className="w-5 h-5 stroke-[2.5px]" /> Analytics
