@@ -29,7 +29,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   const [toDate, setToDate] = useState("");
   const [showInfo, setShowInfo] = useState(false);
   const [scanMsgIndex, setScanMsgIndex] = useState(0);
-  const txFound = useRef(6);
+  const txFound = useRef(3);
 
   // Format ISO date string (YYYY-MM-DD) to "DD MMM, YYYY" (e.g. 19 Aug, 2026)
   const fmtDate = (iso: string) => {
@@ -159,33 +159,13 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </div>
         <button
           onClick={() => {
-            // Spread 6 dummy transactions evenly across the selected date range
-            const from = new Date(fromDate);
-            const to = new Date(toDate);
-            const rangeMs = to.getTime() - from.getTime();
-            const count = txFound.current;
-
-            const randomTimestamp = (index: number) => {
-              // Spread evenly with some jitter so they don't land on the exact same second
-              const fraction = count > 1 ? index / (count - 1) : 0.5;
-              const jitter = (Math.random() - 0.5) * (rangeMs / count) * 0.6;
-              const ms = from.getTime() + fraction * rangeMs + jitter;
-              const d = new Date(Math.max(from.getTime(), Math.min(to.getTime(), ms)));
-              const yyyy = d.getFullYear();
-              const mm = String(d.getMonth() + 1).padStart(2, "0");
-              const dd = String(d.getDate()).padStart(2, "0");
-              const hh = String(d.getHours()).padStart(2, "0");
-              const min = String(d.getMinutes()).padStart(2, "0");
-              return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-            };
-
             const dummyTxs: Transaction[] = [
               {
                 id: `auto-${Date.now()}-1`,
                 description: "Auto Sync: Pi Blockchain Payment",
                 amount: 3.14159,
                 type: "credit",
-                timestamp: randomTimestamp(0),
+                timestamp: "2026-08-28 16:45",
                 isNew: true,
               },
               {
@@ -193,7 +173,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Pi Peer Direct",
                 amount: 14.20,
                 type: "debit",
-                timestamp: randomTimestamp(1),
+                timestamp: "2026-08-26 11:30",
                 isNew: true,
               },
               {
@@ -201,31 +181,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 description: "Auto Sync: Ledger Settlement",
                 amount: 25.50,
                 type: "credit",
-                timestamp: randomTimestamp(2),
-                isNew: true,
-              },
-              {
-                id: `auto-${Date.now()}-4`,
-                description: "Auto Sync: Micro Settlement",
-                amount: 8.75,
-                type: "debit",
-                timestamp: randomTimestamp(3),
-                isNew: true,
-              },
-              {
-                id: `auto-${Date.now()}-5`,
-                description: "Auto Sync: Network Refund",
-                amount: 12.00,
-                type: "credit",
-                timestamp: randomTimestamp(4),
-                isNew: true,
-              },
-              {
-                id: `auto-${Date.now()}-6`,
-                description: "Auto Sync: Node Service Fee",
-                amount: 1.50,
-                type: "debit",
-                timestamp: randomTimestamp(5),
+                timestamp: "2026-08-18 09:15",
                 isNew: true,
               },
             ];
