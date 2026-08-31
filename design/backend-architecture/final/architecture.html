@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend Architecture - Final Converged Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'neutral',fontFamily:'Inter,system-ui,sans-serif',flowchart:{curve:'basis',padding:20},sequence:{mirrorActors:false},themeVariables:{primaryColor:'#e0e7ff',primaryTextColor:'#1a1a2e',primaryBorderColor:'#2563eb',lineColor:'#94a3b8',secondaryColor:'#f1f5f9',tertiaryColor:'#ecfdf5'}});</script>
+<style>
+:root{--accent:#2563eb;--success:#059669;--warn:#d97706;--err:#dc2626;--bg:#f8f9fa;--border:#e2e8f0;--heading:#0f172a;--muted:#6c757d;--sidebar:#f1f3f5}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.7;color:#1a1a2e}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:260px;background:var(--sidebar);border-right:1px solid var(--border);padding:1.5rem 0;overflow-y:auto;z-index:100}
+.sidebar a{display:block;padding:.4rem 1.25rem;font-size:.85rem;color:var(--muted);text-decoration:none;border-left:3px solid transparent;transition:all .2s}
+.sidebar a:hover,.sidebar a.active{color:var(--accent);border-left-color:var(--accent);background:rgba(37,99,235,.05)}
+.breadcrumb{position:sticky;top:0;z-index:90;background:#fff;border-bottom:1px solid var(--border);padding:.75rem 2rem;margin-left:260px;font-size:.85rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.breadcrumb a{color:var(--accent);text-decoration:none}
+.content{margin-left:260px;max-width:960px;padding:2rem 2.5rem}
+h1{font-size:2rem;font-weight:700;color:var(--heading);margin-bottom:.5rem}
+h2{font-size:1.5rem;font-weight:600;color:var(--heading);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+h3{font-size:1.25rem;font-weight:600;color:var(--heading);margin:1.5rem 0 .75rem}
+h4{font-size:1.05rem;font-weight:600;margin:1rem 0 .5rem}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.badge{display:inline-block;padding:.15rem .6rem;border-radius:4px;font-size:.75rem;font-weight:600;text-transform:uppercase;background:#ecfdf5;color:var(--success);border:1px solid #a7f3d0}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th{background:var(--bg);font-weight:600;text-align:left;padding:.75rem 1rem;border-bottom:2px solid var(--border)}
+td{padding:.75rem 1rem;border-bottom:1px solid var(--border)}tr:nth-child(even){background:var(--bg)}
+pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1rem 1.25rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.6;margin:.5rem 0}
+figure.diagram{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1.5rem 0;text-align:center}
+figure.diagram figcaption{margin-top:.75rem;font-size:.85rem;color:var(--muted);font-style:italic}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+p{margin-bottom:.75rem}ul,ol{margin:.5rem 0 .5rem 1.5rem}li{margin-bottom:.3rem}
+code{font-family:'JetBrains Mono',monospace;font-size:.88em;background:var(--bg);padding:.1rem .35rem;border-radius:3px}
+@media(max-width:768px){.sidebar{display:none}.content,.breadcrumb{margin-left:0}.content{padding:1rem}}
+@media print{.sidebar,.breadcrumb{display:none}.content{margin-left:0;max-width:100%}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+<div style="padding:1rem 1.25rem;font-weight:700;font-size:.9rem;color:var(--heading);border-bottom:1px solid var(--border);margin-bottom:.75rem">Final Architecture</div>
+<a href="#overview">Overview</a>
+<a href="#stack">Tech Stack</a>
+<a href="#monorepo">Monorepo Structure</a>
+<a href="#schema">Database Schema</a>
+<a href="#api">API Endpoints</a>
+<a href="#auth">Authentication</a>
+<a href="#validation">Validation &amp; Security</a>
+<a href="#data-flow">Data Flow</a>
+<a href="#payment">Payment Flow (Phase 4)</a>
+<a href="#deployment">Deployment</a>
+<a href="#error-handling">Error Handling</a>
+<a href="#decisions">Decision Log</a>
+<a href="#risks">Accepted Risks</a>
+<a href="#phases">Implementation Phases</a>
+</nav>
+
+<div class="breadcrumb">
+<div><a href="../index.html">Backend Architecture</a> &rsaquo; <span>Final Architecture</span></div>
+<span class="badge">CONVERGED</span>
+</div>
+
+<main class="content">
+
+<section id="overview">
+<h1>Bookkeeping Backend &mdash; Final Architecture</h1>
+<div class="card">
+<table>
+<tr><td><strong>Status</strong></td><td>CONVERGED after 2 iterations (1 proposal+grill+rethink, 1 verification)</td></tr>
+<tr><td><strong>Issues Resolved</strong></td><td>26 grill issues: 19 fixed, 3 accepted, 4 deferred/closed</td></tr>
+<tr><td><strong>Verification</strong></td><td>Conditional Pass &mdash; 1 Phase-4-only issue (V-001) remains</td></tr>
+<tr><td><strong>Ready For</strong></td><td>Phase 1-3 implementation</td></tr>
+</table>
+</div>
+</section>
+
+<section id="stack">
+<h2>Technology Stack</h2>
+<table>
+<thead><tr><th>Layer</th><th>Technology</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Frontend</td><td>React 18 + Vite + TypeScript</td><td>Already built</td></tr>
+<tr><td>UI Library</td><td>Tailwind CSS + shadcn/ui</td><td>Already in use</td></tr>
+<tr><td>Backend</td><td>Node.js 20 LTS + Express 4.x + TypeScript</td><td>Same language as frontend, largest ecosystem</td></tr>
+<tr><td>ORM</td><td>Prisma 5.x</td><td>Type-safe, auto-migrations, excellent DX</td></tr>
+<tr><td>Database</td><td><strong>Railway PostgreSQL</strong></td><td>Zero vendor lock-in, PgAdmin/DBeaver compatible, co-located with backend</td></tr>
+<tr><td>Validation</td><td>Zod 3.x</td><td>Runtime schema validation, TypeScript inference</td></tr>
+<tr><td>Sanitization</td><td>xss npm package</td><td>HTML stripping for XSS prevention (G-005)</td></tr>
+<tr><td>Rate Limiting</td><td>express-rate-limit</td><td>Per-user + per-IP (G-003)</td></tr>
+<tr><td>Security Headers</td><td>helmet.js</td><td>Standard security headers</td></tr>
+<tr><td>Logging</td><td>pino</td><td>Fast structured JSON logging</td></tr>
+<tr><td>Frontend Deploy</td><td>Vercel</td><td>Free, CDN, auto-deploy from GitHub</td></tr>
+<tr><td>Backend Deploy</td><td>Railway</td><td>Auto-deploy, managed PostgreSQL, $5/mo</td></tr>
+<tr><td>Auth (Phase 1-3)</td><td>Session tokens (UUID)</td><td>Simple, swappable (G-001)</td></tr>
+<tr><td>Auth (Phase 4)</td><td>Pi OAuth + JWT</td><td>Pi SDK requirement</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="monorepo">
+<h2>Monorepo Structure</h2>
+<pre>Bookkeeping/
+├── frontend/                  # Existing React app (moved from root)
+│   ├── src/
+│   │   ├── components/
+│   │   ├── contexts/
+│   │   ├── lib/
+│   │   │   └── api.ts         # API client (fetch/axios wrapper)
+│   │   ├── types.ts           # Aligned with shared types
+│   │   └── App.tsx
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── backend/
+│   ├── src/
+│   │   ├── routes/
+│   │   │   ├── users.ts
+│   │   │   ├── contacts.ts
+│   │   │   ├── transactions.ts
+│   │   │   └── pi.ts          # Stubbed 501 until Phase 4
+│   │   ├── controllers/
+│   │   │   ├── users.controller.ts
+│   │   │   ├── contacts.controller.ts
+│   │   │   └── transactions.controller.ts
+│   │   ├── middleware/
+│   │   │   ├── auth.ts        # Session token validation
+│   │   │   ├── validate.ts    # Zod middleware
+│   │   │   ├── errorHandler.ts
+│   │   │   └── rateLimiter.ts
+│   │   ├── schemas/
+│   │   │   ├── user.schema.ts
+│   │   │   ├── contact.schema.ts
+│   │   │   └── transaction.schema.ts
+│   │   ├── lib/
+│   │   │   └── prisma.ts      # Singleton Prisma client
+│   │   └── index.ts           # Express entry + graceful shutdown
+│   ├── prisma/
+│   │   └── schema.prisma
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── shared/
+│   ├── types.ts               # Shared TypeScript interfaces
+│   └── package.json
+│
+└── package.json               # Root (npm workspaces)</pre>
+</section>
+
+<section id="schema">
+<h2>Database Schema (Prisma)</h2>
+
+<figure class="diagram">
+<div class="mermaid">
+erDiagram
+    USER ||--o{ SESSION : "has"
+    USER ||--o{ CONTACT : "has"
+    USER ||--o{ TRANSACTION : "has"
+    CONTACT ||--o{ TRANSACTION : "referenced by"
+
+    USER {
+        string id PK "cuid()"
+        string piWalletAddress UK
+        string piUsername UK "nullable Phase4"
+        string piUid UK "nullable Phase4"
+        string displayName "default Pioneer User"
+        datetime createdAt
+        datetime updatedAt
+    }
+    SESSION {
+        string id PK "cuid()"
+        string token UK
+        string userId FK
+        datetime expiresAt
+        datetime createdAt
+    }
+    CONTACT {
+        string id PK "cuid()"
+        string name
+        string category "individual or business"
+        string piWalletAddress
+        string userId FK
+        datetime createdAt
+        datetime updatedAt
+    }
+    TRANSACTION {
+        string id PK "cuid()"
+        string description
+        decimal amount "Decimal 18x7"
+        string type "credit or debit"
+        string source "manual or pi_network"
+        string txHash "nullable Phase4"
+        string piPaymentId "nullable Phase4"
+        string idempotencyKey UK "REQUIRED"
+        string status "default completed"
+        datetime expiresAt "nullable TTL"
+        datetime deletedAt "nullable soft-delete"
+        datetime timestamp
+        string userId FK
+        string contactId FK "nullable"
+    }
+</div>
+<figcaption>Figure 1: Entity-Relationship diagram &mdash; final converged schema</figcaption>
+</figure>
+
+<pre>// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String        @id @default(cuid())
+  piWalletAddress String        @unique
+  piUsername       String?       @unique
+  piUid           String?       @unique
+  displayName     String        @default("Pioneer User")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  contacts        Contact[]
+  transactions    Transaction[]
+  sessions        Session[]
+
+  @@index([piWalletAddress])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Contact {
+  id              String        @id @default(cuid())
+  name            String
+  category        String        // "individual" | "business"
+  piWalletAddress String
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions    Transaction[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, piWalletAddress])
+  @@index([userId])
+}
+
+model Transaction {
+  id             String    @id @default(cuid())
+  description    String
+  amount         Decimal   @db.Decimal(18, 7)
+  type           String    // "credit" | "debit"
+  source         String    @default("manual")   // "manual" | "pi_network"
+  txHash         String?
+  piPaymentId    String?
+  idempotencyKey String    @unique
+  status         String    @default("completed") // pending|completed|failed|cancelled|expired
+  expiresAt      DateTime?
+  deletedAt      DateTime?
+  timestamp      DateTime  @default(now())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactId      String?
+  contact        Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, contactId])
+  @@index([userId, timestamp])
+  @@index([idempotencyKey])
+  @@index([status, expiresAt])
+}</pre>
+</section>
+
+<section id="api">
+<h2>REST API Endpoints</h2>
+
+<h3>Users</h3>
+<table>
+<thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>GET</td><td><code>/api/users/:walletAddress</code></td><td>None</td><td>Upsert user + create session. Returns <code>{ user, sessionToken }</code></td></tr>
+<tr><td>PUT</td><td><code>/api/users/:walletAddress</code></td><td>Session</td><td>Update display name</td></tr>
+</tbody>
+</table>
+
+<h3>Contacts</h3>
+<table>
+<thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>GET</td><td><code>/api/contacts?search=</code></td><td>Session</td><td>List contacts with computed totalCredit, totalDebit, lastSeen</td></tr>
+<tr><td>POST</td><td><code>/api/contacts</code></td><td>Session</td><td>Create contact (409 if duplicate wallet)</td></tr>
+<tr><td>GET</td><td><code>/api/contacts/:id</code></td><td>Session</td><td>Get single contact with stats</td></tr>
+<tr><td>PUT</td><td><code>/api/contacts/:id</code></td><td>Session</td><td>Update name/category</td></tr>
+<tr><td>DELETE</td><td><code>/api/contacts/:id</code></td><td>Session</td><td>Delete contact (SetNull on transactions)</td></tr>
+</tbody>
+</table>
+
+<h3>Transactions</h3>
+<table>
+<thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>GET</td><td><code>/api/transactions?type=&amp;from=&amp;to=&amp;page=&amp;limit=</code></td><td>Session</td><td>List with filters + pagination</td></tr>
+<tr><td>POST</td><td><code>/api/transactions</code></td><td>Session</td><td>Create (idempotencyKey REQUIRED)</td></tr>
+<tr><td>GET</td><td><code>/api/transactions/:id</code></td><td>Session</td><td>Get single</td></tr>
+<tr><td>DELETE</td><td><code>/api/transactions/:id</code></td><td>Session</td><td>Soft-delete (403 for pi_network source)</td></tr>
+<tr><td>GET</td><td><code>/api/transactions/contact/:contactId</code></td><td>Session</td><td>Ledger for one contact</td></tr>
+<tr><td>GET</td><td><code>/api/transactions/summary</code></td><td>Session</td><td>Total credit, debit, balance</td></tr>
+</tbody>
+</table>
+
+<h3>Health</h3>
+<table>
+<thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>GET</td><td><code>/api/health</code></td><td>None</td><td><code>{ status: "ok", db: "connected" }</code></td></tr>
+</tbody>
+</table>
+
+<h3>Pi Network (Phase 4 &mdash; stubbed as 501)</h3>
+<table>
+<thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>POST</td><td><code>/api/pi/authenticate</code></td><td>Pi SDK auth verification</td></tr>
+<tr><td>POST</td><td><code>/api/pi/create-payment</code></td><td>Initiate Pi payment</td></tr>
+<tr><td>POST</td><td><code>/api/pi/complete-payment</code></td><td>Server-side completion (idempotent)</td></tr>
+<tr><td>POST</td><td><code>/api/pi/cancel-payment</code></td><td>Cancel payment</td></tr>
+</tbody>
+</table>
+
+<h3>Error Response Format</h3>
+<pre>{
+  "error": "VALIDATION_ERROR",
+  "message": "Invalid request body",
+  "details": [
+    { "field": "amount", "message": "Amount must be a positive number" }
+  ]
+}</pre>
+
+<h3>Pagination Response Format</h3>
+<pre>{
+  "data": [...],
+  "pagination": {
+    "page": 1, "limit": 20, "total": 47,
+    "totalPages": 3, "hasNext": true, "hasPrev": false
+  }
+}</pre>
+</section>
+
+<section id="auth">
+<h2>Authentication</h2>
+
+<h3>Phase 1-3: Session Token</h3>
+<figure class="diagram">
+<div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant B as Backend
+    participant DB as PostgreSQL
+
+    U->>F: Enter wallet address
+    F->>B: GET /api/users/0x7a8f...
+    B->>DB: UPSERT User + INSERT Session(token=UUID, TTL=24h)
+    DB-->>B: user + session
+    B-->>F: { user, sessionToken }
+    F->>F: localStorage.setItem("token", sessionToken)
+    F->>B: GET /api/contacts (Authorization: Bearer {token})
+    B->>DB: SELECT Session WHERE token=? AND expiresAt > NOW()
+    DB-->>B: Session with userId
+    B->>DB: SELECT contacts WHERE userId=?
+    DB-->>B: contacts
+    B-->>F: [contacts]
+</div>
+<figcaption>Figure 2: Session-based authentication flow (Phase 1-3)</figcaption>
+</figure>
+
+<h3>Phase 4: Pi OAuth + JWT</h3>
+<p>Replace session middleware with JWT verification. Pi.authenticate() on frontend, verify token with Pi API on backend, issue JWT. All existing endpoints stay the same &mdash; only the middleware changes.</p>
+
+<h3>Auth Middleware</h3>
+<pre>// backend/src/middleware/auth.ts
+export async function sessionAuth(req, res, next) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const session = await prisma.session.findUnique({
+    where: { token },
+    include: { user: true }
+  });
+
+  if (!session || session.expiresAt < new Date()) {
+    return res.status(401).json({ error: 'SESSION_EXPIRED' });
+  }
+
+  req.user = session.user;
+  next();
+}</pre>
+</section>
+
+<section id="validation">
+<h2>Validation &amp; Security</h2>
+
+<h4>Zod Schema Example (Transaction)</h4>
+<pre>import { z } from 'zod';
+import xss from 'xss';
+
+const sanitize = (val: string) => xss(val, { whiteList: {}, stripIgnoreTag: true });
+
+export const createTransactionSchema = z.object({
+  body: z.object({
+    description: z.string().min(1).max(500).transform(sanitize),
+    amount: z.number().positive().min(0.0000001).max(1_000_000),
+    type: z.enum(['credit', 'debit']),
+    contactId: z.string().optional(),
+    timestamp: z.string().datetime().optional(),
+    idempotencyKey: z.string().uuid(),  // REQUIRED
+  })
+});</pre>
+
+<h4>Security Layers</h4>
+<ol>
+<li><strong>CORS:</strong> Whitelist <code>localhost:5173</code> (dev) + <code>bookkeeping.vercel.app</code> (prod)</li>
+<li><strong>Rate Limiting:</strong> IP: 200/min (unauthenticated), User: 100/min (read), 20/min (write)</li>
+<li><strong>Input Sanitization:</strong> xss package strips HTML from all text fields via Zod transform</li>
+<li><strong>SQL Injection:</strong> Prevented by Prisma parameterized queries</li>
+<li><strong>User Isolation:</strong> Every query includes <code>WHERE userId = req.user.id</code></li>
+<li><strong>Ownership Verification:</strong> ContactId validated against req.user.id before use</li>
+<li><strong>Helmet.js:</strong> X-Content-Type-Options, X-Frame-Options, etc.</li>
+</ol>
+</section>
+
+<section id="data-flow">
+<h2>Data Flow</h2>
+
+<h3>Contact List (with computed totals)</h3>
+<pre>// Single query solves G-010 and G-025 (N+1)
+const contacts = await prisma.$queryRaw`
+  SELECT c.id, c.name, c.category, c."piWalletAddress",
+    c."createdAt", c."updatedAt",
+    COALESCE(SUM(CASE WHEN t.type='credit' THEN t.amount ELSE 0 END), 0)::float AS "totalCredit",
+    COALESCE(SUM(CASE WHEN t.type='debit' THEN t.amount ELSE 0 END), 0)::float AS "totalDebit",
+    MAX(t.timestamp) AS "lastSeen"
+  FROM "Contact" c
+  LEFT JOIN "Transaction" t ON t."contactId" = c.id
+    AND t."userId" = ${userId}
+    AND t."deletedAt" IS NULL
+  WHERE c."userId" = ${userId}
+  GROUP BY c.id
+  ORDER BY "lastSeen" DESC NULLS LAST
+`;</pre>
+
+<h3>Balance Summary</h3>
+<pre>const summary = await prisma.$queryRaw`
+  SELECT
+    COALESCE(SUM(CASE WHEN type='credit' THEN amount ELSE 0 END), 0)::float AS "totalCredit",
+    COALESCE(SUM(CASE WHEN type='debit' THEN amount ELSE 0 END), 0)::float AS "totalDebit",
+    COUNT(*)::int AS "transactionCount"
+  FROM "Transaction"
+  WHERE "userId" = ${userId}
+    AND "deletedAt" IS NULL
+    AND status = 'completed'
+`;</pre>
+</section>
+
+<section id="payment">
+<h2>Pi Payment Flow (Phase 4 Design)</h2>
+
+<figure class="diagram">
+<div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant Pi as Pi SDK
+    participant B as Backend
+    participant PiAPI as Pi Platform API
+    participant DB as PostgreSQL
+
+    U->>F: Enter amount + recipient
+    F->>B: POST /api/pi/create-payment
+    B->>DB: INSERT Transaction(status=pending, expiresAt=now+30min)
+    B-->>F: { paymentId, transactionId }
+    F->>Pi: Pi.createPayment({amount, memo})
+    Pi->>U: Approval dialog
+    U->>Pi: Approve
+    Pi-->>F: onReadyForServerCompletion({paymentId, txid})
+    F->>B: POST /api/pi/complete-payment {paymentId, txid}
+    B->>B: Check status=pending (idempotent)
+    B->>PiAPI: Verify payment
+    PiAPI-->>B: {status: completed, txHash}
+    B->>DB: UPDATE Transaction SET status=completed, txHash=?
+    B->>PiAPI: POST /payments/{id}/complete
+    B-->>F: {transaction, txHash}
+    F->>U: Success with txHash
+</div>
+<figcaption>Figure 3: Pi Network payment flow with server-side completion</figcaption>
+</figure>
+
+<h3>Transaction State Machine</h3>
+<figure class="diagram">
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> completed: Manual entry (Phase 1-3)
+    [*] --> pending: Pi payment initiated (Phase 4)
+    pending --> completed: Pi payment verified
+    pending --> failed: Pi payment rejected
+    pending --> cancelled: User cancels
+    pending --> expired: TTL exceeded (30 min)
+    expired --> completed: Reconciliation finds blockchain confirmation (V-001)
+    completed --> [*]
+    failed --> [*]
+    cancelled --> [*]
+    expired --> [*]
+</div>
+<figcaption>Figure 4: Transaction state machine</figcaption>
+</figure>
+
+<h3>Reconciliation Job (Phase 4)</h3>
+<ul>
+<li>Runs every 5 minutes via <code>node-cron</code></li>
+<li>Pass 1: <code>WHERE status='pending' AND expiresAt &lt; NOW()</code> &rarr; check Pi API &rarr; complete or expire</li>
+<li>Pass 2 (V-001): <code>WHERE status='expired' AND expiresAt &gt; NOW() - INTERVAL '1 hour'</code> &rarr; re-check Pi API &rarr; complete if confirmed</li>
+</ul>
+</section>
+
+<section id="deployment">
+<h2>Deployment Architecture</h2>
+
+<figure class="diagram">
+<div class="mermaid">
+graph TD
+    subgraph GitHub
+      GH[main branch]
+    end
+    subgraph Vercel
+      V[Auto-deploy] --> VB[Build: npm run build]
+      VB --> VC[CDN: React SPA]
+    end
+    subgraph Railway
+      R[Auto-deploy] --> RB[Build + prisma migrate deploy]
+      RB --> RC[Express Server :3001]
+      RC --> RD[PostgreSQL]
+    end
+    GH -->|push| V
+    GH -->|push| R
+    VC -->|HTTPS| RC
+</div>
+<figcaption>Figure 5: CI/CD deployment pipeline</figcaption>
+</figure>
+
+<h3>Environment Variables</h3>
+<table>
+<thead><tr><th>Variable</th><th>Location</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><code>DATABASE_URL</code></td><td>Railway</td><td><code>postgresql://...?connection_limit=5&pool_timeout=10</code></td></tr>
+<tr><td><code>PORT</code></td><td>Railway</td><td><code>3001</code></td></tr>
+<tr><td><code>CORS_ORIGIN</code></td><td>Railway</td><td><code>https://bookkeeping.vercel.app</code></td></tr>
+<tr><td><code>VITE_API_URL</code></td><td>Vercel</td><td><code>https://bookkeeping-api.up.railway.app</code></td></tr>
+<tr><td><code>JWT_SECRET</code></td><td>Railway</td><td>(Phase 4 only)</td></tr>
+</tbody>
+</table>
+
+<h3>Graceful Shutdown</h3>
+<pre>process.on('SIGTERM', async () => {
+  console.log('SIGTERM received');
+  server.close(() => {
+    prisma.$disconnect().then(() => process.exit(0));
+  });
+  setTimeout(() => process.exit(1), 10000);
+});</pre>
+</section>
+
+<section id="error-handling">
+<h2>Error Handling</h2>
+<table>
+<thead><tr><th>Scenario</th><th>HTTP Status</th><th>Error Code</th></tr></thead>
+<tbody>
+<tr><td>Zod validation failure</td><td>400</td><td>VALIDATION_ERROR</td></tr>
+<tr><td>Missing/expired auth token</td><td>401</td><td>UNAUTHORIZED / SESSION_EXPIRED</td></tr>
+<tr><td>Deleting pi_network transaction</td><td>403</td><td>CANNOT_DELETE_BLOCKCHAIN_TX</td></tr>
+<tr><td>Resource not found / wrong user</td><td>404</td><td>NOT_FOUND</td></tr>
+<tr><td>Duplicate idempotency key</td><td>409</td><td>DUPLICATE_TRANSACTION</td></tr>
+<tr><td>Duplicate contact wallet</td><td>409</td><td>DUPLICATE_CONTACT</td></tr>
+<tr><td>Rate limit exceeded</td><td>429</td><td>RATE_LIMITED</td></tr>
+<tr><td>Database unavailable</td><td>503</td><td>SERVICE_UNAVAILABLE</td></tr>
+<tr><td>Connection pool exhausted</td><td>503</td><td>SERVICE_UNAVAILABLE</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="decisions">
+<h2>Decision Log</h2>
+<table>
+<thead><tr><th>Decision</th><th>Choice</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><td>Database</td><td>Railway PostgreSQL</td><td>Zero lock-in, PgAdmin/DBeaver, co-located with backend, no free-tier pausing</td></tr>
+<tr><td>Amount precision</td><td>Decimal(18,7)</td><td>Float precision unacceptable for financial data (G-009)</td></tr>
+<tr><td>Auth (Phase 1-3)</td><td>Session tokens</td><td>Prevents trivial impersonation while being swappable to JWT (G-001)</td></tr>
+<tr><td>Idempotency</td><td>Required on transactions</td><td>Payment app cannot allow duplicate transactions (G-018)</td></tr>
+<tr><td>Deletion strategy</td><td>Soft delete</td><td>Financial data must not be permanently lost (G-011/G-012)</td></tr>
+<tr><td>Contact totals</td><td>Computed (not stored)</td><td>Always fresh, single JOIN query eliminates N+1 (G-010/G-025)</td></tr>
+<tr><td>Contact FK</td><td>onDelete: SetNull</td><td>Preserve financial history when contact deleted (G-008)</td></tr>
+<tr><td>Pi SDK</td><td>Phase 4 (last)</td><td>Build complete app first, reduce SDK-related blockers (D-007)</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="risks">
+<h2>Accepted Risks</h2>
+<table>
+<thead><tr><th>Risk</th><th>Impact</th><th>Justification</th></tr></thead>
+<tbody>
+<tr><td>No staging environment (G-022)</td><td>Medium</td><td>Acceptable for solo/small team. Revisit before Phase 4.</td></tr>
+<tr><td>No DB retry logic (G-015)</td><td>Low</td><td>Manual retry by user. Idempotency prevents duplicates.</td></tr>
+<tr><td>Non-unique contact names (G-017)</td><td>Low</td><td>By design. Frontend uses IDs for all operations.</td></tr>
+<tr><td>Session token in localStorage (G-001 residual)</td><td>Medium</td><td>XSS mitigated by sanitization + React escaping. Phase 4 JWT replaces.</td></tr>
+<tr><td>V-001: Expired tx may be confirmed on blockchain</td><td>Medium</td><td>Phase 4 only. Fix: double-pass reconciliation job.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="phases">
+<h2>Implementation Phases</h2>
+
+<h3>Phase 1: Backend Foundation (3-5 days)</h3>
+<ol>
+<li>Restructure repo into monorepo (npm workspaces)</li>
+<li>Initialize Express + TypeScript backend</li>
+<li>Create Railway project + PostgreSQL</li>
+<li>Configure Prisma with final schema (above)</li>
+<li>Run <code>prisma migrate dev</code></li>
+<li>Build all REST endpoints</li>
+<li>Add session-based auth, Zod validation, XSS sanitization</li>
+<li>Add rate limiting, CORS, helmet.js, health check</li>
+<li>Add graceful shutdown handler</li>
+<li>Test with curl / Postman</li>
+</ol>
+
+<h3>Phase 2: Frontend Integration (4-7 days)</h3>
+<ol>
+<li>Create <code>frontend/src/lib/api.ts</code> (API client)</li>
+<li>Replace all hardcoded data with API calls</li>
+<li>Refactor pendingNewTransactions to use contact ID (G-027)</li>
+<li>Update Contact type (remove txHash, add lastSeen) (G-028)</li>
+<li>Add loading states, error handling, toasts</li>
+<li>Generate idempotencyKey (UUID) per form render</li>
+</ol>
+
+<h3>Phase 3: Deployment (1-2 days)</h3>
+<ol>
+<li>Deploy backend to Railway + run <code>prisma migrate deploy</code></li>
+<li>Deploy frontend to Vercel + set <code>VITE_API_URL</code></li>
+<li>Configure CORS for production URL</li>
+<li>Add .env.example files</li>
+<li>Test end-to-end on public URLs</li>
+</ol>
+
+<h3>Phase 4: Pi Network SDK (5-10 days)</h3>
+<ol>
+<li>Register app in Pi Developer Portal</li>
+<li>Add Pi SDK to index.html</li>
+<li>Implement Pi.authenticate() &rarr; JWT auth</li>
+<li>Replace session auth with JWT middleware</li>
+<li>Implement Pi payment flow (create/complete/cancel)</li>
+<li>Add reconciliation cron job (including V-001 fix)</li>
+<li>Add Stellar wallet address validation</li>
+</ol>
+
+<h3>Phase 5: Polish (Ongoing)</h3>
+<ol>
+<li>Sentry error tracking (frontend + backend)</li>
+<li>Real-time updates (polling or WebSockets)</li>
+<li>Full audit log table</li>
+<li>Staging environment</li>
+</ol>
+</section>
+
+</main>
+
+<div style="margin-left:260px;padding:1.5rem 2.5rem;border-top:1px solid var(--border);font-size:.9rem;display:flex;justify-content:space-between">
+<a href="../iteration-02/verification.html" style="color:var(--accent)">&larr; Verification</a>
+<a href="../index.html" style="color:var(--accent)">&uarr; Back to Index</a>
+</div>
+
+<script>
+const sections=document.querySelectorAll('section[id]');const tocLinks=document.querySelectorAll('.sidebar a');
+window.addEventListener('scroll',()=>{let c='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)c=s.id});tocLinks.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+c))});
+</script>
+</body>
+</html>

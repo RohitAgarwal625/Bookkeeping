@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend Architecture - Rethink - Iteration 01</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#2563eb;--success:#059669;--warn:#d97706;--bg:#f8f9fa;--border:#e2e8f0;--heading:#0f172a;--muted:#6c757d}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.7;color:#1a1a2e;max-width:960px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;font-weight:700;color:var(--heading);margin-bottom:1rem}
+h2{font-size:1.5rem;font-weight:600;color:var(--heading);margin:2rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+h3{font-size:1.1rem;font-weight:600;margin:1rem 0 .5rem}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600}
+.b-pass{background:#ecfdf5;color:var(--success)}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th{background:var(--bg);font-weight:600;text-align:left;padding:.6rem .8rem;border-bottom:2px solid var(--border)}
+td{padding:.6rem .8rem;border-bottom:1px solid var(--border)}
+pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;font-family:monospace;font-size:.85rem;margin:.5rem 0}
+a{color:var(--accent);text-decoration:none}p{margin-bottom:.6rem}ul,ol{margin:.3rem 0 .3rem 1.5rem}
+.convergence{border:2px solid var(--success);border-radius:12px;padding:1.5rem;margin:1.5rem 0;background:#ecfdf5;text-align:center}
+.progress{height:8px;border-radius:4px;background:#f1f5f9;margin:.5rem 0;display:flex;overflow:hidden}
+.seg-g{background:var(--success)}.seg-y{background:var(--warn)}.seg-n{background:#94a3b8}
+</style>
+</head>
+<body>
+
+<p><a href="../index.html">&uarr; Index</a> | <a href="./answers.html">&larr; Answers</a></p>
+
+<h1>Rethink &mdash; Iteration 01</h1>
+
+<div class="card">
+<strong>Result:</strong> CONVERGING<br>
+<strong>Issues:</strong> 26 total &rarr; 19 resolved, 3 accepted, 4 deferred/closed<br>
+<strong>Critical open:</strong> 0<br>
+<div class="progress"><div class="seg-g" style="width:73%"></div><div class="seg-y" style="width:12%"></div><div class="seg-n" style="width:15%"></div></div>
+<small style="color:var(--muted)">19 resolved | 3 accepted | 4 deferred/closed</small>
+</div>
+
+<h2>What Changed from Proposal v1</h2>
+<table>
+<thead><tr><th>#</th><th>Change</th><th>Triggered By</th><th>Before</th><th>After</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Amount type</td><td>G-009</td><td>Float</td><td>Decimal @db.Decimal(18,7)</td></tr>
+<tr><td>2</td><td>Idempotency key</td><td>G-018</td><td>Optional</td><td>Required</td></tr>
+<tr><td>3</td><td>Auth mechanism</td><td>G-001</td><td>x-wallet-address header</td><td>Session token (Bearer)</td></tr>
+<tr><td>4</td><td>Deletion</td><td>G-011/G-012</td><td>Hard delete</td><td>Soft delete (deletedAt)</td></tr>
+<tr><td>5</td><td>Contact totals</td><td>G-010/G-025</td><td>Undefined</td><td>JOIN+GROUP BY query</td></tr>
+<tr><td>6</td><td>Rate limiting</td><td>G-003</td><td>Per-IP only</td><td>Per-user + per-IP</td></tr>
+<tr><td>7</td><td>ContactId validation</td><td>G-026</td><td>Format only</td><td>Ownership check</td></tr>
+<tr><td>8</td><td>XSS protection</td><td>G-005</td><td>None</td><td>xss package sanitization</td></tr>
+<tr><td>9</td><td>Contact FK</td><td>G-008</td><td>RESTRICT</td><td>onDelete: SetNull</td></tr>
+<tr><td>10</td><td>Graceful shutdown</td><td>G-014</td><td>None</td><td>SIGTERM handler</td></tr>
+<tr><td>11</td><td>Connection pool</td><td>G-013</td><td>Default</td><td>5 connections, 10s timeout</td></tr>
+<tr><td>12</td><td>Pending tx TTL</td><td>G-023</td><td>No expiry</td><td>30-min TTL + cron reconciliation</td></tr>
+<tr><td>13</td><td>Contact search</td><td>G-031</td><td>None</td><td>?search= ILIKE param</td></tr>
+</tbody>
+</table>
+
+<h2>Revised Prisma Schema</h2>
+<pre>model User {
+  id              String   @id @default(cuid())
+  piWalletAddress String   @unique
+  piUsername       String?  @unique
+  piUid           String?  @unique
+  displayName     String   @default("Pioneer User")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  contacts        Contact[]
+  transactions    Transaction[]
+  sessions        Session[]
+  @@index([piWalletAddress])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@index([token])
+}
+
+model Contact {
+  id              String   @id @default(cuid())
+  name            String
+  category        String
+  piWalletAddress String
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions    Transaction[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@unique([userId, piWalletAddress])
+  @@index([userId])
+}
+
+model Transaction {
+  id             String    @id @default(cuid())
+  description    String
+  amount         Decimal   @db.Decimal(18, 7)  // CHANGED from Float
+  type           String
+  source         String    @default("manual")
+  txHash         String?
+  piPaymentId    String?
+  idempotencyKey String    @unique             // CHANGED: was optional
+  status         String    @default("completed") // NEW
+  expiresAt      DateTime?                      // NEW: TTL
+  deletedAt      DateTime?                      // NEW: soft delete
+  timestamp      DateTime  @default(now())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactId      String?
+  contact        Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull) // CHANGED
+  @@index([userId])
+  @@index([userId, contactId])
+  @@index([userId, timestamp])
+  @@index([idempotencyKey])
+  @@index([status, expiresAt])  // NEW
+}</pre>
+
+<h2>Revised Auth Flow (Phase 1-3)</h2>
+<div class="card">
+<ol>
+<li>User enters wallet address</li>
+<li>Frontend: <code>GET /api/users/:walletAddress</code></li>
+<li>Backend: upsert user + create Session (UUID token, 24h TTL)</li>
+<li>Returns <code>{ user, sessionToken }</code></li>
+<li>Frontend stores sessionToken in localStorage</li>
+<li>All requests: <code>Authorization: Bearer {sessionToken}</code></li>
+<li>Middleware: validate token &rarr; attach req.user</li>
+<li>Phase 4: replace with Pi OAuth JWT</li>
+</ol>
+</div>
+
+<h2>Remaining Uncertainties</h2>
+<div class="card">
+<ul>
+<li><strong>Pi wallet address format</strong> &mdash; low impact, permissive validation for now</li>
+<li><strong>Pi Platform API reconciliation behavior</strong> &mdash; Phase 4 sandbox testing</li>
+<li><strong>Railway pricing post-trial</strong> &mdash; $5/mo expected, Neon as fallback</li>
+</ul>
+<p>None blocking Phase 1-3 implementation.</p>
+</div>
+
+<h2>Convergence Assessment</h2>
+<div class="convergence">
+<h3 style="font-size:1.5rem;margin-bottom:1rem">CONVERGING &mdash; Ready for Verification</h3>
+<table style="text-align:left;max-width:400px;margin:0 auto">
+<tr><td>Critical resolved:</td><td>5/5 &check;</td></tr>
+<tr><td>Major resolved:</td><td>10/12 &check; (1 accepted, 1 deferred)</td></tr>
+<tr><td>Minor resolved:</td><td>6/9 &check; (2 accepted, 3 deferred)</td></tr>
+<tr><td>Open questions:</td><td>7/7 &check;</td></tr>
+<tr><td>New issues:</td><td>0</td></tr>
+</table>
+<p style="margin-top:1rem;font-weight:600">All critical issues resolved. Design ready for verification pass (iteration-02). If verification passes, generate final/architecture.html.</p>
+</div>
+
+<h2>Recommendations</h2>
+<h3>For Iteration 02</h3>
+<ol>
+<li>Run independent verification (design-verification-skill)</li>
+<li>Focus on: G-001 (can session auth be bypassed?), G-009 (Decimal&rarr;JS precision?), G-023 (compound failure in reconciliation), G-026 (all endpoints have ownership checks?)</li>
+<li>If verification passes &rarr; CONVERGED &rarr; final/architecture.html</li>
+</ol>
+
+<h3>For Implementation</h3>
+<ol>
+<li>Start with monorepo restructure + Express + Prisma with revised schema</li>
+<li>Session-based auth from day 1</li>
+<li>Required idempotency keys from first API route</li>
+<li>Decimal for amounts from first migration</li>
+<li>Soft-delete infrastructure early</li>
+</ol>
+
+<h3>Accepted Risks</h3>
+<table>
+<tr><td>G-022</td><td>No staging</td><td>OK for small team</td></tr>
+<tr><td>G-015</td><td>No DB retry</td><td>Manual retry + idempotency</td></tr>
+<tr><td>G-017</td><td>Non-unique names</td><td>By design, use IDs</td></tr>
+</table>
+
+<p style="margin-top:2rem"><a href="./answers.html">&larr; Answers</a> | <a href="../index.html">&uarr; Index</a></p>
+</body>
+</html>

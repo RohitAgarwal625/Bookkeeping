@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend Architecture - Answers - Iteration 01</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#2563eb;--success:#059669;--warn:#d97706;--err:#dc2626;--bg:#f8f9fa;--border:#e2e8f0;--heading:#0f172a;--muted:#6c757d}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.7;color:#1a1a2e;max-width:960px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;font-weight:700;color:var(--heading);margin-bottom:1rem}
+h2{font-size:1.5rem;font-weight:600;color:var(--heading);margin:2rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+h3{font-size:1.1rem;font-weight:600;margin:1rem 0 .5rem}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0}
+.answer{border-left:4px solid var(--success);background:#ecfdf5;padding:1rem;border-radius:0 8px 8px 0;margin:.5rem 0}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600}
+.b-crit{background:#fef2f2;color:var(--err)}.b-maj{background:#fffbeb;color:var(--warn)}.b-min{background:#f1f5f9;color:#64748b}
+.b-fix{background:#ecfdf5;color:var(--success)}.b-acc{background:#fffbeb;color:var(--warn)}.b-def{background:#f1f5f9;color:#64748b}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th{background:var(--bg);font-weight:600;text-align:left;padding:.6rem .8rem;border-bottom:2px solid var(--border)}
+td{padding:.6rem .8rem;border-bottom:1px solid var(--border)}
+pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;font-family:monospace;font-size:.85rem;margin:.5rem 0}
+a{color:var(--accent);text-decoration:none}p{margin-bottom:.6rem}ul{margin:.3rem 0 .3rem 1.5rem}
+</style>
+</head>
+<body>
+
+<p><a href="../index.html">&uarr; Index</a> | <a href="./grill.html">&larr; Grill</a> | <a href="./rethink.html">Rethink &rarr;</a></p>
+
+<h1>Answers to Grill v1</h1>
+<div class="card">
+<strong>Resolution:</strong> 26 issues &rarr; 19 resolved, 3 accepted, 4 deferred/closed<br>
+All 5 critical issues resolved. All 7 open questions answered.
+</div>
+
+<h2>Critical Issues</h2>
+
+<h3>G-001 &mdash; Auth Impersonation <span class="badge b-crit">CRITICAL</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer">
+<p>Add Session table. On login, generate random UUID token (24h TTL). Frontend sends <code>Authorization: Bearer {token}</code>. Middleware validates against Session table. Prevents trivial impersonation (need to know token, not just wallet). Phase 4 replaces with JWT.</p>
+<pre>GET /api/users/:walletAddress -> { user, sessionToken }
+All requests: Authorization: Bearer {sessionToken}</pre>
+</div>
+
+<h3>G-006 &mdash; Simultaneous Payments <span class="badge b-crit">CRITICAL</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer">
+<p>Independent blockchain transactions. No netting. Our DB is a <em>record</em> of Pi blockchain, not the source of truth. Each pending tx completes/fails independently. Reconciliation job (G-023) handles stuck ones.</p>
+</div>
+
+<h3>G-009 &mdash; Float Precision <span class="badge b-crit">CRITICAL</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer">
+<p>Switch to <code>Decimal @db.Decimal(18, 7)</code> in Prisma (PostgreSQL NUMERIC). API serializes via <code>parseFloat(amount.toString())</code>. Standard for financial data.</p>
+</div>
+
+<h3>G-018 &mdash; Idempotency Optional <span class="badge b-crit">CRITICAL</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer">
+<p>Make <code>idempotencyKey</code> REQUIRED on POST /api/transactions. Frontend generates UUID v4 when form renders (not on submit). Retries send same key.</p>
+</div>
+
+<h3>G-023 &mdash; Pending TX Stuck <span class="badge b-crit">CRITICAL</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer">
+<p>30-min TTL on pending transactions (<code>expiresAt</code> field). Cron job every 5 min checks Pi Platform API for expired pending txs. Updates to completed/expired. Phase 4 implementation.</p>
+</div>
+
+<h2>Major Issues</h2>
+
+<h3>G-003 &mdash; IP Rate Limiting <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Two-tier: IP-based (200/min) for unauthenticated, user-based (100/min) for authenticated, write-specific (20/min).</p></div>
+
+<h3>G-004 &mdash; Wallet Format <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Permissive (any string, min 1, max 100) for Phase 1-3. Strict Stellar validation (<code>/^G[A-Z2-7]{55}$/</code>) in Phase 4.</p></div>
+
+<h3>G-005 &mdash; XSS <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Use <code>xss</code> npm package in Zod transform to strip HTML from description, name, displayName fields.</p></div>
+
+<h3>G-010 &amp; G-025 &mdash; Contact Totals / N+1 <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer">
+<p>Single raw SQL with LEFT JOIN + GROUP BY computes totalCredit, totalDebit, lastSeen for all contacts in one query.</p>
+<pre>SELECT c.*, COALESCE(SUM(CASE WHEN t.type='credit' THEN t.amount END),0) as "totalCredit",
+  COALESCE(SUM(CASE WHEN t.type='debit' THEN t.amount END),0) as "totalDebit",
+  MAX(t.timestamp) as "lastSeen"
+FROM "Contact" c LEFT JOIN "Transaction" t ON t."contactId"=c.id
+WHERE c."userId"=$1 GROUP BY c.id</pre>
+</div>
+
+<h3>G-011 &mdash; Delete Blockchain TX <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Soft-delete (<code>deletedAt</code> field). Block deletion of <code>source=pi_network</code> transactions (return 403).</p></div>
+
+<h3>G-012 &mdash; Audit Trail <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Soft-delete provides partial audit. Full audit log deferred to Phase 5.</p></div>
+
+<h3>G-013 &mdash; Pool Exhaustion <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Explicit pool config: <code>connection_limit=5&amp;pool_timeout=10</code> in DATABASE_URL. P2024 error returns 503.</p></div>
+
+<h3>G-021 &mdash; Migration Failure <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Railway blue-green deploys keep old container. Rule: always backward-compatible migrations. Add nullable first, backfill, then constrain.</p></div>
+
+<h3>G-022 &mdash; No Staging <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-acc">ACCEPTED</span></h3>
+<div class="answer"><p>Acceptable for small team. Test locally + push to main. Revisit before Phase 4.</p></div>
+
+<h3>G-024 &mdash; Payment Completion Idemp <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Check if tx status is already <code>completed</code> before processing. Return existing result if so.</p></div>
+
+<h3>G-026 &mdash; ContactId Ownership <span class="badge b-maj">MAJOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Verify contactId belongs to req.user.id: <code>findFirst({ where: { id: contactId, userId: req.user.id } })</code></p></div>
+
+<h2>Minor Issues</h2>
+
+<h3>G-002 &mdash; CSRF <span class="badge b-min">MINOR</span> &rarr; CLOSED</h3>
+<div class="answer"><p>Not a risk with custom Authorization headers. Documented.</p></div>
+
+<h3>G-007 &mdash; Summary Race <span class="badge b-min">MINOR</span> &rarr; CLOSED</h3>
+<div class="answer"><p>Non-issue at expected volume.</p></div>
+
+<h3>G-008 &mdash; Contact FK <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Use <code>onDelete: SetNull</code> on Transaction&rarr;Contact. Financial history preserved.</p></div>
+
+<h3>G-014 &mdash; Graceful Shutdown <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>SIGTERM handler: stop accepting requests, finish in-flight, disconnect Prisma, force exit after 10s.</p></div>
+
+<h3>G-015 &mdash; DB Retry <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-acc">ACCEPTED</span></h3>
+<div class="answer"><p>Manual retry OK for Phase 1-3. Idempotency prevents duplicates.</p></div>
+
+<h3>G-016 &mdash; Amount Bounds <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Min: 0.0000001 (7 decimal places). Max: 1,000,000.</p></div>
+
+<h3>G-017 &mdash; Name Uniqueness <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-acc">ACCEPTED</span></h3>
+<div class="answer"><p>Names not unique by design. Frontend must use IDs.</p></div>
+
+<h3>G-019 &mdash; Contact Idemp <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Catch P2002, return 409 with friendly message.</p></div>
+
+<h3>G-020 &mdash; Key Expiry <span class="badge b-min">MINOR</span> &rarr; CLOSED</h3>
+<div class="answer"><p>Non-issue. Keys are columns on transaction rows.</p></div>
+
+<h3>G-027/G-028 &mdash; Frontend Types <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-def">DEFERRED</span></h3>
+<div class="answer"><p>Phase 2 frontend refactoring.</p></div>
+
+<h3>G-029 &mdash; Backup <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Railway daily backups on paid plan + weekly pg_dump.</p></div>
+
+<h3>G-031 &mdash; Contact Search <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-fix">FIX</span></h3>
+<div class="answer"><p>Add <code>?search=</code> query param with ILIKE.</p></div>
+
+<h3>G-032 &mdash; File Upload <span class="badge b-min">MINOR</span> &rarr; <span class="badge b-def">DEFERRED</span></h3>
+<div class="answer"><p>Not needed. Initials-based avatars sufficient.</p></div>
+
+<h2>Open Questions Resolved</h2>
+<table>
+<thead><tr><th>ID</th><th>Question</th><th>Answer</th></tr></thead>
+<tbody>
+<tr><td>OQ-001</td><td>Auto-create user on GET?</td><td>Yes, use upsert</td></tr>
+<tr><td>OQ-002</td><td>Totals computed or stored?</td><td>Computed via JOIN+GROUP BY</td></tr>
+<tr><td>OQ-003</td><td>lastSeen meaning?</td><td>MAX(transaction.timestamp)</td></tr>
+<tr><td>OQ-004</td><td>Pi endpoints in Phase 1-3?</td><td>Stub as 501</td></tr>
+<tr><td>OQ-005</td><td>Railway cost?</td><td>$5/mo acceptable. Neon as fallback</td></tr>
+<tr><td>OQ-006</td><td>Name vs ID keying?</td><td>Use IDs. Frontend refactor Phase 2</td></tr>
+<tr><td>OQ-007</td><td>Float vs Decimal?</td><td>Decimal(18,7)</td></tr>
+</tbody>
+</table>
+
+<p style="margin-top:2rem"><a href="./grill.html">&larr; Grill</a> | <a href="../index.html">&uarr; Index</a> | <a href="./rethink.html">Rethink &rarr;</a></p>
+</body>
+</html>

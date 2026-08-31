@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backend Architecture — Proposal — Iteration 01</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      flowchart: { curve: 'basis', padding: 20 },
+      sequence: { mirrorActors: false, messageAlign: 'center' },
+      themeVariables: {
+        primaryColor: '#e0e7ff',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#2563eb',
+        lineColor: '#94a3b8',
+        secondaryColor: '#f1f5f9',
+        tertiaryColor: '#ecfdf5'
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --color-bg: #ffffff;
+      --color-bg-card: #f8f9fa;
+      --color-bg-sidebar: #f1f3f5;
+      --color-text: #1a1a2e;
+      --color-text-secondary: #6c757d;
+      --color-heading: #0f172a;
+      --color-accent: #2563eb;
+      --color-accent-hover: #1d4ed8;
+      --color-border: #e2e8f0;
+      --color-success: #059669;
+      --color-success-bg: #ecfdf5;
+      --color-warning: #d97706;
+      --color-warning-bg: #fffbeb;
+      --color-error: #dc2626;
+      --color-error-bg: #fef2f2;
+      --color-info: #2563eb;
+      --color-info-bg: #eff6ff;
+      --color-neutral: #64748b;
+      --color-neutral-bg: #f1f5f9;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 16px; line-height: 1.7; color: var(--color-text); background: var(--color-bg);
+    }
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 260px;
+      background: var(--color-bg-sidebar); border-right: 1px solid var(--color-border);
+      padding: 1.5rem 0; overflow-y: auto; z-index: 100;
+    }
+    .sidebar a {
+      display: block; padding: 0.4rem 1.25rem; font-size: 0.85rem;
+      color: var(--color-text-secondary); text-decoration: none;
+      border-left: 3px solid transparent; transition: all 0.2s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+      color: var(--color-accent); border-left-color: var(--color-accent);
+      background: rgba(37, 99, 235, 0.05);
+    }
+    .breadcrumb {
+      position: sticky; top: 0; z-index: 90;
+      background: var(--color-bg); border-bottom: 1px solid var(--color-border);
+      padding: 0.75rem 2rem; margin-left: 260px;
+      font-size: 0.85rem; color: var(--color-text-secondary);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .content { margin-left: 260px; max-width: 960px; padding: 2rem 2.5rem; }
+    h1 { font-size: 2rem; font-weight: 700; color: var(--color-heading); margin-bottom: 0.5rem; line-height: 1.3; }
+    h2 { font-size: 1.5rem; font-weight: 600; color: var(--color-heading); margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border); line-height: 1.35; }
+    h3 { font-size: 1.25rem; font-weight: 600; color: var(--color-heading); margin: 1.5rem 0 0.75rem; line-height: 1.4; }
+    .card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em; }
+    .badge-critical { background: var(--color-error-bg); color: var(--color-error); border: 1px solid #fecaca; }
+    .badge-major { background: var(--color-warning-bg); color: var(--color-warning); border: 1px solid #fde68a; }
+    .badge-minor { background: var(--color-neutral-bg); color: var(--color-neutral); border: 1px solid var(--color-border); }
+    .badge-resolved, .badge-validated, .badge-pass { background: var(--color-success-bg); color: var(--color-success); border: 1px solid #a7f3d0; }
+    .badge-open, .badge-fail { background: var(--color-error-bg); color: var(--color-error); border: 1px solid #fecaca; }
+    .badge-accepted, .badge-conditional { background: var(--color-warning-bg); color: var(--color-warning); border: 1px solid #fde68a; }
+    .badge-in-progress { background: var(--color-info-bg); color: var(--color-info); border: 1px solid #bfdbfe; }
+    .badge-deferred { background: var(--color-neutral-bg); color: var(--color-neutral); border: 1px solid var(--color-border); }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+    th { background: var(--color-bg-sidebar); font-weight: 600; text-align: left; padding: 0.75rem 1rem; border-bottom: 2px solid var(--color-border); position: sticky; top: 0; }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--color-border); }
+    tr:nth-child(even) { background: var(--color-bg-card); }
+    tr:hover { background: rgba(37, 99, 235, 0.03); }
+    details.collapsible { border: 1px solid var(--color-border); border-radius: 8px; margin: 0.75rem 0; }
+    details.collapsible summary { padding: 1rem 1.25rem; cursor: pointer; font-weight: 500; list-style: none; display: flex; align-items: center; gap: 0.5rem; }
+    details.collapsible summary::before { content: '▸'; transition: transform 0.2s; }
+    details.collapsible[open] summary::before { transform: rotate(90deg); }
+    details.collapsible .collapsible-content { padding: 0 1.25rem 1.25rem; }
+    figure.diagram { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+    figure.diagram figcaption { margin-top: 0.75rem; font-size: 0.85rem; color: var(--color-text-secondary); font-style: italic; }
+    pre.code-block { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 6px; padding: 1rem 1.25rem; overflow-x: auto; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.9rem; line-height: 1.6; }
+    .diff-container { display: flex; gap: 1.5rem; margin: 1rem 0; }
+    .diff-before, .diff-after { flex: 1; border-radius: 8px; padding: 1rem; }
+    .diff-before { border-left: 4px solid var(--color-error); background: var(--color-error-bg); }
+    .diff-after { border-left: 4px solid var(--color-success); background: var(--color-success-bg); }
+    .progress-bar { height: 8px; border-radius: 4px; background: var(--color-neutral-bg); margin: 0.5rem 0; overflow: hidden; display: flex; }
+    .progress-bar .segment-resolved { background: var(--color-success); }
+    .progress-bar .segment-in-progress { background: var(--color-warning); }
+    .progress-bar .segment-open { background: var(--color-error); }
+    .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border); font-size: 0.9rem; }
+    .nav-footer a { color: var(--color-accent); text-decoration: none; }
+    .nav-footer a:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content, .breadcrumb { margin-left: 0; }
+      .content { padding: 1rem; }
+      .diff-container { flex-direction: column; }
+    }
+    @media print {
+      .sidebar, .breadcrumb, .nav-footer { display: none; }
+      .content { margin-left: 0; max-width: 100%; }
+      .badge { border: 1px solid #999; }
+      details[open] summary { font-weight: bold; }
+    }
+    ul, ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+    li { margin-bottom: 0.3rem; }
+    p { margin-bottom: 0.75rem; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; background: var(--color-bg-card); padding: 0.1rem 0.35rem; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div style="padding: 1rem 1.25rem; font-weight: 700; font-size: 0.9rem; color: var(--color-heading); border-bottom: 1px solid var(--color-border); margin-bottom: 0.75rem;">
+    Table of Contents
+  </div>
+  <a href="#metadata">Header & Metadata</a>
+  <a href="#problem">Problem Statement</a>
+  <a href="#goals">Goals</a>
+  <a href="#non-goals">Non-Goals</a>
+  <a href="#existing">Existing Behavior</a>
+  <a href="#proposed">Proposed Behavior</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#database">Database Design</a>
+  <a href="#api">API Design</a>
+  <a href="#data-flow">Data & Control Flow</a>
+  <a href="#state">State Transitions</a>
+  <a href="#auth">Auth & Security</a>
+  <a href="#persistence">Persistence & Storage</a>
+  <a href="#concurrency">Concurrency</a>
+  <a href="#failure">Failure Handling</a>
+  <a href="#backward">Backward Compatibility</a>
+  <a href="#observability">Observability</a>
+  <a href="#performance">Performance Impact</a>
+  <a href="#testing">Testing Strategy</a>
+  <a href="#deployment">Deployment & Rollback</a>
+  <a href="#assumptions">Assumptions</a>
+  <a href="#open-questions">Open Questions</a>
+  <a href="#risks">Known Risks</a>
+  <a href="#decisions">Decision Log</a>
+</nav>
+
+<div class="breadcrumb">
+  <div>
+    <a href="../index.html">Backend Architecture</a> &rsaquo;
+    <a href="./">Iteration 01</a> &rsaquo;
+    <span>Proposal</span>
+  </div>
+  <span class="badge badge-in-progress">DRAFT</span>
+</div>
+
+<main class="content">
+
+<!-- ================================================================ -->
+<section id="metadata">
+  <h1>Backend Architecture — Proposal v1</h1>
+  <div class="card">
+    <table>
+      <tr><td><strong>Feature</strong></td><td>Full Backend Stack — API, Database, Auth & Deployment</td></tr>
+      <tr><td><strong>Iteration</strong></td><td>01</td></tr>
+      <tr><td><strong>Date</strong></td><td>2026-08-31</td></tr>
+      <tr><td><strong>Status</strong></td><td><span class="badge badge-in-progress">DRAFT</span></td></tr>
+      <tr><td><strong>Previous Iteration</strong></td><td>N/A — First iteration</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="problem">
+  <h2>1. Problem Statement</h2>
+
+  <h3>What problem does this feature solve?</h3>
+  <p>The Bookkeeping app has a fully built React frontend but <strong>zero backend infrastructure</strong>. All data (contacts, transactions, user state) is either hardcoded in <code>types.ts</code> as <code>initialContacts</code> or managed ephemerally in React component state via <code>useState</code>. Nothing persists across page refreshes. The app is a non-functional UI shell.</p>
+
+  <h3>Why does this problem matter?</h3>
+  <ul>
+    <li>Users cannot create real accounts, add real contacts, or record real transactions</li>
+    <li>No multi-user support — every user sees the same hardcoded data</li>
+    <li>No persistence — refreshing the browser erases everything</li>
+    <li>No deployment — the app only runs on <code>localhost</code></li>
+    <li>No path to Pi Network integration without a server-side payment completion endpoint</li>
+  </ul>
+
+  <h3>What is the current behavior?</h3>
+  <p>User opens the app → sees hardcoded contacts (Chengdiao Fan, Nicolas Kokkalis, etc.) → can add entries in-memory → refresh browser → all data lost. Guest mode and "Connect Pi Wallet" both lead to the same in-memory state with no server interaction.</p>
+
+  <h3>What is the impact of not solving this?</h3>
+  <p>The app remains a static demo with no real-world utility. Pi Network integration (Phase 4) is impossible without a backend to handle server-side payment approvals. The app cannot launch.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="goals">
+  <h2>2. Goals</h2>
+  <ol>
+    <li><strong>G1:</strong> Persist all user, contact, and transaction data in a PostgreSQL database — verified by data surviving across browser refreshes and server restarts</li>
+    <li><strong>G2:</strong> Serve a REST API that the existing React frontend can consume, replacing all hardcoded/mock data — verified by zero hardcoded data in the shipped frontend</li>
+    <li><strong>G3:</strong> Support multi-user isolation — each Pi wallet address = one user account. Verified by two users seeing different data</li>
+    <li><strong>G4:</strong> Deploy the frontend to a CDN (Vercel) and backend to a managed platform (Railway) with the database accessible via connection string — verified by public URL accessibility</li>
+    <li><strong>G5:</strong> Design the auth layer to be swappable — temporary wallet-based auth (Phases 1-3) cleanly replaceable with Pi OAuth + JWT (Phase 4) — verified by auth middleware accepting a strategy pattern</li>
+    <li><strong>G6:</strong> Validate all API inputs with Zod schemas — verified by invalid requests returning 400 with descriptive errors</li>
+    <li><strong>G7:</strong> Add idempotency protection for transaction creation — verified by duplicate POST requests not creating duplicate records</li>
+  </ol>
+</section>
+
+<!-- ================================================================ -->
+<section id="non-goals">
+  <h2>3. Non-Goals</h2>
+  <ul>
+    <li><strong>NG1:</strong> Real Pi Network SDK integration — deferred to Phase 4. This proposal designs the <em>hooks</em> for Pi SDK but does not implement them.</li>
+    <li><strong>NG2:</strong> Real-time WebSocket updates — deferred to Phase 5. Polling is acceptable for Phase 1-3.</li>
+    <li><strong>NG3:</strong> Offline support / PWA — out of scope for this iteration.</li>
+    <li><strong>NG4:</strong> Mobile native app — the app is web-only (Pi Browser compatible).</li>
+    <li><strong>NG5:</strong> Multi-currency support — Pi only.</li>
+    <li><strong>NG6:</strong> Admin dashboard / back-office — not needed yet.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="existing">
+  <h2>4. Existing Behavior</h2>
+
+  <p>The frontend currently operates as a fully client-side SPA with no server communication:</p>
+
+  <figure class="diagram">
+    <div class="mermaid">
+      graph TD
+        A[User opens browser] --> B[React App loads from localhost:5173]
+        B --> C[Login screen shown]
+        C -->|Connect Pi Wallet| D[handleConnectWallet sets state]
+        C -->|Guest Mode| E[handleGuestLogin sets state]
+        D --> F[initialContacts loaded from types.ts]
+        E --> G[Empty contacts array]
+        F --> H[Dashboard with hardcoded piBalance=370.20]
+        G --> H
+        H --> I[All CRUD operations modify React useState only]
+        I -->|Browser refresh| J[ALL DATA LOST]
+    </div>
+    <figcaption>Figure 1: Current architecture — everything is ephemeral client-side state</figcaption>
+  </figure>
+
+  <h3>Key observations from frontend source code:</h3>
+  <div class="card">
+    <ul>
+      <li><code>App.tsx</code> line 82: <code>const [contacts, setContacts] = useState&lt;Contact[]&gt;([])</code> — contacts start empty</li>
+      <li><code>App.tsx</code> line 91: <code>handleConnectWallet</code> loads <code>initialContacts</code> — hardcoded 5 contacts</li>
+      <li><code>types.ts</code>: <code>Contact</code> has <code>txHash</code> field (mock hex strings), <code>totalCredit</code>/<code>totalDebit</code> (computed client-side)</li>
+      <li><code>types.ts</code>: <code>Transaction</code> has <code>id</code>, <code>description</code>, <code>amount</code>, <code>type</code> ("credit"|"debit"), <code>timestamp</code>, <code>isNew</code> flag</li>
+      <li>No <code>userId</code> concept in frontend types — user is identified by wallet address stored in <code>useState</code></li>
+      <li><code>pendingNewTransactions</code> keyed by customer name (not ID) — fragile</li>
+      <li>Payment flow (<code>PayScreen</code>) creates transactions in memory only — no server call</li>
+      <li>Screens: login, dashboard, contacts, customerLedger, addCustomer, addEntry, autoTransaction, pay, qrPay, merchantDashboard, analyze (reports), settings, contactDetails</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="proposed">
+  <h2>5. Proposed Behavior</h2>
+
+  <p>Add a Node.js + Express + TypeScript backend that serves REST APIs, persists data in PostgreSQL via Prisma ORM, and is deployed on Railway. The frontend is deployed on Vercel and communicates with the backend over HTTPS.</p>
+
+  <figure class="diagram">
+    <div class="mermaid">
+      graph TD
+        A[User opens Pi Browser / Chrome] --> B[Vercel CDN serves React SPA]
+        B --> C[Login screen]
+        C -->|Connect Pi Wallet| D[Frontend sends wallet address to API]
+        D --> E[GET /api/users/:walletAddress]
+        E --> F[Backend: Upsert user in PostgreSQL via Prisma]
+        F --> G[Return user object + JWT temp token]
+        G --> H[Frontend stores token in localStorage]
+        H --> I[Dashboard loads via API calls]
+        I --> J[GET /api/transactions/summary]
+        I --> K[GET /api/contacts]
+        I --> L[GET /api/transactions?limit=5]
+        J --> M[Real balance from DB]
+        K --> N[Real contacts from DB]
+        L --> O[Real recent transactions from DB]
+
+        subgraph "All CRUD via API"
+          P[POST /api/contacts] --> Q[Persisted in PostgreSQL]
+          R[POST /api/transactions] --> S[Persisted with idempotency key]
+          T[GET /api/transactions/contact/:id] --> U[Ledger from DB]
+        end
+    </div>
+    <figcaption>Figure 2: Proposed architecture — all data flows through Express API to PostgreSQL</figcaption>
+  </figure>
+</section>
+
+<!-- ================================================================ -->
+<section id="architecture">
+  <h2>6. Architecture & Components</h2>
+
+  <h3>6.1 Monorepo Structure</h3>
+  <pre class="code-block"><code>Bookkeeping/
+├── frontend/                  # Existing Vite + React app (moved here)
+│   ├── src/
+│   │   ├── components/
+│   │   ├── contexts/
+│   │   ├── lib/
+│   │   │   └── api.ts         # NEW — API client (axios/fetch wrapper)
+│   │   ├── types.ts           # MODIFIED — remove hardcoded data, align with shared types
+│   │   └── App.tsx            # MODIFIED — replace useState with API calls
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── backend/                   # NEW — Node.js + Express API
+│   ├── src/
+│   │   ├── routes/
+│   │   │   ├── users.ts
+│   │   │   ├── contacts.ts
+│   │   │   ├── transactions.ts
+│   │   │   └── pi.ts          # Stub for Phase 4
+│   │   ├── controllers/
+│   │   │   ├── users.controller.ts
+│   │   │   ├── contacts.controller.ts
+│   │   │   └── transactions.controller.ts
+│   │   ├── middleware/
+│   │   │   ├── validate.ts    # Zod validation middleware
+│   │   │   ├── auth.ts        # Wallet-based auth (Phase 1-3), JWT (Phase 4)
+│   │   │   ├── errorHandler.ts
+│   │   │   └── rateLimiter.ts
+│   │   ├── schemas/           # Zod schemas
+│   │   │   ├── user.schema.ts
+│   │   │   ├── contact.schema.ts
+│   │   │   └── transaction.schema.ts
+│   │   ├── lib/
+│   │   │   └── prisma.ts      # Prisma client singleton
+│   │   └── index.ts           # Express app entry point
+│   ├── prisma/
+│   │   └── schema.prisma
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── shared/                    # Shared TypeScript types
+│   ├── types.ts
+│   └── package.json
+│
+└── package.json               # Root — npm workspaces
+</code></pre>
+
+  <h3>6.2 Technology Stack</h3>
+  <figure class="diagram">
+    <div class="mermaid">
+      graph LR
+        subgraph Frontend
+          A[React 18 + Vite + TypeScript]
+          B[Tailwind CSS + shadcn/ui]
+          C[Axios / fetch API client]
+        end
+        subgraph Backend
+          D[Node.js 20 LTS]
+          E[Express 4.x + TypeScript]
+          F[Prisma ORM 5.x]
+          G[Zod 3.x validation]
+          H[express-rate-limit]
+        end
+        subgraph Database
+          I[Railway PostgreSQL]
+        end
+        subgraph Deployment
+          J[Vercel - Frontend CDN]
+          K[Railway - Backend + DB]
+        end
+        A --> E
+        E --> F
+        F --> I
+        A -.-> J
+        E -.-> K
+        I -.-> K
+    </div>
+    <figcaption>Figure 3: Technology stack overview</figcaption>
+  </figure>
+
+  <h3>6.3 Database Choice Analysis</h3>
+  <div class="card">
+    <p><strong>Decision: Railway PostgreSQL</strong></p>
+    <p>The <code>bookkeeping_full_stack_plan.md</code> listed Supabase as a placeholder. After deep analysis of the 4 options:</p>
+    <table>
+      <thead>
+        <tr><th>Criteria</th><th>Supabase</th><th>Railway PostgreSQL</th><th>MongoDB Atlas</th><th>SQLite</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Data model fit</td><td>✅ Relational</td><td>✅ Relational</td><td>⚠️ Document (forced for relational data)</td><td>✅ Relational</td></tr>
+        <tr><td>Vendor lock-in</td><td>⚠️ Supabase-specific APIs (RLS, Realtime, Auth)</td><td>✅ Standard PostgreSQL — zero lock-in</td><td>⚠️ MongoDB query language</td><td>✅ Standard SQL</td></tr>
+        <tr><td>Cost</td><td>✅ Free tier (500MB, pauses after 1 week inactivity)</td><td>✅ $5/mo after trial (always-on)</td><td>✅ Free 512MB</td><td>✅ Free</td></tr>
+        <tr><td>Multi-user concurrency</td><td>✅ Good</td><td>✅ Good</td><td>✅ Good</td><td>❌ Single-writer, no concurrent access</td></tr>
+        <tr><td>Prisma compatibility</td><td>✅ Works (needs directUrl)</td><td>✅ Native — single DATABASE_URL</td><td>⚠️ Prisma MongoDB adapter (less mature)</td><td>✅ Works</td></tr>
+        <tr><td>Tooling (PgAdmin/DBeaver)</td><td>⚠️ Must connect externally</td><td>✅ Direct connection string — works with PgAdmin, DBeaver, psql</td><td>❌ Different tooling (Compass)</td><td>⚠️ Local file only</td></tr>
+        <tr><td>Backend co-location</td><td>❌ Separate service</td><td>✅ Same Railway project — low latency</td><td>❌ Separate</td><td>❌ Embedded only</td></tr>
+        <tr><td>Production readiness</td><td>✅ Managed</td><td>✅ Managed</td><td>✅ Managed</td><td>❌ Not for production</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Why Railway PostgreSQL wins:</strong></p>
+    <ol>
+      <li><strong>User's preference</strong> — explicitly asked for Railway or PgAdmin/DBeaver compatible tooling</li>
+      <li><strong>Zero vendor lock-in</strong> — standard PostgreSQL, works with any ORM, any tool, portable anywhere</li>
+      <li><strong>Co-located with backend</strong> — both Express server and PostgreSQL run in the same Railway project, minimizing network latency</li>
+      <li><strong>Simpler Prisma config</strong> — single <code>DATABASE_URL</code>, no need for <code>directUrl</code> workaround</li>
+      <li><strong>Full PgAdmin/DBeaver support</strong> — user can connect with any SQL client for debugging and manual queries</li>
+      <li><strong>No pausing</strong> — Supabase free tier pauses after 1 week of inactivity, Railway stays on</li>
+    </ol>
+
+    <p><strong>Tradeoff:</strong> We lose Supabase's built-in Auth and Realtime features. But since Pi Network OAuth is the final auth (Phase 4), Supabase Auth would be throwaway work. Realtime (Phase 5) can be added via polling or WebSockets later.</p>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section id="database">
+  <h2>7. Database Schema (Prisma)</h2>
+
+  <h3>7.1 Entity Relationship Diagram</h3>
+  <figure class="diagram">
+    <div class="mermaid">
+      erDiagram
+        USER {
+          string id PK "cuid()"
+          string piWalletAddress UK "unique wallet"
+          string piUsername UK "nullable, Phase 4"
+          string piUid UK "nullable, Phase 4"
+          string displayName "default: Pioneer User"
+          datetime createdAt
+          datetime updatedAt
+        }
+        CONTACT {
+          string id PK "cuid()"
+          string name "required"
+          string category "individual | business"
+          string piWalletAddress "required"
+          string userId FK
+          datetime createdAt
+          datetime updatedAt
+        }
+        TRANSACTION {
+          string id PK "cuid()"
+          string description "required"
+          float amount "positive, non-zero"
+          string type "credit | debit"
+          string source "manual | pi_network"
+          string txHash "nullable, Phase 4"
+          string piPaymentId "nullable, Phase 4"
+          string idempotencyKey UK "nullable, for dedup"
+          datetime timestamp
+          string userId FK
+          string contactId FK "nullable"
+        }
+
+        USER ||--o{ CONTACT : "has many"
+        USER ||--o{ TRANSACTION : "has many"
+        CONTACT ||--o{ TRANSACTION : "referenced by"
+    </div>
+    <figcaption>Figure 4: Entity-Relationship diagram for the Bookkeeping database</figcaption>
+  </figure>
+
+  <h3>7.2 Prisma Schema</h3>
+  <pre class="code-block"><code>// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String        @id @default(cuid())
+  piWalletAddress String        @unique
+  piUsername       String?       @unique
+  piUid           String?       @unique
+  displayName     String        @default("Pioneer User")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  contacts        Contact[]
+  transactions    Transaction[]
+
+  @@index([piWalletAddress])
+}
+
+model Contact {
+  id              String        @id @default(cuid())
+  name            String
+  category        String        // "individual" | "business"
+  piWalletAddress String
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions    Transaction[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, piWalletAddress])
+  @@index([userId])
+}
+
+model Transaction {
+  id             String    @id @default(cuid())
+  description    String
+  amount         Float
+  type           String    // "credit" | "debit"
+  source         String    @default("manual")
+  txHash         String?
+  piPaymentId    String?
+  idempotencyKey String?   @unique
+  timestamp      DateTime  @default(now())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactId      String?
+  contact        Contact?  @relation(fields: [contactId], references: [id])
+
+  @@index([userId])
+  @@index([userId, contactId])
+  @@index([userId, timestamp])
+  @@index([idempotencyKey])
+}
+</code></pre>
+
+  <h3>7.3 Key Schema Decisions</h3>
+  <ul>
+    <li><strong>idempotencyKey</strong> added to Transaction — prevents duplicate transaction creation from network retries or double-clicks. Frontend generates a UUID per form submission.</li>
+    <li><strong>Composite unique constraint</strong> on <code>[userId, piWalletAddress]</code> in Contact — a user cannot add the same wallet address twice as a contact.</li>
+    <li><strong>Cascade delete</strong> on User→Contact and User→Transaction — deleting a user removes all their data (GDPR-friendly).</li>
+    <li><strong>Indexes</strong> on <code>userId</code>, <code>[userId, contactId]</code>, and <code>[userId, timestamp]</code> — optimizes the most common queries (list contacts for user, ledger for contact, sorted transactions).</li>
+    <li><strong>Float for amount</strong> — Pi amounts are fractional. For a bookkeeping app (not a bank), Float precision is acceptable. If sub-satoshi precision is needed later, switch to Decimal.</li>
+    <li><strong>No directUrl</strong> needed — Railway PostgreSQL uses a single connection string (unlike Supabase which needs both pooled and direct URLs).</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="api">
+  <h2>8. API Design</h2>
+
+  <h3>8.1 Base URL</h3>
+  <p>Development: <code>http://localhost:3001/api</code><br>
+  Production: <code>https://bookkeeping-api.up.railway.app/api</code></p>
+
+  <h3>8.2 Authentication (Phase 1-3)</h3>
+  <p>All requests include <code>x-wallet-address</code> header. The auth middleware looks up the user by wallet address and attaches <code>req.user</code>. No cryptographic verification — this is intentionally insecure for rapid development, designed to be replaced by Pi OAuth + JWT in Phase 4.</p>
+
+  <h3>8.3 Endpoints</h3>
+
+  <table>
+    <thead>
+      <tr><th>Method</th><th>Path</th><th>Description</th><th>Auth</th><th>Phase</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>GET</td><td><code>/api/users/:walletAddress</code></td><td>Get or create user</td><td>None</td><td>1</td></tr>
+      <tr><td>PUT</td><td><code>/api/users/:walletAddress</code></td><td>Update display name</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>GET</td><td><code>/api/contacts</code></td><td>List user's contacts</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>POST</td><td><code>/api/contacts</code></td><td>Create contact</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>GET</td><td><code>/api/contacts/:id</code></td><td>Get contact + stats</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>PUT</td><td><code>/api/contacts/:id</code></td><td>Update contact</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>DELETE</td><td><code>/api/contacts/:id</code></td><td>Delete contact</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>GET</td><td><code>/api/transactions</code></td><td>List transactions (paginated, filterable)</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>POST</td><td><code>/api/transactions</code></td><td>Create transaction (manual entry)</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>GET</td><td><code>/api/transactions/:id</code></td><td>Get single transaction</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>DELETE</td><td><code>/api/transactions/:id</code></td><td>Delete transaction</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>GET</td><td><code>/api/transactions/contact/:contactId</code></td><td>Ledger for one contact</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>GET</td><td><code>/api/transactions/summary</code></td><td>Total credit, debit, balance</td><td>Wallet</td><td>1</td></tr>
+      <tr><td>POST</td><td><code>/api/pi/authenticate</code></td><td>Pi SDK auth verification</td><td>Pi Token</td><td>4</td></tr>
+      <tr><td>POST</td><td><code>/api/pi/create-payment</code></td><td>Initiate Pi payment</td><td>JWT</td><td>4</td></tr>
+      <tr><td>POST</td><td><code>/api/pi/complete-payment</code></td><td>Server-side completion</td><td>JWT</td><td>4</td></tr>
+      <tr><td>POST</td><td><code>/api/pi/cancel-payment</code></td><td>Cancel a payment</td><td>JWT</td><td>4</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.4 Request/Response Examples</h3>
+
+  <details class="collapsible">
+    <summary>POST /api/transactions — Create Manual Transaction</summary>
+    <div class="collapsible-content">
+      <p><strong>Request:</strong></p>
+      <pre class="code-block"><code>{
+  "description": "Payment for web design",
+  "amount": 150.50,
+  "type": "debit",
+  "contactId": "clx123abc",
+  "timestamp": "2026-08-31T14:30:00Z",
+  "idempotencyKey": "550e8400-e29b-41d4-a716-446655440000"
+}</code></pre>
+      <p><strong>Response (201):</strong></p>
+      <pre class="code-block"><code>{
+  "id": "clx456def",
+  "description": "Payment for web design",
+  "amount": 150.50,
+  "type": "debit",
+  "source": "manual",
+  "txHash": null,
+  "contactId": "clx123abc",
+  "timestamp": "2026-08-31T14:30:00.000Z",
+  "userId": "clx789ghi"
+}</code></pre>
+      <p><strong>Error (409 — duplicate idempotency key):</strong></p>
+      <pre class="code-block"><code>{
+  "error": "DUPLICATE_TRANSACTION",
+  "message": "A transaction with this idempotency key already exists",
+  "existingId": "clx456def"
+}</code></pre>
+    </div>
+  </details>
+
+  <details class="collapsible">
+    <summary>GET /api/transactions?type=debit&from=2026-08-01&to=2026-08-31&page=1&limit=20</summary>
+    <div class="collapsible-content">
+      <p><strong>Response (200):</strong></p>
+      <pre class="code-block"><code>{
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 47,
+    "totalPages": 3,
+    "hasNext": true,
+    "hasPrev": false
+  }
+}</code></pre>
+    </div>
+  </details>
+
+  <details class="collapsible">
+    <summary>GET /api/transactions/summary</summary>
+    <div class="collapsible-content">
+      <p><strong>Response (200):</strong></p>
+      <pre class="code-block"><code>{
+  "totalCredit": 4675.50,
+  "totalDebit": 1446.25,
+  "balance": 3229.25,
+  "transactionCount": 47,
+  "period": "all_time"
+}</code></pre>
+    </div>
+  </details>
+
+  <h3>8.5 Error Response Format</h3>
+  <pre class="code-block"><code>{
+  "error": "VALIDATION_ERROR",
+  "message": "Invalid request body",
+  "details": [
+    { "field": "amount", "message": "Amount must be a positive number" },
+    { "field": "type", "message": "Type must be 'credit' or 'debit'" }
+  ]
+}</code></pre>
+
+  <h3>8.6 Zod Validation Schemas</h3>
+  <pre class="code-block"><code>// backend/src/schemas/transaction.schema.ts
+import { z } from 'zod';
+
+export const createTransactionSchema = z.object({
+  body: z.object({
+    description: z.string().min(1).max(500),
+    amount: z.number().positive().max(1_000_000),
+    type: z.enum(['credit', 'debit']),
+    contactId: z.string().optional(),
+    timestamp: z.string().datetime().optional(),
+    idempotencyKey: z.string().uuid().optional(),
+  })
+});
+
+export const listTransactionsSchema = z.object({
+  query: z.object({
+    type: z.enum(['credit', 'debit']).optional(),
+    contactId: z.string().optional(),
+    from: z.string().datetime().optional(),
+    to: z.string().datetime().optional(),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+  })
+});</code></pre>
+</section>
+
+<!-- ================================================================ -->
+<section id="data-flow">
+  <h2>9. Data & Control Flow</h2>
+
+  <h3>9.1 User Login Flow (Phase 1-3)</h3>
+  <figure class="diagram">
+    <div class="mermaid">
+      sequenceDiagram
+        participant U as User (Browser)
+        participant F as Frontend (Vercel)
+        participant B as Backend (Railway)
+        participant DB as PostgreSQL (Railway)
+
+        U->>F: Opens app
+        F->>U: Show login screen
+        U->>F: Clicks "Connect Pi Wallet"
+        F->>F: Prompt for wallet address (temp)
+        F->>B: GET /api/users/0x7a8f...
+        B->>DB: SELECT * FROM User WHERE piWalletAddress = '0x7a8f...'
+        alt User exists
+          DB-->>B: User record
+        else New user
+          B->>DB: INSERT INTO User (piWalletAddress, displayName)
+          DB-->>B: New user record
+        end
+        B-->>F: { id, piWalletAddress, displayName }
+        F->>F: Store walletAddress in localStorage
+        F->>B: GET /api/contacts (x-wallet-address header)
+        B->>DB: SELECT * FROM Contact WHERE userId = ?
+        DB-->>B: Contacts list
+        B-->>F: [contacts]
+        F->>B: GET /api/transactions/summary
+        B->>DB: SELECT SUM(amount) ... GROUP BY type
+        DB-->>B: {totalCredit, totalDebit, balance}
+        B-->>F: Summary data
+        F->>U: Dashboard with real data
+    </div>
+    <figcaption>Figure 5: Login and dashboard loading sequence (Phase 1-3)</figcaption>
+  </figure>
+
+  <h3>9.2 Manual Transaction Entry Flow</h3>
+  <figure class="diagram">
+    <div class="mermaid">
+      sequenceDiagram
+        participant U as User
+        participant F as Frontend
+        participant B as Backend
+        participant DB as PostgreSQL
+
+        U->>F: Fill AddEntry form + submit
+        F->>F: Generate idempotencyKey (UUID v4)
+        F->>B: POST /api/transactions {description, amount, type, contactId, idempotencyKey}
+        B->>B: Validate with Zod schema
+        alt Validation fails
+          B-->>F: 400 {error: VALIDATION_ERROR, details}
+          F->>U: Show error toast
+        else Validation passes
+          B->>DB: Check idempotencyKey exists
+          alt Duplicate
+            DB-->>B: Existing transaction
+            B-->>F: 409 {error: DUPLICATE_TRANSACTION, existingId}
+            F->>F: Treat as success (idempotent)
+          else New
+            B->>DB: INSERT INTO Transaction
+            DB-->>B: New transaction
+            B-->>F: 201 {transaction}
+            F->>U: Navigate to CustomerLedger, show new entry
+          end
+        end
+    </div>
+    <figcaption>Figure 6: Manual transaction creation with idempotency protection</figcaption>
+  </figure>
+
+  <h3>9.3 Pi Payment Flow (Phase 4 — Design Only)</h3>
+  <figure class="diagram">
+    <div class="mermaid">
+      sequenceDiagram
+        participant U as User
+        participant F as Frontend
+        participant Pi as Pi SDK
+        participant B as Backend
+        participant PiAPI as Pi Platform API
+        participant DB as PostgreSQL
+
+        U->>F: Enter amount + recipient in PayScreen
+        F->>B: POST /api/pi/create-payment {amount, recipientWallet, memo}
+        B->>B: Create pending Transaction (source=pi_network, status=pending)
+        B->>DB: INSERT Transaction
+        B-->>F: {paymentId, transactionId}
+        F->>Pi: Pi.createPayment({amount, memo, metadata: {txId}})
+        Pi->>U: Pi wallet approval dialog
+        U->>Pi: Approve payment
+        Pi->>PiAPI: Submit to Pi blockchain
+        PiAPI-->>Pi: {txHash, paymentId}
+        Pi-->>F: onReadyForServerCompletion({paymentId, txid})
+        F->>B: POST /api/pi/complete-payment {paymentId, txid}
+        B->>PiAPI: Verify payment status
+        PiAPI-->>B: {status: completed, txHash}
+        B->>DB: UPDATE Transaction SET txHash=?, source=pi_network, status=completed
+        B->>PiAPI: POST /payments/{id}/complete
+        B-->>F: {transaction, txHash}
+        F->>U: Success screen with txHash
+    </div>
+    <figcaption>Figure 7: Pi Network payment flow (Phase 4 design)</figcaption>
+  </figure>
+</section>
+
+<!-- ================================================================ -->
+<section id="state">
+  <h2>10. State Transitions</h2>
+
+  <h3>10.1 Transaction State Machine</h3>
+  <p>For Phase 1-3 (manual entries), transactions are always in <code>completed</code> state. For Phase 4 (Pi payments), a state machine is needed:</p>
+
+  <figure class="diagram">
+    <div class="mermaid">
+      stateDiagram-v2
+        [*] --> pending: Pi payment initiated
+        [*] --> completed: Manual entry created
+        pending --> completed: Pi payment verified & confirmed
+        pending --> failed: Pi payment rejected / timeout
+        pending --> cancelled: User cancels
+        failed --> [*]: Terminal state
+        cancelled --> [*]: Terminal state
+        completed --> [*]: Terminal state
+    </div>
+    <figcaption>Figure 8: Transaction state machine (Phase 4 adds pending/failed/cancelled states)</figcaption>
+  </figure>
+
+  <p><strong>Note:</strong> In Phase 1-3, we do NOT add a <code>status</code> field to the Transaction model. It is added in Phase 4 via a Prisma migration. This avoids unnecessary complexity in the initial implementation.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="auth">
+  <h2>11. Auth & Security</h2>
+
+  <h3>11.1 Phase 1-3: Wallet-Based Header Auth</h3>
+  <pre class="code-block"><code>// backend/src/middleware/auth.ts
+export async function walletAuth(req, res, next) {
+  const walletAddress = req.headers['x-wallet-address'];
+  if (!walletAddress) {
+    return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Missing x-wallet-address header' });
+  }
+  const user = await prisma.user.findUnique({ where: { piWalletAddress: walletAddress } });
+  if (!user) {
+    return res.status(401).json({ error: 'UNAUTHORIZED', message: 'User not found' });
+  }
+  req.user = user;
+  next();
+}</code></pre>
+
+  <p><strong>Security assessment:</strong> This is intentionally insecure. Any client can impersonate any user by setting the header. This is acceptable for Phase 1-3 (development/staging) because:</p>
+  <ul>
+    <li>No real money is involved — Pi SDK is not integrated yet</li>
+    <li>The app is in development — not public</li>
+    <li>The middleware is designed as a strategy pattern — swapped to JWT in Phase 4</li>
+  </ul>
+
+  <h3>11.2 Phase 4: Pi OAuth + JWT</h3>
+  <pre class="code-block"><code>// Phase 4 replacement
+export async function jwtAuth(req, res, next) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await prisma.user.findUnique({ where: { id: payload.userId } });
+    if (!req.user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: 'TOKEN_EXPIRED' });
+  }
+}</code></pre>
+
+  <h3>11.3 Security Measures (All Phases)</h3>
+  <ul>
+    <li><strong>CORS</strong> — whitelist only <code>localhost:5173</code> (dev) and <code>bookkeeping.vercel.app</code> (prod)</li>
+    <li><strong>Rate limiting</strong> — 100 requests/minute per IP (general), 10 requests/minute for write endpoints</li>
+    <li><strong>Input validation</strong> — Zod on every endpoint, no raw user input reaches DB</li>
+    <li><strong>SQL injection</strong> — prevented by Prisma (parameterized queries)</li>
+    <li><strong>User isolation</strong> — every query includes <code>WHERE userId = req.user.id</code></li>
+    <li><strong>Helmet.js</strong> — set security headers (X-Content-Type-Options, X-Frame-Options, etc.)</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="persistence">
+  <h2>12. Persistence & Storage</h2>
+
+  <h3>12.1 Database: Railway PostgreSQL</h3>
+  <ul>
+    <li>PostgreSQL 15+ managed by Railway</li>
+    <li>Connection via <code>DATABASE_URL</code> environment variable</li>
+    <li>Connection pooling via Prisma's built-in pool (default: 10 connections)</li>
+    <li>Backups: Railway provides automatic daily backups on paid plans</li>
+  </ul>
+
+  <h3>12.2 Migration Strategy</h3>
+  <ol>
+    <li>Development: <code>npx prisma migrate dev</code> — creates and applies migrations locally</li>
+    <li>Production: <code>npx prisma migrate deploy</code> — applies existing migrations only (no generation)</li>
+    <li>Schema changes go through PR review → merge → Railway auto-deploys → migration runs via build command</li>
+  </ol>
+
+  <h3>12.3 Data Migration (Frontend → Backend)</h3>
+  <p>No data migration needed — the frontend currently has no persisted data. <code>initialContacts</code> in <code>types.ts</code> is demo data that will be removed. Users start fresh.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="concurrency">
+  <h2>13. Concurrency & Thread Safety</h2>
+
+  <h3>13.1 Transaction Creation</h3>
+  <p><strong>Risk:</strong> Two identical requests arrive simultaneously (double-click, network retry).</p>
+  <p><strong>Mitigation:</strong> The <code>idempotencyKey</code> field has a unique constraint. If two INSERT statements race, PostgreSQL's unique constraint will reject the second one. The API returns the existing transaction in the 409 response.</p>
+
+  <h3>13.2 Contact Creation</h3>
+  <p><strong>Risk:</strong> User tries to add the same wallet address twice.</p>
+  <p><strong>Mitigation:</strong> The <code>@@unique([userId, piWalletAddress])</code> constraint on Contact prevents duplicates at the database level.</p>
+
+  <h3>13.3 User Upsert</h3>
+  <p><strong>Risk:</strong> Two requests for the same wallet address hit GET /api/users/:walletAddress simultaneously, both trigger INSERT.</p>
+  <p><strong>Mitigation:</strong> Use Prisma's <code>upsert</code> which translates to <code>INSERT ... ON CONFLICT DO UPDATE</code> — safe under concurrency.</p>
+
+  <h3>13.4 Balance Summary</h3>
+  <p><strong>Risk:</strong> A transaction is created between the SUM(credit) and SUM(debit) queries.</p>
+  <p><strong>Mitigation:</strong> Use a single SQL query with conditional aggregation: <code>SUM(CASE WHEN type='credit' THEN amount ELSE 0 END)</code> — atomic read.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="failure">
+  <h2>14. Failure Handling & Recovery</h2>
+
+  <h3>14.1 Database Unavailable</h3>
+  <p>If PostgreSQL is unreachable, Prisma throws a <code>PrismaClientKnownRequestError</code>. The global error handler catches it and returns <code>503 Service Unavailable</code>. The frontend shows a "Server is temporarily unavailable" toast. No data corruption — the transaction never started.</p>
+
+  <h3>14.2 Backend Crash Mid-Request</h3>
+  <p>Each API request is a single database operation (INSERT or SELECT). There are no multi-step transactions in Phase 1-3. If the server crashes between receiving the request and responding, the operation either completed (committed to DB) or didn't (no partial state).</p>
+
+  <h3>14.3 Network Error (Frontend ↔ Backend)</h3>
+  <p>The API client wraps all calls in try/catch. On network error, it shows a toast and does NOT retry automatically (to avoid duplicate writes). The user can manually retry. Idempotency keys protect against accidental duplicates.</p>
+
+  <h3>14.4 Phase 4: Pi Payment Failure</h3>
+  <p>Pi payments are a multi-step process (create → approve → complete). If the server crashes between steps, the pending transaction remains in <code>pending</code> state. A background job (or manual admin action) can reconcile pending transactions by querying the Pi Platform API for their status.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="backward">
+  <h2>15. Backward Compatibility</h2>
+
+  <p>This is a greenfield backend — there is no existing API or database to maintain backward compatibility with. However, the frontend has existing TypeScript types that the API must be compatible with:</p>
+
+  <h3>Frontend Type Mapping</h3>
+  <table>
+    <thead>
+      <tr><th>Frontend Type (types.ts)</th><th>API Response</th><th>Change Required</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>Contact.id</code> (string)</td><td><code>cuid()</code></td><td>✅ Compatible</td></tr>
+      <tr><td><code>Contact.txHash</code></td><td>Not in API (Phase 4 field)</td><td>⚠️ Remove from frontend type or make optional</td></tr>
+      <tr><td><code>Contact.lastSeen</code></td><td>Not stored — compute from latest transaction</td><td>⚠️ Backend must compute and return</td></tr>
+      <tr><td><code>Contact.totalCredit/totalDebit</code></td><td>Computed from transactions</td><td>⚠️ Backend must aggregate and return</td></tr>
+      <tr><td><code>Transaction.isNew</code></td><td>Not stored — frontend-only UI flag</td><td>✅ Frontend keeps managing this</td></tr>
+      <tr><td><code>Transaction.timestamp</code> (string)</td><td>ISO 8601 DateTime</td><td>⚠️ Frontend must parse ISO dates</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================================================================ -->
+<section id="observability">
+  <h2>16. Observability</h2>
+
+  <h3>16.1 Logging</h3>
+  <ul>
+    <li>Use <code>pino</code> (fast JSON logger) with structured logging</li>
+    <li>Log: request method, path, status code, response time, user ID (not wallet address — PII)</li>
+    <li>Log errors with full stack trace</li>
+    <li>Never log: wallet addresses, tokens, full request bodies</li>
+    <li>Railway provides centralized log viewing</li>
+  </ul>
+
+  <h3>16.2 Health Check</h3>
+  <pre class="code-block"><code>GET /api/health → { status: "ok", db: "connected", uptime: 12345 }</code></pre>
+  <p>Railway can ping this endpoint for liveness checks.</p>
+
+  <h3>16.3 Phase 5: Error Tracking</h3>
+  <p>Sentry integration for both frontend and backend — deferred to Phase 5.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="performance">
+  <h2>17. Performance Impact</h2>
+
+  <h3>17.1 Expected Load</h3>
+  <p>Early-stage app — expect &lt;100 users, &lt;1000 requests/day. Performance is not a concern initially.</p>
+
+  <h3>17.2 Potential Bottlenecks</h3>
+  <ul>
+    <li><strong>Summary endpoint</strong> — <code>GET /api/transactions/summary</code> does a full aggregation. With indexes on <code>[userId, timestamp]</code>, this is fast up to ~100K transactions per user.</li>
+    <li><strong>Pagination</strong> — offset-based pagination (<code>OFFSET + LIMIT</code>) degrades for high page numbers. Switch to cursor-based pagination if needed.</li>
+    <li><strong>Connection pool</strong> — Prisma defaults to 10 connections. Railway PostgreSQL free tier allows ~20. Sufficient for Phase 1-3.</li>
+  </ul>
+
+  <h3>17.3 Cold Start</h3>
+  <p>Railway free tier may sleep the container after inactivity. First request after sleep incurs ~2-3s cold start. Mitigation: Railway's paid tier ($5/mo) keeps the container warm.</p>
+</section>
+
+<!-- ================================================================ -->
+<section id="testing">
+  <h2>18. Testing Strategy</h2>
+
+  <h3>18.1 Unit Tests</h3>
+  <ul>
+    <li>Zod schema validation — test all valid/invalid inputs</li>
+    <li>Controller logic — mock Prisma, test business rules</li>
+    <li>Auth middleware — test missing header, invalid wallet, valid wallet</li>
+  </ul>
+
+  <h3>18.2 Integration Tests</h3>
+  <ul>
+    <li>Use <code>supertest</code> + test PostgreSQL database</li>
+    <li>Test full request lifecycle: POST → GET → verify data</li>
+    <li>Test idempotency: POST same idempotencyKey twice → 409</li>
+    <li>Test user isolation: user A cannot see user B's contacts</li>
+  </ul>
+
+  <h3>18.3 Manual / E2E</h3>
+  <ul>
+    <li>Test via Postman collection (shared in repo)</li>
+    <li>Curl scripts in <code>backend/scripts/</code> for quick smoke tests</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section id="deployment">
+  <h2>19. Deployment & Rollback</h2>
+
+  <h3>19.1 Deployment Topology</h3>
+  <figure class="diagram">
+    <div class="mermaid">
+      graph TD
+        subgraph "GitHub Repository"
+          GH[GitHub - main branch]
+        end
+        subgraph "Vercel"
+          V[Vercel Auto-deploy] --> VB[Build: npm run build]
+          VB --> VC[CDN: Static React SPA]
+        end
+        subgraph "Railway"
+          R[Railway Auto-deploy] --> RB[Build: npm run build + prisma migrate deploy]
+          RB --> RC[Node.js Express Server]
+          RC --> RD[Railway PostgreSQL]
+        end
+        GH -->|push to main| V
+        GH -->|push to main| R
+        VC -->|HTTPS API calls| RC
+    </div>
+    <figcaption>Figure 9: CI/CD deployment pipeline — both Vercel and Railway auto-deploy on push to main</figcaption>
+  </figure>
+
+  <h3>19.2 Environment Variables</h3>
+  <table>
+    <thead>
+      <tr><th>Variable</th><th>Where</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>DATABASE_URL</code></td><td>Railway (backend)</td><td><code>postgresql://user:pass@host:5432/db</code></td></tr>
+      <tr><td><code>PORT</code></td><td>Railway (backend)</td><td><code>3001</code></td></tr>
+      <tr><td><code>CORS_ORIGIN</code></td><td>Railway (backend)</td><td><code>https://bookkeeping.vercel.app</code></td></tr>
+      <tr><td><code>JWT_SECRET</code></td><td>Railway (backend)</td><td><code>(Phase 4)</code></td></tr>
+      <tr><td><code>VITE_API_URL</code></td><td>Vercel (frontend)</td><td><code>https://bookkeeping-api.up.railway.app</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>19.3 Rollback Procedure</h3>
+  <ol>
+    <li><strong>Code rollback:</strong> Revert the commit on GitHub → Vercel + Railway auto-deploy the previous version</li>
+    <li><strong>Database rollback:</strong> Prisma migrations are forward-only. If a migration causes issues, create a new migration to reverse the change. Railway backups can restore to a point-in-time as a last resort.</li>
+    <li><strong>Feature flags:</strong> Not implemented in Phase 1-3. Consider <code>launchdarkly</code> or simple env var flags for Phase 4+.</li>
+  </ol>
+</section>
+
+<!-- ================================================================ -->
+<section id="assumptions">
+  <h2>20. Assumptions</h2>
+  <ol>
+    <li><strong>A1:</strong> Users have unique Pi wallet addresses — no shared wallets.</li>
+    <li><strong>A2:</strong> Pi wallet addresses are stable identifiers — they do not change over time.</li>
+    <li><strong>A3:</strong> The app will have &lt;1000 users in the first 6 months — no need for horizontal scaling initially.</li>
+    <li><strong>A4:</strong> Railway PostgreSQL free tier (or $5/mo) is sufficient for early-stage storage needs.</li>
+    <li><strong>A5:</strong> Pi Network SDK will be available and functional for Phase 4 — the sandbox API works as documented.</li>
+    <li><strong>A6:</strong> The frontend can be modified to send an <code>x-wallet-address</code> header on all API calls without significant refactoring.</li>
+    <li><strong>A7:</strong> Float precision for Pi amounts is acceptable — Pi does not require sub-decimal precision beyond 2-3 decimal places.</li>
+    <li><strong>A8:</strong> Users will primarily access the app via Pi Browser or mobile Chrome — desktop usage is secondary.</li>
+    <li><strong>A9:</strong> CORS whitelist of the Vercel domain is sufficient security for Phase 1-3 (no real money involved).</li>
+    <li><strong>A10:</strong> Railway's built-in HTTPS is sufficient — no need for custom SSL certificates.</li>
+  </ol>
+</section>
+
+<!-- ================================================================ -->
+<section id="open-questions">
+  <h2>21. Open Questions</h2>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Question</th><th>Impact</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>OQ-001</strong></td>
+        <td>Should the <code>GET /api/users/:walletAddress</code> endpoint auto-create the user (upsert), or should user creation be a separate <code>POST</code>?</td>
+        <td>Affects login flow simplicity vs. RESTful purity</td>
+        <td><span class="badge badge-open">OPEN</span></td>
+      </tr>
+      <tr>
+        <td><strong>OQ-002</strong></td>
+        <td>Should <code>Contact.totalCredit</code> and <code>Contact.totalDebit</code> be computed on every GET request (always fresh) or cached in the Contact table (faster but stale)?</td>
+        <td>Affects read performance vs. data freshness</td>
+        <td><span class="badge badge-open">OPEN</span></td>
+      </tr>
+      <tr>
+        <td><strong>OQ-003</strong></td>
+        <td>How does the frontend currently handle the <code>Contact.lastSeen</code> field? Is it the timestamp of the last transaction, or the last time the user opened the contact details?</td>
+        <td>Affects what the backend should compute/store</td>
+        <td><span class="badge badge-open">OPEN</span></td>
+      </tr>
+      <tr>
+        <td><strong>OQ-004</strong></td>
+        <td>Should Pi payment endpoints (<code>/api/pi/*</code>) be stubbed as 501 Not Implemented in Phase 1-3, or completely absent from the codebase until Phase 4?</td>
+        <td>Affects code organization and future merge conflicts</td>
+        <td><span class="badge badge-open">OPEN</span></td>
+      </tr>
+      <tr>
+        <td><strong>OQ-005</strong></td>
+        <td>Railway PostgreSQL free trial lasts 500 hours. What happens when it expires? Is the $5/mo cost acceptable, or should we have a fallback plan?</td>
+        <td>Affects production continuity</td>
+        <td><span class="badge badge-open">OPEN</span></td>
+      </tr>
+      <tr>
+        <td><strong>OQ-006</strong></td>
+        <td>The frontend's <code>pendingNewTransactions</code> is keyed by customer <strong>name</strong> (not ID). Should the API also use name-based lookups, or force the frontend to switch to ID-based?</td>
+        <td>Affects frontend refactoring scope and data integrity</td>
+        <td><span class="badge badge-open">OPEN</span></td>
+      </tr>
+      <tr>
+        <td><strong>OQ-007</strong></td>
+        <td>Should the backend use <code>Float</code> or <code>Decimal</code> for transaction amounts? Floats have precision issues (e.g., 0.1 + 0.2 ≠ 0.3). For a financial app, this could matter.</td>
+        <td>Affects data accuracy for financial calculations</td>
+        <td><span class="badge badge-open">OPEN</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================================================================ -->
+<section id="risks">
+  <h2>22. Known Risks</h2>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>R-001</strong></td>
+        <td>Phase 1-3 auth (wallet header) is trivially spoofable — any user can impersonate any other user</td>
+        <td><span class="badge badge-critical">CRITICAL</span></td>
+        <td>Acceptable only because no real money is involved. Must be replaced before Pi SDK integration (Phase 4). Add big warning in code comments.</td>
+      </tr>
+      <tr>
+        <td><strong>R-002</strong></td>
+        <td>Using Float for financial amounts introduces precision errors (e.g., summing many small amounts)</td>
+        <td><span class="badge badge-major">MAJOR</span></td>
+        <td>Switch to Prisma <code>Decimal</code> type (maps to PostgreSQL <code>NUMERIC</code>) if precision issues are observed. Or switch preemptively.</td>
+      </tr>
+      <tr>
+        <td><strong>R-003</strong></td>
+        <td>Railway free tier has limited hours — app may go offline after trial expires if not upgraded</td>
+        <td><span class="badge badge-major">MAJOR</span></td>
+        <td>Monitor usage. Budget $5/mo for production. Have migration path to another PostgreSQL provider (Neon, Render, Fly.io).</td>
+      </tr>
+      <tr>
+        <td><strong>R-004</strong></td>
+        <td>Pi Network SDK sandbox may have undocumented limitations or breaking changes</td>
+        <td><span class="badge badge-major">MAJOR</span></td>
+        <td>Keep Pi SDK integration as the last phase. Build the entire app to work without it first.</td>
+      </tr>
+      <tr>
+        <td><strong>R-005</strong></td>
+        <td>No real-time updates — if two users transact, the other user's ledger won't update until refresh</td>
+        <td><span class="badge badge-minor">MINOR</span></td>
+        <td>Acceptable for Phase 1-3. Add polling or WebSockets in Phase 5.</td>
+      </tr>
+      <tr>
+        <td><strong>R-006</strong></td>
+        <td>Offset-based pagination degrades at high page numbers</td>
+        <td><span class="badge badge-minor">MINOR</span></td>
+        <td>Switch to cursor-based pagination if users exceed ~10K transactions. Not expected in Phase 1-3.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================================================================ -->
+<section id="decisions">
+  <h2>23. Decision Log</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Decision</th><th>Reason</th><th>Alternatives Considered</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>D-001</td>
+        <td><strong>Railway PostgreSQL</strong> over Supabase</td>
+        <td>User preference for PgAdmin/DBeaver compatibility, zero vendor lock-in, co-located with backend, simpler Prisma config, no free-tier pausing</td>
+        <td>Supabase (built-in auth/realtime but lock-in), MongoDB Atlas (document model poor fit for relational data), SQLite (no multi-user)</td>
+      </tr>
+      <tr>
+        <td>D-002</td>
+        <td><strong>Express</strong> over Fastify/Hono/NestJS</td>
+        <td>Largest ecosystem, most examples, simplest learning curve, matches plan in bookkeeping_full_stack_plan.md</td>
+        <td>Fastify (faster but smaller ecosystem), Hono (too new), NestJS (over-engineered for this scale)</td>
+      </tr>
+      <tr>
+        <td>D-003</td>
+        <td><strong>Prisma</strong> over Drizzle/Knex/raw SQL</td>
+        <td>Type-safe, auto-migration, matches plan</td>
+        <td>Drizzle (lighter but less mature), Knex (no type safety), raw SQL (error-prone)</td>
+      </tr>
+      <tr>
+        <td>D-004</td>
+        <td><strong>Monorepo</strong> (npm workspaces) over separate repos</td>
+        <td>Shared types, single deploy, matches plan</td>
+        <td>Separate repos (more isolation but shared types become a pain)</td>
+      </tr>
+      <tr>
+        <td>D-005</td>
+        <td><strong>Idempotency key</strong> on transactions</td>
+        <td>Prevents duplicate transactions from retries/double-clicks — critical for a payment app</td>
+        <td>No idempotency (simpler but risky), database-level dedup (harder to implement)</td>
+      </tr>
+      <tr>
+        <td>D-006</td>
+        <td><strong>Wallet header auth</strong> for Phase 1-3</td>
+        <td>Fastest path to a working app; no real money involved; cleanly replaceable with JWT</td>
+        <td>JWT from day 1 (more secure but premature complexity), no auth (even more insecure)</td>
+      </tr>
+      <tr>
+        <td>D-007</td>
+        <td><strong>Defer Pi SDK to Phase 4</strong></td>
+        <td>Build the complete app first, then integrate Pi. Reduces risk of SDK-related blockers.</td>
+        <td>Integrate Pi SDK first (risky — SDK issues could block all development)</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+
+<div class="nav-footer" style="margin-left: 260px; padding: 1.5rem 2.5rem;">
+  <a href="../index.html">↑ Back to Feature Index</a>
+  <div>
+    <a href="./grill.html">Next: Grill →</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const tocLinks = document.querySelectorAll('.sidebar a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    tocLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + current));
+  });
+</script>
+</body>
+</html>

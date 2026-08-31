@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend Architecture - Grill - Iteration 01</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'neutral',fontFamily:'Inter,system-ui,sans-serif',themeVariables:{primaryColor:'#e0e7ff',primaryTextColor:'#1a1a2e',primaryBorderColor:'#2563eb',lineColor:'#94a3b8',secondaryColor:'#f1f5f9',tertiaryColor:'#ecfdf5'}});</script>
+<style>
+:root{--accent:#2563eb;--success:#059669;--warn:#d97706;--err:#dc2626;--bg:#f8f9fa;--border:#e2e8f0;--heading:#0f172a;--muted:#6c757d}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.7;color:#1a1a2e;max-width:960px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;font-weight:700;color:var(--heading);margin-bottom:1rem}
+h2{font-size:1.5rem;font-weight:600;color:var(--heading);margin:2rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+h3{font-size:1.1rem;font-weight:600;margin:1rem 0 .5rem}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600}
+.b-crit{background:#fef2f2;color:var(--err)}.b-maj{background:#fffbeb;color:var(--warn)}.b-min{background:#f1f5f9;color:#64748b}
+.b-open{background:#fef2f2;color:var(--err)}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th{background:var(--bg);font-weight:600;text-align:left;padding:.6rem .8rem;border-bottom:2px solid var(--border)}
+td{padding:.6rem .8rem;border-bottom:1px solid var(--border)}tr:nth-child(even){background:var(--bg)}
+details{border:1px solid var(--border);border-radius:8px;margin:.75rem 0}
+details summary{padding:1rem 1.25rem;cursor:pointer;font-weight:500}
+details .content{padding:0 1.25rem 1.25rem}
+pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.85rem;margin:.5rem 0}
+figure.diagram{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1.5rem 0;text-align:center}
+figure.diagram figcaption{margin-top:.75rem;font-size:.85rem;color:var(--muted);font-style:italic}
+a{color:var(--accent);text-decoration:none}p{margin-bottom:.6rem}ul{margin:.3rem 0 .3rem 1.5rem}li{margin-bottom:.3rem}
+code{font-family:'JetBrains Mono',monospace;font-size:.88em;background:var(--bg);padding:.1rem .35rem;border-radius:3px}
+</style>
+</head>
+<body>
+
+<p><a href="../index.html">&uarr; Index</a> | <a href="./proposal.html">&larr; Proposal</a> | <a href="./answers.html">Answers &rarr;</a></p>
+
+<h1>Backend Architecture &mdash; Grill v1</h1>
+<div class="card">
+<strong>Systematic adversarial review</strong> following <code>grill-skill.md</code>.<br>
+<table><tr><td>&#x1F534; Critical</td><td>5</td></tr><tr><td>&#x1F7E0; Major</td><td>12</td></tr><tr><td>&#x1F7E1; Minor</td><td>9</td></tr><tr><td><strong>Total</strong></td><td><strong>26</strong></td></tr></table>
+</div>
+
+<h2>Security Grilling</h2>
+
+<details><summary>G-001 &mdash; Wallet header auth = full user impersonation <span class="badge b-crit">CRITICAL</span></summary>
+<div class="content">
+<p><code>x-wallet-address</code> header auth allows any client to impersonate any user. No signature, no token, no session.</p>
+<p><strong>Attack:</strong> <code>curl -H "x-wallet-address: victim_wallet" https://api/contacts</code> returns victim's data.</p>
+<p>Public Vercel deployment + zero auth = open data access for all users.</p>
+</div></details>
+
+<details><summary>G-002 &mdash; CSRF with header-based auth <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Custom headers cannot be set by cross-origin form submissions. CORS + custom header = adequate. Not a real risk. Needs documentation only.</p></div></details>
+
+<details><summary>G-003 &mdash; IP rate limiting blocks shared networks <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>100 req/min per IP. Users behind NAT/VPN share IPs. One heavy user blocks others. Fix: per-user rate limiting for authenticated endpoints.</p></div></details>
+
+<details><summary>G-004 &mdash; Pi wallet address format unvalidated <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Frontend uses Ethereum-style <code>0x...</code>. Pi Network uses Stellar addresses (<code>G...</code>, 56 chars). No validation on backend. Will break in Phase 4.</p></div></details>
+
+<details><summary>G-005 &mdash; No XSS sanitization on text fields <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Zod validates length but doesn't strip HTML. Stored XSS risk. Fix: use <code>xss</code> npm package in Zod transforms.</p></div></details>
+
+<h2>Concurrency Grilling</h2>
+
+<details><summary>G-006 &mdash; Simultaneous Pi payments between same users <span class="badge b-crit">CRITICAL</span></summary>
+<div class="content">
+<p>User A sends 100&#x03C0; to B while B sends 50&#x03C0; to A. Both create pending transactions. Proposal says "single DB operation" but Pi payments are multi-step. Contradiction.</p>
+<p>These are independent blockchain transactions. Each must complete/fail independently. Risk is pending state lingering (see G-023).</p>
+</div></details>
+
+<details><summary>G-007 &mdash; Summary aggregation race <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Single-query aggregation with READ COMMITTED is fine at expected volume. Non-issue.</p></div></details>
+
+<details><summary>G-008 &mdash; Contact delete during tx creation <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>FK defaults to RESTRICT. Need to decide: SetNull, Cascade, or Restrict.</p></div></details>
+
+<h2>Data Integrity</h2>
+
+<details><summary>G-009 &mdash; Float for financial amounts <span class="badge b-crit">CRITICAL</span></summary>
+<div class="content">
+<p>IEEE 754: <code>0.1 + 0.2 = 0.30000000000000004</code>. After thousands of transactions, balance drifts.</p>
+<p><strong>Fix:</strong> <code>Decimal @db.Decimal(18,7)</code> in Prisma.</p>
+</div></details>
+
+<details><summary>G-010 &mdash; Contact totals undefined <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Frontend expects totalCredit/totalDebit. Backend doesn't store. Needs JOIN+GROUP BY.</p></div></details>
+
+<details><summary>G-011 &mdash; Deleting blockchain tx <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Soft-delete + block pi_network deletion.</p></div></details>
+
+<details><summary>G-012 &mdash; No audit trail <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Hard deletes lose data. Need soft-delete (deletedAt).</p></div></details>
+
+<h2>Failure &amp; Deployment</h2>
+
+<details><summary>G-013 &mdash; Pool exhaustion <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Need explicit connection_limit and pool_timeout.</p></div></details>
+
+<details><summary>G-014 &mdash; No graceful shutdown <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Implement SIGTERM handler.</p></div></details>
+
+<details><summary>G-015 &mdash; No DB retry <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Acceptable for Phase 1-3.</p></div></details>
+
+<details><summary>G-016 &mdash; Amount boundaries <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Min 0.0000001, max 1M.</p></div></details>
+
+<details><summary>G-017 &mdash; Name uniqueness <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Names not unique by design. Use IDs.</p></div></details>
+
+<details><summary>G-018 &mdash; Idempotency key optional <span class="badge b-crit">CRITICAL</span></summary>
+<div class="content"><p>Must be REQUIRED on POST /api/transactions.</p></div></details>
+
+<details><summary>G-019 &mdash; Contact idempotency <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Natural via unique constraint. Handle P2002 gracefully.</p></div></details>
+
+<details><summary>G-020 &mdash; Key expiry <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Non-issue. Keys are tx columns.</p></div></details>
+
+<details><summary>G-021 &mdash; Migration failure <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Railway blue-green keeps old container. Always backward-compatible migrations.</p></div></details>
+
+<details><summary>G-022 &mdash; No staging <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Acceptable for small team.</p></div></details>
+
+<details><summary>G-023 &mdash; Pending tx stuck forever <span class="badge b-crit">CRITICAL</span></summary>
+<div class="content"><p>30-min TTL + reconciliation cron job.</p></div></details>
+
+<details><summary>G-024 &mdash; Payment completion double-call <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Check status before processing. Idempotent.</p></div></details>
+
+<details><summary>G-025 &mdash; N+1 contacts query <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Single JOIN+GROUP BY raw SQL.</p></div></details>
+
+<details><summary>G-026 &mdash; No contactId ownership check <span class="badge b-maj">MAJOR</span></summary>
+<div class="content"><p>Verify contactId belongs to req.user.id.</p></div></details>
+
+<details><summary>G-027 &mdash; Name-keyed pending tx <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Frontend refactor Phase 2.</p></div></details>
+
+<details><summary>G-028 &mdash; Contact.txHash mismatch <span class="badge b-min">MINOR</span></summary>
+<div class="content"><p>Frontend type update Phase 2.</p></div></details>
+
+<h2>Crash Point Analysis</h2>
+
+<h3>Phase 1-3: Manual Transaction</h3>
+<figure class="diagram">
+<div class="mermaid">
+graph LR
+  A[Receive] --> B[Validate]
+  B --> C[Check idemp key]
+  C --> D[INSERT]
+  D --> E[Return 201]
+</div>
+<figcaption>Safe: single DB op + idempotency key handles all crash points</figcaption>
+</figure>
+
+<h3>Phase 4: Pi Payment</h3>
+<figure class="diagram">
+<div class="mermaid">
+graph LR
+  A[Create pending] --> B[Return to FE]
+  B --> C[Pi.createPayment]
+  C --> D[User approves]
+  D --> E[onReady]
+  E --> F[Verify Pi API]
+  F --> G[Update completed]
+  G --> H[Call Pi complete]
+  H --> I[Return success]
+</div>
+<figcaption>Dangerous: 8 crash points, requires reconciliation job</figcaption>
+</figure>
+
+<h2>Complete Issue Tracker</h2>
+<table>
+<thead><tr><th>ID</th><th>Severity</th><th>Description</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>G-001</td><td><span class="badge b-crit">CRIT</span></td><td>Auth impersonation</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-006</td><td><span class="badge b-crit">CRIT</span></td><td>Simultaneous payments</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-009</td><td><span class="badge b-crit">CRIT</span></td><td>Float precision</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-018</td><td><span class="badge b-crit">CRIT</span></td><td>Idempotency optional</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-023</td><td><span class="badge b-crit">CRIT</span></td><td>Pending tx stuck</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-003</td><td><span class="badge b-maj">MAJ</span></td><td>IP rate limiting</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-004</td><td><span class="badge b-maj">MAJ</span></td><td>Wallet format</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-005</td><td><span class="badge b-maj">MAJ</span></td><td>XSS</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-010</td><td><span class="badge b-maj">MAJ</span></td><td>Contact totals</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-011</td><td><span class="badge b-maj">MAJ</span></td><td>Delete blockchain tx</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-012</td><td><span class="badge b-maj">MAJ</span></td><td>No audit trail</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-013</td><td><span class="badge b-maj">MAJ</span></td><td>Pool exhaustion</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-021</td><td><span class="badge b-maj">MAJ</span></td><td>Migration failure</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-022</td><td><span class="badge b-maj">MAJ</span></td><td>No staging</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-024</td><td><span class="badge b-maj">MAJ</span></td><td>Payment double-call</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-025</td><td><span class="badge b-maj">MAJ</span></td><td>N+1 contacts</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-026</td><td><span class="badge b-maj">MAJ</span></td><td>ContactId ownership</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-002</td><td><span class="badge b-min">MIN</span></td><td>CSRF (non-issue)</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-007</td><td><span class="badge b-min">MIN</span></td><td>Summary race</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-008</td><td><span class="badge b-min">MIN</span></td><td>Contact FK</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-014</td><td><span class="badge b-min">MIN</span></td><td>Graceful shutdown</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-015</td><td><span class="badge b-min">MIN</span></td><td>DB retry</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-016</td><td><span class="badge b-min">MIN</span></td><td>Amount bounds</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-017</td><td><span class="badge b-min">MIN</span></td><td>Name uniqueness</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-019</td><td><span class="badge b-min">MIN</span></td><td>Contact idempotency</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-020</td><td><span class="badge b-min">MIN</span></td><td>Key expiry</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-027</td><td><span class="badge b-min">MIN</span></td><td>Name-keyed pending</td><td><span class="badge b-open">OPEN</span></td></tr>
+<tr><td>G-028</td><td><span class="badge b-min">MIN</span></td><td>txHash mismatch</td><td><span class="badge b-open">OPEN</span></td></tr>
+</tbody>
+</table>
+
+<p style="margin-top:2rem"><a href="./proposal.html">&larr; Proposal</a> | <a href="../index.html">&uarr; Index</a> | <a href="./answers.html">Answers &rarr;</a></p>
+</body>
+</html>
