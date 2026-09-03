@@ -23,7 +23,7 @@ const recentEntries = [
   { id: "5", customerName: "Chengdiao Fan", type: "credit" as const, amount: "330.00", date: "2 days ago, 13:00" },
 ];
 
-const notifications = recentEntries.slice(0, 2).map((t) => ({
+const notifications = recentEntries.slice(0, 4).map((t) => ({
   id: t.id,
   message: `${t.type === "credit" ? "Received" : "Paid"} ${t.amount} π ${t.type === "credit" ? "from" : "to"} ${t.customerName}`,
   time: t.date,
@@ -108,7 +108,7 @@ export function Dashboard({
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
           <div
             ref={alertRef}
-            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card"
+            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card border-t border-gray-100 dark:border-border"
             style={{
               borderBottomLeftRadius: alertCornerR,
               borderBottomRightRadius: alertCornerR,
