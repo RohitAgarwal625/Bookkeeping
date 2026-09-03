@@ -108,11 +108,11 @@ export function Dashboard({
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
           <div
             ref={alertRef}
-            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card border-t border-gray-100 dark:border-border"
+            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card border-t border-gray-100 dark:border-border shadow-[0_-4px_18px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_18px_rgba(255,255,255,0.05)]"
             style={{
               borderBottomLeftRadius: alertCornerR,
               borderBottomRightRadius: alertCornerR,
-              boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)",
+              boxShadow: "0 -4px 18px rgba(0,0,0,0.06), 0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)",
             }}
           >
             {/* SVG border — exact same grey halo approach as BottomNav separation line */}
@@ -125,7 +125,7 @@ export function Dashboard({
             >
               <path d={alertSvgPath} fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
-            <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-center">
+            <div className="px-4 py-2.5 border-b border-gray-100 dark:border-border flex items-center justify-center">
               <p className="text-gray-900 dark:text-foreground font-semibold text-sm text-center">Alerts</p>
             </div>
             <div className="min-h-[140px] flex flex-col justify-center">
@@ -138,7 +138,7 @@ export function Dashboard({
               ) : (
                 <div className="flex-1 w-full flex flex-col justify-center divide-y divide-gray-100 dark:divide-border/60">
                   {notifications.map((n) => (
-                    <div key={n.id} className="flex items-start gap-3 px-6 py-4 hover:bg-gray-50/80 dark:hover:bg-secondary/50 transition-colors w-full">
+                    <div key={n.id} className="flex items-start gap-3 px-6 py-3 hover:bg-gray-50/80 dark:hover:bg-secondary/50 transition-colors w-full">
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
                         }`}>
                         {n.type === "credit" ? (
