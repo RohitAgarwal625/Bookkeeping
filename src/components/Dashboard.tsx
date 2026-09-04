@@ -125,7 +125,7 @@ export function Dashboard({
             >
               <path d={alertSvgPath} fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
-            <div className="px-4 py-3.5 border-b border-gray-100 dark:border-border flex items-center justify-center">
+            <div className="px-4 py-3 border-b border-gray-100 dark:border-border flex items-center justify-center">
               <p className="text-gray-900 dark:text-foreground font-semibold text-base text-center">Alerts</p>
             </div>
             <div className="min-h-[140px] flex flex-col justify-center">
@@ -148,8 +148,8 @@ export function Dashboard({
                         )}
                       </div>
                       <div className="flex-1 min-w-0 text-left">
-                        <p className="text-gray-800 dark:text-foreground text-xs leading-snug">{n.message}</p>
-                        <p className="text-gray-400 dark:text-muted-foreground text-[10px] mt-0.5">{n.time}</p>
+                        <p className="text-gray-800 dark:text-foreground text-sm leading-snug">{n.message}</p>
+                        <p className="text-gray-400 dark:text-muted-foreground text-[9px] mt-0.5">{n.time}</p>
                       </div>
                     </div>
                   ))}
