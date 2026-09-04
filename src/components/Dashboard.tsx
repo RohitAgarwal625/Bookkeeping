@@ -108,11 +108,11 @@ export function Dashboard({
           <div className="fixed inset-0 z-30" onClick={() => setShowBell(false)} />
           <div
             ref={alertRef}
-            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card border-t border-gray-100 dark:border-border shadow-[0_-4px_18px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_18px_rgba(255,255,255,0.05)]"
+            className="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-card border-t border-gray-100 dark:border-border"
             style={{
               borderBottomLeftRadius: alertCornerR,
               borderBottomRightRadius: alertCornerR,
-              boxShadow: "0 -4px 18px rgba(0,0,0,0.06), 0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)",
             }}
           >
             {/* SVG border — exact same grey halo approach as BottomNav separation line */}
