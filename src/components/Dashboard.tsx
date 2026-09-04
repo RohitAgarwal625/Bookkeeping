@@ -138,7 +138,7 @@ export function Dashboard({
               ) : (
                 <div className="flex-1 w-full flex flex-col justify-center divide-y divide-gray-100 dark:divide-border/60">
                   {notifications.map((n) => (
-                    <div key={n.id} className="flex items-start gap-2.5 px-5 py-1.5 hover:bg-gray-50/80 dark:hover:bg-secondary/50 transition-colors w-full">
+                    <div key={n.id} className="flex items-start px-5 py-1.5 hover:bg-gray-50/80 dark:hover:bg-secondary/50 transition-colors w-full" style={{ gap: "14px" }}>
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
                         }`}>
                         {n.type === "credit" ? (
