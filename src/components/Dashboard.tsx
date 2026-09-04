@@ -125,8 +125,8 @@ export function Dashboard({
             >
               <path d={alertSvgPath} fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
-            <div className="px-4 py-2.5 border-b border-gray-100 dark:border-border flex items-center justify-center">
-              <p className="text-gray-900 dark:text-foreground font-semibold text-sm text-center">Alerts</p>
+            <div className="px-4 py-3.5 border-b border-gray-100 dark:border-border flex items-center justify-center">
+              <p className="text-gray-900 dark:text-foreground font-semibold text-base text-center">Alerts</p>
             </div>
             <div className="min-h-[140px] flex flex-col justify-center">
               {isGuest ? (
@@ -138,18 +138,18 @@ export function Dashboard({
               ) : (
                 <div className="flex-1 w-full flex flex-col justify-center divide-y divide-gray-100 dark:divide-border/60">
                   {notifications.map((n) => (
-                    <div key={n.id} className="flex items-start gap-3 px-6 py-3 hover:bg-gray-50/80 dark:hover:bg-secondary/50 transition-colors w-full">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
+                    <div key={n.id} className="flex items-start gap-2.5 px-5 py-1.5 hover:bg-gray-50/80 dark:hover:bg-secondary/50 transition-colors w-full">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "credit" ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
                         }`}>
                         {n.type === "credit" ? (
-                          <ArrowDownLeft className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <ArrowDownLeft className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <ArrowUpRight className="w-4 h-4 text-red-600 dark:text-red-400" />
+                          <ArrowUpRight className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0 text-left">
-                        <p className="text-gray-800 dark:text-foreground text-sm leading-snug">{n.message}</p>
-                        <p className="text-gray-400 dark:text-muted-foreground text-xs mt-0.5">{n.time}</p>
+                        <p className="text-gray-800 dark:text-foreground text-xs leading-snug">{n.message}</p>
+                        <p className="text-gray-400 dark:text-muted-foreground text-[10px] mt-0.5">{n.time}</p>
                       </div>
                     </div>
                   ))}

@@ -78,22 +78,22 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
 
 
               {/* Title above separator */}
-              <div className="px-5 pt-4 text-center">
-                <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Contact</h3>
+              <div className="px-5 pt-5 text-center">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-foreground">Add Contact</h3>
               </div>
               {/* Separator line */}
-              <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-2" />
+              <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3.5 mb-2.5" />
               {/* Subtitle BELOW separator */}
-              <p className="text-xs text-gray-500 dark:text-muted-foreground text-center pb-1">Choose account type!</p>
+              <p className="text-sm text-gray-500 dark:text-muted-foreground text-center pb-1">Choose account type!</p>
 
               {/* Two columns */}
-              <div className="px-6 pb-6 pt-3 flex items-start gap-0">
+              <div className="px-6 pb-4 pt-1.5 flex items-start gap-0">
 
                 {/* Individual */}
-                <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex-1 flex flex-col items-center gap-1.5">
                   <button
                     onClick={() => { closePioneer(); onAddCustomer("individual"); }}
-                    className="flex flex-col items-center gap-2 group"
+                    className="flex flex-col items-center gap-1.5 group"
                   >
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <User className="w-7 h-7 text-white" />
@@ -124,8 +124,8 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                 <div className="w-px bg-gray-100 dark:bg-border mx-6 self-stretch flex-shrink-0" />
 
                 {/* Business — disabled */}
-                <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="flex flex-col items-center gap-2 cursor-not-allowed">
+                <div className="flex-1 flex flex-col items-center gap-1.5">
+                  <div className="flex flex-col items-center gap-1.5 cursor-not-allowed">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: "#9ca3af" }}>
                       <Briefcase className="w-7 h-7" style={{ color: "#ffffff" }} />
                     </div>
@@ -184,22 +184,22 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
 
 
               {/* Title above separator */}
-              <div className="px-5 pt-4 text-center">
-                <h3 className="font-semibold text-gray-900 dark:text-foreground">Add Transaction(s)</h3>
+              <div className="px-5 pt-5 text-center">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-foreground">Add Transaction(s)</h3>
               </div>
               {/* Separator line */}
-              <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-2" />
+              <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3.5 mb-2.5" />
               {/* Subtitle BELOW separator */}
-              <p className="text-xs text-gray-500 dark:text-muted-foreground text-center pb-1">How would you like to add?</p>
+              <p className="text-sm text-gray-500 dark:text-muted-foreground text-center pb-1">How would you like to add?</p>
 
               {/* Two columns */}
-              <div className="px-6 pb-6 pt-3 flex items-start gap-0">
+              <div className="px-6 pb-4 pt-1.5 flex items-start gap-0">
 
                 {/* Manual */}
-                <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex-1 flex flex-col items-center gap-1.5">
                   <button
                     onClick={() => { closeTransaction(); onAddEntry(); }}
-                    className="flex flex-col items-center gap-2 group"
+                    className="flex flex-col items-center gap-1.5 group"
                   >
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <PenLine className="w-7 h-7 text-white" />
@@ -228,10 +228,10 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                 <div className="w-px bg-gray-100 dark:bg-border mx-6 self-stretch flex-shrink-0" />
 
                 {/* Automatic */}
-                <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex-1 flex flex-col items-center gap-1.5">
                   <button
                     onClick={() => { closeTransaction(); onAutoEntry(); }}
-                    className="flex flex-col items-center gap-2 group"
+                    className="flex flex-col items-center gap-1.5 group"
                   >
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
                       <Zap className="w-7 h-7 text-white" />
