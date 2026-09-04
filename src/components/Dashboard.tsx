@@ -149,7 +149,7 @@ export function Dashboard({
                       </div>
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-gray-800 dark:text-foreground text-sm leading-snug">{n.message}</p>
-                        <p className="text-gray-400 dark:text-muted-foreground text-[9px] mt-0.5">{n.time}</p>
+                        <p className="text-gray-400 dark:text-muted-foreground mt-0.5" style={{ fontSize: "14px" }}>{n.time}</p>
                       </div>
                     </div>
                   ))}
