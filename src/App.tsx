@@ -32,7 +32,7 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
     <div className="fixed inset-0 z-[300] backdrop-blur-sm bg-black/50 flex items-center justify-center px-6">
       <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
       <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
-        <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 0 0 1.5px rgba(255,255,255,0.9), 0 0 28px 6px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25)" }}>
+        <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)" }}>
           {/* Enlarged wallet icon with Pi icon from Pay button centered inside it */}
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative">
             <div className="relative flex items-center justify-center w-10 h-10">
