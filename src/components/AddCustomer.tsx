@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronDown, Check, CheckCircle, X, Users } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, CheckCircle, X, Users, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
@@ -317,13 +317,19 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
             {/* Separator */}
             <div className="h-px bg-gray-100 dark:bg-border mx-5 mt-3 mb-3" />
             {/* Button */}
-            <div className="px-5 pb-8">
+            <div className="px-5 pb-8 flex justify-center">
               <button
                 onClick={() => setShowInvalidPopup(false)}
-                className="w-full py-3 rounded-full bg-gradient-to-r from-[#A47CF3] to-[#F7C548] text-white shadow-md hover:shadow-lg transition-shadow font-medium text-sm flex items-center justify-center gap-2"
+                className="rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2 hover:opacity-95 transition-opacity"
+                style={{
+                  background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
+                  boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+                  padding: "14px 48px",
+                  minWidth: "160px",
+                }}
               >
-                Try Again
-                <span className="text-base leading-none">↻</span>
+                <span>Try Again</span>
+                <RotateCcw className="w-5 h-5" />
               </button>
             </div>
           </div>
