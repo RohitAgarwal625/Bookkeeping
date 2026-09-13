@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronDown, Check, CheckCircle, X, Users, RotateCcw } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, CheckCircle, X, Users } from "lucide-react";
 import { useState, useEffect } from "react";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
@@ -329,7 +329,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 }}
               >
                 <span>Try Again</span>
-                <RotateCcw className="w-5 h-5" />
+                <span className="text-xl leading-none w-5 h-5 inline-flex items-center justify-center select-none">↻</span>
               </button>
             </div>
           </div>
