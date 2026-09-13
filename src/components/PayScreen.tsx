@@ -342,7 +342,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         </div>
 
         {/* Pioneer — searchbar + dropdown */}
-        <div className="relative z-30">
+        <div className="relative z-50">
           <label className="block text-base font-semibold text-gray-700 dark:text-foreground mb-2">
             Pioneer
           </label>
@@ -373,7 +373,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           )}
 
           {isDropdownOpen && !(publicKey.trim() && !isVerified) && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl shadow-2xl overflow-hidden z-40 max-h-64 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl shadow-2xl overflow-hidden z-50 max-h-64 overflow-y-auto">
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-muted-foreground px-4 pt-3 pb-1">
                 Saved Contacts
               </p>
@@ -452,7 +452,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
       </div>
 
       {/* Fixed Pay button container (no background card/panel behind it) */}
-      <div className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="fixed bottom-0 left-0 right-0 z-30">
         <div
           style={{ paddingBottom: "48px", paddingTop: "16px", paddingLeft: "20px", paddingRight: "20px" }}
         >
