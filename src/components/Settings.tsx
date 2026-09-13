@@ -127,7 +127,7 @@ export function Settings({
   const settingsItems = [
     {
       id: "editProfile",
-      label: "Edit Profile",
+      label: "Profile",
       icon: User,
       iconColor: "text-black dark:text-foreground",
       iconBg: "bg-gray-100 dark:bg-secondary",
@@ -159,7 +159,7 @@ export function Settings({
           >
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-foreground flex-1 text-center">Edit Profile</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-foreground flex-1 text-center">Profile</h1>
           <div className="flex-shrink-0">
             <BookkeepingLogo compact />
           </div>
