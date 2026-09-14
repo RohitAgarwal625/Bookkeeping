@@ -330,7 +330,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 <span>Try Again</span>
                 <span
                   className="text-xl leading-none w-5 h-5 inline-flex items-center justify-center select-none"
-                  style={{ transform: "scale(1.40)" }}
+                  style={{ transform: "translateY(-2px) scale(1.40)" }}
                 >
                   ↻
                 </span>
