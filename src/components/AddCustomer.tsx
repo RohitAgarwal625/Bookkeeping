@@ -329,7 +329,12 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 }}
               >
                 <span>Try Again</span>
-                <span className="text-xl leading-none w-5 h-5 inline-flex items-center justify-center select-none">↻</span>
+                <span
+                  className="text-xl leading-none w-5 h-5 inline-flex items-center justify-center select-none font-black"
+                  style={{ WebkitTextStroke: "0.8px currentColor" }}
+                >
+                  ↻
+                </span>
               </button>
             </div>
           </div>
