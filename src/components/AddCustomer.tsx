@@ -185,11 +185,10 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                           setIsCategoryOpen(false);
                         }}
                         style={isBusiness ? { backgroundColor: "#9ca3af" } : undefined}
-                        className={`flex items-center justify-between px-4 py-3 transition-colors ${
-                          isBusiness
+                        className={`flex items-center justify-between px-4 py-3 transition-colors ${isBusiness
                             ? "cursor-not-allowed text-white"
                             : "cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-3">
                           <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-white"}`} />
@@ -329,7 +328,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 }}
               >
                 <span>Try Again</span>
-                <span className="text-[22px] leading-none w-[22px] h-[22px] inline-flex items-center justify-center select-none">
+                <span className="text-[24px] leading-none w-[24px] h-[24px] inline-flex items-center justify-center select-none">
                   ↻
                 </span>
               </button>
