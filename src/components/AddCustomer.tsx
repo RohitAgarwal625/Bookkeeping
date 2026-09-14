@@ -186,8 +186,8 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                         }}
                         style={isBusiness ? { backgroundColor: "#9ca3af" } : undefined}
                         className={`flex items-center justify-between px-4 py-3 transition-colors ${isBusiness
-                            ? "cursor-not-allowed text-white"
-                            : "cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
+                          ? "cursor-not-allowed text-white"
+                          : "cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
                           }`}
                       >
                         <div className="flex items-center gap-3">
@@ -328,7 +328,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 }}
               >
                 <span>Try Again</span>
-                <span className="text-[24px] leading-none w-[24px] h-[24px] inline-flex items-center justify-center select-none">
+                <span className="text-[28px] leading-none w-[28px] h-[28px] inline-flex items-center justify-center select-none">
                   ↻
                 </span>
               </button>
