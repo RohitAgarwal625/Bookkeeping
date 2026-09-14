@@ -328,7 +328,10 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 }}
               >
                 <span>Try Again</span>
-                <span className="text-[28px] leading-none w-[28px] h-[28px] inline-flex items-center justify-center select-none">
+                <span
+                  className="text-xl leading-none w-5 h-5 inline-flex items-center justify-center select-none"
+                  style={{ transform: "scale(1.18)" }}
+                >
                   ↻
                 </span>
               </button>
