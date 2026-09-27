@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
-import { BookkeepingLogo } from "./components/BookkeepingLogo";
+import bookLogo from "./assets/Book_final.png";
 import { Dashboard } from "./components/Dashboard";
 import { AddCustomer } from "./components/AddCustomer";
 import { CustomerLedger } from "./components/CustomerLedger";
@@ -458,7 +458,11 @@ function AppContent() {
 
         {/* Group 1 & 2: Logo + Title — zoom-out animation first */}
         <div className="logo-title-container" style={{ marginTop: "18vh", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-          <BookkeepingLogo />
+          <img
+            src={bookLogo}
+            alt="Bookkeeping Logo"
+            className="w-20 h-20 object-contain drop-shadow-md"
+          />
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
         </div>
 
