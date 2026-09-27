@@ -1,16 +1,18 @@
-import { ArrowLeft, BookOpen, Check, X, Pencil } from "lucide-react";
+import { ArrowLeft, BookOpen, Check, X, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Contact, getInitials } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { contactsApi } from "../lib/api";
 
 interface ContactDetailsProps {
   contact: Contact;
   onBack: () => void;
   onUpdate: (updated: Contact) => void;
-  onNavigateToLedger: (customerName: string) => void;
+  onNavigateToLedger: (customerName: string, contactId: string) => void;
+  onDelete?: (contactId: string) => void;
 }
 
-export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }: ContactDetailsProps) {
+export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger, onDelete }: ContactDetailsProps) {
   const [editingField, setEditingField] = useState<"name" | "wallet" | null>(null);
   const [draftName, setDraftName] = useState(contact.name);
   const [draftWallet, setDraftWallet] = useState(contact.piWalletAddress);
@@ -18,6 +20,8 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
   // Locally track display values so UI reflects saves immediately
   const [displayName, setDisplayName] = useState(contact.name);
   const [displayWallet, setDisplayWallet] = useState(contact.piWalletAddress);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [isDraftWalletFocused, setIsDraftWalletFocused] = useState(false);
   const [isDisplayWalletExpanded, setIsDisplayWalletExpanded] = useState(false);
 
@@ -189,22 +193,80 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
           </div>
       </div>
 
-      {/* Fixed Open Ledger button — matches PayScreen Pay button position */}
+      {/* Fixed bottom bar — Open Ledger + Delete */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div
           style={{ paddingBottom: "56px", paddingTop: "24px", paddingLeft: "20px", paddingRight: "20px" }}
-          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl"
+          className="bg-white/90 dark:bg-background/90 backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.07)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)] rounded-t-3xl flex flex-col gap-3"
         >
           <button
-            onClick={() => onNavigateToLedger(displayName)}
+            onClick={() => onNavigateToLedger(displayName, contact.id)}
             className="w-full py-4 rounded-2xl text-white font-semibold shadow-md hover:shadow-lg transition-shadow flex items-center justify-center gap-2"
             style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 6px 24px rgba(111,60,151,0.5), 0 2px 8px rgba(164,124,243,0.3)" }}
           >
             Open Ledger
             <BookOpen className="w-5 h-5" />
           </button>
+          {onDelete && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-full py-3 rounded-2xl font-semibold border border-red-200 dark:border-red-800/50 text-red-500 dark:text-red-400 flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Contact
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Delete confirmation overlay */}
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 z-[200] backdrop-blur-sm bg-black/50 flex items-center justify-center px-6"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            className="bg-white dark:bg-card rounded-2xl p-6 w-full max-w-[340px] shadow-2xl dark:border dark:border-border"
+            style={{ animation: "modal-pop 0.2s cubic-bezier(0.34,1.56,0.64,1) both" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-6 h-6 text-red-500" />
+            </div>
+            <h3 className="text-gray-900 dark:text-foreground font-bold text-center mb-2">Delete Contact?</h3>
+            <p className="text-sm text-gray-500 dark:text-muted-foreground text-center mb-6">
+              <span className="font-semibold">{displayName}</span> will be removed from your contacts. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 py-3 rounded-xl border border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground font-medium hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={deleting}
+                onClick={async () => {
+                  setDeleting(true);
+                  try {
+                    await contactsApi.remove(contact.id);
+                  } catch {
+                    // If API fails, still remove from local state
+                  } finally {
+                    setDeleting(false);
+                    setShowDeleteConfirm(false);
+                    onDelete!(contact.id);
+                    onBack();
+                  }
+                }}
+                className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition-colors disabled:opacity-60"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

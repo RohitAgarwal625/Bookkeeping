@@ -12,8 +12,8 @@ export interface Contact {
   name: string;
   category: "individual" | "business";
   piWalletAddress: string;
-  txHash: string;
-  lastSeen: string;
+  txHash?: string;
+  lastSeen?: string | null;
   totalCredit: number;
   totalDebit: number;
 }
@@ -122,7 +122,7 @@ export const initialContacts: Contact[] = [
     id: "4",
     name: "Satoshi Nakamoto",
     category: "individual",
-    piWalletAddress: "0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e",
+    piWalletAddress: "0x7a8f9c3e4b5d6a1e2f3a4b5a6d7e8f9a0b1c2d3e",
     txHash: "0xabc123def456789abc123def456789abc123def456789",
     lastSeen: "Feb 20, 2026",
     totalCredit: 1350.00,
@@ -139,3 +139,61 @@ export const initialContacts: Contact[] = [
     totalDebit: 515.75,
   },
 ];
+
+// ─── API / Backend Types ────────────────────────────────────────────────────
+
+export interface User {
+  id: string;
+  walletAddress: string;
+  displayName?: string | null;
+  createdAt: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  sessionToken: string;
+}
+
+export interface CreateContactInput {
+  name: string;
+  piWalletAddress: string;
+  category: "individual" | "business";
+  notes?: string;
+}
+
+export interface UpdateContactInput {
+  name?: string;
+  piWalletAddress?: string;
+  category?: "individual" | "business";
+  notes?: string;
+}
+
+export interface CreateTransactionInput {
+  contactId: string;
+  type: "credit" | "debit";
+  amount: number;
+  description: string;
+  idempotencyKey: string;
+  txHash?: string;
+  occurredAt?: string;
+}
+
+export interface TransactionSummary {
+  totalCredit: number;
+  totalDebit: number;
+  balance: number;
+  transactionCount: number;
+}
+
+export interface Paginated<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+

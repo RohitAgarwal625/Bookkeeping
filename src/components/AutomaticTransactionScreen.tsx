@@ -6,7 +6,7 @@ import { BookkeepingLogo } from "./BookkeepingLogo";
 interface AutomaticTransactionScreenProps {
   contacts: Contact[];
   onBack: () => void;
-  onNavigateToLedger: (name: string, newTransactions?: Transaction[]) => void;
+  onNavigateToLedger: (name: string, contactId?: string, newTransactions?: Transaction[]) => void;
 }
 
 
@@ -185,7 +185,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 isNew: true,
               },
             ];
-            onNavigateToLedger(selectedContact?.name ?? "", dummyTxs);
+            onNavigateToLedger(selectedContact?.name ?? "", selectedContact?.id, dummyTxs);
           }}
           className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
           style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 6px 24px rgba(111,60,151,0.45)" }}

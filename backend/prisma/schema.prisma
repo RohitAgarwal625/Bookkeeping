@@ -1,0 +1,79 @@
+// Bookkeeping — Prisma schema (converged final design)
+// Database: PostgreSQL (Railway)
+// See: design/backend-architecture/final/architecture.html
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String        @id @default(cuid())
+  piWalletAddress String        @unique
+  piUsername      String?       @unique
+  piUid           String?       @unique
+  displayName     String        @default("Pioneer User")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  contacts        Contact[]
+  transactions    Transaction[]
+  sessions        Session[]
+
+  @@index([piWalletAddress])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Contact {
+  id              String        @id @default(cuid())
+  name            String
+  category        String // "individual" | "business"
+  piWalletAddress String
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions    Transaction[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, piWalletAddress])
+  @@index([userId])
+}
+
+model Transaction {
+  id             String    @id @default(cuid())
+  description    String
+  amount         Decimal   @db.Decimal(18, 7)
+  type           String // "credit" | "debit"
+  source         String    @default("manual") // "manual" | "pi_network"
+  txHash         String?
+  piPaymentId    String?
+  idempotencyKey String    @unique
+  status         String    @default("completed") // pending|completed|failed|cancelled|expired
+  expiresAt      DateTime?
+  deletedAt      DateTime?
+  timestamp      DateTime  @default(now())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactId      String?
+  contact        Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, contactId])
+  @@index([userId, timestamp])
+  @@index([idempotencyKey])
+  @@index([status, expiresAt])
+}

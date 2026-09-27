@@ -18,7 +18,9 @@ import { AutomaticTransactionScreen } from "./components/AutomaticTransactionScr
 import { QRScannerScreen } from "./components/QRScannerScreen";
 import { PayMethodModal } from "./components/PayMethodModal";
 import { BottomNav } from "./components/BottomNav";
-import { Contact, initialContacts, Transaction } from "./types";
+import { Contact, Transaction } from "./types";
+import { useBookkeeping } from "./hooks/useBookkeeping";
+import { contactsApi } from "./lib/api";
 
 
 type Screen =
@@ -68,13 +70,21 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
 }
 
 function AppContent() {
+  const bk = useBookkeeping();
+
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
   const [userName] = useState("Pioneer User");
   const [piBalance] = useState("370.20");
   const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
+  const [walletInput, setWalletInput] = useState("");
+  const [walletLoginLoading, setWalletLoginLoading] = useState(false);
+  const [walletLoginError, setWalletLoginError] = useState<string | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
+  const [selectedContactId, setSelectedContactId] = useState<string | undefined>(undefined);
   const [selectedCategory, setSelectedCategory] = useState<"individual" | "business">("individual");
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  // contacts comes from the bk hook when authenticated; otherwise stays empty
+  const [localContacts, setLocalContacts] = useState<Contact[]>([]);
+  const contacts = bk.isAuthenticated ? bk.contacts : localContacts;
   const [newContactId, setNewContactId] = useState<string | null>(null);
   const [selectedContactDetails, setSelectedContactDetails] = useState<Contact | null>(null);
   const [showPayModal, setShowPayModal] = useState(false);
@@ -83,15 +93,30 @@ function AppContent() {
   const [isGuest, setIsGuest] = useState(false);
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
 
-  const handleConnectWallet = () => {
-    setIsGuest(false);
-    setContacts(initialContacts);
-    setCurrentScreen("dashboard");
+  const handleConnectWallet = async () => {
+    const address = walletInput.trim();
+    if (!address) {
+      setWalletLoginError("Please enter your Pi Wallet address");
+      return;
+    }
+    setWalletLoginLoading(true);
+    setWalletLoginError(null);
+    try {
+      await bk.login(address);
+      setIsGuest(false);
+      setCurrentScreen("dashboard");
+    } catch {
+      // Backend offline or validation failed — fall back to local guest-like mode with no contacts
+      setIsGuest(false);
+      setCurrentScreen("dashboard");
+    } finally {
+      setWalletLoginLoading(false);
+    }
   };
 
   const handleGuestLogin = () => {
     setIsGuest(true);
-    setContacts([]);
+    setLocalContacts([]);
     setCurrentScreen("dashboard");
   };
 
@@ -101,8 +126,9 @@ function AppContent() {
     setCurrentScreen("addCustomer");
   };
 
-  const handleNavigateToCustomerLedger = (customerName: string, newTransactions?: Transaction[]) => {
+  const handleNavigateToCustomerLedger = (customerName: string, contactId?: string, newTransactions?: Transaction[]) => {
     setSelectedCustomer(customerName);
+    setSelectedContactId(contactId);
     if (newTransactions && newTransactions.length > 0) {
       setPendingNewTransactions((prev) => ({
         ...prev,
@@ -135,7 +161,23 @@ function AppContent() {
     setCurrentScreen("autoTransaction");
   };
 
-  const handleSaveCustomer = (customer: { name: string; piWallet: string; category: "individual" | "business" }) => {
+  const handleSaveCustomer = async (customer: { name: string; piWallet: string; category: "individual" | "business" }) => {
+    if (bk.isAuthenticated) {
+      try {
+        const newContact = await bk.addContact({
+          name: customer.name,
+          piWalletAddress: customer.piWallet,
+          category: customer.category,
+        });
+        setNewContactId(newContact.id);
+        setSelectedContactDetails(newContact);
+        setCurrentScreen("contacts");
+        return;
+      } catch {
+        // Fall through to local state creation if API fails
+      }
+    }
+    // Fallback: create contact in local state (guest mode or offline)
     const newContact: Contact = {
       id: Date.now().toString(),
       name: customer.name,
@@ -146,7 +188,7 @@ function AppContent() {
       totalCredit: 0,
       totalDebit: 0,
     };
-    setContacts((prev) => [...prev, newContact]);
+    setLocalContacts((prev) => [...prev, newContact]);
     setNewContactId(newContact.id);
     setSelectedContactDetails(newContact);
     setCurrentScreen("contacts");
@@ -170,6 +212,9 @@ function AppContent() {
   };
 
   const handleLogout = () => {
+    bk.logout();
+    setIsGuest(false);
+    setLocalContacts([]);
     setCurrentScreen("login");
   };
 
@@ -252,7 +297,7 @@ function AppContent() {
         <AddEntry
           onBack={handleBackToDashboard}
           onSuccess={(contactName, newTransaction) => {
-            handleNavigateToCustomerLedger(contactName, newTransaction ? [newTransaction] : undefined);
+            handleNavigateToCustomerLedger(contactName, undefined, newTransaction ? [newTransaction] : undefined);
           }}
           contacts={contactNames}
         />
@@ -284,10 +329,16 @@ function AppContent() {
         contact={selectedContactDetails}
         onBack={() => setCurrentScreen("contacts")}
         onUpdate={(updated) => {
-          setContacts((prev) => prev.map((c) => c.id === updated.id ? updated : c));
+          setLocalContacts((prev) => prev.map((c) => c.id === updated.id ? updated : c));
           setSelectedContactDetails(updated);
+          if (bk.isAuthenticated) void bk.refreshContacts();
         }}
         onNavigateToLedger={handleNavigateToCustomerLedger}
+        onDelete={(contactId) => {
+          setLocalContacts((prev) => prev.filter((c) => c.id !== contactId));
+          if (bk.isAuthenticated) void bk.refreshContacts();
+          setCurrentScreen("contacts");
+        }}
       />
     );
   }
@@ -297,7 +348,7 @@ function AppContent() {
       <>
         <ContactsScreen
           contacts={contacts}
-          onUpdateContacts={setContacts}
+          onUpdateContacts={setLocalContacts}
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigateToContactDetails={(contact) => {
             setSelectedContactDetails(contact);
@@ -348,8 +399,9 @@ function AppContent() {
   if (currentScreen === "customerLedger") {
     return (
       <CustomerLedger
-        key={`${selectedCustomer}-${(pendingNewTransactions[selectedCustomer] || []).map(t => t.id).join('-')}`}
+        key={`${selectedCustomer}-${selectedContactId}-${(pendingNewTransactions[selectedCustomer] || []).map(t => t.id).join('-')}`}
         customerName={selectedCustomer}
+        contactId={selectedContactId}
         initialNewTransactions={pendingNewTransactions[selectedCustomer]}
         onBack={handleBackToDashboard}
       />
@@ -478,14 +530,29 @@ function AppContent() {
           </p>
         </div>
 
-        {/* Group 4 & 5: CTA buttons — with increased padding between them */}
-        <div style={{ marginTop: "56px", width: "100%", display: "flex", flexDirection: "column", gap: "32px" }}>
+        {/* Group 4 & 5: Wallet input + CTA buttons */}
+        <div style={{ marginTop: "56px", width: "100%", display: "flex", flexDirection: "column", gap: "16px" }}>
+          {/* Wallet address input */}
+          <div className="relative">
+            <input
+              type="text"
+              value={walletInput}
+              onChange={(e) => { setWalletInput(e.target.value); setWalletLoginError(null); }}
+              onKeyDown={(e) => { if (e.key === "Enter") void handleConnectWallet(); }}
+              placeholder="Enter Pi Wallet Address"
+              className="w-full px-5 py-4 rounded-full bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+            />
+          </div>
+          {walletLoginError && (
+            <p className="text-red-500 text-xs text-center -mt-2">{walletLoginError}</p>
+          )}
           <button
-            onClick={handleConnectWallet}
-            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+            onClick={() => void handleConnectWallet()}
+            disabled={walletLoginLoading}
+            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-60"
             style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
           >
-            Connect Pi Wallet
+            {walletLoginLoading ? "Connecting..." : "Connect Pi Wallet"}
           </button>
           <button
             onClick={handleGuestLogin}

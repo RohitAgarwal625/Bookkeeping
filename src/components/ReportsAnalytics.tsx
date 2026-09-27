@@ -1,5 +1,5 @@
 import { Users, Search, Info, BarChart2, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { getInitials } from "../types";
+import { transactionsApi } from "../lib/api";
 
 interface ReportsAnalyticsProps {
   onNavigate: (screen: string) => void;
@@ -51,9 +52,26 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [isCustomSubmitted, setIsCustomSubmitted] = useState(false);
+  // API-driven totals (null = not yet loaded or offline)
+  const [apiTotals, setApiTotals] = useState<{ totalCredit: number; totalDebit: number } | null>(null);
 
-  // Calculate totals based on selected filter
+  // Fetch real summary from backend on mount
+  useEffect(() => {
+    if (isGuest) return;
+    transactionsApi.summary()
+      .then((res) => setApiTotals({ totalCredit: res.totalCredit, totalDebit: res.totalDebit }))
+      .catch(() => { /* Keep mock fallback */ });
+  }, [isGuest]);
+
+  // Calculate totals based on selected filter — prefer API data, fall back to mock
   const getTotals = () => {
+    if (apiTotals) {
+      return {
+        debit: apiTotals.totalDebit.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        credit: apiTotals.totalCredit.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      };
+    }
+    // Mock fallback
     if (selectedFilter === "week") {
       return { debit: "5,000.65", credit: "12,500.00" };
     }

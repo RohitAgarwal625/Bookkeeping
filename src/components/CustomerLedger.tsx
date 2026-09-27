@@ -3,202 +3,80 @@ import { useState, useEffect } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { Transaction, sortTransactionsDescending } from "../types";
+import { transactionsApi } from "../lib/api";
 
 interface CustomerLedgerProps {
   customerName: string;
+  contactId?: string;
   onBack: () => void;
   initialNewTransactions?: Transaction[];
 }
 
-export function CustomerLedger({ customerName, onBack, initialNewTransactions }: CustomerLedgerProps) {
+// Hardcoded mock transactions — used as fallback when backend is offline or contactId is not provided.
+const MOCK_TRANSACTIONS: Transaction[] = [
+  { id: "1", description: "Mentorship & Consultation fees.", amount: 450, type: "debit", timestamp: "2026-06-22 14:30" },
+  { id: "2", description: "Trademark compliance fee.", amount: 100, type: "debit", timestamp: "2026-05-10 10:15" },
+  { id: "3", description: "Scholarship grant.", amount: 100, type: "credit", timestamp: "2026-03-25 16:45" },
+  { id: "4", description: "Workshop fee.", amount: 90, type: "debit", timestamp: "2026-02-18 09:20" },
+  { id: "5", description: "Advisory session payment.", amount: 75, type: "credit", timestamp: "2026-01-20 11:00" },
+  { id: "6", description: "Research collaboration fee.", amount: 200, type: "debit", timestamp: "2025-12-12 15:45" },
+  { id: "7", description: "Referral bonus received.", amount: 50, type: "credit", timestamp: "2025-11-05 14:30" },
+  { id: "8", description: "Project milestone payment.", amount: 130, type: "debit", timestamp: "2025-10-15 09:20" },
+  { id: "9", description: "Network node reward.", amount: 60, type: "credit", timestamp: "2025-09-08 13:10" },
+  { id: "10", description: "Consultation retainer fee.", amount: 180, type: "debit", timestamp: "2025-08-01 10:00" },
+  { id: "11", description: "Community grant disbursement.", amount: 95, type: "credit", timestamp: "2025-06-20 16:00" },
+  { id: "12", description: "Platform service fee.", amount: 40, type: "debit", timestamp: "2025-05-10 08:45" },
+];
+
+export function CustomerLedger({ customerName, contactId, onBack, initialNewTransactions }: CustomerLedgerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingNote, setEditingNote] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const base: Transaction[] = [
-      {
-        id: "1",
-        description: "Mentorship & Consultation fees.",
-        amount: 450,
-        type: "debit",
-        timestamp: "2026-06-22 14:30",
-      },
-      {
-        id: "2",
-        description: "Trademark compliance fee.",
-        amount: 100,
-        type: "debit",
-        timestamp: "2026-05-10 10:15",
-      },
-      {
-        id: "3",
-        description: "Scholarship grant.",
-        amount: 100,
-        type: "credit",
-        timestamp: "2026-03-25 16:45",
-      },
-      {
-        id: "4",
-        description: "Workshop fee.",
-        amount: 90,
-        type: "debit",
-        timestamp: "2026-02-18 09:20",
-      },
-      {
-        id: "5",
-        description: "Advisory session payment.",
-        amount: 75,
-        type: "credit",
-        timestamp: "2026-01-20 11:00",
-      },
-      {
-        id: "6",
-        description: "Research collaboration fee.",
-        amount: 200,
-        type: "debit",
-        timestamp: "2025-12-12 15:45",
-      },
-      {
-        id: "7",
-        description: "Referral bonus received.",
-        amount: 50,
-        type: "credit",
-        timestamp: "2025-11-05 14:30",
-      },
-      {
-        id: "8",
-        description: "Project milestone payment.",
-        amount: 130,
-        type: "debit",
-        timestamp: "2025-10-15 09:20",
-      },
-      {
-        id: "9",
-        description: "Network node reward.",
-        amount: 60,
-        type: "credit",
-        timestamp: "2025-09-08 13:10",
-      },
-      {
-        id: "10",
-        description: "Consultation retainer fee.",
-        amount: 180,
-        type: "debit",
-        timestamp: "2025-08-01 10:00",
-      },
-      {
-        id: "11",
-        description: "Community grant disbursement.",
-        amount: 95,
-        type: "credit",
-        timestamp: "2025-06-20 16:00",
-      },
-      {
-        id: "12",
-        description: "Platform service fee.",
-        amount: 40,
-        type: "debit",
-        timestamp: "2025-05-10 08:45",
-      },
-    ];
     if (initialNewTransactions && initialNewTransactions.length > 0) {
-      return sortTransactionsDescending([...initialNewTransactions, ...base]);
+      return sortTransactionsDescending([...initialNewTransactions, ...MOCK_TRANSACTIONS]);
     }
-    return sortTransactionsDescending(base);
+    return sortTransactionsDescending(MOCK_TRANSACTIONS);
   });
 
-  // Keep transactions in sync if initialNewTransactions updates
+  // ── API fetch: load real transactions when contactId is available ──
   useEffect(() => {
-    const base: Transaction[] = [
-      {
-        id: "1",
-        description: "Mentorship & Consultation fees.",
-        amount: 450,
-        type: "debit",
-        timestamp: "2026-06-22 14:30",
-      },
-      {
-        id: "2",
-        description: "Trademark compliance fee.",
-        amount: 100,
-        type: "debit",
-        timestamp: "2026-05-10 10:15",
-      },
-      {
-        id: "3",
-        description: "Scholarship grant.",
-        amount: 100,
-        type: "credit",
-        timestamp: "2026-03-25 16:45",
-      },
-      {
-        id: "4",
-        description: "Workshop fee.",
-        amount: 90,
-        type: "debit",
-        timestamp: "2026-02-18 09:20",
-      },
-      {
-        id: "5",
-        description: "Advisory session payment.",
-        amount: 75,
-        type: "credit",
-        timestamp: "2026-01-20 11:00",
-      },
-      {
-        id: "6",
-        description: "Research collaboration fee.",
-        amount: 200,
-        type: "debit",
-        timestamp: "2025-12-12 15:45",
-      },
-      {
-        id: "7",
-        description: "Referral bonus received.",
-        amount: 50,
-        type: "credit",
-        timestamp: "2025-11-05 14:30",
-      },
-      {
-        id: "8",
-        description: "Project milestone payment.",
-        amount: 130,
-        type: "debit",
-        timestamp: "2025-10-15 09:20",
-      },
-      {
-        id: "9",
-        description: "Network node reward.",
-        amount: 60,
-        type: "credit",
-        timestamp: "2025-09-08 13:10",
-      },
-      {
-        id: "10",
-        description: "Consultation retainer fee.",
-        amount: 180,
-        type: "debit",
-        timestamp: "2025-08-01 10:00",
-      },
-      {
-        id: "11",
-        description: "Community grant disbursement.",
-        amount: 95,
-        type: "credit",
-        timestamp: "2025-06-20 16:00",
-      },
-      {
-        id: "12",
-        description: "Platform service fee.",
-        amount: 40,
-        type: "debit",
-        timestamp: "2025-05-10 08:45",
-      },
-    ];
+    if (!contactId) return;
+    let cancelled = false;
+    setIsLoading(true);
+    transactionsApi.ledger(contactId)
+      .then((res) => {
+        if (cancelled) return;
+        // API returned real data — use it, merging any pending new transactions on top
+        const apiTxs = res.data;
+        if (initialNewTransactions && initialNewTransactions.length > 0) {
+          setTransactions(sortTransactionsDescending([...initialNewTransactions, ...apiTxs]));
+        } else {
+          setTransactions(sortTransactionsDescending(apiTxs));
+        }
+      })
+      .catch(() => {
+        // Backend offline or auth error — keep the mock fallback already set in initial state.
+        if (cancelled) return;
+        if (initialNewTransactions && initialNewTransactions.length > 0) {
+          setTransactions(sortTransactionsDescending([...initialNewTransactions, ...MOCK_TRANSACTIONS]));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contactId]);
+
+  // Keep pending new transactions in sync if they arrive after mount (no contactId case)
+  useEffect(() => {
+    if (contactId) return; // API fetch handles this case
     if (initialNewTransactions && initialNewTransactions.length > 0) {
-      setTransactions(sortTransactionsDescending([...initialNewTransactions, ...base]));
+      setTransactions(sortTransactionsDescending([...initialNewTransactions, ...MOCK_TRANSACTIONS]));
     }
-  }, [initialNewTransactions]);
+  }, [initialNewTransactions, contactId]);
 
   const handleStartEdit = (t: Transaction) => {
     setEditingId(t.id);
@@ -293,7 +171,25 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
         <div className="mb-6">
           <h3 className="text-gray-900 dark:text-foreground font-semibold text-base mb-4">All Transactions</h3>
 
-          {transactions.length === 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="flex items-center gap-2">
+                {[0, 0.15, 0.3].map((delay, i) => (
+                  <span
+                    key={i}
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{
+                      background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                      animation: "ledger-bounce 0.8s ease-in-out infinite",
+                      animationDelay: `${delay}s`,
+                    }}
+                  />
+                ))}
+              </div>
+              <p className="text-sm text-gray-400 dark:text-muted-foreground">Loading transactions...</p>
+              <style>{`@keyframes ledger-bounce { 0%,80%,100%{transform:translateY(0);opacity:0.5} 40%{transform:translateY(-8px);opacity:1} }`}</style>
+            </div>
+          ) : transactions.length === 0 ? (
             <div className="text-center py-12 text-gray-500 dark:text-muted-foreground">
               <p>No entries yet. Add one below.</p>
             </div>
