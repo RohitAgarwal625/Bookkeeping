@@ -79,6 +79,14 @@ Open **two terminals**:
 ```bash
 cd backend
 npm run dev
+# if it does not work then run 
+pg_ctl -D /opt/homebrew/var/postgresql@17 -l /opt/homebrew/var/log/postgresql@17.log start
+
+#Or fix the brew services bug permanently by running:
+
+brew services start postgresql@17
+#(The brew services issue was a bug with your Homebrew version on macOS 14 — it may work after a brew update.)
+
 # → Backend running at http://localhost:3001
 # → Health check: http://localhost:3001/api/health
 ```
