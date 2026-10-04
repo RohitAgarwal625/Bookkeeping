@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookkeeping Application — Architecture and Code Flow Manual (ASD-STE100)</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css" rel="stylesheet">
+  <!-- Mermaid.js for architectural diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      flowchart: { curve: 'basis', padding: 20 },
+      sequence: { mirrorActors: false, messageAlign: 'center' },
+      themeVariables: {
+        primaryColor: '#e0e7ff',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#2563eb',
+        lineColor: '#94a3b8',
+        secondaryColor: '#f1f5f9',
+        tertiaryColor: '#ecfdf5'
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --color-bg: #ffffff;
+      --color-bg-card: #f8f9fa;
+      --color-bg-sidebar: #f1f3f5;
+      --color-text: #1a1a2e;
+      --color-text-secondary: #4b5563;
+      --color-heading: #0f172a;
+      --color-accent: #2563eb;
+      --color-accent-hover: #1d4ed8;
+      --color-border: #e2e8f0;
+      --color-success: #059669;
+      --color-success-bg: #ecfdf5;
+      --color-warning: #d97706;
+      --color-warning-bg: #fffbeb;
+      --color-error: #dc2626;
+      --color-error-bg: #fef2f2;
+      --color-info: #2563eb;
+      --color-info-bg: #eff6ff;
+      --color-neutral: #64748b;
+      --color-neutral-bg: #f1f5f9;
+      --color-ste-badge: #7c3aed;
+      --color-ste-bg: #f5f3ff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--color-text);
+      background: var(--color-bg);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: 270px; background: var(--color-bg-sidebar);
+      border-right: 1px solid var(--color-border);
+      padding: 1.5rem 0; overflow-y: auto; z-index: 100;
+    }
+    .sidebar-header {
+      padding: 1rem 1.25rem; font-weight: 700; font-size: 0.9rem;
+      color: var(--color-heading); border-bottom: 1px solid var(--color-border);
+      margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: 8px; }
+    .sidebar a {
+      display: block; padding: 0.4rem 1.25rem; font-size: 0.85rem;
+      color: var(--color-text-secondary); text-decoration: none;
+      border-left: 3px solid transparent; transition: all 0.2s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+      color: var(--color-accent); border-left-color: var(--color-accent);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      position: sticky; top: 0; z-index: 90;
+      background: var(--color-bg); border-bottom: 1px solid var(--color-border);
+      padding: 0.75rem 2rem; margin-left: 270px;
+      font-size: 0.85rem; color: var(--color-text-secondary);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .breadcrumb-left { display: flex; align-items: center; gap: 6px; }
+    .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb-badges { display: flex; align-items: center; gap: 8px; }
+
+    /* Compliance Banner */
+    .ste-banner {
+      background: var(--color-ste-bg);
+      border: 1px solid #ddd6fe;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .ste-banner-icon { color: var(--color-ste-badge); font-size: 1.25rem; flex-shrink: 0; margin-top: 2px; }
+    .ste-banner-title { font-weight: 700; color: #5b21b6; font-size: 0.9rem; margin-bottom: 2px; }
+    .ste-banner-text { font-size: 0.84rem; color: #4c1d95; line-height: 1.5; }
+
+    /* Content */
+    .content {
+      margin-left: 270px; max-width: 980px; padding: 2rem 2.5rem;
+    }
+
+    /* Headings */
+    h1 { font-size: 2rem; font-weight: 700; color: var(--color-heading); margin-bottom: 0.5rem; line-height: 1.3; }
+    h2 { font-size: 1.45rem; font-weight: 600; color: var(--color-heading); margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-border); line-height: 1.35; }
+    h3 { font-size: 1.2rem; font-weight: 600; color: var(--color-heading); margin: 1.5rem 0 0.75rem; line-height: 1.4; }
+    h4 { font-size: 1.05rem; font-weight: 600; margin: 1rem 0 0.5rem; color: var(--color-heading); }
+
+    /* Cards */
+    .card {
+      background: var(--color-bg-card); border: 1px solid var(--color-border);
+      border-radius: 8px; padding: 1.5rem; margin: 1rem 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    /* Notices (ASD-STE100 Style) */
+    .notice {
+      border-radius: 6px; padding: 0.85rem 1.1rem; margin: 1rem 0;
+      font-size: 0.9rem; line-height: 1.5; display: flex; align-items: flex-start; gap: 10px;
+    }
+    .notice-note {
+      background: #f0fdf4; border-left: 4px solid var(--color-success); color: #166534;
+    }
+    .notice-caution {
+      background: #fffbeb; border-left: 4px solid var(--color-warning); color: #92400e;
+    }
+    .notice strong { font-weight: 700; }
+
+    /* Badges */
+    .badge {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px;
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+    .badge-ste { background: var(--color-ste-bg); color: var(--color-ste-badge); border: 1px solid #ddd6fe; }
+    .badge-critical { background: var(--color-error-bg); color: var(--color-error); border: 1px solid #fecaca; }
+    .badge-major { background: var(--color-warning-bg); color: var(--color-warning); border: 1px solid #fde68a; }
+    .badge-minor { background: var(--color-neutral-bg); color: var(--color-neutral); border: 1px solid var(--color-border); }
+    .badge-resolved, .badge-validated, .badge-pass { background: var(--color-success-bg); color: var(--color-success); border: 1px solid #a7f3d0; }
+    .badge-open, .badge-fail { background: var(--color-error-bg); color: var(--color-error); border: 1px solid #fecaca; }
+    .badge-in-progress { background: var(--color-info-bg); color: var(--color-info); border: 1px solid #bfdbfe; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+    th { background: var(--color-bg-sidebar); font-weight: 600; text-align: left; padding: 0.75rem 1rem; border-bottom: 2px solid var(--color-border); position: sticky; top: 0; }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--color-border); }
+    tr:nth-child(even) { background: var(--color-bg-card); }
+    tr:hover { background: rgba(37, 99, 235, 0.03); }
+
+    /* Collapsible */
+    details.collapsible { border: 1px solid var(--color-border); border-radius: 8px; margin: 0.75rem 0; background: var(--color-bg-card); }
+    details.collapsible summary {
+      padding: 1rem 1.25rem; cursor: pointer; font-weight: 500;
+      list-style: none; display: flex; align-items: center; justify-content: space-between;
+    }
+    details.collapsible summary::before { content: '▸'; margin-right: 8px; transition: transform 0.2s; }
+    details.collapsible[open] summary::before { transform: rotate(90deg); }
+    details.collapsible .collapsible-content { padding: 0 1.25rem 1.25rem; }
+
+    /* Diagrams */
+    figure.diagram {
+      background: var(--color-bg); border: 1px solid var(--color-border);
+      border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center;
+      overflow-x: auto;
+    }
+    figure.diagram figcaption {
+      margin-top: 0.75rem; font-size: 0.85rem; color: var(--color-text-secondary); font-style: italic;
+    }
+
+    /* Code */
+    pre.code-block {
+      background: #1e293b !important; color: #f8fafc !important; border: 1px solid #334155;
+      border-radius: 6px; padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.88rem; line-height: 1.6;
+      margin: 0.8rem 0;
+    }
+    code:not(pre code) {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85em;
+      background: var(--color-bg-sidebar); padding: 0.15rem 0.4rem;
+      border-radius: 4px; color: #0958d9;
+    }
+
+    /* Diff */
+    .diff-container { display: flex; gap: 1.5rem; margin: 1rem 0; }
+    .diff-before, .diff-after { flex: 1; border-radius: 8px; padding: 1.2rem; }
+    .diff-before { border-left: 4px solid var(--color-info); background: var(--color-info-bg); }
+    .diff-after { border-left: 4px solid var(--color-success); background: var(--color-success-bg); }
+
+    /* Progress bar */
+    .progress-bar { height: 8px; border-radius: 4px; background: var(--color-neutral-bg); margin: 0.5rem 0; overflow: hidden; display: flex; }
+    .progress-bar .segment-resolved { background: var(--color-success); }
+
+    /* Key-Value Grid */
+    .kv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 1rem 0; }
+    .kv-item { background: #ffffff; border: 1px solid var(--color-border); border-radius: 6px; padding: 12px; }
+    .kv-label { font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-secondary); font-weight: 600; }
+    .kv-value { font-size: 1.1rem; font-weight: 700; color: var(--color-heading); margin-top: 4px; }
+
+    /* Step numbers */
+    .step-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: var(--color-accent); color: white; border-radius: 50%; font-size: 0.75rem; font-weight: bold; margin-right: 8px; }
+
+    /* Lists */
+    ul.ste-list, ol.ste-list { margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    ul.ste-list li, ol.ste-list li { margin-bottom: 0.4rem; }
+
+    /* Navigation footer */
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);
+      font-size: 0.9rem;
+    }
+    .nav-footer a { color: var(--color-accent); text-decoration: none; }
+    .nav-footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content, .breadcrumb { margin-left: 0; }
+      .content { padding: 1rem; }
+      .diff-container { flex-direction: column; }
+    }
+
+    /* Print */
+    @media print {
+      .sidebar, .breadcrumb, .nav-footer, .ste-banner { display: none; }
+      .content { margin-left: 0; max-width: 100%; }
+      .badge { border: 1px solid #999; }
+      details { open: true; }
+      details[open] summary { font-weight: bold; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Sidebar / Table of Contents -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Bookkeeping Docs</span>
+      </div>
+      <span class="badge badge-ste">STE</span>
+    </div>
+    <a href="#overview">1. System Overview</a>
+    <a href="#architecture">2. System Architecture</a>
+    <a href="#codeflow">3. Request Lifecycle and Code Flow</a>
+    <a href="#database">4. Database Structure and Prisma ORM</a>
+    <a href="#auth">5. Authentication: Sessions and JWT</a>
+    <a href="#idempotency">6. Transaction Idempotency</a>
+    <a href="#background">7. Background Tasks</a>
+    <a href="#frontend-api">8. Frontend and Backend Integration</a>
+    <a href="#run-locally">9. Procedure: Local Environment Setup</a>
+    <a href="#visualise">10. Procedure: System Inspection</a>
+    <a href="#api-reference">11. API Endpoints Reference</a>
+  </nav>
+
+  <!-- Top Breadcrumb Bar -->
+  <div class="breadcrumb">
+    <div class="breadcrumb-left">
+      <a href="index.html">Bookkeeping Application</a> &rsaquo;
+      <span>Architecture and Code Flow Manual</span>
+    </div>
+    <div class="breadcrumb-badges">
+      <a href="index.html" style="font-size: 0.8rem; margin-right: 6px;">View Standard Edition &rarr;</a>
+      <span class="badge badge-ste">ASD-STE100 ISSUE 8</span>
+      <span class="badge badge-resolved">PRODUCTION READY</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="content">
+
+    <!-- ASD-STE100 Specification Header Notice -->
+    <div class="ste-banner">
+      <div class="ste-banner-icon">ℹ</div>
+      <div>
+        <div class="ste-banner-title">ASD-STE100 SIMPLIFIED TECHNICAL ENGLISH SPECIFICATION</div>
+        <div class="ste-banner-text">
+          This document uses the international ASD-STE100 standard. Sentences are limited to a maximum of 20 words for procedures and 25 words for descriptions. Technical terminology uses controlled vocabulary, active voice, and sequential procedural steps.
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Overview -->
+    <section id="overview">
+      <h1>Bookkeeping Application &mdash; Architecture and Code Flow Manual</h1>
+      <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+        This manual describes the software architecture of the Bookkeeping application. It shows how the frontend, backend server, database, authentication system, and background tasks operate together.
+      </p>
+
+      <div class="kv-grid">
+        <div class="kv-item">
+          <div class="kv-label">Frontend</div>
+          <div class="kv-value">React 18 + Vite</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">Backend Server</div>
+          <div class="kv-value">Express 4.x (TypeScript)</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">Database and ORM</div>
+          <div class="kv-value">PostgreSQL + Prisma 5</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-label">Current Authentication</div>
+          <div class="kv-value">UUID Session Tokens</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0">Project Status and Readiness</h3>
+        <p>The backend software is complete and fully tested. It contains security controls for rate limits, cross-site scripting (XSS), cross-origin resource sharing (CORS), and transaction idempotency.</p>
+        <div class="progress-bar">
+          <div class="segment-resolved" style="width: 100%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 6px;">
+          <span>Database Schema &bull; Migrations &bull; Controllers &bull; Authentication &bull; Background Tasks</span>
+          <span style="font-weight: 600; color: var(--color-success);">Status: 100% Complete</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Architecture -->
+    <section id="architecture">
+      <h2>2. System Architecture</h2>
+      <p>The application uses a standard three-tier architecture with separate functional layers:</p>
+      
+      <figure class="diagram">
+        <div class="mermaid">
+flowchart TB
+  subgraph Client ["Client Tier (Web Browser / Pi Browser)"]
+    FE["React 18 + Vite SPA"]
+    Storage[("localStorage: bk_session_token")]
+    FE <--> Storage
+  end
+
+  subgraph Server ["Backend Tier (Node.js 20 + Express)"]
+    MW["Security and Middleware Pipeline<br/>Helmet • CORS • RateLimiter • BodyParser • Pino"]
+    Router["Express Route Handlers<br/>/api/users • /api/contacts • /api/transactions • /api/health"]
+    AuthMW["sessionAuth Middleware<br/>Bearer Token Extraction and Verification"]
+    Controllers["Controller Layer<br/>Users • Contacts • Transactions"]
+    Cron["Node-Cron Background Tasks<br/>Reconciliation and Session Cleanup"]
+    PrismaClient["Prisma Client v5<br/>Type-safe ORM and Raw SQL Queries"]
+    
+    MW --> Router
+    Router --> AuthMW
+    AuthMW --> Controllers
+    Controllers --> PrismaClient
+    Cron --> PrismaClient
+  end
+
+  subgraph Database ["Persistence Tier (PostgreSQL 17)"]
+    DB[("PostgreSQL Database")]
+    Tables["User • Session • Contact • Transaction"]
+    DB --- Tables
+  end
+
+  FE -->|"HTTPS / JSON<br/>Authorization: Bearer token"| MW
+  PrismaClient -->|"TCP Connection Pool<br/>(Prepared Statements and Migrations)"| DB
+        </div>
+        <figcaption>Figure 1: System topology of React frontend, Express backend, Prisma ORM, and PostgreSQL database</figcaption>
+      </figure>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Primary Files</th>
+            <th>Primary Function</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Client</strong></td>
+            <td><code>src/lib/api.ts</code>, <code>src/App.tsx</code></td>
+            <td>Controls the user interface. Sends HTTP requests with a stored Bearer token. Logs the user out if an HTTP 401 error occurs.</td>
+          </tr>
+          <tr>
+            <td><strong>API Gateway and Middleware</strong></td>
+            <td><code>backend/src/index.ts</code>, <code>backend/src/middleware/*</code></td>
+            <td>Applies security headers and CORS rules. Enforces rate limits (100 reads per minute, 30 writes per minute) and payload limits (100 KB). Catches runtime errors.</td>
+          </tr>
+          <tr>
+            <td><strong>Authentication Layer</strong></td>
+            <td><code>backend/src/middleware/auth.ts</code></td>
+            <td>Extracts the Bearer token from the HTTP request header. Verifies the session in the database and checks expiration. Attaches the user object to the request.</td>
+          </tr>
+          <tr>
+            <td><strong>Business Logic</strong></td>
+            <td><code>backend/src/controllers/*</code></td>
+            <td>Processes transactions and profile updates. Executes contact calculation queries and validates idempotency keys.</td>
+          </tr>
+          <tr>
+            <td><strong>ORM and Database</strong></td>
+            <td><code>backend/prisma/schema.prisma</code>, <code>backend/src/lib/prisma.ts</code></td>
+            <td>Defines database models and relation rules. Manages schema migrations and executes parameterized SQL queries.</td>
+          </tr>
+          <tr>
+            <td><strong>Background Tasks</strong></td>
+            <td><code>backend/src/jobs/reconciliation.ts</code></td>
+            <td>Runs every five minutes. Reconciles pending payment transactions and deletes expired sessions from the database.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Section 3: Backend Codeflow -->
+    <section id="codeflow">
+      <h2>3. Request Lifecycle and Code Flow</h2>
+      <p>Each HTTP request follows a defined path from the Express server to the database query and final JSON response.</p>
+
+      <figure class="diagram">
+        <div class="mermaid">
+sequenceDiagram
+  autonumber
+  actor User as Browser / Frontend
+  participant Express as Express (index.ts)
+  participant Rate as RateLimiter
+  participant Validate as Zod Validator
+  participant Auth as sessionAuth MW
+  participant Controller as Controller
+  participant Prisma as Prisma / Postgres
+  
+  User->>Express: POST /api/transactions (Bearer Token + JSON Payload)
+  Express->>Rate: Check IP address and write limits
+  alt Rate Limit Exceeded
+    Rate-->>User: 429 Too Many Requests
+  end
+  Rate->>Express: Limit verified
+  Express->>Auth: Verify Authorization header
+  Auth->>Prisma: prisma.session.findUnique({ where: { token } })
+  alt Token Invalid or Expired
+    Auth-->>User: 401 Unauthorized
+  end
+  Auth->>Express: Set req.user = session.user
+  Express->>Validate: Sanitize and validate body with Zod schema
+  alt Invalid Input Data
+    Validate-->>User: 400 Bad Request (Formatted Zod error)
+  end
+  Validate->>Controller: createTransaction(req, res, next)
+  Controller->>Prisma: 1. Check idempotencyKey<br/>2. Verify contactId ownership<br/>3. prisma.transaction.create()
+  Prisma-->>Controller: Return created record (Decimal amount)
+  Controller-->>User: 201 Created { transaction: serializedData }
+        </div>
+        <figcaption>Figure 2: Processing sequence for an authenticated write request</figcaption>
+      </figure>
+
+      <h3>Architecture Components</h3>
+      <ul class="ste-list">
+        <li><strong>Application Entry Point (<code>backend/src/index.ts</code>)</strong>: Initializes the Express application. Loads security middleware, mounts route handlers, and listens on network port 3001. Catches SIGINT and SIGTERM signals for graceful process termination.</li>
+        <li><strong>Configuration Loader (<code>backend/src/lib/config.ts</code>)</strong>: Verifies required environment variables during startup. The server stops immediately if required variables like <code>DATABASE_URL</code> are missing.</li>
+        <li><strong>Request Validation (<code>backend/src/middleware/validate.ts</code>)</strong>: Validates request data against Zod schemas. Removes dangerous HTML tags with the <code>xss</code> library to prevent stored Cross-Site Scripting (XSS) attacks.</li>
+        <li><strong>Data Serializers (<code>backend/src/lib/serializers.ts</code>)</strong>: Converts internal Prisma data objects into standard JSON numbers and strings. This maintains data compatibility with the React frontend.</li>
+      </ul>
+    </section>
+
+    <!-- Section 4: Database & Prisma -->
+    <section id="database">
+      <h2>4. Database Structure and Prisma ORM</h2>
+      <p>The persistence layer uses PostgreSQL and the Prisma 5 Object-Relational Mapper. The database schema maintains data integrity through foreign keys, cascade delete rules, and unique constraints.</p>
+
+      <figure class="diagram">
+        <div class="mermaid">
+erDiagram
+  User ||--o{ Session : "has many"
+  User ||--o{ Contact : "owns"
+  User ||--o{ Transaction : "performs"
+  Contact ||--o{ Transaction : "referenced in (onDelete: SetNull)"
+
+  User {
+    string id PK "cuid"
+    string piWalletAddress UK "Unique Pi Wallet"
+    string piUsername UK "Optional username"
+    string displayName "Display Name"
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Session {
+    string id PK "cuid"
+    string token UK "UUID Session Token"
+    string userId FK "References User.id (CASCADE)"
+    datetime expiresAt "TTL: 24 Hours"
+    datetime createdAt
+  }
+
+  Contact {
+    string id PK "cuid"
+    string name "Contact Name"
+    string category "individual | business"
+    string piWalletAddress "Target wallet"
+    string userId FK "References User.id (CASCADE)"
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Transaction {
+    string id PK "cuid"
+    string description "Payment reason"
+    decimal amount "Decimal(18, 7) high precision"
+    string type "credit | debit"
+    string source "manual | pi_network"
+    string idempotencyKey UK "Unique request token"
+    string status "completed | pending | failed"
+    datetime deletedAt "Soft delete timestamp"
+    string userId FK "References User.id (CASCADE)"
+    string contactId FK "References Contact.id (SET NULL)"
+  }
+        </div>
+        <figcaption>Figure 3: Entity relationship diagram with relation constraints</figcaption>
+      </figure>
+
+      <h3>Key Database Design Rules</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Design Rule</th>
+            <th>Implementation</th>
+            <th>Technical Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Currency Precision</strong></td>
+            <td><code>Decimal(18, 7)</code></td>
+            <td>Standard floating-point numbers cause rounding errors. The <code>Decimal(18, 7)</code> type maintains seven exact decimal places for cryptocurrency micro-transactions.</td>
+          </tr>
+          <tr>
+            <td><strong>Soft Deletion</strong></td>
+            <td><code>deletedAt DateTime?</code></td>
+            <td>When a user deletes a transaction, the database does not remove the row. The system records a timestamp in <code>deletedAt</code>. This action preserves the audit record.</td>
+          </tr>
+          <tr>
+            <td><strong>Contact Foreign Key Rule</strong></td>
+            <td><code>onDelete: SetNull</code></td>
+            <td>The deletion of a contact does not delete associated transactions. The database sets <code>contactId</code> to null. This rule keeps wallet balance records accurate.</td>
+          </tr>
+          <tr>
+            <td><strong>Single-Query Grouping</strong></td>
+            <td><code>$queryRaw</code> with <code>LEFT JOIN</code></td>
+            <td>Prevents N+1 database query issues. When listing contacts, the database engine calculates total credits, debits, and latest timestamps in one SQL query.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <details class="collapsible">
+        <summary><span>View Contact Calculation SQL Query</span> <span class="badge badge-resolved">OPTIMIZED</span></summary>
+        <div class="collapsible-content">
+          <pre class="code-block"><code class="language-sql">SELECT
+  c.id, c.name, c.category, c."piWalletAddress", c."userId",
+  c."createdAt", c."updatedAt",
+  COALESCE(SUM(CASE WHEN t.type = 'credit' THEN t.amount ELSE 0 END), 0)::float AS "totalCredit",
+  COALESCE(SUM(CASE WHEN t.type = 'debit'  THEN t.amount ELSE 0 END), 0)::float AS "totalDebit",
+  MAX(t.timestamp) AS "lastSeen"
+FROM "Contact" c
+LEFT JOIN "Transaction" t
+  ON t."contactId" = c.id
+  AND t."userId" = ${userId}
+  AND t."deletedAt" IS NULL
+WHERE c."userId" = ${userId}
+GROUP BY c.id
+ORDER BY "lastSeen" DESC NULLS LAST, c."createdAt" DESC;</code></pre>
+        </div>
+      </details>
+    </section>
+
+    <!-- Section 5: Auth: Sessions & JWT -->
+    <section id="auth">
+      <h2>5. Authentication: Sessions and JSON Web Tokens</h2>
+      <p>The authentication architecture includes two implementation phases. Phase 1 through Phase 3 uses database session tokens. Phase 4 will use Pi Network OAuth and JSON Web Tokens (JWT).</p>
+
+      <figure class="diagram">
+        <div class="mermaid">
+sequenceDiagram
+  autonumber
+  actor User as User / Pi Browser
+  participant FE as React Frontend
+  participant Server as Express API
+  participant DB as Postgres (Session Table)
+
+  Note over User,DB: Phase 1 through Phase 3: Session Token Authentication
+  User->>FE: Connect Pi Wallet Address
+  FE->>Server: GET /api/users/:walletAddress
+  Server->>DB: User.upsert(piWalletAddress)
+  Server->>DB: Session.create(token: UUID, expiresAt: +24h)
+  Server-->>FE: Return user, sessionToken, expiresAt
+  FE->>FE: Save token to localStorage (bk_session_token)
+
+  Note over User,DB: Authenticated Request Processing
+  FE->>Server: GET /api/transactions (Header: Authorization Bearer token)
+  Server->>DB: Query Session record by token
+  alt Session Is Valid and Active
+    Server-->>FE: 200 OK (User Data)
+  else Session Has Expired
+    Server->>DB: Delete expired session record
+    Server-->>FE: 401 Unauthorized (Redirect to login)
+  end
+        </div>
+        <figcaption>Figure 4: Authentication sequence with session tokens</figcaption>
+      </figure>
+
+      <div class="diff-container">
+        <div class="diff-before">
+          <h4>Phase 1 to Phase 3: State-Backed Session Tokens</h4>
+          <ul class="ste-list" style="font-size: 0.88rem;">
+            <li>Generates a random UUID with Node.js <code>crypto.randomUUID()</code>.</li>
+            <li>Stores session records in the database <code>Session</code> table.</li>
+            <li>Enables immediate session revocation by deleting the database record.</li>
+            <li>Requires no client secrets or hard-coded application keys.</li>
+          </ul>
+        </div>
+        <div class="diff-after">
+          <h4>Phase 4: Pi Network OAuth and JSON Web Tokens</h4>
+          <ul class="ste-list" style="font-size: 0.88rem;">
+            <li>User authenticates through the official Pi SDK (<code>Pi.authenticate</code>).</li>
+            <li>The backend server verifies the access token with Pi Core servers.</li>
+            <li>The server creates a stateless JSON Web Token signed with <code>JWT_SECRET</code>.</li>
+            <li>The authentication middleware changes, but API routes remain unchanged.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Idempotency -->
+    <section id="idempotency">
+      <h2>6. Transaction Idempotency and Ledger Protection</h2>
+      <p>Financial ledger accuracy is critical. Network timeouts or duplicate user clicks can cause duplicate submissions. The backend system uses idempotency keys to prevent duplicate transactions.</p>
+
+      <figure class="diagram">
+        <div class="mermaid">
+flowchart TD
+  Req["Incoming POST /api/transactions"] --> CheckKey{"Is idempotencyKey<br/>in database?"}
+  CheckKey -->|"Yes (Record exists)"| VerifyOwner{"Does key belong<br/>to current user?"}
+  VerifyOwner -->|Yes| ReturnExisting["Return Existing Transaction<br/>HTTP 200 (idempotent: true)"]
+  VerifyOwner -->|"No (Key collision)"| ErrorConflict["HTTP 409 Conflict<br/>Key is used by another user"]
+  
+  CheckKey -->|"No (New key)"| VerifyContact{"Is contactId<br/>provided?"}
+  VerifyContact -->|Yes| CheckContactOwner{"Does contact belong<br/>to current user?"}
+  CheckContactOwner -->|No| ErrorNotFound["HTTP 404 Contact Not Found"]
+  CheckContactOwner -->|Yes| CreateTx["Execute prisma.transaction.create()"]
+  VerifyContact -->|No| CreateTx
+  
+  CreateTx --> RaceCatch{"Race condition<br/>P2002 error?"}
+  RaceCatch -->|Yes| ReturnExisting
+  RaceCatch -->|No| ReturnCreated["HTTP 201 Created"]
+        </div>
+        <figcaption>Figure 5: Logic flow for idempotency validation and race condition handling</figcaption>
+      </figure>
+
+      <div class="card">
+        <h4>Defense Against Duplicate Submissions and Race Conditions</h4>
+        <p>If two identical write requests arrive at the same time, the server processes them in this sequence:</p>
+        <ol class="ste-list" style="font-size: 0.9rem;">
+          <li>Both requests pass the initial <code>findUnique</code> query before database write operations start.</li>
+          <li>The first request successfully commits to the PostgreSQL database.</li>
+          <li>The second request violates the unique constraint on <code>idempotencyKey</code>. Prisma returns error code <code>P2002</code>.</li>
+          <li>The transaction controller catches error <code>P2002</code> and loads the existing transaction record.</li>
+          <li>The server returns HTTP status <code>200 OK</code> with the property <code>idempotent: true</code>. Duplicate transactions do not occur.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Section 7: Background Jobs -->
+    <section id="background">
+      <h2>7. Background Tasks: Reconciliation and Maintenance</h2>
+      <p>The background scheduler in <code>backend/src/jobs/reconciliation.ts</code> runs every five minutes in production mode.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Task Routine</th>
+            <th>Trigger Interval</th>
+            <th>Actions Performed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Pass 1: Expired Pending Transactions</strong></td>
+            <td>Every 5 minutes (<code>*/5 * * * *</code>)</td>
+            <td>Finds transactions in <code>pending</code> status where <code>expiresAt</code> is earlier than current time. Queries the payment gateway and changes status to <code>completed</code> or <code>expired</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Pass 2: Late Confirmations</strong></td>
+            <td>Every 5 minutes (<code>*/5 * * * *</code>)</td>
+            <td>Scans transactions marked <code>expired</code> during the past 60 minutes. If payment confirmation arrived late on the network, updates status to <code>completed</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Session Table Maintenance</strong></td>
+            <td>Every 5 minutes (<code>*/5 * * * *</code>)</td>
+            <td>Runs <code>deleteMany</code> on the <code>Session</code> table for records where <code>expiresAt</code> is earlier than current time. This keeps table size small and search speed fast.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Section 8: Frontend-Backend Bridge -->
+    <section id="frontend-api">
+      <h2>8. Frontend and Backend Integration</h2>
+      <p>The React frontend communicates with the backend API through the typed client module in <code>src/lib/api.ts</code>.</p>
+
+      <pre class="code-block"><code class="language-typescript">// Example of authenticated API requests from the frontend client
+import { auth, contactsApi, transactionsApi, usersApi } from "@/lib/api";
+
+// 1. Connect wallet and save session token
+const { sessionToken } = await usersApi.login("GDEMO123...");
+auth.setToken(sessionToken);
+
+// 2. Fetch contact records (appends "Authorization: Bearer <sessionToken>")
+const { data: contacts } = await contactsApi.list();
+
+// 3. Create a transaction record with a unique idempotency key
+const newTransaction = await transactionsApi.create({
+  description: "Coffee Payment",
+  amount: 2.5,
+  type: "debit",
+  contactId: contacts[0]?.id,
+  idempotencyKey: crypto.randomUUID()
+});</code></pre>
+    </section>
+
+    <!-- Section 9: How to Run Locally -->
+    <section id="run-locally">
+      <h2>9. Procedure: Local Environment Setup</h2>
+      <p>Follow these steps to configure and start the application on a local machine:</p>
+
+      <div class="card">
+        <h4><span class="step-num">1</span> Start the PostgreSQL Service</h4>
+        <p>Start the PostgreSQL 17 service on macOS:</p>
+        <pre class="code-block"><code class="language-bash">brew services start postgresql@17</code></pre>
+        <div class="notice notice-note">
+          <div><strong>NOTE:</strong> If the Homebrew service command fails, start PostgreSQL directly with pg_ctl:</div>
+        </div>
+        <pre class="code-block"><code class="language-bash">pg_ctl -D /opt/homebrew/var/postgresql@17 -l /opt/homebrew/var/log/postgresql@17.log start</code></pre>
+      </div>
+
+      <div class="card">
+        <h4><span class="step-num">2</span> Verify Environment Configuration Files</h4>
+        <p>Make sure that both environment configuration files exist in the project:</p>
+        <p style="margin-top: 0.5rem;"><strong>Frontend environment file (<code>.env.local</code>):</strong></p>
+        <pre class="code-block"><code class="language-env">VITE_API_URL=http://localhost:3001</code></pre>
+        <p style="margin-top: 0.5rem;"><strong>Backend environment file (<code>backend/.env</code>):</strong></p>
+        <pre class="code-block"><code class="language-env">DATABASE_URL="postgresql://postgres:password@localhost:5432/bookkeeping?connection_limit=5&pool_timeout=10"
+PORT=3001
+NODE_ENV=development
+CORS_ORIGIN="http://localhost:5173,http://localhost:3000"
+LOG_LEVEL=info
+JWT_SECRET="dev-secret-change-in-phase-4"</code></pre>
+      </div>
+
+      <div class="card">
+        <h4><span class="step-num">3</span> Execute Database Migrations and Seed Data</h4>
+        <p>Apply database migrations to create tables. Optionally insert sample records:</p>
+        <pre class="code-block"><code class="language-bash">cd backend
+
+# Execute database migrations
+npx prisma migrate dev --name init
+
+# (Optional) Seed the database with sample data
+npm run db:seed</code></pre>
+      </div>
+
+      <div class="card">
+        <h4><span class="step-num">4</span> Start the Backend Server</h4>
+        <p>Open a terminal window. Start the Node.js backend server:</p>
+        <pre class="code-block"><code class="language-bash">cd backend
+npm run dev
+
+# Console output:
+# 🚀 Bookkeeping API running on port 3001 (development)</code></pre>
+      </div>
+
+      <div class="card">
+        <h4><span class="step-num">5</span> Start the Frontend Application</h4>
+        <p>Open a second terminal window. Start the Vite development server:</p>
+        <pre class="code-block"><code class="language-bash"># In project root directory
+npm run dev
+
+# Open http://localhost:3000 in your web browser</code></pre>
+      </div>
+    </section>
+
+    <!-- Section 10: Visualise & Inspect -->
+    <section id="visualise">
+      <h2>10. Procedure: System Inspection and Verification</h2>
+      <p>Use these tools and procedures to inspect and verify the backend system in real time:</p>
+
+      <div class="card">
+        <h4>Inspect Database Records with Prisma Studio</h4>
+        <p>Prisma Studio provides a graphical browser interface to view and edit database records.</p>
+        <pre class="code-block"><code class="language-bash">cd backend
+npx prisma studio</code></pre>
+        <p>Open <a href="http://localhost:5555" target="_blank">http://localhost:5555</a> in your web browser. Inspect the <strong>User</strong>, <strong>Session</strong>, <strong>Contact</strong>, and <strong>Transaction</strong> tables.</p>
+      </div>
+
+      <div class="card">
+        <h4>Inspect Application Logs</h4>
+        <p>The development server formats logs with the <code>pino-pretty</code> tool in real time. The log output shows HTTP methods, status codes, query duration, and background task execution.</p>
+        <pre class="code-block"><code class="language-text">[19:15:30.123] INFO (24810): 🚀 Bookkeeping API running on port 3001 (development)
+[19:15:35.400] INFO (24810): request completed: GET /api/users/GDEMO123 200 in 12ms
+[19:15:40.850] INFO (24810): request completed: POST /api/transactions 201 in 28ms</code></pre>
+      </div>
+
+      <div class="card">
+        <h4>Verify API Endpoints with cURL</h4>
+        <p>Test API endpoints from the command terminal:</p>
+        <pre class="code-block"><code class="language-bash"># 1. Test system health
+curl http://localhost:3001/api/health
+
+# 2. Login user (upserts user record and creates a session)
+curl http://localhost:3001/api/users/GDEMOWALLET1234567890
+
+# 3. Test authorized request (replace <TOKEN> with sessionToken from step 2)
+curl -H "Authorization: Bearer <TOKEN>" http://localhost:3001/api/transactions/summary</code></pre>
+      </div>
+    </section>
+
+    <!-- Section 11: API Endpoints Cheat Sheet -->
+    <section id="api-reference">
+      <h2>11. API Endpoints Reference</h2>
+      <p>This table lists all available HTTP endpoints in the backend application:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Route</th>
+            <th>Authentication</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/health</code></td>
+            <td><span class="badge badge-minor">Public</span></td>
+            <td>Returns server uptime and database connection status.</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/users/:walletAddress</code></td>
+            <td><span class="badge badge-minor">Public</span></td>
+            <td>Finds or creates a user. Creates a 24-hour session and returns the session token.</td>
+          </tr>
+          <tr>
+            <td><code>PUT</code></td>
+            <td><code>/api/users/:walletAddress</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Updates the user display name. Verifies wallet ownership.</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/contacts</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Returns user contacts with calculated credit and debit sums.</td>
+          </tr>
+          <tr>
+            <td><code>POST</code></td>
+            <td><code>/api/contacts</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Creates a new contact record. Verifies unique wallet address per user.</td>
+          </tr>
+          <tr>
+            <td><code>PUT</code></td>
+            <td><code>/api/contacts/:id</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Updates contact name or category.</td>
+          </tr>
+          <tr>
+            <td><code>DELETE</code></td>
+            <td><code>/api/contacts/:id</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Deletes the contact. Associated transactions remain with <code>contactId</code> set to null.</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/transactions</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Returns paginated transaction records with type, contact, and date filters.</td>
+          </tr>
+          <tr>
+            <td><code>POST</code></td>
+            <td><code>/api/transactions</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Creates a new transaction. Requires a unique <code>idempotencyKey</code> value.</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/transactions/summary</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Calculates total credit, total debit, and net balance in one query.</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/transactions/contact/:contactId</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Returns all ledger transactions for a specified contact.</td>
+          </tr>
+          <tr>
+            <td><code>DELETE</code></td>
+            <td><code>/api/transactions/:id</code></td>
+            <td><span class="badge badge-in-progress">Bearer</span></td>
+            <td>Applies soft deletion to the transaction by setting the <code>deletedAt</code> timestamp.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Navigation Footer -->
+    <div class="nav-footer">
+      <div>
+        <strong>Bookkeeping Architecture Manual</strong> &bull; Conforms to ASD-STE100 Issue 8 Specification
+      </div>
+      <div>
+        <a href="#overview">&uarr; Back to Top</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Prism Syntax Highlighter JS -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+
+  <!-- Scroll-spy script -->
+  <script>
+    const sections = document.querySelectorAll('section[id]');
+    const tocLinks = document.querySelectorAll('.sidebar a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) {
+          current = s.id;
+        }
+      });
+      tocLinks.forEach(l => {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+      });
+    });
+  </script>
+</body>
+</html>

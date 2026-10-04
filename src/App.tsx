@@ -105,10 +105,9 @@ function AppContent() {
       await bk.login(address);
       setIsGuest(false);
       setCurrentScreen("dashboard");
-    } catch {
-      // Backend offline or validation failed — fall back to local guest-like mode with no contacts
-      setIsGuest(false);
-      setCurrentScreen("dashboard");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to connect to backend server";
+      setWalletLoginError(msg);
     } finally {
       setWalletLoginLoading(false);
     }
@@ -138,8 +137,23 @@ function AppContent() {
     setCurrentScreen("customerLedger");
   };
 
-  const handlePaymentSuccess = (customerName: string, newTx: Transaction) => {
+  const handlePaymentSuccess = async (customerName: string, newTx: Transaction) => {
     if (!customerName) return;
+    if (bk.isAuthenticated) {
+      const matchingContact = contacts.find(
+        (c) => c.name.toLowerCase() === customerName.toLowerCase()
+      );
+      try {
+        await bk.addTransaction({
+          description: newTx.description,
+          amount: newTx.amount,
+          type: newTx.type,
+          contactId: matchingContact?.id,
+        });
+      } catch (e) {
+        console.error("Failed to save payment transaction to database:", e);
+      }
+    }
     setPendingNewTransactions((prev) => ({
       ...prev,
       [customerName]: [newTx, ...(prev[customerName] || [])],
@@ -296,8 +310,27 @@ function AppContent() {
       <>
         <AddEntry
           onBack={handleBackToDashboard}
-          onSuccess={(contactName, newTransaction) => {
-            handleNavigateToCustomerLedger(contactName, undefined, newTransaction ? [newTransaction] : undefined);
+          onSuccess={async (contactName, newTransaction) => {
+            let savedContactId: string | undefined = undefined;
+            if (bk.isAuthenticated && newTransaction) {
+              const matchingContact = contacts.find(
+                (c) => c.name.toLowerCase() === contactName.toLowerCase()
+              );
+              if (matchingContact) {
+                savedContactId = matchingContact.id;
+                try {
+                  await bk.addTransaction({
+                    description: newTransaction.description,
+                    amount: newTransaction.amount,
+                    type: newTransaction.type,
+                    contactId: matchingContact.id,
+                  });
+                } catch (e) {
+                  console.error("Failed to save entry to database:", e);
+                }
+              }
+            }
+            handleNavigateToCustomerLedger(contactName, savedContactId, newTransaction ? [newTransaction] : undefined);
           }}
           contacts={contactNames}
         />

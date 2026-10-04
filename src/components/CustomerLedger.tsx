@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { Transaction, sortTransactionsDescending } from "../types";
-import { transactionsApi } from "../lib/api";
+import { auth, transactionsApi } from "../lib/api";
 
 interface CustomerLedgerProps {
   customerName: string;
@@ -128,6 +128,18 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
     };
     setTransactions((prev) => sortTransactionsDescending([newTransaction, ...prev]));
     setIsModalOpen(false);
+
+    if (contactId && auth.getToken()) {
+      transactionsApi.create({
+        description: entry.note.slice(0, 100) || `${entry.type === "credit" ? "Credit" : "Debit"} Entry`,
+        amount: entry.amount,
+        type: entry.type,
+        contactId,
+        idempotencyKey: crypto.randomUUID(),
+      }).catch((err) => {
+        console.error("Failed to save ledger transaction to database:", err);
+      });
+    }
   };
 
   const handleSettleBalance = () => {
