@@ -41,6 +41,15 @@ export function errorHandler(
         });
         return;
       }
+      case "P2021": {
+        // Table does not exist
+        const table = err.meta?.table as string | undefined;
+        res.status(500).json({
+          error: "DATABASE_TABLE_MISSING",
+          message: `Database table ${table ?? ""} does not exist. Prisma migrations must be run.`,
+        });
+        return;
+      }
       default:
         break;
     }
@@ -62,7 +71,7 @@ export function errorHandler(
   logger.error({ err }, "Unhandled error");
   res.status(500).json({
     error: "INTERNAL_ERROR",
-    message: "An unexpected error occurred",
+    message: err instanceof Error ? err.message : "An unexpected error occurred",
   });
 }
 
