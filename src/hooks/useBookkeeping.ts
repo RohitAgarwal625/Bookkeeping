@@ -55,27 +55,6 @@ export function useBookkeeping() {
     else setError("Something went wrong");
   }, []);
 
-  /** Log in (upsert user + create session). */
-  const login = useCallback(
-    async (walletAddress: string) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await usersApi.login(walletAddress);
-        auth.setToken(res.sessionToken);
-        auth.setWallet(walletAddress);
-        setUser(res.user);
-        return res.user;
-      } catch (err) {
-        handleError(err);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [handleError]
-  );
-
   const logout = useCallback(() => {
     auth.clearAll();
     setUser(null);
@@ -112,6 +91,28 @@ export function useBookkeeping() {
     await Promise.all([refreshContacts(), refreshSummary()]);
     setLoading(false);
   }, [refreshContacts, refreshSummary]);
+
+  /** Log in (upsert user + create session + fetch all data). */
+  const login = useCallback(
+    async (walletAddress: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await usersApi.login(walletAddress);
+        auth.setToken(res.sessionToken);
+        auth.setWallet(walletAddress);
+        setUser(res.user);
+        await refreshAll();
+        return res.user;
+      } catch (err) {
+        handleError(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [handleError, refreshAll]
+  );
 
   const addContact = useCallback(
     async (input: CreateContactInput): Promise<Contact> => {
