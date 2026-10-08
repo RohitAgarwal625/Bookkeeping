@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
@@ -63,6 +63,49 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function LoginLogoTitle() {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const [logoWidth, setLogoWidth] = useState<number>(178);
+
+  useEffect(() => {
+    if (!titleRef.current) return;
+    const updateSize = () => {
+      if (titleRef.current) {
+        const textWidth = titleRef.current.offsetWidth;
+        if (textWidth > 0) {
+          // Scale so the visible book inside logo.svg (x: 66.1 to 913.9 out of 978.7) starts at 'B' and ends at 'g'
+          setLogoWidth(textWidth * (978.667 / 847.786));
+        }
+      }
+    };
+
+    updateSize();
+    if (document.fonts) {
+      document.fonts.ready.then(updateSize);
+    }
+    const ro = new ResizeObserver(updateSize);
+    ro.observe(titleRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div className="logo-title-container" style={{ marginTop: "16vh", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+      <img
+        src={bookLogo}
+        alt="Bookkeeping Logo"
+        style={{ width: `${logoWidth}px`, height: "auto" }}
+        className="object-contain drop-shadow-md"
+      />
+      <h1
+        ref={titleRef}
+        className="text-gray-900 dark:text-foreground text-2xl font-bold text-center inline-block"
+      >
+        Bookkeeping
+      </h1>
     </div>
   );
 }
@@ -457,14 +500,7 @@ function AppContent() {
       <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
 
         {/* Group 1 & 2: Logo + Title — zoom-out animation first */}
-        <div className="logo-title-container" style={{ marginTop: "18vh", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-          <img
-            src={bookLogo}
-            alt="Bookkeeping Logo"
-            className="w-20 h-20 object-contain drop-shadow-md"
-          />
-          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
-        </div>
+        <LoginLogoTitle />
 
         {/* Component 3: Tagline — separate, starts after logo zoom-out finishes */}
         <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
