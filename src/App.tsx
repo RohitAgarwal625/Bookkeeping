@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
-import bookLogo from "./assets/Book_final.png";
+import bookLogo from "./assets/logo.svg";
 import { Dashboard } from "./components/Dashboard";
 import { AddCustomer } from "./components/AddCustomer";
 import { CustomerLedger } from "./components/CustomerLedger";
