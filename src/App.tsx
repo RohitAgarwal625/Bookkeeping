@@ -21,6 +21,7 @@ import { BottomNav } from "./components/BottomNav";
 import { Contact, Transaction } from "./types";
 import { useBookkeeping } from "./hooks/useBookkeeping";
 import { contactsApi } from "./lib/api";
+import { signInWithPi, type PiSession } from "./lib/piAuth";
 
 
 type Screen =
@@ -73,12 +74,13 @@ function AppContent() {
   const bk = useBookkeeping();
 
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
-  const [userName] = useState("Pioneer User");
+  // Pi-verified session (uid + username from App Studio — never from the browser)
+  const [piSession, setPiSession] = useState<PiSession | null>(null);
+  const userName = piSession?.user.username ?? "Pioneer User";
   const [piBalance] = useState("370.20");
   const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
-  const [walletInput, setWalletInput] = useState("");
-  const [walletLoginLoading, setWalletLoginLoading] = useState(false);
-  const [walletLoginError, setWalletLoginError] = useState<string | null>(null);
+  const [piSignInLoading, setPiSignInLoading] = useState(false);
+  const [piSignInError, setPiSignInError] = useState<string | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
   const [selectedContactId, setSelectedContactId] = useState<string | undefined>(undefined);
   const [selectedCategory, setSelectedCategory] = useState<"individual" | "business">("individual");
@@ -93,23 +95,32 @@ function AppContent() {
   const [isGuest, setIsGuest] = useState(false);
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
 
-  const handleConnectWallet = async () => {
-    const address = walletInput.trim();
-    if (!address) {
-      setWalletLoginError("Please enter your Pi Wallet address");
-      return;
-    }
-    setWalletLoginLoading(true);
-    setWalletLoginError(null);
+  /**
+   * Pi Network sign-in:
+   *   1. Pi.init({ version: "2.0" })
+   *   2. Pi.authenticate(["username"], onIncompletePaymentFound)
+   *   3. POST accessToken → App Studio → receive verified sessionToken + uid + username
+   *   4. Use App Studio uid/username as the user's identity (never the browser-supplied values)
+   */
+  const handlePiSignIn = async () => {
+    setPiSignInLoading(true);
+    setPiSignInError(null);
     try {
-      await bk.login(address);
+      const session = await signInWithPi();
+      setPiSession(session);
+      // Log in to the bookkeeping backend using the App-Studio-verified uid
+      try {
+        await bk.login(session.user.uid);
+      } catch {
+        // Backend login is best-effort; the app still works in local mode
+      }
       setIsGuest(false);
       setCurrentScreen("dashboard");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to connect to backend server";
-      setWalletLoginError(msg);
+      const msg = err instanceof Error ? err.message : "Pi sign-in failed";
+      setPiSignInError(msg);
     } finally {
-      setWalletLoginLoading(false);
+      setPiSignInLoading(false);
     }
   };
 
@@ -227,6 +238,7 @@ function AppContent() {
 
   const handleLogout = () => {
     bk.logout();
+    setPiSession(null);
     setIsGuest(false);
     setLocalContacts([]);
     setCurrentScreen("login");
@@ -563,31 +575,27 @@ function AppContent() {
           </p>
         </div>
 
-        {/* Group 4 & 5: Wallet input + CTA buttons */}
+        {/* Group 4 & 5: Sign-in buttons */}
         <div style={{ marginTop: "56px", width: "100%", display: "flex", flexDirection: "column", gap: "16px" }}>
-          {/* Wallet address input */}
-          <div className="relative">
-            <input
-              type="text"
-              value={walletInput}
-              onChange={(e) => { setWalletInput(e.target.value); setWalletLoginError(null); }}
-              onKeyDown={(e) => { if (e.key === "Enter") void handleConnectWallet(); }}
-              placeholder="Enter Pi Wallet Address"
-              className="w-full px-5 py-4 rounded-full bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
-            />
-          </div>
-          {walletLoginError && (
-            <p className="text-red-500 text-xs text-center -mt-2">{walletLoginError}</p>
+          {/* Pi Network sign-in (Step 1 + Step 2 via App Studio) */}
+          {piSignInError && (
+            <p className="text-red-500 text-xs text-center">{piSignInError}</p>
           )}
           <button
-            onClick={() => void handleConnectWallet()}
-            disabled={walletLoginLoading}
-            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-60"
+            id="btn-pi-sign-in"
+            onClick={() => void handlePiSignIn()}
+            disabled={piSignInLoading}
+            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-60 flex items-center justify-center gap-3"
             style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
           >
-            {walletLoginLoading ? "Connecting..." : "Connect Pi Wallet"}
+            {/* Pi symbol */}
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <text x="12" y="13" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="20" fontWeight="bold" fontFamily="serif">π</text>
+            </svg>
+            {piSignInLoading ? "Signing in…" : "Sign in with Pi"}
           </button>
           <button
+            id="btn-guest-login"
             onClick={handleGuestLogin}
             className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
             style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
