@@ -70,18 +70,6 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
   );
 }
 
-function LoginLogoTitle() {
-  return (
-    <div className="logo-title-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-      <h1
-        className="text-gray-900 dark:text-foreground text-2xl font-bold text-center inline-block"
-      >
-        Bookkeeping
-      </h1>
-    </div>
-  );
-}
-
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
   const [userName, setUserName] = useState("Pioneer User");
@@ -531,21 +519,21 @@ function AppContent() {
           animation: pen-appear-slide 2.2s cubic-bezier(0.4, 0, 0.2, 1) 1.2s forwards;
         }
       `}</style>
-      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
 
         {/* Section 1: Large Logo at top with spacing */}
-        <div style={{ paddingTop: "6vh", display: "flex", justifyContent: "center", width: "100%" }}>
+        <div style={{ paddingTop: "52px", display: "flex", justifyContent: "center", width: "100%" }}>
           <img
             src={bookLogo}
             alt="Bookkeeping Logo"
-            style={{ width: "80%", maxWidth: "360px", height: "auto" }}
+            style={{ width: "300px", maxWidth: "100%", height: "auto" }}
             className="object-contain drop-shadow-md logo-title-container"
           />
         </div>
 
         {/* Section 2: Title + Tagline — vertically centered in remaining space */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
-          <LoginLogoTitle />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", padding: "20px 0" }}>
+          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
           {/* Tagline */}
           <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
@@ -564,7 +552,7 @@ function AppContent() {
         </div>
 
         {/* Section 3: CTA buttons pushed to bottom */}
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "6vh" }}>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px", paddingBottom: "28px" }}>
           <button
             onClick={() => void handleConnectWallet()}
             disabled={piAuthLoading}
@@ -592,7 +580,7 @@ function AppContent() {
             Continue as Guest
           </button>
           {/* Footer links */}
-          <div style={{ paddingTop: "12px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
+          <div style={{ paddingTop: "14px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
             <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
             <span>•</span>
             <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
