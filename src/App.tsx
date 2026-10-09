@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
@@ -68,40 +68,9 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
 }
 
 function LoginLogoTitle() {
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const [logoWidth, setLogoWidth] = useState<number>(178);
-
-  useEffect(() => {
-    if (!titleRef.current) return;
-    const updateSize = () => {
-      if (titleRef.current) {
-        const textWidth = titleRef.current.offsetWidth;
-        if (textWidth > 0) {
-          // Scale so the visible book inside logo.svg (x: 66.1 to 913.9 out of 978.7) starts at 'B' and ends at 'g'
-          setLogoWidth(textWidth * (978.667 / 847.786));
-        }
-      }
-    };
-
-    updateSize();
-    if (document.fonts) {
-      document.fonts.ready.then(updateSize);
-    }
-    const ro = new ResizeObserver(updateSize);
-    ro.observe(titleRef.current);
-    return () => ro.disconnect();
-  }, []);
-
   return (
-    <div className="logo-title-container" style={{ marginTop: "16vh", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-      <img
-        src={bookLogo}
-        alt="Bookkeeping Logo"
-        style={{ width: `${logoWidth}px`, height: "auto" }}
-        className="object-contain drop-shadow-md"
-      />
+    <div className="logo-title-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
       <h1
-        ref={titleRef}
         className="text-gray-900 dark:text-foreground text-2xl font-bold text-center inline-block"
       >
         Bookkeeping
@@ -499,27 +468,38 @@ function AppContent() {
       `}</style>
       <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
 
-        {/* Group 1 & 2: Logo + Title — zoom-out animation first */}
-        <LoginLogoTitle />
-
-        {/* Component 3: Tagline — separate, starts after logo zoom-out finishes */}
-        <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
-            <span className="write-container">
-              <span className="write-text">for the bookkeeper in you...</span>
-              <span className="write-pen-wrapper">
-                <img
-                  src={penFeatherIcon}
-                  alt=""
-                  style={{ width: "2.8rem", height: "2.8rem", minWidth: "2.8rem", minHeight: "2.8rem", maxWidth: "2.8rem", maxHeight: "2.8rem", objectFit: "contain", flexShrink: 0 }}
-                />
-              </span>
-            </span>
-          </p>
+        {/* Section 1: Large Logo at top with spacing */}
+        <div style={{ paddingTop: "6vh", display: "flex", justifyContent: "center", width: "100%" }}>
+          <img
+            src={bookLogo}
+            alt="Bookkeeping Logo"
+            style={{ width: "80%", maxWidth: "360px", height: "auto" }}
+            className="object-contain drop-shadow-md logo-title-container"
+          />
         </div>
 
-        {/* Group 4 & 5: CTA buttons — with increased padding between them */}
-        <div style={{ marginTop: "56px", width: "100%", display: "flex", flexDirection: "column", gap: "32px" }}>
+        {/* Section 2: Title + Tagline — vertically centered in remaining space */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
+          <LoginLogoTitle />
+          {/* Tagline */}
+          <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
+              <span className="write-container">
+                <span className="write-text">for the bookkeeper in you...</span>
+                <span className="write-pen-wrapper">
+                  <img
+                    src={penFeatherIcon}
+                    alt=""
+                    style={{ width: "2.8rem", height: "2.8rem", minWidth: "2.8rem", minHeight: "2.8rem", maxWidth: "2.8rem", maxHeight: "2.8rem", objectFit: "contain", flexShrink: 0 }}
+                  />
+                </span>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* Section 3: CTA buttons pushed to bottom */}
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "6vh" }}>
           <button
             onClick={handleConnectWallet}
             className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
@@ -534,13 +514,12 @@ function AppContent() {
           >
             Continue as Guest
           </button>
-        </div>
-
-        {/* Component 6: Footer links — at the bottom */}
-        <div style={{ marginTop: "auto", paddingBottom: "32px", paddingTop: "48px" }} className="flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
-          <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
-          <span>•</span>
-          <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
+          {/* Footer links */}
+          <div style={{ paddingTop: "12px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
+            <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
+            <span>•</span>
+            <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
+          </div>
         </div>
       </div>
     </div>
