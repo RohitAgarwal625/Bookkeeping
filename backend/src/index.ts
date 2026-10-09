@@ -17,7 +17,12 @@ import piRoutes from "./routes/pi";
 const app = express();
 
 // --- Security & parsing middleware ---
-app.use(helmet());
+app.use(
+  helmet({
+    frameguard: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 app.use(
   cors({
     origin: config.corsOrigins,

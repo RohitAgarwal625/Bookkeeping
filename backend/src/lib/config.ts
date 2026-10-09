@@ -14,7 +14,7 @@ export const config = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: parseInt(process.env.PORT ?? "3001", 10),
   // Comma-separated list of allowed origins.
-  corsOrigins: (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+  corsOrigins: (process.env.CORS_ORIGIN ?? "http://localhost:5173,https://bookkeeping-v1.vercel.app")
     .split(",")
     .map((o) => o.trim()),
   databaseUrl: required("DATABASE_URL", "postgresql://localhost:5432/bookkeeping"),
