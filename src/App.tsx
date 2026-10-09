@@ -552,38 +552,39 @@ function AppContent() {
           animation: pen-appear-slide 2.2s cubic-bezier(0.4, 0, 0.2, 1) 1.2s forwards;
         }
       `}</style>
-      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
 
-        {/* Group 1 & 2: Logo + Title — zoom-out animation first */}
-        <div className="logo-title-container" style={{ marginTop: "18vh", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", width: "100%" }}>
+        {/* Section 1: Logo at top with spacing matching bottom */}
+        <div style={{ paddingTop: "52px", display: "flex", justifyContent: "center", width: "100%" }}>
           <img
             src={bookLogo}
             alt="Bookkeeping Logo"
-            style={{ width: "250px", height: "auto" }}
-            className="object-contain drop-shadow-md"
+            style={{ width: "300px", maxWidth: "100%", height: "auto" }}
+            className="object-contain drop-shadow-md logo-title-container"
           />
+        </div>
+
+        {/* Section 2: Textual Logo 'Bookkeeping' & tagline — vertically centered */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", padding: "20px 0" }}>
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
-        </div>
-
-        {/* Component 3: Tagline — separate, starts after logo zoom-out finishes */}
-        <div style={{ marginTop: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
-            <span className="write-container">
-              <span className="write-text">for the bookkeeper in you...</span>
-              <span className="write-pen-wrapper">
-                <img
-                  src={penFeatherIcon}
-                  alt=""
-                  style={{ width: "2.8rem", height: "2.8rem", minWidth: "2.8rem", minHeight: "2.8rem", maxWidth: "2.8rem", maxHeight: "2.8rem", objectFit: "contain", flexShrink: 0 }}
-                />
+          <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
+              <span className="write-container">
+                <span className="write-text">for the bookkeeper in you...</span>
+                <span className="write-pen-wrapper">
+                  <img
+                    src={penFeatherIcon}
+                    alt=""
+                    style={{ width: "2.8rem", height: "2.8rem", minWidth: "2.8rem", minHeight: "2.8rem", maxWidth: "2.8rem", maxHeight: "2.8rem", objectFit: "contain", flexShrink: 0 }}
+                  />
+                </span>
               </span>
-            </span>
-          </p>
+            </p>
+          </div>
         </div>
 
-        {/* Group 4 & 5: Sign-in buttons */}
-        <div style={{ marginTop: "56px", width: "100%", display: "flex", flexDirection: "column", gap: "16px" }}>
-          {/* Pi Network sign-in (Step 1 + Step 2 via App Studio) */}
+        {/* Section 3: Buttons moved down + Footer links */}
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px", paddingBottom: "28px" }}>
           {piSignInError && (
             <p className="text-red-500 text-xs text-center">{piSignInError}</p>
           )}
@@ -608,13 +609,13 @@ function AppContent() {
           >
             Continue as Guest
           </button>
-        </div>
 
-        {/* Component 6: Footer links — at the bottom */}
-        <div style={{ marginTop: "auto", paddingBottom: "32px", paddingTop: "48px" }} className="flex gap-4 text-gray-500 dark:text-gray-400 text-sm">
-          <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
-          <span>•</span>
-          <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
+          {/* Footer links */}
+          <div style={{ paddingTop: "14px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
+            <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
+            <span>•</span>
+            <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
+          </div>
         </div>
       </div>
     </div>
