@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
@@ -20,6 +20,9 @@ import { PayMethodModal } from "./components/PayMethodModal";
 import { BottomNav } from "./components/BottomNav";
 import { Contact, initialContacts, Transaction } from "./types";
 
+
+const APP_STUDIO_AUTH_URL =
+  "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
 
 type Screen =
   | "login" | "dashboard" | "addCustomer" | "customerLedger"
@@ -81,7 +84,7 @@ function LoginLogoTitle() {
 
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
-  const [userName] = useState("Pioneer User");
+  const [userName, setUserName] = useState("Pioneer User");
   const [piBalance] = useState("370.20");
   const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
@@ -94,12 +97,74 @@ function AppContent() {
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
   const [isGuest, setIsGuest] = useState(false);
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
+  // Pi auth state
+  const [piAuthLoading, setPiAuthLoading] = useState(false);
+  const [piAuthError, setPiAuthError] = useState<string | null>(null);
+  // sessionToken returned by App Studio (the only trusted identity source)
+  const [, setAppStudioSessionToken] = useState<string | null>(null);
 
-  const handleConnectWallet = () => {
-    setIsGuest(false);
-    setContacts(initialContacts);
-    setCurrentScreen("dashboard");
-  };
+  /**
+   * Full Pi SDK auth flow:
+   * 1. Pi.init() + Pi.authenticate() — sign in via Pi Browser
+   * 2. Exchange accessToken with App Studio — verify identity server-side
+   * 3. Store the App Studio sessionToken + username; never trust browser-supplied uid/username.
+   */
+  const handleConnectWallet = useCallback(async () => {
+    setPiAuthLoading(true);
+    setPiAuthError(null);
+    try {
+      // Guard: Pi SDK must be loaded by the <script> in index.html
+      if (typeof window.Pi === "undefined") {
+        throw new Error("Pi SDK not available. Please open this app in Pi Browser.");
+      }
+
+      // STEP 1 — Init SDK (must fully resolve before authenticate)
+      await window.Pi.init({ version: "2.0" });
+
+      // STEP 1 cont. — Authenticate; get accessToken from Pi Browser
+      const authResult = await window.Pi.authenticate(
+        ["username"],
+        (_incompletePmt: unknown) => {
+          // Handle any incomplete payment from a previous session — no-op for now
+          console.warn("[Pi] Incomplete payment found — handle if payments are enabled.");
+        }
+      );
+
+      const { accessToken } = authResult;
+      // Do NOT use authResult.user.uid or authResult.user.username for identity —
+      // they came from the browser and are not verified.
+
+      // STEP 2 — Exchange accessToken with App Studio; only trust what App Studio returns
+      const studioRes = await fetch(APP_STUDIO_AUTH_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken }),
+      });
+
+      if (!studioRes.ok) {
+        throw new Error(`App Studio auth failed: ${studioRes.status}`);
+      }
+
+      const studioData = await studioRes.json() as {
+        sessionToken: string;
+        user: { uid: string; username: string };
+      };
+
+      // STEP 3 — Use the identity App Studio returned (verified against Pi Platform)
+      setAppStudioSessionToken(studioData.sessionToken);
+      setUserName(studioData.user.username || "Pioneer User");
+
+      // Auth succeeded — enter the app
+      setIsGuest(false);
+      setContacts(initialContacts);
+      setCurrentScreen("dashboard");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Authentication failed";
+      setPiAuthError(msg);
+    } finally {
+      setPiAuthLoading(false);
+    }
+  }, []);
 
   const handleGuestLogin = () => {
     setIsGuest(true);
@@ -501,12 +566,24 @@ function AppContent() {
         {/* Section 3: CTA buttons pushed to bottom */}
         <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "6vh" }}>
           <button
-            onClick={handleConnectWallet}
-            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+            onClick={() => void handleConnectWallet()}
+            disabled={piAuthLoading}
+            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-60"
             style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
           >
-            Connect Pi Wallet
+            {piAuthLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                Authenticating...
+              </span>
+            ) : "Connect Pi Wallet"}
           </button>
+          {piAuthError && (
+            <p className="text-red-500 text-xs text-center -mt-2 px-2">{piAuthError}</p>
+          )}
           <button
             onClick={handleGuestLogin}
             className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
