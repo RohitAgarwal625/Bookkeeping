@@ -9,7 +9,15 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://sdk.minepi.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://socialchain.app https://*.socialchain.app https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com https://*.piappengine.com https://piappengine.com https://*.railway.app https://*.up.railway.app; frame-ancestors 'self' https://*.pinet.com https://pinet.com https://*.minepi.com https://minepi.com https://*.piappengine.com https://piappengine.com https://*.piappstudio.com https://piappstudio.com https://*.socialchain.app https://socialchain.app"
+          "value": "default-src 'self'; script-src 'self' https://sdk.minepi.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://socialchain.app https://*.socialchain.app https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com https://*.piappengine.com https://piappengine.com https://*.railway.app https://*.up.railway.app; frame-ancestors 'self' https://*.pinet.com https://pinet.com https://*.minepi.com https://minepi.com https://*.piappengine.com https://piappengine.com https://*.piappstudio.com https://piappstudio.com https://*.socialchain.app https://socialchain.app https://*.pi http://*.pi pi: capacitor:"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
         }
       ]
     }
