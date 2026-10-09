@@ -559,7 +559,7 @@ function AppContent() {
           <img
             src={bookLogo}
             alt="Bookkeeping Logo"
-            style={{ width: "120%", maxWidth: "480px", height: "auto" }}
+            style={{ width: "250px", height: "auto" }}
             className="object-contain drop-shadow-md"
           />
           <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
