@@ -474,7 +474,7 @@ function AppContent() {
   return (
     <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap');
         @keyframes logo-zoom-out {
           0%   { transform: scale(1.4); opacity: 0; }
           100% { transform: scale(1); opacity: 1; }
@@ -533,7 +533,12 @@ function AppContent() {
 
         {/* Section 2: Title + Tagline — vertically centered in remaining space */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", padding: "20px 0" }}>
-          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
+          <h1
+            className="text-gray-900 dark:text-foreground text-center"
+            style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
+          >
+            bookkeeping
+          </h1>
           {/* Tagline */}
           <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
