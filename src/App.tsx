@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
@@ -20,9 +20,6 @@ import { PayMethodModal } from "./components/PayMethodModal";
 import { BottomNav } from "./components/BottomNav";
 import { Contact, initialContacts, Transaction } from "./types";
 
-
-const APP_STUDIO_AUTH_URL =
-  "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
 
 type Screen =
   | "login" | "dashboard" | "addCustomer" | "customerLedger"
@@ -70,9 +67,21 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
   );
 }
 
+function LoginLogoTitle() {
+  return (
+    <div className="logo-title-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+      <h1
+        className="text-gray-900 dark:text-foreground text-2xl font-bold text-center inline-block"
+      >
+        Bookkeeping
+      </h1>
+    </div>
+  );
+}
+
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
-  const [userName, setUserName] = useState("Pioneer User");
+  const [userName] = useState("Pioneer User");
   const [piBalance] = useState("370.20");
   const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
@@ -85,74 +94,12 @@ function AppContent() {
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
   const [isGuest, setIsGuest] = useState(false);
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
-  // Pi auth state
-  const [piAuthLoading, setPiAuthLoading] = useState(false);
-  const [piAuthError, setPiAuthError] = useState<string | null>(null);
-  // sessionToken returned by App Studio (the only trusted identity source)
-  const [, setAppStudioSessionToken] = useState<string | null>(null);
 
-  /**
-   * Full Pi SDK auth flow:
-   * 1. Pi.init() + Pi.authenticate() — sign in via Pi Browser
-   * 2. Exchange accessToken with App Studio — verify identity server-side
-   * 3. Store the App Studio sessionToken + username; never trust browser-supplied uid/username.
-   */
-  const handleConnectWallet = useCallback(async () => {
-    setPiAuthLoading(true);
-    setPiAuthError(null);
-    try {
-      // Guard: Pi SDK must be loaded by the <script> in index.html
-      if (typeof window.Pi === "undefined") {
-        throw new Error("Pi SDK not available. Please open this app in Pi Browser.");
-      }
-
-      // STEP 1 — Init SDK (must fully resolve before authenticate)
-      await window.Pi.init({ version: "2.0" });
-
-      // STEP 1 cont. — Authenticate; get accessToken from Pi Browser
-      const authResult = await window.Pi.authenticate(
-        ["username"],
-        (_incompletePmt: unknown) => {
-          // Handle any incomplete payment from a previous session — no-op for now
-          console.warn("[Pi] Incomplete payment found — handle if payments are enabled.");
-        }
-      );
-
-      const { accessToken } = authResult;
-      // Do NOT use authResult.user.uid or authResult.user.username for identity —
-      // they came from the browser and are not verified.
-
-      // STEP 2 — Exchange accessToken with App Studio; only trust what App Studio returns
-      const studioRes = await fetch(APP_STUDIO_AUTH_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken }),
-      });
-
-      if (!studioRes.ok) {
-        throw new Error(`App Studio auth failed: ${studioRes.status}`);
-      }
-
-      const studioData = await studioRes.json() as {
-        sessionToken: string;
-        user: { uid: string; username: string };
-      };
-
-      // STEP 3 — Use the identity App Studio returned (verified against Pi Platform)
-      setAppStudioSessionToken(studioData.sessionToken);
-      setUserName(studioData.user.username || "Pioneer User");
-
-      // Auth succeeded — enter the app
-      setIsGuest(false);
-      setContacts(initialContacts);
-      setCurrentScreen("dashboard");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Authentication failed";
-      setPiAuthError(msg);
-    } finally {
-      setPiAuthLoading(false);
-    }
-  }, []);
+  const handleConnectWallet = () => {
+    setIsGuest(false);
+    setContacts(initialContacts);
+    setCurrentScreen("dashboard");
+  };
 
   const handleGuestLogin = () => {
     setIsGuest(true);
@@ -474,7 +421,7 @@ function AppContent() {
   return (
     <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
         @keyframes logo-zoom-out {
           0%   { transform: scale(1.4); opacity: 0; }
           100% { transform: scale(1); opacity: 1; }
@@ -519,26 +466,21 @@ function AppContent() {
           animation: pen-appear-slide 2.2s cubic-bezier(0.4, 0, 0.2, 1) 1.2s forwards;
         }
       `}</style>
-      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
 
         {/* Section 1: Large Logo at top with spacing */}
-        <div style={{ paddingTop: "52px", display: "flex", justifyContent: "center", width: "100%" }}>
+        <div style={{ paddingTop: "6vh", display: "flex", justifyContent: "center", width: "100%" }}>
           <img
             src={bookLogo}
             alt="Bookkeeping Logo"
-            style={{ width: "300px", maxWidth: "100%", height: "auto" }}
+            style={{ width: "80%", maxWidth: "360px", height: "auto" }}
             className="object-contain drop-shadow-md logo-title-container"
           />
         </div>
 
         {/* Section 2: Title + Tagline — vertically centered in remaining space */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", padding: "20px 0" }}>
-          <h1
-            className="text-gray-900 dark:text-foreground text-center"
-            style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
-          >
-            bookkeeping
-          </h1>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
+          <LoginLogoTitle />
           {/* Tagline */}
           <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
@@ -557,26 +499,14 @@ function AppContent() {
         </div>
 
         {/* Section 3: CTA buttons pushed to bottom */}
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px", paddingBottom: "28px" }}>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "6vh" }}>
           <button
-            onClick={() => void handleConnectWallet()}
-            disabled={piAuthLoading}
-            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-60"
+            onClick={handleConnectWallet}
+            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
             style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
           >
-            {piAuthLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                </svg>
-                Authenticating...
-              </span>
-            ) : "Connect Pi Wallet"}
+            Connect Pi Wallet
           </button>
-          {piAuthError && (
-            <p className="text-red-500 text-xs text-center -mt-2 px-2">{piAuthError}</p>
-          )}
           <button
             onClick={handleGuestLogin}
             className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
@@ -585,7 +515,7 @@ function AppContent() {
             Continue as Guest
           </button>
           {/* Footer links */}
-          <div style={{ paddingTop: "14px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
+          <div style={{ paddingTop: "12px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
             <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
             <span>•</span>
             <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
