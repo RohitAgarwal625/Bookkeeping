@@ -70,11 +70,12 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
 function LoginLogoTitle() {
   return (
     <div className="logo-title-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-      <h1
-        className="text-gray-900 dark:text-foreground text-2xl font-bold text-center inline-block"
-      >
-        Bookkeeping
-      </h1>
+       <h1
+                        className="text-gray-900 dark:text-foreground text-center"
+                        style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
+                      >
+                        BOOKKEEPING
+                      </h1>
     </div>
   );
 }
