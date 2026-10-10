@@ -57,6 +57,65 @@ interface MerchantRecord {
 }
 
 const mockMerchants: MerchantRecord[] = [];
+/* Commented mock data for reference:
+const mockMerchants: MerchantRecord[] = [
+  {
+    id: "1",
+    merchantName: "Nicolas Kokkalis",
+    category: "individual",
+    date: "Feb 20, 2026",
+    amount: 450.00,
+    type: "debit",
+    status: "completed",
+    piWalletAddress: "0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e",
+    description: "Mentorship & Consultation fees.",
+    txHash: "0xabc123def456789abc123def456789abc123def456789",
+    totalCredit: 100.00,
+    totalDebit: 640.00,
+    pastTransactions: [
+      { id: "p1", type: "debit", amount: "100.00", date: "Feb 18, 2026", description: "Trademark compliance fee.", status: "completed" },
+      { id: "p2", type: "credit", amount: "100.00", date: "Feb 15, 2026", description: "Scholarship grant.", status: "completed" },
+      { id: "p3", type: "debit", amount: "90.00", date: "Feb 10, 2026", description: "Workshop fee.", status: "completed" },
+    ],
+  },
+  {
+    id: "2",
+    merchantName: "Nicolas Kokkalis",
+    category: "individual",
+    date: "Feb 18, 2026",
+    amount: 450.00,
+    type: "debit",
+    status: "pending",
+    piWalletAddress: "0x5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f",
+    description: "Mentorship & Consultation fees.",
+    txHash: "0x789def123abc456def789abc123def456789abc123",
+    totalCredit: 320.00,
+    totalDebit: 515.75,
+    pastTransactions: [
+      { id: "p9", type: "debit", amount: "320.00", date: "Feb 12, 2026", description: "Stationery order", status: "completed" },
+      { id: "p10", type: "credit", amount: "320.00", date: "Feb 01, 2026", description: "Payment received", status: "completed" },
+    ],
+  },
+  {
+    id: "3",
+    merchantName: "Nicolas Kokkalis",
+    category: "individual",
+    date: "Feb 17, 2026",
+    amount: 450.00,
+    type: "debit",
+    status: "failed",
+    piWalletAddress: "0x1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d",
+    description: "Mentorship & Consultation fees.",
+    txHash: "0x123abc456def789abc123def456789abc123def456",
+    totalCredit: 1875.00,
+    totalDebit: 0,
+    pastTransactions: [
+      { id: "p7", type: "credit", amount: "800.00", date: "Feb 14, 2026", description: "Bulk goods order", status: "completed" },
+      { id: "p8", type: "credit", amount: "450.00", date: "Feb 02, 2026", description: "Seasonal stock", status: "completed" },
+    ],
+  },
+];
+*/
 
 export function MerchantDashboard({
   onNavigateToCustomerLedger,

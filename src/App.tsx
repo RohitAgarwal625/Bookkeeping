@@ -141,10 +141,15 @@ function AppContent() {
     setSelectedCustomer(customerName);
     setSelectedContactId(contactId);
     if (newTransactions && newTransactions.length > 0) {
-      setPendingNewTransactions((prev) => ({
-        ...prev,
-        [customerName]: [...newTransactions, ...(prev[customerName] || [])],
-      }));
+      setPendingNewTransactions((prev) => {
+        const existing = prev[customerName] || [];
+        const existingIds = new Set(existing.map((t) => t.id));
+        const deduplicated = newTransactions.filter((t) => !existingIds.has(t.id));
+        return {
+          ...prev,
+          [customerName]: [...deduplicated, ...existing],
+        };
+      });
     }
     setCurrentScreen("customerLedger");
   };

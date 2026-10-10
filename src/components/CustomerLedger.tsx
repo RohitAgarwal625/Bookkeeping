@@ -12,8 +12,24 @@ interface CustomerLedgerProps {
   initialNewTransactions?: Transaction[];
 }
 
-// Mock transactions list (empty by default)
+// Mock transactions list (empty to hide dummy data)
 const MOCK_TRANSACTIONS: Transaction[] = [];
+/* Commented mock data for reference:
+const MOCK_TRANSACTIONS: Transaction[] = [
+  { id: "1", description: "Mentorship & Consultation fees.", amount: 450, type: "debit", timestamp: "2026-06-22 14:30" },
+  { id: "2", description: "Trademark compliance fee.", amount: 100, type: "debit", timestamp: "2026-05-10 10:15" },
+  { id: "3", description: "Scholarship grant.", amount: 100, type: "credit", timestamp: "2026-03-25 16:45" },
+  { id: "4", description: "Workshop fee.", amount: 90, type: "debit", timestamp: "2026-02-18 09:20" },
+  { id: "5", description: "Advisory session payment.", amount: 75, type: "credit", timestamp: "2026-01-20 11:00" },
+  { id: "6", description: "Research collaboration fee.", amount: 200, type: "debit", timestamp: "2025-12-12 15:45" },
+  { id: "7", description: "Referral bonus received.", amount: 50, type: "credit", timestamp: "2025-11-05 14:30" },
+  { id: "8", description: "Project milestone payment.", amount: 130, type: "debit", timestamp: "2025-10-15 09:20" },
+  { id: "9", description: "Network node reward.", amount: 60, type: "credit", timestamp: "2025-09-08 13:10" },
+  { id: "10", description: "Consultation retainer fee.", amount: 180, type: "debit", timestamp: "2025-08-01 10:00" },
+  { id: "11", description: "Community grant disbursement.", amount: 95, type: "credit", timestamp: "2025-06-20 16:00" },
+  { id: "12", description: "Platform service fee.", amount: 40, type: "debit", timestamp: "2025-05-10 08:45" },
+];
+*/
 
 export function CustomerLedger({ customerName, contactId, onBack, initialNewTransactions }: CustomerLedgerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
