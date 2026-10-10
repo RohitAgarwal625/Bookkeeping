@@ -564,9 +564,9 @@ function AppContent() {
           />
         </div>
 
-        {/* Section 2: Textual Logo 'Bookkeeping' & tagline — vertically centered */}
+        {/* Section 2: Textual Logo 'BOOKKEEPIING' & tagline — vertically centered */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", padding: "20px 0" }}>
-          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center">Bookkeeping</h1>
+          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center tracking-wider">BOOKKEEPIING</h1>
           <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
               <span className="write-container">
