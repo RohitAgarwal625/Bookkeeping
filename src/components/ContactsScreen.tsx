@@ -103,10 +103,17 @@ export function ContactsScreen({
             </div>
             <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
               {searchQuery ? "No contacts match your search" : (
-                <>
-                  <span className="block font-medium">No Contacts to show!</span>
-                  <span className="block mt-0.5">Connect Pi Wallet to add a pioneer.</span>
-                </>
+                isGuest ? (
+                  <>
+                    <span className="block font-medium">No Contacts to show!</span>
+                    <span className="block mt-0.5">Connect Pi Wallet to add a pioneer.</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="block font-medium">No Contacts to show!</span>
+                    <span className="block mt-0.5">Add a pioneer to get started.</span>
+                  </>
+                )
               )}
             </p>
           </div>

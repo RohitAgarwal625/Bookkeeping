@@ -1,6 +1,6 @@
 import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, CheckCircle, Home, Lock, UserPlus, BookOpen } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Contact, getInitials, initialContacts, Transaction } from "../types";
+import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { useDarkMode } from "../contexts/DarkModeContext";
 
@@ -20,7 +20,7 @@ const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 
 export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger, onPaymentSuccess }: PayScreenProps) {
-  const contactList = contacts && contacts.length ? contacts : initialContacts;
+  const contactList = contacts || [];
 
   const [publicKey, setPublicKey] = useState("");
   const [pioneerQuery, setPioneerQuery] = useState("");

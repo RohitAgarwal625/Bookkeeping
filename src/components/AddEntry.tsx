@@ -11,13 +11,7 @@ interface AddEntryProps {
 }
 
 export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
-  const savedCustomers = contacts ?? [
-    "Chengdiao Fan",
-    "Nicolas Kokkalis",
-    "Pavel Durov",
-    "Satoshi Nakamoto",
-    "Vitalik Buterin",
-  ];
+  const savedCustomers = contacts ?? [];
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [customerQuery, setCustomerQuery] = useState("");
   const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);

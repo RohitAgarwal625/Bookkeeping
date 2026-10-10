@@ -7,6 +7,8 @@ import { getInitials } from "../types";
 interface DashboardProps {
   userName: string;
   piBalance: string;
+  totalDebit?: number;
+  totalCredit?: number;
   onNavigateToAddCustomer: (category: "individual" | "business") => void;
   onNavigateToAddEntry: () => void;
   onNavigateToAutoEntry: () => void;
@@ -15,24 +17,15 @@ interface DashboardProps {
   isGuest?: boolean;
 }
 
-const recentEntries = [
-  { id: "1", customerName: "Nicolas Kokkalis", type: "debit" as const, amount: "450.00", date: "Today, 14:30" },
-  { id: "2", customerName: "Pavel Durov", type: "debit" as const, amount: "280.50", date: "Today, 11:15" },
-  { id: "3", customerName: "Vitalik Buterin", type: "credit" as const, amount: "625.00", date: "Yesterday, 17:45" },
-  { id: "4", customerName: "Satoshi Nakamoto", type: "debit" as const, amount: "195.75", date: "Yesterday, 15:20" },
-  { id: "5", customerName: "Chengdiao Fan", type: "credit" as const, amount: "330.00", date: "2 days ago, 13:00" },
-];
+const recentEntries: Array<{ id: string; customerName: string; type: "debit" | "credit"; amount: string; date: string }> = [];
 
-const notifications = recentEntries.slice(0, 4).map((t) => ({
-  id: t.id,
-  message: `${t.type === "credit" ? "Received" : "Paid"} ${t.amount} π ${t.type === "credit" ? "from" : "to"} ${t.customerName}`,
-  time: t.date,
-  type: t.type,
-}));
+const notifications: Array<{ id: string; message: string; time: string; type: "debit" | "credit" }> = [];
 
 export function Dashboard({
   userName,
   piBalance,
+  totalDebit,
+  totalCredit,
   onNavigateToAddCustomer,
   onNavigateToAddEntry,
   onNavigateToAutoEntry,
@@ -86,7 +79,7 @@ export function Dashboard({
       <header className={`${isGuest ? "bg-background border-b border-gray-100 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-transparent dark:border-border"} px-6 py-4 flex justify-between items-center z-20 relative`}>
         <div>
           <p className="text-gray-500 dark:text-muted-foreground text-sm">Welcome,</p>
-          <h2 className="text-gray-900 dark:text-foreground font-semibold">{isGuest ? "Guest User" : userName}</h2>
+          <h2 className="text-gray-900 dark:text-foreground font-semibold">{isGuest ? "Guest User" : (userName || "-")}</h2>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -129,10 +122,10 @@ export function Dashboard({
               <p className="text-gray-900 dark:text-foreground font-semibold text-base text-center">Alerts</p>
             </div>
             <div className="min-h-[140px] flex flex-col justify-center">
-              {isGuest ? (
+              {isGuest || notifications.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center px-3 py-8 text-center overflow-hidden">
                   <p className="text-gray-500 dark:text-muted-foreground text-sm font-medium whitespace-nowrap text-center max-w-full">
-                    Connect Pi Wallet to start your journey with this dApp!
+                    {isGuest ? "Connect Pi Wallet to start your journey with this dApp!" : "No notifications"}
                   </p>
                 </div>
               ) : (
@@ -165,6 +158,8 @@ export function Dashboard({
         {/* Balance Card — contains Add Pioneer & Add Transaction buttons */}
         <BalanceCard
           piBalance={piBalance}
+          totalDebit={totalDebit}
+          totalCredit={totalCredit}
           onAddCustomer={(cat) => onNavigateToAddCustomer(cat)}
           onAddEntry={onNavigateToAddEntry}
           onAutoEntry={onNavigateToAutoEntry}
@@ -174,7 +169,7 @@ export function Dashboard({
         {/* Recent Entries */}
         <div>
           <h3 className="text-gray-900 dark:text-foreground mb-4">Recent Transactions</h3>
-          {isGuest ? (
+          {isGuest || recentEntries.length === 0 ? (
             <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border flex flex-col items-center justify-start gap-3 pt-12" style={{ minHeight: "420px" }}>
               <p className="text-gray-400 dark:text-muted-foreground text-sm text-center px-4">Nothing to show here!</p>
             </div>

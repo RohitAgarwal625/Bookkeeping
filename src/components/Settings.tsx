@@ -106,9 +106,9 @@ export function Settings({
   // FAQs state
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 
-  const truncatedAddress = piWalletAddress.length > 10
-    ? `${piWalletAddress.slice(0, 5)}…${piWalletAddress.slice(-5)}`
-    : piWalletAddress;
+  const truncatedAddress = piWalletAddress
+    ? (piWalletAddress.length > 10 ? `${piWalletAddress.slice(0, 5)}…${piWalletAddress.slice(-5)}` : piWalletAddress)
+    : "-";
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(piWalletAddress);
@@ -169,7 +169,7 @@ export function Settings({
           {/* Profile Avatar */}
           <div className="flex flex-col items-center gap-3">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg overflow-hidden">
-              <span className="text-white text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
+              <span className="text-white text-2xl font-bold">{isGuest ? "?" : (displayName ? getInitials(displayName) : "?")}</span>
             </div>
           </div>
 
@@ -239,7 +239,7 @@ export function Settings({
               </div>
             ) : (
               <p className="text-gray-900 dark:text-foreground font-medium text-base mt-1">
-                {displayName}
+                {displayName || "-"}
               </p>
             )}
           </div>
@@ -253,12 +253,14 @@ export function Settings({
               <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm font-mono truncate">
                 {truncatedAddress}
               </p>
-              <button
-                onClick={handleCopyAddress}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
-              >
-                <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-              </button>
+              {piWalletAddress ? (
+                <button
+                  onClick={handleCopyAddress}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
+                >
+                  <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+                </button>
+              ) : null}
             </div>
             <p className="text-xs text-gray-400 dark:text-muted-foreground mt-2">
               Wallet address cannot be changed — it's your blockchain identity.
@@ -273,14 +275,14 @@ export function Settings({
             <div>
               <p className="text-xs text-gray-400 dark:text-muted-foreground mb-1">Legal Name</p>
               <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-secondary rounded-xl border border-gray-200 dark:border-border">
-                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "Guest User" : displayName}</p>
+                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "Guest User" : (displayName || "-")}</p>
                 <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-secondary/80 px-2 py-0.5 rounded-full">From Pi Auth</span>
               </div>
             </div>
             <div>
               <p className="text-xs text-gray-400 dark:text-muted-foreground mb-1">Username</p>
               <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-secondary rounded-xl border border-gray-200 dark:border-border">
-                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "@guest_user" : "@pioneer_user"}</p>
+                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "@guest_user" : (displayName ? `@${displayName.toLowerCase().replace(/\s+/g, '_')}` : "-")}</p>
                 <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-secondary/80 px-2 py-0.5 rounded-full">From Pi Auth</span>
               </div>
             </div>

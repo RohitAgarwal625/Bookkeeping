@@ -75,11 +75,12 @@ function AppContent() {
   const bk = useBookkeeping();
 
   const [currentScreen, setCurrentScreen] = useState<Screen>("login");
+  const [isGuest, setIsGuest] = useState(false);
   // Pi-verified session (uid + username from App Studio — never from the browser)
   const [piSession, setPiSession] = useState<PiSession | null>(null);
-  const userName = piSession?.user.username ?? "Pioneer User";
-  const [piBalance] = useState("370.20");
-  const [piWalletAddress] = useState("0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e");
+  const userName = piSession?.user.username ?? (isGuest ? "Guest User" : "");
+  const [piBalance] = useState("0.00");
+  const [piWalletAddress] = useState("");
   const [piSignInLoading, setPiSignInLoading] = useState(false);
   const [piSignInError, setPiSignInError] = useState<string | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
@@ -93,7 +94,6 @@ function AppContent() {
   const [showPayModal, setShowPayModal] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
-  const [isGuest, setIsGuest] = useState(false);
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
 
   /**
@@ -264,6 +264,12 @@ function AppContent() {
   };
 
   const contactNames = contacts.map((c) => c.name);
+  const totalDebit = bk.isAuthenticated && bk.summary
+    ? bk.summary.totalDebit
+    : contacts.reduce((sum, c) => sum + (c.totalDebit || 0), 0);
+  const totalCredit = bk.isAuthenticated && bk.summary
+    ? bk.summary.totalCredit
+    : contacts.reduce((sum, c) => sum + (c.totalCredit || 0), 0);
 
   const navScreens: Screen[] = ["dashboard", "contacts", "merchantDashboard", "analyze", "settings"];
   const activeTab = ((): "home" | "contacts" | "pay" | "merchantDashboard" | "settings" => {
@@ -489,6 +495,8 @@ function AppContent() {
         <Dashboard
           userName={userName}
           piBalance={piBalance}
+          totalDebit={totalDebit}
+          totalCredit={totalCredit}
           onNavigateToAddCustomer={handleNavigateToAddCustomer}
           onNavigateToAddEntry={handleNavigateToAddEntry}
           onNavigateToAutoEntry={handleNavigateToAutoEntry}

@@ -19,30 +19,11 @@ interface ReportsAnalyticsProps {
   isGuest?: boolean;
 }
 
-const monthlyData = [
-  { month: "Jan", credit: 4500, debit: 3200 },
-  { month: "Feb", credit: 5200, debit: 3800 },
-  { month: "Mar", credit: 4800, debit: 4200 },
-  { month: "Apr", credit: 6100, debit: 3500 },
-  { month: "May", credit: 7200, debit: 4800 },
-  { month: "Jun", credit: 6800, debit: 5200 },
-];
+const monthlyData: Array<{ month: string; credit: number; debit: number }> = [];
 
-const topCustomersMonthly = [
-  { id: "1", name: "Chengdiao Fan", transactions: 178 },
-  { id: "2", name: "Nicolas Kokkalis", transactions: 88 },
-  { id: "3", name: "Pavel Durov", transactions: 56 },
-  { id: "4", name: "Satoshi Nakamoto", transactions: 34 },
-  { id: "5", name: "Vitalik Buterin", transactions: 18 },
-].sort((a, b) => b.transactions - a.transactions);
+const topCustomersMonthly: Array<{ id: string; name: string; transactions: number }> = [];
 
-const topCustomersWeekly = [
-  { id: "1", name: "Chengdiao Fan", transactions: 21 },
-  { id: "2", name: "Nicolas Kokkalis", transactions: 17 },
-  { id: "3", name: "Pavel Durov", transactions: 14 },
-  { id: "5", name: "Vitalik Buterin", transactions: 9 },
-  { id: "4", name: "Satoshi Nakamoto", transactions: 6 },
-].sort((a, b) => b.transactions - a.transactions);
+const topCustomersWeekly: Array<{ id: string; name: string; transactions: number }> = [];
 
 export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: ReportsAnalyticsProps) {
   const [selectedFilter, setSelectedFilter] = useState<"week" | "month" | "custom">("month");
@@ -63,19 +44,18 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
       .catch(() => { /* Keep mock fallback */ });
   }, [isGuest]);
 
-  // Calculate totals based on selected filter — prefer API data, fall back to mock
+  // Calculate totals based on selected filter — prefer API data, fall back to 0.00
   const getTotals = () => {
+    if (isGuest) {
+      return { debit: "-", credit: "-" };
+    }
     if (apiTotals) {
       return {
         debit: apiTotals.totalDebit.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         credit: apiTotals.totalCredit.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       };
     }
-    // Mock fallback
-    if (selectedFilter === "week") {
-      return { debit: "5,000.65", credit: "12,500.00" };
-    }
-    return { debit: "25,580.78", credit: "1,02,000.00" };
+    return { debit: "0.00", credit: "0.00" };
   };
   const totals = getTotals();
 
@@ -290,41 +270,45 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                     )}
                   </div>
                   <div className="space-y-3">
-                    {filteredCustomers.map((customer, index) => (
-                      <div key={customer.id}>
-                        <div className="flex items-center gap-3">
-                          {/* Profile Icon */}
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                            <span className="text-white text-sm font-semibold">
-                              {getInitials(customer.name)}
-                            </span>
-                          </div>
+                    {filteredCustomers.length === 0 ? (
+                      <p className="text-gray-400 dark:text-muted-foreground text-sm text-center py-6">No transaction activity to report yet.</p>
+                    ) : (
+                      filteredCustomers.map((customer, index) => (
+                        <div key={customer.id}>
+                          <div className="flex items-center gap-3">
+                            {/* Profile Icon */}
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                              <span className="text-white text-sm font-semibold">
+                                {getInitials(customer.name)}
+                              </span>
+                            </div>
 
-                          {/* Customer Info — Left side name */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{customer.name}</p>
-                          </div>
+                            {/* Customer Info — Left side name */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{customer.name}</p>
+                            </div>
 
-                          {/* Right side figure (black circle outline with white bg and black text, font size text-sm 14px matching Home screen) */}
-                          <div
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0"
-                            style={{
-                              border: "2px solid #000000",
-                              backgroundColor: "#ffffff",
-                              color: "#000000",
-                              fontSize: "14px",
-                              fontWeight: 600,
-                              lineHeight: "1",
-                            }}
-                          >
-                            {customer.transactions}
+                            {/* Right side figure (black circle outline with white bg and black text, font size text-sm 14px matching Home screen) */}
+                            <div
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0"
+                              style={{
+                                border: "2px solid #000000",
+                                backgroundColor: "#ffffff",
+                                color: "#000000",
+                                fontSize: "14px",
+                                fontWeight: 600,
+                                lineHeight: "1",
+                              }}
+                            >
+                              {customer.transactions}
+                            </div>
                           </div>
+                          {index < filteredCustomers.length - 1 && (
+                            <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-border to-transparent my-3" />
+                          )}
                         </div>
-                        {index < filteredCustomers.length - 1 && (
-                          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-border to-transparent my-3" />
-                        )}
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               </>
