@@ -70,12 +70,12 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
 function LoginLogoTitle() {
   return (
     <div className="logo-title-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-       <h1
-                        className="text-gray-900 dark:text-foreground text-center"
-                        style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
-                      >
-                        BOOKKEEPING
-                      </h1>
+      <h1
+        className="text-gray-900 dark:text-foreground text-center font-bold"
+        style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
+      >
+        BOOKKEEPING
+      </h1>
     </div>
   );
 }
@@ -422,7 +422,7 @@ function AppContent() {
   return (
     <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap');
         @keyframes logo-zoom-out {
           0%   { transform: scale(1.4); opacity: 0; }
           100% { transform: scale(1); opacity: 1; }
@@ -500,23 +500,25 @@ function AppContent() {
         </div>
 
         {/* Section 3: CTA buttons pushed to bottom */}
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "6vh" }}>
-          <button
-            onClick={handleConnectWallet}
-            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
-            style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
-          >
-            Connect Pi Wallet
-          </button>
-          <button
-            onClick={handleGuestLogin}
-            className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
-            style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
-          >
-            Continue as Guest
-          </button>
-          {/* Footer links */}
-          <div style={{ paddingTop: "12px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", paddingBottom: "5vh" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "32px", width: "100%" }}>
+            <button
+              onClick={handleConnectWallet}
+              className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+              style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+            >
+              Connect Pi Wallet
+            </button>
+            <button
+              onClick={handleGuestLogin}
+              className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
+              style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
+            >
+              Continue as Guest
+            </button>
+          </div>
+          {/* Footer links — moved down a little */}
+          <div style={{ paddingTop: "28px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
             <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
             <span>•</span>
             <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
