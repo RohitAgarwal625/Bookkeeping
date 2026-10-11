@@ -24,7 +24,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!pi-app-validation\\.txt).*)",
+      "source": "/((?!pi-app-validation\\.txt|validation-key\\.txt).*)",
       "destination": "/index.html"
     }
   ]
