@@ -1,23 +1,34 @@
 import cron from "node-cron";
 import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
+import { piClient, PiApiError } from "../lib/piClient";
 
 /**
- * Reconciliation job for Pi Network payments (Phase 4).
+ * Reconciliation job for Pi Network payments.
  * Resolves G-023 (pending tx stuck forever) and V-001 (blockchain confirms
  * after our TTL). Two passes:
  *   Pass 1: pending + expired  -> check Pi API -> complete or expire
  *   Pass 2: recently-expired    -> re-check Pi API -> complete if confirmed
- *
- * In Phase 1-3 there are no pi_network transactions, so this is a safe no-op.
- * The Pi Platform API call is stubbed until Phase 4.
  */
-
-// Placeholder — replaced with real Pi Platform API client in Phase 4.
 async function checkPiPaymentStatus(
-  _piPaymentId: string
+  piPaymentId: string
 ): Promise<"completed" | "not_found" | "pending"> {
-  return "not_found";
+  try {
+    const payment = await piClient.getPayment(piPaymentId);
+    if (payment.status?.developer_completed) {
+      return "completed";
+    }
+    if (payment.status?.cancelled || payment.status?.user_cancelled) {
+      return "not_found";
+    }
+    return "pending";
+  } catch (err) {
+    if (err instanceof PiApiError && err.status === 404) {
+      return "not_found";
+    }
+    logger.warn({ err, piPaymentId }, "Reconciliation: failed to check payment status with Pi Platform API");
+    return "pending";
+  }
 }
 
 async function reconcilePendingTransactions(): Promise<void> {

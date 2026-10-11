@@ -178,3 +178,47 @@ export const transactionsApi = {
 export const healthApi = {
   check: () => request<{ status: string; db: string }>(`/api/health`),
 };
+
+// --- Pi Payments ---
+export interface PiPaymentApiResponse {
+  success: boolean;
+  payment: PiPaymentDTO;
+}
+
+export interface PremiumStatusResponse {
+  isPremium: boolean;
+  product: {
+    productId: string;
+    productName: string;
+    amount: number;
+    memo: string;
+  };
+  transaction?: {
+    id: string;
+    piPaymentId: string | null;
+    txHash: string | null;
+    timestamp: string;
+  } | null;
+}
+
+export const piPaymentsApi = {
+  approve: (paymentId: string) =>
+    request<PiPaymentApiResponse>("/api/pi/approve", {
+      method: "POST",
+      body: JSON.stringify({ paymentId }),
+    }),
+  complete: (paymentId: string, txid: string) =>
+    request<PiPaymentApiResponse>("/api/pi/complete", {
+      method: "POST",
+      body: JSON.stringify({ paymentId, txid }),
+    }),
+  incomplete: (paymentId: string, txid?: string) =>
+    request<PiPaymentApiResponse>("/api/pi/incomplete-payment", {
+      method: "POST",
+      body: JSON.stringify({ paymentId, txid }),
+    }),
+  getPayment: (paymentId: string) =>
+    request<{ payment: PiPaymentDTO }>(`/api/pi/payment/${paymentId}`),
+  getPremiumStatus: () =>
+    request<PremiumStatusResponse>("/api/pi/premium-status"),
+};

@@ -1,23 +1,39 @@
-import { Router, type Request, type Response } from "express";
+import { Router } from "express";
+import {
+  approvePaymentHandler,
+  completePaymentHandler,
+  incompletePaymentHandler,
+  getPaymentStatusHandler,
+  getPremiumStatusHandler,
+} from "../controllers/pi.controller";
 
 /**
- * Pi Network routes — Phase 4.
- * Stubbed as 501 Not Implemented for Phase 1-3 (resolves OQ-004).
- * The full implementation (create/complete/cancel payment + reconciliation)
- * is designed in design/backend-architecture/final/architecture.html.
+ * Pi Network Payment Routes
+ *
+ * Implements server-to-server callbacks for Pi Network User-to-App (U2A) Payments:
+ * - Approval: POST /api/pi/approve -> calls https://api.minepi.com/v2/payments/:id/approve
+ * - Completion: POST /api/pi/complete -> calls https://api.minepi.com/v2/payments/:id/complete
+ * - Incomplete: POST /api/pi/incomplete-payment -> handles uncompleted in-flight payments
+ * - Status: GET /api/pi/payment/:id -> retrieves payment data from Pi Platform API
+ * - Premium Status: GET /api/pi/premium-status -> checks if Premium Bookkeeping Plan is unlocked
  */
 const router = Router();
 
-const notImplemented = (_req: Request, res: Response): void => {
-  res.status(501).json({
-    error: "NOT_IMPLEMENTED",
-    message: "Pi Network integration is planned for Phase 4",
-  });
-};
+// Server Approval endpoints
+router.post("/approve", approvePaymentHandler);
+router.post("/approve-payment", approvePaymentHandler);
 
-router.post("/authenticate", notImplemented);
-router.post("/create-payment", notImplemented);
-router.post("/complete-payment", notImplemented);
-router.post("/cancel-payment", notImplemented);
+// Server Completion endpoints
+router.post("/complete", completePaymentHandler);
+router.post("/complete-payment", completePaymentHandler);
+
+// Incomplete payment resolution
+router.post("/incomplete-payment", incompletePaymentHandler);
+
+// Payment inspection
+router.get("/payment/:id", getPaymentStatusHandler);
+
+// Premium feature entitlement status
+router.get("/premium-status", getPremiumStatusHandler);
 
 export default router;

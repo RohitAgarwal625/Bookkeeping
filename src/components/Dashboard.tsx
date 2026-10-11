@@ -1,4 +1,4 @@
-import { Bell, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { Bell, ArrowDownLeft, ArrowUpRight, Sparkles } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { BalanceCard } from "./BalanceCard";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -15,6 +15,8 @@ interface DashboardProps {
   onNavigateToCustomerLedger: (customerName: string) => void;
   onNavigate: (screen: string) => void;
   isGuest?: boolean;
+  isPremium?: boolean;
+  onOpenPremiumModal?: () => void;
 }
 
 const recentEntries: Array<{ id: string; customerName: string; type: "debit" | "credit"; amount: string; date: string }> = [];
@@ -32,6 +34,8 @@ export function Dashboard({
   onNavigateToCustomerLedger,
   onNavigate,
   isGuest,
+  isPremium = false,
+  onOpenPremiumModal,
 }: DashboardProps) {
   const [showBell, setShowBell] = useState(false);
   const [bellRead, setBellRead] = useState(false);
@@ -79,7 +83,23 @@ export function Dashboard({
       <header className={`${isGuest ? "bg-background border-b border-gray-100 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-transparent dark:border-border"} px-6 py-4 flex justify-between items-center z-20 relative`}>
         <div>
           <p className="text-gray-500 dark:text-muted-foreground text-sm">Welcome,</p>
-          <h2 className="text-gray-900 dark:text-foreground font-semibold">{isGuest ? "Guest User" : (userName || "-")}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-gray-900 dark:text-foreground font-semibold">{isGuest ? "Guest User" : (userName || "-")}</h2>
+            {isPremium ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-amber-400 to-amber-500 text-black shadow-sm">
+                <Sparkles className="w-3 h-3 fill-black" />
+                PRO
+              </span>
+            ) : (
+              <button
+                onClick={onOpenPremiumModal}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm hover:opacity-95 active:scale-95 transition-all"
+              >
+                <Sparkles className="w-3 h-3 text-[#FFD700]" />
+                Upgrade 1 π
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -165,6 +185,33 @@ export function Dashboard({
           onAutoEntry={onNavigateToAutoEntry}
           isGuest={isGuest}
         />
+
+        {/* Premium Plan Banner */}
+        <div
+          onClick={onOpenPremiumModal}
+          className="cursor-pointer rounded-2xl p-4 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-sm relative overflow-hidden bg-gradient-to-r from-[#8A2BE2] via-[#7B1FA2] to-[#F7C548] text-white"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-[#FFD700]" />
+              </div>
+              <div>
+                <p className="font-bold text-sm tracking-tight">
+                  {isPremium ? "Premium Plan Active" : "Upgrade to Premium Plan"}
+                </p>
+                <p className="text-xs text-white/80">
+                  {isPremium
+                    ? "Unlimited customer ledgers & blockchain reconciliation"
+                    : "1 π lifetime • Unlock report exports & advanced analytics"}
+                </p>
+              </div>
+            </div>
+            <div className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold shrink-0">
+              {isPremium ? "View Details" : "Unlock 1 π"}
+            </div>
+          </div>
+        </div>
 
         {/* Recent Entries */}
         <div>

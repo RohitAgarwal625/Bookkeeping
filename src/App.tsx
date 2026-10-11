@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
@@ -18,11 +18,13 @@ import { ContactDetails } from "./components/ContactDetails";
 import { AutomaticTransactionScreen } from "./components/AutomaticTransactionScreen";
 import { QRScannerScreen } from "./components/QRScannerScreen";
 import { PayMethodModal } from "./components/PayMethodModal";
+import { PremiumModal } from "./components/PremiumModal";
 import { BottomNav } from "./components/BottomNav";
 import { Contact, Transaction } from "./types";
 import { useBookkeeping } from "./hooks/useBookkeeping";
 import { contactsApi } from "./lib/api";
 import { signInWithPi, type PiSession } from "./lib/piAuth";
+import { checkPremiumStatus } from "./lib/piPayments";
 
 
 type Screen =
@@ -92,9 +94,22 @@ function AppContent() {
   const [newContactId, setNewContactId] = useState<string | null>(null);
   const [selectedContactDetails, setSelectedContactDetails] = useState<Contact | null>(null);
   const [showPayModal, setShowPayModal] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
+
+  // Query premium status on mount and when auth changes
+  useEffect(() => {
+    checkPremiumStatus()
+      .then((status) => {
+        if (status.isPremium) {
+          setIsPremium(true);
+        }
+      })
+      .catch(() => {});
+  }, [bk.isAuthenticated]);
 
   /**
    * Pi Network sign-in:
@@ -230,6 +245,10 @@ function AppContent() {
       setShowPayModal(true);
       return;
     }
+    if (screen === "premium") {
+      setShowPremiumModal(true);
+      return;
+    }
     setShowPayModal(false);
     const validScreens: Screen[] = [
       "home", "dashboard", "addCustomer", "customerLedger",
@@ -286,7 +305,7 @@ function AppContent() {
   })();
   const showNav = navScreens.includes(currentScreen);
 
-  // Shared overlays (pay modal + guest modal) rendered on top of any nav screen
+  // Shared overlays (pay modal + guest modal + premium modal) rendered on top of any nav screen
   const SharedOverlays = () => (
     <>
       {showPayModal && (
@@ -300,6 +319,14 @@ function AppContent() {
         <GuestModal
           onConnect={() => { setShowGuestModal(false); setCurrentScreen("login"); }}
           onDismiss={() => setShowGuestModal(false)}
+        />
+      )}
+      {showPremiumModal && (
+        <PremiumModal
+          isOpen={showPremiumModal}
+          onClose={() => setShowPremiumModal(false)}
+          onSuccess={() => setIsPremium(true)}
+          isAlreadyPremium={isPremium}
         />
       )}
     </>
@@ -434,6 +461,8 @@ function AppContent() {
           onLogout={handleLogout}
           isGuest={isGuest}
           onTriggerGuestModal={() => setShowGuestModal(true)}
+          isPremium={isPremium}
+          onOpenPremiumModal={() => setShowPremiumModal(true)}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         <SharedOverlays />
@@ -508,6 +537,8 @@ function AppContent() {
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigate={handleNavigate}
           isGuest={isGuest}
+          isPremium={isPremium}
+          onOpenPremiumModal={() => setShowPremiumModal(true)}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         <SharedOverlays />

@@ -21,4 +21,7 @@ export const config = {
   // Phase 4 only:
   jwtSecret: process.env.JWT_SECRET ?? "dev-secret-change-in-phase-4",
   isProd: (process.env.NODE_ENV ?? "development") === "production",
+  // Pi Network Payments configuration
+  piApiKey: process.env.PI_NETWORK_API_KEY ?? process.env.PI_API_KEY ?? "",
+  piPlatformApiUrl: process.env.PI_PLATFORM_API_URL ?? "https://api.minepi.com",
 };

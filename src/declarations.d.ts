@@ -61,12 +61,29 @@ interface PiPaymentDTO {
   };
 }
 
+interface PaymentData {
+  amount: number;
+  memo: string;
+  metadata: Record<string, unknown>;
+}
+
+interface PaymentCallbacks {
+  onReadyForServerApproval: (paymentId: string) => Promise<void> | void;
+  onReadyForServerCompletion: (paymentId: string, txid: string) => Promise<void> | void;
+  onCancel?: (paymentId: string) => void;
+  onError?: (error: Error, payment?: PiPaymentDTO) => void;
+}
+
 interface PiSDK {
   init(config: { version: string; sandbox?: boolean }): Promise<void>;
   authenticate(
     scopes: string[],
-    onIncompletePaymentFound: (payment: PiPaymentDTO) => void
+    onIncompletePaymentFound: (payment: PiPaymentDTO) => Promise<void> | void
   ): Promise<PiAuthResult>;
+  createPayment(
+    paymentData: PaymentData,
+    callbacks: PaymentCallbacks
+  ): Promise<PiPaymentDTO>;
 }
 
 declare global {
