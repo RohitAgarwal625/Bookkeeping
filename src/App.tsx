@@ -70,12 +70,12 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
 function LoginLogoTitle() {
   return (
     <div className="logo-title-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-      <h1
-        className="text-gray-900 dark:text-foreground text-center font-bold"
-        style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
-      >
-        BOOKKEEPING
-      </h1>
+       <h1
+                        className="text-gray-900 dark:text-foreground text-center"
+                        style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
+                      >
+                        BOOKKEEPING
+                      </h1>
     </div>
   );
 }
@@ -422,7 +422,7 @@ function AppContent() {
   return (
     <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
         @keyframes logo-zoom-out {
           0%   { transform: scale(1.4); opacity: 0; }
           100% { transform: scale(1); opacity: 1; }
