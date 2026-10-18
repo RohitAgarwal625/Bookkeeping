@@ -246,7 +246,6 @@ function AppContent() {
       return;
     }
     if (screen === "premium") {
-      setShowPremiumModal(true);
       return;
     }
     setShowPayModal(false);

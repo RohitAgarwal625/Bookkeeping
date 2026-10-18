@@ -14,7 +14,6 @@ import {
   X,
   Pencil,
   Check,
-  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "./ui/switch";
@@ -130,13 +129,6 @@ export function Settings({
   };
 
   const settingsItems = [
-    {
-      id: "premiumPlan",
-      label: isPremium ? "Premium Bookkeeping (Active)" : "Unlock Premium Plan (1 π)",
-      icon: Sparkles,
-      iconColor: isPremium ? "text-amber-500" : "text-[#8A2BE2]",
-      iconBg: isPremium ? "bg-amber-100 dark:bg-amber-950/30" : "bg-purple-100 dark:bg-purple-950/30",
-    },
     {
       id: "editProfile",
       label: "Profile",
@@ -532,9 +524,7 @@ export function Settings({
               <button
                 key={item.id}
                 onClick={() => {
-                  if (item.id === "premiumPlan") {
-                    onOpenPremiumModal?.();
-                  } else if (item.id === "editProfile" && isGuest) {
+                  if (item.id === "editProfile" && isGuest) {
                     onTriggerGuestModal?.();
                   } else {
                     setActiveSubScreen(item.id as ActiveSubScreen);

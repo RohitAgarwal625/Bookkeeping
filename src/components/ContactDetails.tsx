@@ -10,9 +10,17 @@ interface ContactDetailsProps {
   onUpdate: (updated: Contact) => void;
   onNavigateToLedger: (customerName: string, contactId: string) => void;
   onDelete?: (contactId: string) => void;
+  hideDeleteButton?: boolean;
 }
 
-export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger, onDelete }: ContactDetailsProps) {
+export function ContactDetails({
+  contact,
+  onBack,
+  onUpdate,
+  onNavigateToLedger,
+  onDelete,
+  hideDeleteButton = true, // Hide delete contact button for the time being while keeping feature functional
+}: ContactDetailsProps) {
   const [editingField, setEditingField] = useState<"name" | "wallet" | null>(null);
   const [draftName, setDraftName] = useState(contact.name);
   const [draftWallet, setDraftWallet] = useState(contact.piWalletAddress);
@@ -193,7 +201,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger, 
           </div>
       </div>
 
-      {/* Fixed bottom bar — Open Ledger + Delete */}
+      {/* Fixed bottom bar — Open Ledger */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div
           style={{ paddingBottom: "56px", paddingTop: "24px", paddingLeft: "20px", paddingRight: "20px" }}
@@ -207,7 +215,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger, 
             Open Ledger
             <BookOpen className="w-5 h-5" />
           </button>
-          {onDelete && (
+          {!hideDeleteButton && onDelete && (
             <button
               onClick={() => setShowDeleteConfirm(true)}
               className="w-full py-3 rounded-2xl font-semibold border border-red-200 dark:border-red-800/50 text-red-500 dark:text-red-400 flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
