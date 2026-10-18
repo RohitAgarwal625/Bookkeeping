@@ -5,6 +5,7 @@ import {
   incompletePaymentHandler,
   getPaymentStatusHandler,
   getPremiumStatusHandler,
+  getBlockchainPaymentsHandler,
 } from "../controllers/pi.controller";
 
 /**
@@ -16,6 +17,7 @@ import {
  * - Incomplete: POST /api/pi/incomplete-payment -> handles uncompleted in-flight payments
  * - Status: GET /api/pi/payment/:id -> retrieves payment data from Pi Platform API
  * - Premium Status: GET /api/pi/premium-status -> checks if Premium Bookkeeping Plan is unlocked
+ * - Blockchain Payments: GET /api/pi/blockchain/payments/:address -> proxies Pi Horizon node
  */
 const router = Router();
 
@@ -35,5 +37,8 @@ router.get("/payment/:id", getPaymentStatusHandler);
 
 // Premium feature entitlement status
 router.get("/premium-status", getPremiumStatusHandler);
+
+// Blockchain payments inspection
+router.get("/blockchain/payments/:address", getBlockchainPaymentsHandler);
 
 export default router;

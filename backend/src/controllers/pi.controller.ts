@@ -304,3 +304,60 @@ export async function getPremiumStatusHandler(
     next(err);
   }
 }
+
+/**
+ * GET /api/pi/blockchain/payments/:address
+ * Proxies request to Pi Horizon nodes (Mainnet / Testnet) for an account address.
+ */
+export async function getBlockchainPaymentsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const address = req.params.address?.trim();
+    if (!address) {
+      res.status(400).json({ error: "Pi wallet address is required", records: [] });
+      return;
+    }
+
+    const limit = Math.min(Math.max(parseInt((req.query.limit as string) || "50", 10), 1), 200);
+    const order = req.query.order === "asc" ? "asc" : "desc";
+
+    // 1. Try Mainnet Horizon first
+    const mainnetUrl = `https://api.mainnet.minepi.com/accounts/${encodeURIComponent(address)}/payments?limit=${limit}&order=${order}`;
+    let network = "mainnet";
+    let horizonRes: globalThis.Response | null = await fetch(mainnetUrl).catch(() => null);
+
+    // 2. If mainnet returns 404 or fails, fallback to Testnet Horizon
+    if (!horizonRes || !horizonRes.ok) {
+      const testnetUrl = `https://api.testnet.minepi.com/accounts/${encodeURIComponent(address)}/payments?limit=${limit}&order=${order}`;
+      const testnetRes = await fetch(testnetUrl).catch(() => null);
+      if (testnetRes && testnetRes.ok) {
+        horizonRes = testnetRes;
+        network = "testnet";
+      }
+    }
+
+    if (!horizonRes || !horizonRes.ok) {
+      const status = horizonRes ? horizonRes.status : 502;
+      res.status(status).json({
+        error: "No account or transactions found on Pi blockchain",
+        network: "none",
+        records: [],
+      });
+      return;
+    }
+
+    const data = (await horizonRes.json()) as { _embedded?: { records?: unknown[] } };
+    const records = data._embedded?.records || [];
+
+    res.status(200).json({
+      network,
+      records,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+

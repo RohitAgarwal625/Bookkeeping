@@ -340,7 +340,28 @@ function AppContent() {
         <AutomaticTransactionScreen
           contacts={contacts}
           onBack={handleBackToDashboard}
-          onNavigateToLedger={handleNavigateToCustomerLedger}
+          onNavigateToLedger={async (customerName, contactId, newTransactions) => {
+            if (bk.isAuthenticated && newTransactions && newTransactions.length > 0) {
+              const matchingContact = contacts.find(
+                (c) => c.name.toLowerCase() === customerName.toLowerCase() || (contactId && c.id === contactId)
+              );
+              if (matchingContact) {
+                for (const tx of newTransactions) {
+                  try {
+                    await bk.addTransaction({
+                      description: tx.description,
+                      amount: tx.amount,
+                      type: tx.type,
+                      contactId: matchingContact.id,
+                    });
+                  } catch (e) {
+                    console.error("Failed to persist synced transaction to DB:", e);
+                  }
+                }
+              }
+            }
+            handleNavigateToCustomerLedger(customerName, contactId, newTransactions);
+          }}
         />
         <Toaster position="bottom-center" />
       </>

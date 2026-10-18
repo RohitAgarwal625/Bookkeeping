@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info, AlertCircle, RefreshCw } from "lucide-react";
 import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { fetchPiBlockchainTransactions, PiBlockchainScanResult } from "../lib/piBlockchain";
+import { auth } from "../lib/api";
 
 interface AutomaticTransactionScreenProps {
   contacts: Contact[];
@@ -9,16 +11,16 @@ interface AutomaticTransactionScreenProps {
   onNavigateToLedger: (name: string, contactId?: string, newTransactions?: Transaction[]) => void;
 }
 
-
 type Step = "selectContact" | "dateRange" | "scanning" | "summary";
 
 const SCAN_MESSAGES = [
-  "Connecting to Pi RPC node...",
-  "Authenticating wallet credentials...",
-  "Scanning Pi Blockchain for transactions...",
-  "Fetching ledger entries...",
-  "Verifying transaction signatures...",
-  "Almost done...",
+  "Connecting to Pi Horizon node...",
+  "Querying Pi Blockchain for account payments...",
+  "Scanning Mainnet & Testnet ledgers...",
+  "Matching Pioneer wallet address...",
+  "Verifying transaction signatures & amounts...",
+  "Synchronizing ledger entries...",
+  "Finalizing...",
 ];
 
 export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedger }: AutomaticTransactionScreenProps) {
@@ -29,7 +31,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   const [toDate, setToDate] = useState("");
   const [showInfo, setShowInfo] = useState(false);
   const [scanMsgIndex, setScanMsgIndex] = useState(0);
-  const txFound = useRef(0); // Previously dummy count: useRef(3);
+
+  // Real blockchain scan state
+  const [scanResult, setScanResult] = useState<PiBlockchainScanResult | null>(null);
+  const [scannedTransactions, setScannedTransactions] = useState<Transaction[]>([]);
+  const [scanError, setScanError] = useState<string | null>(null);
 
   // Format ISO date string (YYYY-MM-DD) to "DD MMM, YYYY" (e.g. 19 Aug, 2026)
   const fmtDate = (iso: string) => {
@@ -86,18 +92,59 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Cycle animation messages during scan
   useEffect(() => {
     if (step !== "scanning") return;
-    const interval = setInterval(() => setScanMsgIndex((i) => i + 1), 450);
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-      setStep("summary");
-    }, 2800);
-    return () => { clearInterval(interval); clearTimeout(timeout); };
+    const interval = setInterval(() => {
+      setScanMsgIndex((i) => (i + 1) % SCAN_MESSAGES.length);
+    }, 450);
+    return () => clearInterval(interval);
   }, [step]);
 
+  // Execute real blockchain scan
+  const handleStartScan = async () => {
+    if (!selectedContact) return;
+    setScanMsgIndex(0);
+    setScanResult(null);
+    setScannedTransactions([]);
+    setScanError(null);
+    setStep("scanning");
+
+    const startTime = Date.now();
+    try {
+      const result = await fetchPiBlockchainTransactions({
+        walletAddress: selectedContact.piWalletAddress,
+        contactName: selectedContact.name,
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
+        userWalletAddress: auth.getWallet() || undefined,
+      });
+
+      const elapsed = Date.now() - startTime;
+      const minWait = 2400; // Keep UI animated for at least 2.4s for smooth Pioneer UX
+      const remaining = Math.max(0, minWait - elapsed);
+
+      setTimeout(() => {
+        setScanResult(result);
+        setScannedTransactions(result.transactions);
+        if (result.error && result.transactions.length === 0) {
+          setScanError(result.error);
+        }
+        setStep("summary");
+      }, remaining);
+    } catch (err) {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 2400 - elapsed);
+      setTimeout(() => {
+        setScanError(err instanceof Error ? err.message : "Failed to scan blockchain node");
+        setScannedTransactions([]);
+        setStep("summary");
+      }, remaining);
+    }
+  };
+
   if (step === "scanning") {
-    const msg = SCAN_MESSAGES[Math.min(scanMsgIndex, SCAN_MESSAGES.length - 1)];
+    const msg = SCAN_MESSAGES[scanMsgIndex] || SCAN_MESSAGES[0];
     return (
       <div
         style={{ minHeight: "100dvh", height: "100dvh" }}
@@ -126,75 +173,155 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   }
 
   if (step === "summary") {
+    const count = scannedTransactions.length;
+    const networkLabel = scanResult?.network === "testnet"
+      ? "Pi Testnet"
+      : scanResult?.network === "mainnet"
+        ? "Pi Mainnet"
+        : "Pi Network";
+
     return (
       <div
-        style={{ minHeight: "100dvh", height: "100dvh" }}
-        className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-5 text-center"
+        style={{ minHeight: "100dvh", height: "100dvh", overflowY: "auto" }}
+        className="w-full flex flex-col items-center justify-start bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-5 py-8 text-center"
       >
-        <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
-          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
-          <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
+        <div
+          className="w-20 h-20 rounded-full flex items-center justify-center mb-5 shadow-2xl mx-auto flex-shrink-0"
+          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}
+        >
+          <CheckCircle className="w-10 h-10 text-white" strokeWidth={2.5} />
         </div>
-        <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Scan Complete</h2>
-        <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-6 max-w-xs">
-          No new transactions found on Pi blockchain for{" "}
-          <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> in the selected date range.
+
+        <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">
+          {count > 0 ? "Done !" : "Scan Complete"}
+        </h2>
+
+        <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-5 max-w-sm">
+          {count > 0 ? (
+            <>
+              <span className="font-bold text-[#6F3C97] dark:text-[#A47CF3] text-3xl">{count}</span>{" "}
+              transaction{count > 1 ? "s" : ""} found with{" "}
+              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> and were added to your ledger successfully.
+            </>
+          ) : (
+            <>
+              No new transactions found on Pi blockchain for{" "}
+              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> in the selected date range.
+            </>
+          )}
         </p>
-        <div className="w-full max-w-sm bg-white dark:bg-card shadow-md dark:border dark:border-border p-4 mb-8 mx-4" style={{ borderRadius: "24px", overflow: "hidden" }}>
+
+        {/* Informative error or wallet address indicator */}
+        {scanError && count === 0 && (
+          <div className="w-full max-w-sm mb-4 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-left flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+              <p className="font-semibold mb-0.5">Blockchain Notice</p>
+              <p>{scanError}</p>
+              {selectedContact?.piWalletAddress && (
+                <p className="mt-1 font-mono text-[10px] text-amber-700 dark:text-amber-400 break-all opacity-85">
+                  Address: {selectedContact.piWalletAddress}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Scan Details Card */}
+        <div className="w-full max-w-sm bg-white dark:bg-card shadow-md dark:border dark:border-border p-4 mb-4 mx-4 flex-shrink-0" style={{ borderRadius: "24px" }}>
           {[
             { label: "Pioneer", value: selectedContact?.name ?? "" },
+            { label: "Network", value: networkLabel },
             { label: "From", value: fmtDate(fromDate) },
             { label: "To", value: fmtDate(toDate) },
-            { label: "Transactions Added", value: "0" },
+            { label: "Transactions Added", value: String(count) },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
               <span className={`font-medium ${label === "Transactions Added"
-                  ? "text-[#6F3C97] font-bold text-xl"
+                  ? "text-[#6F3C97] dark:text-[#A47CF3] font-bold text-xl"
                   : "text-gray-900 dark:text-foreground"
                 }`}>{value}</span>
             </div>
           ))}
         </div>
-        <button
-          onClick={() => {
-            // ── Dummy mock transactions (commented out / hidden) ──
-            // const dummyTxs: Transaction[] = [
-            //   {
-            //     id: `auto-${Date.now()}-1`,
-            //     description: "Auto Sync: Pi Blockchain Payment",
-            //     amount: 3.14159,
-            //     type: "credit",
-            //     timestamp: "2026-08-28 16:45",
-            //     isNew: true,
-            //   },
-            //   {
-            //     id: `auto-${Date.now()}-2`,
-            //     description: "Auto Sync: Pi Peer Direct",
-            //     amount: 14.20,
-            //     type: "debit",
-            //     timestamp: "2026-07-14 11:30",
-            //     isNew: true,
-            //   },
-            //   {
-            //     id: `auto-${Date.now()}-3`,
-            //     description: "Auto Sync: Ledger Settlement",
-            //     amount: 25.50,
-            //     type: "credit",
-            //     timestamp: "2026-04-18 09:15",
-            //     isNew: true,
-            //   },
-            // ];
-            // onNavigateToLedger(selectedContact?.name ?? "", selectedContact?.id, dummyTxs);
 
-            onNavigateToLedger(selectedContact?.name ?? "", selectedContact?.id, []);
-          }}
-          className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
-          style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 6px 24px rgba(111,60,151,0.45)" }}
-        >
-          Open Ledger
-          <BookOpen className="w-5 h-5" />
-        </button>
+        {/* Preview of Found Transactions (if any) */}
+        {count > 0 && (
+          <div className="w-full max-w-sm mb-6 text-left">
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-2 px-1">
+              Synced Transactions ({count})
+            </h4>
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              {scannedTransactions.map((tx) => (
+                <div
+                  key={tx.id}
+                  className="bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl p-3 flex items-center justify-between shadow-sm"
+                >
+                  <div className="min-w-0 flex-1 pr-3">
+                    <p className="text-xs font-semibold text-gray-900 dark:text-foreground truncate">
+                      {tx.description}
+                    </p>
+                    <p className="text-[11px] text-gray-400 dark:text-muted-foreground mt-0.5">
+                      {tx.timestamp}
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <span
+                      className={`text-sm font-bold ${
+                        tx.type === "credit"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-rose-600 dark:text-rose-400"
+                      }`}
+                    >
+                      {tx.type === "credit" ? "+" : "-"} {tx.amount.toFixed(4)} π
+                    </span>
+                    <span
+                      className={`block text-[10px] uppercase font-bold tracking-wider mt-0.5 ${
+                        tx.type === "credit"
+                          ? "text-emerald-500"
+                          : "text-rose-500"
+                      }`}
+                    >
+                      {tx.type}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="w-full max-w-sm space-y-3 mt-auto pb-4">
+          <button
+            onClick={() => {
+              onNavigateToLedger(
+                selectedContact?.name ?? "",
+                selectedContact?.id,
+                scannedTransactions
+              );
+            }}
+            className="w-full py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2"
+            style={{
+              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
+              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+            }}
+          >
+            Open Ledger
+            <BookOpen className="w-5 h-5" />
+          </button>
+
+          {count === 0 && (
+            <button
+              onClick={() => setStep("dateRange")}
+              className="w-full py-3 rounded-2xl font-semibold text-sm text-gray-600 dark:text-muted-foreground bg-gray-100 dark:bg-secondary hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Adjust Date Range
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -294,13 +421,16 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             </div>
           )}
 
-          <button disabled={!isValid} onClick={() => { setScanMsgIndex(0); setStep("scanning"); }}
+          <button
+            disabled={!isValid}
+            onClick={handleStartScan}
             className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
               background: isValid ? "linear-gradient(135deg,#A47CF3,#F7C548)" : "#e5e7eb",
               color: isValid ? "#fff" : "#9ca3af",
               boxShadow: isValid ? "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" : "none"
-            }}>
+            }}
+          >
             Fetch
           </button>
         </div>
@@ -321,8 +451,13 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
       <div className="flex-1 overflow-y-auto px-6 py-4">
         <div className="relative mb-4">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
-          <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search from Contacts"
-            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search from Contacts"
+            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all"
+          />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
               <X className="w-4 h-4 text-gray-400" />
@@ -331,18 +466,28 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </div>
         <div className="space-y-2">
           {filtered.map((contact) => (
-            <button key={contact.id} onClick={() => { setSelectedContact(contact); setStep("dateRange"); }}
-              className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A2BE2]/40 transition-all text-left">
+            <button
+              key={contact.id}
+              onClick={() => { setSelectedContact(contact); setStep("dateRange"); }}
+              className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A2BE2]/40 transition-all text-left"
+            >
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold">{getInitials(contact.name)}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-gray-900 dark:text-foreground font-medium truncate">{contact.name}</p>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${contact.category === "individual"
-                  ? "bg-purple-100 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400"
-                  : "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"}`}>
-                  {contact.category === "individual" ? "Individual" : "Business"}
-                </span>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${contact.category === "individual"
+                    ? "bg-purple-100 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400"
+                    : "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"}`}>
+                    {contact.category === "individual" ? "Individual" : "Business"}
+                  </span>
+                  {contact.piWalletAddress && (
+                    <span className="text-[11px] font-mono text-gray-400 dark:text-muted-foreground truncate max-w-[140px]">
+                      {contact.piWalletAddress.slice(0, 4)}...{contact.piWalletAddress.slice(-4)}
+                    </span>
+                  )}
+                </div>
               </div>
             </button>
           ))}
