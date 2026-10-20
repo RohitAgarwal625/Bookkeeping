@@ -64,7 +64,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-32">
           {/* Avatar */}
           <div className="flex justify-center mb-8">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
               <span className="text-white text-2xl font-bold">{getInitials(displayName)}</span>
             </div>
           </div>

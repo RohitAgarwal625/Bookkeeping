@@ -87,7 +87,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
         <div className="flex flex-col items-center gap-6 px-8 text-center" style={{ transform: "translateY(-32px)" }}>
           {/* Gradient check circle */}
           <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
-            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}>
             <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
           <div className="space-y-2">
@@ -187,7 +187,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                         style={isBusiness ? { backgroundColor: "#9ca3af" } : undefined}
                         className={`flex items-center justify-between px-4 py-3 transition-colors ${isBusiness
                           ? "cursor-not-allowed text-white"
-                          : "cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
+                          : "cursor-pointer hover:bg-purple-50/50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
                           }`}
                       >
                         <div className="flex items-center gap-3">
@@ -251,7 +251,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 rows={isWalletFocused && piWallet.length > 20 ? Math.min(4, Math.max(1, Math.ceil(piWallet.length / 20))) : 1}
                 className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all resize-none break-all leading-snug overflow-hidden text-base font-medium"
               />
-              {/* Validation tick — matches PayScreen style: grey by default, purple filled when validated */}
+              {/* Validation tick */}
               <div
                 className={`absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isValidated
                   ? "bg-[#A47CF3] border-[#A47CF3]"
@@ -269,7 +269,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
             <button
               onClick={handleSave}
               className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
-              style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+              style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" }}
             >
               Save
             </button>
@@ -278,7 +278,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
               onClick={handleValidate}
               disabled={!allFieldsFilled}
               className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+              style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" }}
             >
               Validate
             </button>

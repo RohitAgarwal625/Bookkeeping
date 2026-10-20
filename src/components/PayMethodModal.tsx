@@ -44,7 +44,7 @@ export function PayMethodModal({ onPayViaContacts, onPayViaQR, onClose }: PayMet
             {/* Pay via QR */}
             <div className="flex-1 flex flex-col items-center gap-2">
               <button onClick={onPayViaQR} className="flex flex-col items-center gap-2 group">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}>
                   <QrCode className="w-7 h-7 text-white" />
                 </div>
                 <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Pay via QR</span>
@@ -55,7 +55,7 @@ export function PayMethodModal({ onPayViaContacts, onPayViaQR, onClose }: PayMet
             {/* Pay via Contacts */}
             <div className="flex-1 flex flex-col items-center gap-2">
               <button onClick={onPayViaContacts} className="flex flex-col items-center gap-2 group">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}>
                   <Users className="w-7 h-7 text-white" />
                 </div>
                 <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Pay via Contacts</span>

@@ -34,7 +34,7 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
       <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
         <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)" }}>
           {/* Enlarged wallet icon with Pi icon from Pay button centered inside it */}
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg relative" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
             <div className="relative flex items-center justify-center w-10 h-10">
               <Wallet className="w-9 h-9 text-white" />
               <div className="absolute inset-0 flex items-center justify-center" style={{ transform: "translate(-4.5px, 2.5px)" }}>
@@ -50,8 +50,8 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
           </p>
           <button
             onClick={onConnect}
-            className="w-full py-3 rounded-full text-white font-bold mb-4"
-            style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+            className="w-full py-3 rounded-full text-white font-bold mb-4 shadow-lg hover:shadow-xl transition-shadow duration-300"
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
           >
             Connect Pi Wallet
           </button>
@@ -70,12 +70,12 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
 function LoginLogoTitle() {
   return (
     <div className="logo-title-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-       <h1
-                        className="text-gray-900 dark:text-foreground text-center"
-                        style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
-                      >
-                        BOOKKEEPING
-                      </h1>
+      <h1
+        className="text-gray-900 dark:text-foreground text-center"
+        style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
+      >
+        BOOKKEEPING
+      </h1>
     </div>
   );
 }
@@ -505,14 +505,14 @@ function AppContent() {
             <button
               onClick={handleConnectWallet}
               className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
-              style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+              style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
             >
               Connect Pi Wallet
             </button>
             <button
               onClick={handleGuestLogin}
               className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
-              style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
+              style={{ background: "linear-gradient(to right, #8A532B, #592C16)" }}
             >
               Continue as Guest
             </button>

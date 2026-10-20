@@ -51,7 +51,7 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
           {item.label}
         </span>
         {isActive && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#A47CF3] to-[#F7C548] rounded-t-full" />
+          <div className="absolute bottom-0 left-0 right-0 h-1 rounded-t-full" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }} />
         )}
       </button>
     );
@@ -100,8 +100,8 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
             <button
               ref={btnRef}
               onClick={() => onNavigate?.("pay")}
-              className="absolute w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-              style={{ top: "-27px", background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+              className="absolute w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+              style={{ top: "-27px", background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 20px rgba(89, 44, 22, 0.45)" }}
             >
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="20" fontWeight="bold" fontFamily="serif">π</text>

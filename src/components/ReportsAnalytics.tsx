@@ -109,7 +109,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                     <div
                       className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
                       style={{
-                        background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                        background: "linear-gradient(to right, #592C16, #8A532B)",
                         transform: analyticsCategory === "business" ? "translateX(20px)" : "translateX(0)",
                       }}
                     />
@@ -211,7 +211,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 <button
                   onClick={() => setIsCustomSubmitted(true)}
                   className="w-full py-4 rounded-xl text-white font-bold text-base shadow-md transition-all hover:opacity-95 active:scale-[0.99] mt-1"
-                  style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
+                  style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
                 >
                   Submit
                 </button>
@@ -276,7 +276,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                       <div key={customer.id}>
                         <div className="flex items-center gap-3">
                           {/* Profile Icon */}
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                             <span className="text-white text-sm font-semibold">
                               {getInitials(customer.name)}
                             </span>

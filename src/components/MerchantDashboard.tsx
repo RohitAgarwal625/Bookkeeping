@@ -206,7 +206,7 @@ export function MerchantDashboard({
               <div
                 className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
                 style={{
-                  background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                  background: "linear-gradient(to right, #592C16, #8A532B)",
                   transform: activeCategory === "business" ? "translateX(20px)" : "translateX(0)",
                 }}
               />
@@ -256,7 +256,7 @@ export function MerchantDashboard({
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3 flex-1">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                           <span className="text-white text-sm font-semibold">{getInitials(merchant.merchantName)}</span>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -348,7 +348,7 @@ export function MerchantDashboard({
             <div className="px-6 pt-4 pb-5">
               {/* Avatar + Amount */}
               <div className="flex flex-col items-center mb-5">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-md mb-2">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-md mb-2" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                   <span className="text-white text-base font-bold">
                     {getInitials(selectedMerchant.merchantName)}
                   </span>

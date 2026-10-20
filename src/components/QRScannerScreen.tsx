@@ -123,7 +123,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
         </header>
 
         <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-xl"
-          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}>
+          style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
           <CheckCircle className="w-10 h-10 text-white" />
         </div>
         <div className="text-center">
@@ -135,7 +135,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
         </div>
         <button onClick={() => onScanned(scannedValue)}
           className="w-full py-4 rounded-2xl font-bold text-white text-base"
-          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}>
+          style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)" }}>
           Pay this Address
         </button>
         <button onClick={handleBack} className="text-gray-400 text-sm underline">Cancel</button>

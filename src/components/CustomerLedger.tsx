@@ -272,7 +272,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
         {/* Top Summary Card */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border dark:border-border p-8 mb-6 relative overflow-hidden">
           {/* Gradient border effect */}
-          <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-br from-[#A47CF3] to-[#F7C548] -z-10 opacity-70" />
+          <div className="absolute inset-0 rounded-2xl p-[2px] -z-10 opacity-70" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }} />
           <div className="absolute inset-[2px] bg-white dark:bg-card rounded-2xl -z-10" />
 
           {/* Credit and Debit Summary */}

@@ -110,7 +110,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               key={i}
               className="w-4 h-4 rounded-full"
               style={{
-                background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                background: "linear-gradient(to right, #592C16, #8A532B)",
                 animation: "bounce-dot 0.8s ease-in-out infinite",
                 animationDelay: `${delay}s`,
               }}
@@ -132,7 +132,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-5 text-center"
       >
         <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
-          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+          style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}>
           <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
         </div>
         <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Done !</h2>
@@ -273,7 +273,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           {selectedContact && (
             <div className="mb-4 bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 flex items-center justify-between">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-base font-bold shadow-md flex-shrink-0">
+                <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-base font-bold shadow-md flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                   <span className="text-white font-bold">{getInitials(selectedContact.name)}</span>
                 </div>
                 <div className="min-w-0">
@@ -293,11 +293,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           )}
 
           <button disabled={!isValid} onClick={() => { setScanMsgIndex(0); setStep("scanning"); }}
-            className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl duration-300"
             style={{
-              background: isValid ? "linear-gradient(135deg,#A47CF3,#F7C548)" : "#e5e7eb",
+              background: isValid ? "linear-gradient(to right, #592C16, #8A532B)" : "#e5e7eb",
               color: isValid ? "#fff" : "#9ca3af",
-              boxShadow: isValid ? "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" : "none"
+              boxShadow: isValid ? "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" : "none"
             }}>
             Fetch
           </button>
@@ -331,7 +331,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           {filtered.map((contact) => (
             <button key={contact.id} onClick={() => { setSelectedContact(contact); setStep("dateRange"); }}
               className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A2BE2]/40 transition-all text-left">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                 <span className="text-white font-bold">{getInitials(contact.name)}</span>
               </div>
               <div className="flex-1 min-w-0">

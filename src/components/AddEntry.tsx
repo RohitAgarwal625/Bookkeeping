@@ -143,7 +143,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
         <div className="flex flex-col items-center px-8 text-center" style={{ transform: "translateY(-32px)" }}>
           {/* Animated check circle */}
           <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
-            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}>
             <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
           <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold mb-2">
@@ -194,9 +194,9 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Pioneer</label>
             <div className="relative z-50">
               {selectedCustomer ? (
-                <div className="flex items-center justify-between px-4 py-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 rounded-xl">
+                <div className="flex items-center justify-between px-4 py-3 bg-purple-50/60 dark:bg-[#6F3C97]/20 border border-purple-200/80 dark:border-[#A47CF3]/40 rounded-xl">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       {getInitials(selectedCustomer)}
                     </div>
                     <span className="text-gray-900 dark:text-foreground font-medium text-sm">{selectedCustomer}</span>
@@ -232,7 +232,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                           }}
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
                         >
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                             {getInitials(name)}
                           </div>
                           <span className="text-gray-900 dark:text-foreground text-sm font-medium">{name}</span>
@@ -407,7 +407,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
           <button
             onClick={handleSaveEntry}
             className="w-full py-3.5 px-6 rounded-xl text-white shadow-md hover:shadow-lg transition-all active:scale-98"
-            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" }}
           >
             Add
           </button>

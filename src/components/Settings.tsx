@@ -168,7 +168,7 @@ export function Settings({
         <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center gap-6" style={{ paddingBottom: "111px" }}>
           {/* Profile Avatar */}
           <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg overflow-hidden">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg overflow-hidden" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
               <span className="text-white text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
             </div>
           </div>
@@ -321,7 +321,7 @@ export function Settings({
           {/* Intro banner */}
           <div className="bg-gradient-to-r from-[#A47CF3]/10 to-[#F7C548]/10 dark:from-purple-950/30 dark:to-yellow-950/20 rounded-2xl p-4 mb-6 border border-purple-100 dark:border-purple-800/30">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                 <HelpCircle className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -353,9 +353,10 @@ export function Settings({
                     </span>
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${isOpen
-                        ? "bg-gradient-to-br from-[#A47CF3] to-[#F7C548]"
+                        ? ""
                         : "bg-gray-100 dark:bg-secondary"
                         }`}
+                      style={isOpen ? { background: "linear-gradient(to right, #592C16, #8A532B)" } : undefined}
                     >
                       {isOpen ? (
                         <ChevronUp className="w-4 h-4 text-white" />
@@ -404,7 +405,7 @@ export function Settings({
 
         <div className="flex-1 overflow-y-auto px-6 py-6" style={{ paddingBottom: "111px" }}>
           {/* Hero */}
-          <div className="bg-gradient-to-br from-[#A47CF3] to-[#F7C548] rounded-2xl p-6 mb-6 text-white shadow-lg">
+          <div className="rounded-2xl p-6 mb-6 text-white shadow-lg" style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.35)" }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
                 <span className="text-white text-xl font-bold">π</span>
@@ -478,7 +479,7 @@ export function Settings({
         {/* Profile Section */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-6 mb-6">
           <div className="flex flex-col items-center mb-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3 overflow-hidden">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg mb-3 overflow-hidden" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
               <span className="text-white text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
             </div>
 
@@ -560,7 +561,7 @@ export function Settings({
                 <div
                   className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
                   style={{
-                    background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                    background: "linear-gradient(to right, #592C16, #8A532B)",
                     transform: isDarkMode ? "translateX(20px)" : "translateX(0)",
                   }}
                 />

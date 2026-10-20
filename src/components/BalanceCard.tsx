@@ -39,13 +39,13 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
       {/* Action buttons */}
       <div className="grid grid-cols-2 gap-4 mt-4">
         <button onClick={() => setShowPioneerDialog(true)} className="flex flex-col items-center gap-2 py-2 group">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
             <UserPlus className="w-6 h-6 text-white" />
           </div>
           <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Add Contact</span>
         </button>
         <button onClick={() => setShowTransactionDialog(true)} className="flex flex-col items-center gap-2 py-2 group">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
             <Plus className="w-6 h-6 text-white" />
           </div>
           <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Add Transaction</span>
@@ -95,7 +95,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     onClick={() => { closePioneer(); onAddCustomer("individual"); }}
                     className="flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <User className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-base text-gray-700 dark:text-gray-300 font-bold hover:text-gray-900 dark:hover:text-white transition-colors">
@@ -201,7 +201,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     onClick={() => { closeTransaction(); onAddEntry(); }}
                     className="flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <PenLine className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-base text-gray-700 dark:text-gray-300 font-bold">Manual</span>
@@ -233,7 +233,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     onClick={() => { closeTransaction(); onAutoEntry(); }}
                     className="flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <Zap className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-base text-gray-700 dark:text-gray-300 font-bold">Automatic</span>

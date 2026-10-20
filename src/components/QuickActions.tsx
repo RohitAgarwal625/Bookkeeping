@@ -35,7 +35,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
           onClick={() => setShowPioneerDialog(true)}
           className="flex flex-col items-center gap-2 group"
         >
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}>
             <UserPlus className="w-7 h-7 text-white" />
           </div>
           <span className="text-xs text-gray-700 dark:text-gray-300">Add Contact</span>
@@ -46,7 +46,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
           onClick={() => setShowTransactionDialog(true)}
           className="flex flex-col items-center gap-2 group"
         >
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}>
             <Plus className="w-7 h-7 text-white" />
           </div>
           <span className="text-xs text-gray-700 dark:text-gray-300">Add Transaction(s)</span>
@@ -123,7 +123,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                     onClick={handleSelectManual}
                     className="w-full py-3 rounded-xl border border-gray-200 dark:border-border hover:bg-purple-50 dark:hover:bg-secondary text-gray-900 dark:text-foreground font-medium transition-colors flex items-center gap-3 px-4 pr-10"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <PenLine className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-lg font-bold">Manual</span>
@@ -153,7 +153,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                     disabled
                     className="w-full py-3 rounded-xl border border-gray-100 dark:border-border/50 bg-gray-50 dark:bg-secondary/40 text-gray-400 dark:text-muted-foreground font-medium cursor-not-allowed flex items-center gap-3 px-4 pr-10"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <Zap className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-lg font-bold">Automatic</span>

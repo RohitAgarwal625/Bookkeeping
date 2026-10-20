@@ -2405,5 +2405,57 @@ html {
   padding-bottom: calc(var(--spacing) * 10);
 }
 
+/* Custom Theme Gradient Utilities (#592C16 to #8A532B) */
+.from-\[\#592C16\], .from-\[\#592c16\] {
+  --tw-gradient-from: #592c16;
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+}
+.to-\[\#8A532B\], .to-\[\#8a532b\] {
+  --tw-gradient-to: #8a532b;
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+}
+.via-\[\#8A532B\], .via-\[\#8a532b\] {
+  --tw-gradient-via: #8a532b;
+  --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-via-stops);
+}
+.bg-\[\#592C16\], .bg-\[\#592c16\] {
+  background-color: #592c16;
+}
+.bg-\[\#8A532B\], .bg-\[\#8a532b\] {
+  background-color: #8a532b;
+}
+.text-\[\#592C16\], .text-\[\#592c16\] {
+  color: #592c16;
+}
+.text-\[\#8A532B\], .text-\[\#8a532b\] {
+  color: #8a532b;
+}
+.dark\:text-\[\#8A532B\]:is(.dark *), .dark\:text-\[\#8a532b\]:is(.dark *) {
+  color: #8a532b;
+}
+.border-\[\#592C16\], .border-\[\#592c16\] {
+  border-color: #592c16;
+}
+.caret-\[\#592C16\], .caret-\[\#592c16\] {
+  caret-color: #592c16;
+}
+.focus\:border-\[\#592C16\]:focus, .focus\:border-\[\#592c16\]:focus {
+  border-color: #592c16;
+}
+.focus\:ring-\[\#592C16\]:focus, .focus\:ring-\[\#592c16\]:focus {
+  --tw-ring-color: #592c16;
+}
+.focus\:ring-\[\#592C16\]\/20:focus, .focus\:ring-\[\#592c16\]\/20:focus {
+  --tw-ring-color: rgba(89, 44, 22, 0.2);
+}
+.focus-within\:border-\[\#592C16\]:focus-within, .focus-within\:border-\[\#592c16\]:focus-within {
+  border-color: #592c16;
+}
+.theme-gradient-bg {
+  background: linear-gradient(to right, #592C16, #8A532B) !important;
+}
+
+
 
 
