@@ -75,9 +75,9 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                 {/* Individual */}
                 <button
                   onClick={() => handleSelectPioneer("individual")}
-                  className="w-full py-3 rounded-xl border border-gray-200 dark:border-border hover:bg-purple-50 dark:hover:bg-secondary text-gray-900 dark:text-foreground font-medium transition-colors flex items-center gap-3 px-4"
+                  className="w-full py-3 rounded-xl border border-gray-200 dark:border-border hover:bg-stone-50 dark:hover:bg-secondary text-gray-900 dark:text-foreground font-medium transition-colors flex items-center gap-3 px-4"
                 >
-                  <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#592C16]" />
                   <span className="text-lg font-bold">Individual</span>
                 </button>
                 {/* Business (coming soon) — disabled */}
@@ -85,9 +85,9 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                   disabled
                   className="w-full py-3 rounded-xl border border-gray-100 dark:border-border/50 bg-gray-50 dark:bg-secondary/40 text-gray-400 dark:text-muted-foreground font-medium cursor-not-allowed flex items-center gap-3 px-4"
                 >
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-300/60" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#8A532B]/60" />
                   <span className="text-lg font-bold">Business</span>
-                  <span style={{ fontSize: "10px" }} className="ml-auto font-normal text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/40 whitespace-nowrap">
+                  <span style={{ fontSize: "10px" }} className="ml-auto font-normal text-[#8A532B] dark:text-[#EFC8AC] bg-[#8A532B]/10 dark:bg-[#8A532B]/20 px-2.5 py-0.5 rounded-full border border-[#8A532B]/30 whitespace-nowrap">
                     Coming Soon
                   </span>
                 </button>

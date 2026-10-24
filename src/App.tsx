@@ -504,14 +504,14 @@ function AppContent() {
           <div style={{ display: "flex", flexDirection: "column", gap: "32px", width: "100%" }}>
             <button
               onClick={handleConnectWallet}
-              className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300"
+              className="w-full py-4 px-6 rounded-full text-white font-bold text-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
               style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
             >
               Connect Pi Wallet
             </button>
             <button
               onClick={handleGuestLogin}
-              className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
+              className="w-full py-4 px-6 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
               style={{ background: "linear-gradient(to right, #8A532B, #592C16)" }}
             >
               Continue as Guest

@@ -164,7 +164,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all flex items-center justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${category === "individual" ? "bg-purple-400" : "bg-[#9ca3af]"}`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${category === "individual" ? "bg-[#592C16]" : "bg-[#8A532B]"}`} />
                   <span className="font-medium capitalize">
                     {category === "business" ? "Business" : "Individual"}
                   </span>
@@ -187,11 +187,11 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                         style={isBusiness ? { backgroundColor: "#9ca3af" } : undefined}
                         className={`flex items-center justify-between px-4 py-3 transition-colors ${isBusiness
                           ? "cursor-not-allowed text-white"
-                          : "cursor-pointer hover:bg-purple-50/50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
+                          : "cursor-pointer hover:bg-stone-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
                           }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-white"}`} />
+                          <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-[#592C16]" : "bg-[#8A532B]"}`} />
                           <span className={`font-medium capitalize ${isBusiness ? "text-white" : "text-gray-900 dark:text-foreground"}`}>
                             {opt === "business" ? "Business" : "Individual"}
                           </span>

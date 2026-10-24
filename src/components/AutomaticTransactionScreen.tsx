@@ -337,8 +337,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               <div className="flex-1 min-w-0">
                 <p className="text-gray-900 dark:text-foreground font-medium truncate">{contact.name}</p>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${contact.category === "individual"
-                  ? "bg-purple-100 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400"
-                  : "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"}`}>
+                  ? "bg-[#592C16]/10 text-[#592C16] dark:text-[#EFC8AC] dark:bg-[#592C16]/30 border border-[#592C16]/20"
+                  : "bg-[#8A532B]/10 text-[#8A532B] dark:text-[#EFC8AC] dark:bg-[#8A532B]/30 border border-[#8A532B]/20"}`}>
                   {contact.category === "individual" ? "Individual" : "Business"}
                 </span>
               </div>

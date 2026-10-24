@@ -165,7 +165,7 @@ export function ContactsScreen({
                               {/* Category tag at top right with icon aligned in same vertical line */}
                               <div className="text-sm font-medium w-full flex items-center justify-start">
                                 {contact.category === "individual" ? (
-                                  <span className="text-[#A47CF3] dark:text-[#A47CF3] flex items-center gap-1">
+                                  <span className="text-[#592C16] dark:text-[#EFC8AC] flex items-center gap-1">
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
                                       viewBox="0 0 512 512"
@@ -181,7 +181,7 @@ export function ContactsScreen({
                                     Individual
                                   </span>
                                 ) : (
-                                  <span className="text-[#F7C548] flex items-center gap-1">
+                                  <span className="text-[#8A532B] dark:text-[#EFC8AC] flex items-center gap-1">
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
                                       viewBox="0 0 24 24"

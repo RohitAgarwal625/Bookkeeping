@@ -96,7 +96,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 <button
                   onClick={() => setAnalyticsCategory("individual")}
                   className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "individual"
-                    ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                    ? "bg-white dark:bg-card text-[#592C16] shadow"
                     : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
                     }`}
                 >
@@ -104,7 +104,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 </button>
 
                 {/* Middle toggle switch */}
-                <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
+                <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#592C16]/40 dark:border-[#8A532B]/40 shadow-sm">
                   <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
                     <div
                       className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
@@ -119,7 +119,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 <button
                   onClick={() => setAnalyticsCategory("business")}
                   className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "business"
-                    ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                    ? "bg-white dark:bg-card text-[#8A532B] shadow"
                     : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
                     }`}
                 >

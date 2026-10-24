@@ -181,7 +181,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
               Category
             </label>
             <div className="flex items-center gap-2 mt-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${contact.category === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
+              <span className={`w-2.5 h-2.5 rounded-full ${contact.category === "individual" ? "bg-[#592C16]" : "bg-[#8A532B]"}`} />
               <p className="text-gray-900 dark:text-foreground font-medium">{contact.category === "individual" ? "Individual" : "Business"}</p>
             </div>
           </div>
