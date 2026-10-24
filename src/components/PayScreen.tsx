@@ -304,7 +304,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             {/* Verification tick */}
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all duration-300 ${isVerified
-                ? "bg-[#A47CF3] border-[#A47CF3]"
+                ? "bg-[#592C16] border-[#592C16]"
                 : "bg-white dark:bg-card border-gray-300 dark:border-border"
                 }`}
             >

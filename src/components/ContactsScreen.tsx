@@ -202,7 +202,7 @@ export function ContactsScreen({
                               <div className="w-full flex justify-end">
                                 <span
                                   onClick={() => onNavigateToContactDetails(contact)}
-                                  className="text-sm text-gray-500 dark:text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400 font-medium inline-block cursor-pointer transition-colors underline underline-offset-2"
+                                  className="text-sm text-gray-500 dark:text-muted-foreground hover:text-[#592C16] dark:hover:text-[#EFC8AC] font-medium inline-block cursor-pointer transition-colors underline underline-offset-2"
                                 >
                                   Details
                                 </span>

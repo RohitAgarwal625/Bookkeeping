@@ -141,8 +141,8 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
       <div className="flex-1 overflow-y-auto px-6 py-8">
         {/* Illustration */}
         <div className="flex justify-center mb-8">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-100 to-yellow-100 dark:from-purple-950/30 dark:to-yellow-950/30 flex items-center justify-center">
-            <svg className="w-16 h-16 text-[#A47CF3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-32 h-32 rounded-full bg-[#592C16]/10 dark:bg-[#592C16]/20 flex items-center justify-center">
+            <svg className="w-16 h-16 text-[#592C16]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
@@ -196,7 +196,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
                             {opt === "business" ? "Business" : "Individual"}
                           </span>
                         </div>
-                        {category === opt && <Check className="w-4 h-4 text-[#A47CF3]" />}
+                        {category === opt && <Check className="w-4 h-4 text-[#592C16]" />}
                       </div>
                     );
                   })}
@@ -254,12 +254,12 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
               {/* Validation tick */}
               <div
                 className={`absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isValidated
-                  ? "bg-[#A47CF3] border-[#A47CF3]"
-                  : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
+                  ? "bg-[#592C16] border-[#592C16]"
+                  : "bg-white dark:bg-card border-gray-300 dark:border-border"
                   }`}
                 title={isValidated ? "Pi Wallet Address validated" : "Not validated yet"}
               >
-                <Check className={`w-4 h-4 transition-colors duration-300 ${isValidated ? "text-white" : "text-gray-300 dark:text-gray-500"}`} strokeWidth={3} />
+                <Check className={`w-4 h-4 transition-colors duration-300 ${isValidated ? "text-white" : "text-gray-300 dark:text-muted-foreground"}`} strokeWidth={3} />
               </div>
             </div>
           </div>

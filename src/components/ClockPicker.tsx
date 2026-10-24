@@ -193,10 +193,10 @@ export function ClockPicker({
               <>
                 <line
                   x1={CENTER} y1={CENTER} x2={hand.tip.x} y2={hand.tip.y}
-                  stroke="#6F3C97" strokeWidth="2.5" strokeLinecap="round"
+                  stroke="#592C16" strokeWidth="2.5" strokeLinecap="round"
                 />
-                <circle cx={CENTER} cy={CENTER} r="5" fill="#6F3C97" />
-                <circle cx={hand.tip.x} cy={hand.tip.y} r={NUM_R} fill="#6F3C97" fillOpacity="0.13" />
+                <circle cx={CENTER} cy={CENTER} r="5" fill="#592C16" />
+                <circle cx={hand.tip.x} cy={hand.tip.y} r={NUM_R} fill="#592C16" fillOpacity="0.13" />
               </>
             )}
 
@@ -208,7 +208,7 @@ export function ClockPicker({
                   const sel = h === val;
                   return (
                     <g key={`oh-${val}`}>
-                      {sel && <circle cx={pos.x} cy={pos.y} r={NUM_R} fill="#6F3C97" />}
+                      {sel && <circle cx={pos.x} cy={pos.y} r={NUM_R} fill="#592C16" />}
                       <text
                         x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
                         fontSize="13.5" fontWeight={sel ? "700" : "400"}
@@ -224,7 +224,7 @@ export function ClockPicker({
                   const sel = h === val;
                   return (
                     <g key={`ih-${val}`}>
-                      {sel && <circle cx={pos.x} cy={pos.y} r={NUM_R - 5} fill="#6F3C97" />}
+                      {sel && <circle cx={pos.x} cy={pos.y} r={NUM_R - 5} fill="#592C16" />}
                       <text
                         x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
                         fontSize="11" fontWeight={sel ? "700" : "400"}
@@ -246,7 +246,7 @@ export function ClockPicker({
                 const sel    = curVal === val;
                 return (
                   <g key={`ms-${val}`}>
-                    {sel && <circle cx={pos.x} cy={pos.y} r={NUM_R} fill="#6F3C97" />}
+                    {sel && <circle cx={pos.x} cy={pos.y} r={NUM_R} fill="#592C16" />}
                     <text
                       x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
                       fontSize="13.5" fontWeight={sel ? "700" : "400"}
@@ -263,7 +263,7 @@ export function ClockPicker({
               const curVal = mode === "minutes" ? m : s;
               if (curVal === -1 || curVal % 5 === 0) return null;
               const pos = polar(curVal * 6, OUTER_R);
-              return <circle key="fine" cx={pos.x} cy={pos.y} r="4" fill="#A47CF3" />;
+              return <circle key="fine" cx={pos.x} cy={pos.y} r="4" fill="#592C16" />;
             })()}
           </svg>
         </div>

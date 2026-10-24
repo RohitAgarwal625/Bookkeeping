@@ -183,7 +183,7 @@ export function Settings({
                 <button
                   type="button"
                   onClick={() => setShowDisplayNameInfo((v) => !v)}
-                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
                   aria-label="Display Name info"
                 >
                   <Info className="w-3.5 h-3.5" />
@@ -291,7 +291,7 @@ export function Settings({
 
           {/* Verified badge */}
           <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-purple-200 dark:border-purple-800/40">
-            <CheckCircle className="w-4 h-4 text-[#A47CF3]" />
+            <CheckCircle className="w-4 h-4 text-[#592C16]" />
             <span className="text-sm text-gray-700 dark:text-gray-300">Verified via Pi Wallet</span>
           </div>
         </div>
@@ -504,7 +504,7 @@ export function Settings({
               </div>
             ) : (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-purple-200 dark:border-purple-800/40">
-              <CheckCircle className="w-3.5 h-3.5 text-[#A47CF3]" />
+              <CheckCircle className="w-3.5 h-3.5 text-[#592C16]" />
               <span className="text-xs text-gray-700 dark:text-gray-300">Verified via Pi Wallet</span>
             </div>
             )}

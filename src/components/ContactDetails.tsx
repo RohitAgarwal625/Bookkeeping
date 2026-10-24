@@ -80,7 +80,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
               {editingField !== "name" && (
                 <button
                   onClick={() => { setDraftName(displayName); setEditingField("name"); }}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-stone-100 dark:hover:bg-stone-900/30 transition-colors"
                 >
                   <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
                 </button>
@@ -125,7 +125,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
               {editingField !== "wallet" && (
                 <button
                   onClick={() => { setDraftWallet(displayWallet); setEditingField("wallet"); }}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-stone-100 dark:hover:bg-stone-900/30 transition-colors"
                 >
                   <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
                 </button>

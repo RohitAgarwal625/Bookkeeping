@@ -140,8 +140,8 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                     <Info className="w-3.5 h-3.5 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   {manualTooltip && (
-                    <div className="mt-2 mx-0 bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
-                      <p className="font-semibold text-[#A47CF3] mb-1">Manual</p>
+                    <div className="mt-2 mx-0 bg-stone-50 dark:bg-secondary border border-stone-200 dark:border-border rounded-xl p-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
+                      <p className="font-semibold text-[#592C16] mb-1">Manual</p>
                       Recommended for adding one or a few unrecorded transaction(s) one by one.
                     </div>
                   )}

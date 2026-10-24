@@ -20,7 +20,7 @@ export function PiWalletIcon() {
         
         {/* Pi symbol simplified */}
         <circle cx="64" cy="74" r="18" fill="white" opacity="0.9"/>
-        <text x="64" y="82" textAnchor="middle" fill="#A47CF3" fontSize="20" fontWeight="bold">π</text>
+        <text x="64" y="82" textAnchor="middle" fill="#592C16" fontSize="20" fontWeight="bold">π</text>
       </svg>
     </div>
   );

@@ -262,7 +262,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
               <button
                 type="button"
                 onClick={() => setShowInfo((v) => !v)}
-                className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
               >
                 <Info className="w-3.5 h-3.5" />
               </button>

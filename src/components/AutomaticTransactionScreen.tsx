@@ -218,7 +218,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 <button
                   type="button"
                   onClick={() => setShowInfo((v) => !v)}
-                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
                   title="Date Range Limit Info"
                   aria-label="Date Range Limit Info"
                 >
@@ -235,7 +235,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
 
             <div className="space-y-3">
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold">
-                <CalendarDays className="w-4 h-4 text-[#A47CF3]" /> From Date
+                <CalendarDays className="w-4 h-4 text-[#592C16]" /> From Date
               </label>
               <input
                 type="date"
@@ -247,7 +247,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             </div>
             <div className="space-y-3 pt-2">
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold">
-                <CalendarDays className="w-4 h-4 text-[#A47CF3]" /> To Date
+                <CalendarDays className="w-4 h-4 text-[#592C16]" /> To Date
               </label>
               <input
                 type="date"

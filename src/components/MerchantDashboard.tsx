@@ -167,7 +167,7 @@ export function MerchantDashboard({
             onClick={() => setActiveView("history")}
             style={{ background: activeView === "history" ? (isDark ? "#0F1115" : "#ffffff") : (isDark ? "#252830" : "#f3f4f6") }}
             className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "history"
-              ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
+              ? "text-black dark:text-white border-b-2 border-black dark:border-white"
               : "text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:hover:text-foreground"
               }`}
           >
@@ -177,7 +177,7 @@ export function MerchantDashboard({
             onClick={() => setActiveView("analytics")}
             style={{ background: activeView === "analytics" ? (isDark ? "#0F1115" : "#ffffff") : (isDark ? "#252830" : "#f3f4f6") }}
             className={`flex-1 py-3 text-base font-bold transition-all flex items-center justify-center gap-2 ${activeView === "analytics"
-              ? "text-[#A47CF3] border-b-2 border-[#A47CF3]"
+              ? "text-black dark:text-white border-b-2 border-black dark:border-white"
               : "text-gray-700 hover:text-gray-900 dark:text-muted-foreground dark:hover:text-foreground"
               }`}
           >
@@ -307,7 +307,7 @@ export function MerchantDashboard({
                       </div>
                     </div>
                     <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
-                      <span className="text-xs text-[#A47CF3] dark:text-[#A47CF3] font-medium">View Details</span>
+                      <span className="text-xs text-black dark:text-white font-medium">View Details</span>
                     </button>
                   </div>
                 ))}
@@ -379,7 +379,7 @@ export function MerchantDashboard({
                 {/* Date */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-3.5 h-3.5 text-[#A47CF3]" />
+                    <Clock className="w-3.5 h-3.5 text-[#592C16]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Date</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground">{selectedMerchant.date}</span>
@@ -414,7 +414,7 @@ export function MerchantDashboard({
                 {/* Public Key */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Wallet className="w-3.5 h-3.5 text-[#A47CF3]" />
+                    <Wallet className="w-3.5 h-3.5 text-[#592C16]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Public Key</span>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono truncate max-w-[180px]">
@@ -424,12 +424,12 @@ export function MerchantDashboard({
                 {/* Tx ID */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Hash className="w-3.5 h-3.5 text-[#A47CF3]" />
+                    <Hash className="w-3.5 h-3.5 text-[#592C16]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Tx ID</span>
                     <button
                       type="button"
                       onClick={() => setShowTxIdInfo(v => !v)}
-                      className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                      className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
                       aria-label="Transaction ID info"
                     >
                       <Info className="w-3.5 h-3.5" />
@@ -440,14 +440,14 @@ export function MerchantDashboard({
                   </span>
                 </div>
                 {showTxIdInfo && (
-                  <div className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
+                  <div className="text-xs text-[#592C16] bg-stone-50 dark:bg-stone-900/30 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-800/40">
                     A unique identifier for each transaction recorded on the Pi blockchain ledger.
                   </div>
                 )}
                 {/* Note/Memo */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <FileText className="w-3.5 h-3.5 text-[#A47CF3]" />
+                    <FileText className="w-3.5 h-3.5 text-[#592C16]" />
                     <span className="text-xs text-gray-500 dark:text-muted-foreground">Note/Memo</span>
                   </div>
                   <span className="text-xs text-gray-800 dark:text-foreground text-right max-w-[200px]">{selectedMerchant.description}</span>

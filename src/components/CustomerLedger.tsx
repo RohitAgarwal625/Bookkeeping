@@ -396,7 +396,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                             <button
                               type="button"
                               onClick={() => handleStartEdit(transaction)}
-                              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-secondary/80 text-gray-500 dark:text-muted-foreground transition-colors"
+                              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-stone-100 dark:hover:bg-secondary/80 text-gray-500 dark:text-muted-foreground transition-colors"
                               aria-label="Edit Note"
                             >
                               <Pencil className="w-3.5 h-3.5" />

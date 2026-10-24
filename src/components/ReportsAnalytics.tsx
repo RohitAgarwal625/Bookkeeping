@@ -261,7 +261,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                         <button
                           type="button"
                           onClick={() => setShowCustomerInfo(v => !v)}
-                          className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                          className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
                           aria-label="Customer info"
                         >
                           <Info className="w-3.5 h-3.5" />
@@ -269,7 +269,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                       </div>
                     </div>
                     {showCustomerInfo && (
-                      <div className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
+                      <div className="text-xs text-[#592C16] bg-stone-50 dark:bg-stone-900/30 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-800/40">
                         The list ranks Contacts from highest to lowest by the number of transactions.
                       </div>
                     )}
