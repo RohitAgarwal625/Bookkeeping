@@ -206,8 +206,8 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95 whitespace-nowrap"
               style={{
-                background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-                boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+                background: "linear-gradient(to right, #592C16, #8A532B)",
+                boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
               }}
             >
               <span className="whitespace-nowrap">Upload QR Image</span>
@@ -261,8 +261,8 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
               onClick={() => fileInputRef.current?.click()}
               className="pointer-events-auto flex items-center justify-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95 whitespace-nowrap"
               style={{
-                background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-                boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+                background: "linear-gradient(to right, #592C16, #8A532B)",
+                boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
               }}
             >
               <span className="whitespace-nowrap">Upload QR Image</span>

@@ -156,8 +156,8 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current) : onBack()}
             className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
             style={{
-              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+              background: "linear-gradient(to right, #592C16, #7B3D1E)",
+              boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
             }}
           >
             <span>Open Ledger</span>
@@ -249,7 +249,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
           <button
             onClick={handlePiTransactions}
             className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
+            style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}
           >
             <span className="font-medium text-sm">View Pi Transactions</span>
             <ExternalLink className="w-4 h-4" />

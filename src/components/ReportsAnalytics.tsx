@@ -158,8 +158,9 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
             <div className="flex w-full gap-2 mb-4">
               <button
                 onClick={() => setSelectedFilter("week")}
+                style={selectedFilter === "week" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "week"
-                  ? "bg-[#A47CF3] text-white shadow-md"
+                  ? "text-white shadow-md border-0"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
               >
@@ -167,8 +168,9 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </button>
               <button
                 onClick={() => setSelectedFilter("month")}
+                style={selectedFilter === "month" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "month"
-                  ? "bg-[#A47CF3] text-white shadow-md"
+                  ? "text-white shadow-md border-0"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
               >
@@ -176,8 +178,9 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
               </button>
               <button
                 onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
+                style={selectedFilter === "custom" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "custom"
-                  ? "bg-[#A47CF3] text-white shadow-md"
+                  ? "text-white shadow-md border-0"
                   : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
                   }`}
               >
@@ -211,7 +214,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 <button
                   onClick={() => setIsCustomSubmitted(true)}
                   className="w-full py-4 rounded-xl text-white font-bold text-base shadow-md transition-all hover:opacity-95 active:scale-[0.99] mt-1"
-                  style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
+                  style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)" }}
                 >
                   Submit
                 </button>

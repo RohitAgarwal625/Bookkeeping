@@ -239,8 +239,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             }}
             className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 cursor-pointer relative z-30"
             style={{
-              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+              background: "linear-gradient(to right, #592C16, #7B3D1E)",
+              boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
             }}
           >
             Open Ledger
@@ -325,7 +325,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               <button
                 onClick={onAddPioneer}
                 className="w-full py-3 px-4 rounded-xl text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 4px 16px rgba(111,60,151,0.35)" }}
+                style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)", boxShadow: "0 4px 16px rgba(89, 44, 22, 0.35)" }}
               >
                 <span>Add Contact</span>
                 <UserPlus className="w-4 h-4" />

@@ -46,8 +46,8 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
         onClick={() => onNavigate?.(item.id)}
         className="flex flex-col items-center justify-center gap-1 flex-1 h-full relative"
       >
-        <Icon className={`w-5 h-5 ${isActive ? "text-[#A47CF3]" : "text-gray-400 dark:text-muted-foreground"}`} />
-        <span className={`text-xs ${isActive ? "text-[#A47CF3]" : "text-gray-400 dark:text-muted-foreground"}`}>
+        <Icon className={`w-5 h-5 ${isActive ? "text-black dark:text-white" : "text-gray-400 dark:text-muted-foreground"}`} />
+        <span className={`text-xs ${isActive ? "text-black dark:text-white font-medium" : "text-gray-400 dark:text-muted-foreground"}`}>
           {item.label}
         </span>
         {isActive && (
@@ -109,7 +109,7 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
             </button>
             {/* Invisible spacer same size as other tabs' icons so "Pay" text aligns exactly */}
             <span className="w-5 h-5 invisible" aria-hidden="true" />
-            <span className={`text-xs font-medium ${activeTab === "pay" ? "text-[#A47CF3]" : "text-gray-400 dark:text-muted-foreground"}`}>
+            <span className={`text-xs font-medium ${activeTab === "pay" ? "text-black dark:text-white" : "text-gray-400 dark:text-muted-foreground"}`}>
               Pay
             </span>
           </div>

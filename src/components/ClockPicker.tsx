@@ -120,7 +120,7 @@ export function ClockPicker({
         {/* ── Purple header ─────────────────────────────────────── */}
         <div
           className="px-6 pt-5 pb-4"
-          style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
+          style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)" }}
         >
           <p className="text-purple-200 text-[10px] uppercase tracking-widest mb-3 font-semibold">
             Select Time
@@ -286,7 +286,7 @@ export function ClockPicker({
           <button
             onClick={handleConfirm}
             className="px-6 py-2 text-sm font-semibold text-white rounded-xl hover:shadow-lg transition-all"
-            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
+            style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}
           >
             OK
           </button>
