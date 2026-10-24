@@ -385,7 +385,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                     className={`flex items-center gap-3 px-4 py-3 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors ${i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
                       }`}
                   >
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm" style={{ background: GRADIENT }}>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-[#592C16] text-sm font-bold shadow-sm" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                       {getInitials(contact.name)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -460,7 +460,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             <div className="mb-4 bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 flex items-center justify-between">
               <div className="flex items-center gap-3 min-w-0">
                 {isVerified ? (
-                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-base font-bold shadow-md flex-shrink-0" style={{ background: GRADIENT }}>
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-[#592C16] text-base font-bold shadow-md flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                     {getInitials(recipientName)}
                   </div>
                 ) : (

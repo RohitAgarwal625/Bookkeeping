@@ -187,8 +187,8 @@ export function Dashboard({
                   className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors ${index < recentEntries.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
                     }`}
                 >
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
-                    <span className="text-white text-sm font-semibold">{getInitials(transaction.customerName)}</span>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                    <span className="text-[#592C16] text-sm font-bold">{getInitials(transaction.customerName)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">

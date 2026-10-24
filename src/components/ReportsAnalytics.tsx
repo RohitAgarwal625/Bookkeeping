@@ -279,8 +279,8 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                       <div key={customer.id}>
                         <div className="flex items-center gap-3">
                           {/* Profile Icon */}
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
-                            <span className="text-white text-sm font-semibold">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                            <span className="text-[#592C16] text-sm font-bold">
                               {getInitials(customer.name)}
                             </span>
                           </div>

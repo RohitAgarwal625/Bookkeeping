@@ -273,8 +273,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           {selectedContact && (
             <div className="mb-4 bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 flex items-center justify-between">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-base font-bold shadow-md flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
-                  <span className="text-white font-bold">{getInitials(selectedContact.name)}</span>
+                <div className="w-11 h-11 rounded-full flex items-center justify-center text-base font-bold shadow-md flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                  <span className="text-[#592C16] font-bold">{getInitials(selectedContact.name)}</span>
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Fetching for</p>
@@ -331,8 +331,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           {filtered.map((contact) => (
             <button key={contact.id} onClick={() => { setSelectedContact(contact); setStep("dateRange"); }}
               className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A2BE2]/40 transition-all text-left">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
-                <span className="text-white font-bold">{getInitials(contact.name)}</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                <span className="text-[#592C16] font-bold">{getInitials(contact.name)}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-gray-900 dark:text-foreground font-medium truncate">{contact.name}</p>

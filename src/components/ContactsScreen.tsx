@@ -139,9 +139,9 @@ export function ContactsScreen({
                           <div className="flex items-center gap-3">
                             <div
                               className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm"
-                              style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
+                              style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}
                             >
-                              <span className="text-white font-bold text-lg">
+                              <span className="text-[#592C16] font-bold text-lg">
                                 {getInitials(contact.name)}
                               </span>
                             </div>

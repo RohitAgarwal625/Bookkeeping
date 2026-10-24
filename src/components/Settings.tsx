@@ -168,8 +168,8 @@ export function Settings({
         <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center gap-6" style={{ paddingBottom: "111px" }}>
           {/* Profile Avatar */}
           <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg overflow-hidden" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
-              <span className="text-white text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
+            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg overflow-hidden" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+              <span className="text-[#592C16] text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
             </div>
           </div>
 
@@ -479,8 +479,8 @@ export function Settings({
         {/* Profile Section */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-6 mb-6">
           <div className="flex flex-col items-center mb-4">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg mb-3 overflow-hidden" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
-              <span className="text-white text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
+            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg mb-3 overflow-hidden" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+              <span className="text-[#592C16] text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
             </div>
 
             <h3 className="text-gray-900 dark:text-foreground mb-1">{isGuest ? "Guest User" : displayName}</h3>
