@@ -1,8 +1,9 @@
-import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info, BookOpen } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { ArrowLeft, ExternalLink, CheckCircle, Info, BookOpen } from "lucide-react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
-import { getInitials, Transaction } from "../types";
+import { Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { ContactSearchDropdown } from "./ContactSearchDropdown";
 
 interface AddEntryProps {
   onBack: () => void;
@@ -19,8 +20,6 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
     "Vitalik Buterin",
   ];
   const [selectedCustomer, setSelectedCustomer] = useState("");
-  const [customerQuery, setCustomerQuery] = useState("");
-  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [transactionType, setTransactionType] = useState<"credit" | "debit">("credit");
   const [date, setDate] = useState("");
@@ -29,29 +28,9 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const [note, setNote] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const nameInputRef = useRef<HTMLDivElement>(null);
   // Save contact name and transaction before form is cleared
   const savedContactName = useRef<string>("");
   const savedTransaction = useRef<Transaction | undefined>(undefined);
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (nameInputRef.current && !nameInputRef.current.contains(event.target as Node)) {
-        setIsCustomerDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-    };
-  }, []);
-
-  const filteredCustomers = savedCustomers.filter((c) =>
-    c.toLowerCase().includes(customerQuery.toLowerCase())
-  );
 
   const handleAmountChange = (val: string) => {
     if (val === "") {
@@ -124,7 +103,6 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
 
     // Clear form
     setSelectedCustomer("");
-    setCustomerQuery("");
     setAmount("");
     setDate("");
     setTime("");
@@ -190,59 +168,14 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
 
           {/* 1. Pioneer */}
-          <div className="mb-4" ref={nameInputRef}>
+          <div className="mb-4">
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Pioneer</label>
-            <div className="relative z-50">
-              {selectedCustomer ? (
-                <div className="flex items-center justify-between px-4 py-3 bg-purple-50/60 dark:bg-[#6F3C97]/20 border border-[#592C16]/20 dark:border-[#8A532B]/40 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
-                      {getInitials(selectedCustomer)}
-                    </div>
-                    <span className="text-gray-900 dark:text-foreground font-medium text-sm">{selectedCustomer}</span>
-                  </div>
-                  <button
-                    onClick={() => { setSelectedCustomer(""); setCustomerQuery(""); }}
-                    className="p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors group"
-                  >
-                    <X className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <input
-                    type="text"
-                    value={customerQuery}
-                    onFocus={() => setIsCustomerDropdownOpen(true)}
-                    onChange={(e) => { setCustomerQuery(e.target.value); setIsCustomerDropdownOpen(true); }}
-                    placeholder="Search from Contacts"
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all"
-                  />
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
-                  {isCustomerDropdownOpen && customerQuery.trim().length > 0 && filteredCustomers.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-2xl max-h-44 overflow-y-auto z-[9999]">
-                      {filteredCustomers.map((name) => (
-                        <div
-                          key={name}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            setSelectedCustomer(name);
-                            setIsCustomerDropdownOpen(false);
-                            setCustomerQuery("");
-                          }}
-                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
-                        >
-                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
-                            {getInitials(name)}
-                          </div>
-                          <span className="text-gray-900 dark:text-foreground text-sm font-medium">{name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+            <ContactSearchDropdown
+              contacts={savedCustomers}
+              selected={selectedCustomer}
+              onSelect={setSelectedCustomer}
+              onClear={() => setSelectedCustomer("")}
+            />
           </div>
 
           {/* 2. View Pi Transactions button */}

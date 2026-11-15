@@ -1,4 +1,4 @@
-import { Users, Search, Info, BarChart2, TrendingUp } from "lucide-react";
+import { Users, Info, BarChart2, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import {
   BarChart,
@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { getInitials } from "../types";
+import { ContactSearchDropdown } from "./ContactSearchDropdown";
 
 interface ReportsAnalyticsProps {
   onNavigate: (screen: string) => void;
@@ -45,7 +46,7 @@ const topCustomersWeekly = [
 
 export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: ReportsAnalyticsProps) {
   const [selectedFilter, setSelectedFilter] = useState<"week" | "month" | "custom">("month");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPioneer, setSelectedPioneer] = useState("");
   const [analyticsCategory, setAnalyticsCategory] = useState<"individual" | "business">("individual");
   const [showCustomerInfo, setShowCustomerInfo] = useState(false);
   const [fromDate, setFromDate] = useState("");
@@ -63,10 +64,15 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
 
   const activeTopCustomers = selectedFilter === "week" ? topCustomersWeekly : topCustomersMonthly;
 
-  // Filter customers based on search query
-  const filteredCustomers = activeTopCustomers.filter((customer) => {
-    return customer.name.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  // Contacts offered in the "Search from Contacts" dropdown
+  const pioneerNames = Array.from(
+    new Set([...topCustomersMonthly, ...topCustomersWeekly].map((c) => c.name))
+  ).sort((a, b) => a.localeCompare(b));
+
+  // Show only the picked contact, or everyone when nothing is picked
+  const filteredCustomers = selectedPioneer
+    ? activeTopCustomers.filter((customer) => customer.name === selectedPioneer)
+    : activeTopCustomers;
 
   const handleExportReport = () => {
     console.log("Exporting report as PDF...");
@@ -130,28 +136,13 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
 
             {/* Search Bar */}
             <div className="mb-4">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  (document.activeElement as HTMLElement)?.blur();
-                }}
-                className="relative"
-              >
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
-                <input
-                  type="text"
-                  placeholder="Search from Contacts"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      (e.target as HTMLElement).blur();
-                    }
-                  }}
-                  enterKeyHint="go"
-                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all"
-                />
-              </form>
+              <ContactSearchDropdown
+                contacts={pioneerNames}
+                selected={selectedPioneer}
+                onSelect={setSelectedPioneer}
+                onClear={() => setSelectedPioneer("")}
+                inputBgClassName="bg-white dark:bg-card"
+              />
             </div>
 
             {/* Category Filters - Positioned below Search Bar */}
