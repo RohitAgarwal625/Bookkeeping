@@ -249,7 +249,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
           <button
             onClick={handlePiTransactions}
             className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" }}
           >
             <span className="font-medium text-sm">View Pi Transactions</span>
             <ExternalLink className="w-4 h-4" />
