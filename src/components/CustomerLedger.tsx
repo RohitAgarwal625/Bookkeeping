@@ -291,11 +291,14 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
 
         {/* Recent Transactions Section */}
         <div className="mb-6">
-          <h3 className="text-gray-900 dark:text-foreground font-semibold text-base mb-4">All Transactions</h3>
+          <h3 className="text-gray-900 dark:text-foreground font-semibold text-base mb-4">All Transactions - ({transactions.length})</h3>
 
           {transactions.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-muted-foreground">
-              <p>No entries yet. Add one below.</p>
+            <div className="text-center py-12 px-4">
+              <p className="text-gray-400 dark:text-muted-foreground text-sm">No transactions found !!</p>
+              <p className="text-gray-400 dark:text-muted-foreground text-sm mt-1">
+                Kindly start recording your transactions either manually or automatically via 'Add Transaction' button on the home page
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -307,8 +310,8 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                     key={transaction.id}
                     className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
                       transaction.isNew
-                        ? "bg-purple-50 dark:bg-card border-2 border-[#A47CF3] dark:border-[#A47CF3] shadow-[0_0_12px_rgba(164,124,243,0.12)]"
-                        : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#A47CF3]/40"
+                        ? "bg-purple-50 dark:bg-card border-2 border-[#592C16] dark:border-[#8A532B] shadow-[0_0_12px_rgba(164,124,243,0.12)]"
+                        : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#8A532B]/40"
                     }`}
                   >
                     {isEditing ? (
@@ -345,7 +348,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                             autoFocus
                             rows={2}
                             placeholder="Edit note (max 100 characters)..."
-                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#A47CF3]/60 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] resize-none"
+                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#592C16] bg-purple-50/50 dark:bg-secondary dark:border-[#8A532B]/60 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] resize-none"
                           />
                         </div>
 

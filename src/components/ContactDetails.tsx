@@ -95,7 +95,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
                   autoFocus
                   onChange={(e) => setDraftName(capitalizeFirst(e.target.value))}
                   onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
-                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#A47CF3] text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#592C16] dark:border-[#8A532B] text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] transition"
                 />
                 <button
                   onClick={handleSaveName}
@@ -144,7 +144,7 @@ export function ContactDetails({ contact, onBack, onUpdate, onNavigateToLedger }
                   onFocus={() => setIsDraftWalletFocused(true)}
                   onBlur={() => setIsDraftWalletFocused(false)}
                   rows={isDraftWalletFocused && draftWallet.length > 20 ? Math.min(4, Math.max(1, Math.ceil(draftWallet.length / 20))) : 1}
-                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#A47CF3] text-gray-900 dark:text-foreground text-base font-medium font-mono focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition resize-none break-all leading-snug overflow-hidden"
+                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#592C16] dark:border-[#8A532B] text-gray-900 dark:text-foreground text-base font-medium font-mono focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] transition resize-none break-all leading-snug overflow-hidden"
                 />
                 <button
                   onClick={handleSaveWallet}

@@ -221,7 +221,7 @@ export function Settings({
                   onChange={(e) => setEditingName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
                   autoFocus
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3]"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#592C16] bg-purple-50/50 dark:bg-secondary dark:border-[#8A532B]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B]"
                 />
                 <button
                   onClick={handleSaveName}
@@ -290,8 +290,8 @@ export function Settings({
           </div>
 
           {/* Verified badge */}
-          <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-purple-200 dark:border-purple-800/40">
-            <CheckCircle className="w-4 h-4 text-[#592C16]" />
+          <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-[#592C16]/25 dark:border-[#8A532B]/40">
+            <CheckCircle className="w-4 h-4 text-black dark:text-white" />
             <span className="text-sm text-gray-700 dark:text-gray-300">Verified via Pi Wallet</span>
           </div>
         </div>
@@ -319,7 +319,7 @@ export function Settings({
 
         <div className="flex-1 overflow-y-auto px-6 py-6" style={{ paddingBottom: "111px" }}>
           {/* Intro banner */}
-          <div className="bg-gradient-to-r from-[#A47CF3]/10 to-[#F7C548]/10 dark:from-purple-950/30 dark:to-yellow-950/20 rounded-2xl p-4 mb-6 border border-purple-100 dark:border-purple-800/30">
+          <div className="bg-gradient-to-r from-[#A47CF3]/10 to-[#F7C548]/10 dark:from-purple-950/30 dark:to-yellow-950/20 rounded-2xl p-4 mb-6 border border-[#592C16]/15 dark:border-[#8A532B]/30">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                 <HelpCircle className="w-5 h-5 text-white" />
@@ -340,7 +340,7 @@ export function Settings({
                 <div
                   key={faq.id}
                   className={`bg-white dark:bg-card rounded-2xl shadow-sm dark:shadow-none dark:border transition-all overflow-hidden ${isOpen
-                    ? "dark:border-[#8A2BE2]/40 shadow-md"
+                    ? "dark:border-[#8A532B]/40 shadow-md"
                     : "dark:border-border"
                     }`}
                 >
@@ -447,7 +447,7 @@ export function Settings({
           </div>
 
           {/* Pi Network */}
-          <div className="bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/10 rounded-2xl p-5 mb-4 border border-purple-100 dark:border-purple-800/30">
+          <div className="bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/10 rounded-2xl p-5 mb-4 border border-[#592C16]/15 dark:border-[#8A532B]/30">
             <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed text-center italic">
               "Pi Network is building the world's most inclusive peer-to-peer marketplace, powered by everyday people. We are proud to be part of that journey."
             </p>
@@ -503,8 +503,8 @@ export function Settings({
                 <span className="text-xs text-amber-700 dark:text-amber-400">Browsing as Guest — Limited Access</span>
               </div>
             ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-purple-200 dark:border-purple-800/40">
-              <CheckCircle className="w-3.5 h-3.5 text-[#592C16]" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-[#592C16]/25 dark:border-[#8A532B]/40">
+              <CheckCircle className="w-3.5 h-3.5 text-black dark:text-white" />
               <span className="text-xs text-gray-700 dark:text-gray-300">Verified via Pi Wallet</span>
             </div>
             )}

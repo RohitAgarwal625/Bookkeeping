@@ -130,7 +130,7 @@ export function ContactsScreen({
                         key={contact.id}
                         ref={isNew ? newContactRef : undefined}
                         className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 ${isNew
-                          ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
+                          ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#592C16] dark:ring-[#8A532B]"
                           : "bg-white dark:bg-card border border-gray-100 dark:border-border"
                           }`}
                       >

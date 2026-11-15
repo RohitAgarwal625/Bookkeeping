@@ -242,7 +242,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 value={fromDate}
                 max={toDate || undefined}
                 onChange={(e) => handleFromDateChange(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
               />
             </div>
             <div className="space-y-3 pt-2">
@@ -255,7 +255,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 min={fromDate || undefined}
                 max={getMaxToDate(fromDate) || undefined}
                 onChange={(e) => handleToDateChange(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
               />
               {fromDate && (
                 <p className="text-xs text-gray-400 dark:text-muted-foreground mt-2">
@@ -330,7 +330,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         <div className="space-y-2">
           {filtered.map((contact) => (
             <button key={contact.id} onClick={() => { setSelectedContact(contact); setStep("dateRange"); }}
-              className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A2BE2]/40 transition-all text-left">
+              className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A532B]/40 transition-all text-left">
               <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                 <span className="text-[#592C16] font-bold">{getInitials(contact.name)}</span>
               </div>

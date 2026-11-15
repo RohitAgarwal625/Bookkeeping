@@ -252,7 +252,7 @@ export function MerchantDashboard({
                 {(activeCategory === "individual" ? individualMerchants : businessMerchants).map((merchant) => (
                   <div
                     key={merchant.id}
-                    className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A2BE2]/40 transition-all"
+                    className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A532B]/40 transition-all"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3 flex-1">

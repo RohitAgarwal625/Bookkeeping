@@ -194,7 +194,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Pioneer</label>
             <div className="relative z-50">
               {selectedCustomer ? (
-                <div className="flex items-center justify-between px-4 py-3 bg-purple-50/60 dark:bg-[#6F3C97]/20 border border-purple-200/80 dark:border-[#A47CF3]/40 rounded-xl">
+                <div className="flex items-center justify-between px-4 py-3 bg-purple-50/60 dark:bg-[#6F3C97]/20 border border-[#592C16]/20 dark:border-[#8A532B]/40 rounded-xl">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                       {getInitials(selectedCustomer)}
@@ -279,7 +279,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 value={txHash}
                 onChange={(e) => setTxHash(e.target.value)}
                 placeholder="Example: abc123xyz..."
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all font-mono text-sm"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all font-mono text-sm"
               />
             </div>
           </div>
@@ -295,7 +295,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder="0.0000000"
                 style={{ paddingLeft: "1.25rem", paddingRight: "3rem" }}
-                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xl font-semibold text-black dark:text-white leading-none select-none">
                 π
@@ -313,7 +313,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 onClick={() => setTransactionType("debit")}
                 className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "debit"
                   ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md"
-                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Debit
@@ -322,7 +322,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 onClick={() => setTransactionType("credit")}
                 className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "credit"
                   ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
-                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Credit
@@ -337,7 +337,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
             />
           </div>
 
@@ -353,7 +353,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                     const mm = time ? (time.split(":")[1] || "00") : "00";
                     setTime(hh ? `${hh}:${mm}` : "");
                   }}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all cursor-pointer"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all cursor-pointer"
                 >
                   <option value="" disabled>HH</option>
                   {Array.from({ length: 24 }, (_, i) => {
@@ -371,7 +371,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                     const hh = time ? (time.split(":")[0] || "00") : "00";
                     setTime(mm ? `${hh}:${mm}` : "");
                   }}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all cursor-pointer"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all cursor-pointer"
                 >
                   <option value="" disabled>MM</option>
                   {Array.from({ length: 60 }, (_, i) => {
@@ -399,7 +399,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
               maxLength={100}
               placeholder="Add a note or description..."
               rows={3}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent resize-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent resize-none transition-all text-sm"
             />
           </div>
 

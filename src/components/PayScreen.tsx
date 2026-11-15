@@ -286,7 +286,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           <label className="block text-base font-semibold text-gray-700 dark:text-foreground mb-2">
             Public Key
           </label>
-          <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-border focus-within:border-[#A47CF3] dark:focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
+          <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-border focus-within:border-[#592C16] dark:focus-within:border-[#8A532B] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
             <textarea
               value={!isPublicKeyFocused && publicKey.length > 10
                 ? `${publicKey.slice(0, 5)}.....${publicKey.slice(-5)}`
@@ -439,7 +439,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                   onClick={() => setAmount(preset)}
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${isSelected
                     ? "text-white shadow-md border-0"
-                    : "bg-white dark:bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-[#A47CF3] hover:text-[#A47CF3] dark:hover:text-[#A47CF3]"
+                    : "bg-white dark:bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-[#592C16] dark:hover:border-[#8A532B] hover:text-[#A47CF3] dark:hover:text-[#A47CF3]"
                     }`}
                   style={isSelected ? { background: GRADIENT } : undefined}
                 >

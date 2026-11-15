@@ -161,7 +161,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 style={selectedFilter === "week" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "week"
                   ? "text-white shadow-md border-0"
-                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Weekly
@@ -171,7 +171,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 style={selectedFilter === "month" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "month"
                   ? "text-white shadow-md border-0"
-                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Monthly
@@ -181,7 +181,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                 style={selectedFilter === "custom" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "custom"
                   ? "text-white shadow-md border-0"
-                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Custom
@@ -198,7 +198,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                       type="date"
                       value={fromDate}
                       onChange={(e) => { setFromDate(e.target.value); setIsCustomSubmitted(false); }}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] transition"
                     />
                   </div>
                   <div className="flex-1 flex flex-col gap-1">
@@ -207,7 +207,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                       type="date"
                       value={toDate}
                       onChange={(e) => { setToDate(e.target.value); setIsCustomSubmitted(false); }}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] transition"
                     />
                   </div>
                 </div>
