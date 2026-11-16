@@ -263,7 +263,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
         <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">{customerName}</h2>
+        <h2 className="text-gray-900 dark:text-foreground font-bold flex-1 text-center">{customerName}</h2>
         <BookkeepingLogo compact />
       </header>
 
@@ -278,20 +278,20 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
           {/* Credit and Debit Summary */}
           <div className="flex gap-6">
             <div className="flex-1 text-center py-3">
-              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Debit</p>
-              <p className="text-red-600 dark:text-red-400 font-bold">{totalDebit.toFixed(2)} <span className="text-red-400 dark:text-red-500 text-sm font-semibold">π</span></p>
+              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Debit</p>
+              <p className="text-red-600 dark:text-red-400 font-bold">{totalDebit.toFixed(2)} <span className="text-red-600 dark:text-red-400 text-sm font-semibold">π</span></p>
             </div>
             <div className="w-px bg-gradient-to-b from-transparent via-gray-200 dark:via-border to-transparent flex-shrink-0" />
             <div className="flex-1 text-center py-3">
-              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Credit</p>
-              <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)} <span className="text-green-400 dark:text-green-500 text-sm font-semibold">π</span></p>
+              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Credit</p>
+              <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)} <span className="text-green-600 dark:text-green-400 text-sm font-semibold">π</span></p>
             </div>
           </div>
         </div>
 
         {/* Recent Transactions Section */}
         <div className="mb-6">
-          <h3 className="text-gray-900 dark:text-foreground font-semibold text-base mb-4">All Transactions - ({transactions.length})</h3>
+          <h3 className="text-gray-900 dark:text-foreground font-semibold text-base mb-4">All Transactions ({transactions.length})</h3>
 
           {transactions.length === 0 ? (
             <div className="text-center py-12 px-4">
@@ -318,8 +318,8 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                       <div className="space-y-3">
                         {/* Top row in edit mode: Title/Status and Amount */}
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-semibold text-[#A47CF3] uppercase tracking-wider">
-                            Edit Note
+                          <span className="text-xs font-semibold text-[#B55A38] uppercase tracking-wider">
+                            Note/Memo
                           </span>
                           <p
                             className={`font-bold text-sm sm:text-base flex-shrink-0 ${
