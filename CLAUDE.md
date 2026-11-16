@@ -40,6 +40,15 @@ design/, skills/, docs/  architecture design docs (HTML) + the design-convergenc
 dist/, build/            committed build output; don't edit by hand
 ```
 
+## Scope of changes (mandatory)
+
+Every change in this project follows the `law` skill (`.claude/skills/law/SKILL.md`). In short:
+
+1. **Only the requested change.** Make exactly what was asked and nothing else: no unrequested fixes, refactors, restyling or cleanups. Report other issues as suggestions instead of changing them.
+2. **Know the full impact first.** Before editing, find every place the change takes effect, including other usages of any shared component, style, asset, type or API, and tell the user if it reaches beyond what they named.
+3. **Keep features isolated.** A change to one feature must not alter any other feature. Prefer the narrowest implementation.
+4. **Verify before reporting done.** Review the full diff so that it contains only the requested change, confirm the change works everywhere it applies, confirm nothing else changed, and report anything you could not verify.
+
 ## Critical gotchas (read before editing)
 
 1. **Styling: Tailwind v4 is compiled at build time** by `@tailwindcss/vite` (pinned to 4.1.3). The config is `vite.config.mts`; it must stay `.mts` because the plugin is ESM-only. Any Tailwind class in `src/` works, including arbitrary values like `border-[#592C16]/20`. Theme tokens (`:root` and `.dark`) live in `src/index.css`. Edit them there; there's no separate tailwind.config. Before Nov 2026, `index.css` was a frozen precompiled file, so older inline-style workarounds in components are just history, not a rule. Class names must be complete literal strings (no `"border-" + color`), or Tailwind can't detect them.
@@ -72,6 +81,7 @@ dist/, build/            committed build output; don't edit by hand
 - `add-api-endpoint` — the full schema → controller → route → client → types chain.
 - `prisma-migration` — changing `schema.prisma` safely (Decimal, indexes, Railway deploy).
 - `verify` — build both apps and smoke-test before calling work done.
+- `law` — the scope-of-change law: only the requested change, full impact analysis, isolation, and diff verification. Applies to every change.
 - `design-convergence` — runs the proposal → grill → verify loop documented in `skills/*.md`.
 
 `todo.txt` holds the product's pending UI change list. Check it when asked about "the pending changes".
