@@ -201,7 +201,7 @@ export function MerchantDashboard({
           </button>
 
           {/* Middle toggle switch — bordered pill for visibility */}
-          <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#592C16]/40 dark:border-[#8A532B]/40 shadow-sm">
+          <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-black dark:border-[#8A532B]/40 shadow-sm">
             <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
               <div
                 className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
