@@ -137,7 +137,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </div>
         <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Done !</h2>
         <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-6 max-w-xs">
-          <span className="font-bold text-[#6F3C97] text-3xl">{txFound.current}</span>{" "}
+          <span className="font-bold text-[#B55A38] text-3xl">{txFound.current}</span>{" "}
           transactions found with{" "}
           <span className="font-bold text-gray-500 dark:text-muted-foreground">{selectedContact?.name}</span> and were added to your ledger successfully.
         </p>

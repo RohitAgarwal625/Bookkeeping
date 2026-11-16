@@ -310,7 +310,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                     key={transaction.id}
                     className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
                       transaction.isNew
-                        ? "bg-purple-50 dark:bg-card border-2 border-[#592C16] dark:border-[#8A532B] shadow-[0_0_12px_rgba(164,124,243,0.12)]"
+                        ? "bg-[#F5EDE6] dark:bg-card border-2 border-[#592C16] dark:border-[#8A532B] shadow-[0_0_12px_rgba(89,44,22,0.12)]"
                         : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#8A532B]/40"
                     }`}
                   >
@@ -387,7 +387,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                               {transaction.description}
                             </p>
                             {transaction.isNew && (
-                              <span className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3] px-2 py-0.5">
+                              <span className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#592C16] px-2 py-0.5">
                                 New
                               </span>
                             )}
