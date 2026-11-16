@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
-import bookLogo from "./assets/favicon.svg";
+import bookLogo from "./assets/logo.svg";
 import { Dashboard } from "./components/Dashboard";
 import { AddCustomer } from "./components/AddCustomer";
 import { CustomerLedger } from "./components/CustomerLedger";
@@ -474,7 +474,7 @@ function AppContent() {
           <img
             src={bookLogo}
             alt="Bookkeeping Logo"
-            style={{ width: "80%", maxWidth: "360px", height: "auto" }}
+            style={{ width: "100%", height: "auto" }}
             className="object-contain drop-shadow-md logo-title-container"
           />
         </div>
