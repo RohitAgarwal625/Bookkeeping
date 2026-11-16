@@ -84,7 +84,7 @@ export function ContactsScreen({
               }
             }}
             enterKeyHint="go"
-            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary border border-transparent focus:border-gray-300 dark:focus:border-gray-600 text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none caret-[#A47CF3] transition"
+            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary border border-transparent focus:border-gray-300 dark:focus:border-gray-600 text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none caret-black dark:caret-white transition"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -118,7 +118,7 @@ export function ContactsScreen({
                 {/* Alphabet section divider */}
                 <div className="px-1 py-1 mb-1 flex items-center gap-2">
                   <span className="text-base font-extrabold text-black dark:text-white">{letter}</span>
-                  <div className="flex-1 h-px bg-purple-100 dark:bg-border" />
+                  <div className="flex-1 h-px bg-[#B55A38]" />
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -161,7 +161,7 @@ export function ContactsScreen({
                               )}
                             </div>
 
-                            <div className="flex-shrink-0 flex flex-col items-end gap-1.5 w-[95px]">
+                            <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
                               {/* Category tag at top right with icon aligned in same vertical line */}
                               <div className="text-sm font-medium w-full flex items-center justify-start">
                                 {contact.category === "individual" ? (
