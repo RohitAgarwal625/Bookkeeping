@@ -8,10 +8,12 @@ paths:
 # Frontend UI rules
 
 ## Styling
-- Tailwind v4 compiles at build time (`@tailwindcss/vite`), so prefer Tailwind classes, including arbitrary values like `border-[#592C16]/20`, over inline styles for new work.
+- **Check the branch first** (`git branch --show-current`):
+  - `main`: Tailwind v4 compiles at build time (`@tailwindcss/vite`), so prefer Tailwind classes, including arbitrary values like `border-[#592C16]/20`, over inline styles for new work.
+  - `feature_branch/backend-implementation`: `src/index.css` is frozen precompiled CSS and there's no Tailwind plugin. Use a class only if `grep -F` finds it in `src/index.css`; otherwise use an inline `style={{…}}`.
 - Write class names as complete literal strings. Tailwind can't see dynamically built names like `` `border-${color}` ``; use a lookup object of full class strings instead.
 - Theme tokens (`--background`, `--card`, ...) for light and `.dark` live in `src/index.css`. Change colors there, not per component, when they're app-wide.
-- Brand palette (main): dark brown `#592C16`, light brown `#8A532B`. Borders and focus rings use `#592C16` in light mode and `#8A532B` in dark mode (dark `#592C16` is invisible on `#0F1115`).
+- Brand palette (main): dark brown `#592C16`, light brown `#8A532B`. On the backend branch: purple `#A47CF3` → gold `#F7C548`. Borders and focus rings use `#592C16` in light mode and `#8A532B` in dark mode (dark `#592C16` is invisible on `#0F1115`).
 - Keyframe animations go in a local `<style>{`@keyframes ...`}</style>` inside the component (the existing pattern, e.g. `modal-pop` in `App.tsx`).
 - Brand gradient: copy the exact `linear-gradient(...)` already used in the file/branch you're editing. The theme differs between `main` (brown) and the backend branch (purple→gold).
 

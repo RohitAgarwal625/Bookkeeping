@@ -13,7 +13,8 @@ The repo has no test suite, so this checklist is the safety net. Run only the pa
    [ -d node_modules ] || npm install
    npm run build
    ```
-   (Node is from nvm: `export PATH="$HOME/.nvm/versions/node/v26.13.1/bin:$PATH"` if `npm` isn't found.)
+   (If `npm` isn't found, add this machine's Node bin dir to PATH: Homebrew `/opt/homebrew/opt/node@20/bin` or nvm `$HOME/.nvm/versions/node/v26.13.1/bin`.)
+   On the backend branch, any new Tailwind class must already exist in the precompiled `src/index.css` (`grep -F`).
    Note: `vite build` does not type-check. For a quick type sanity check, run `npx -y -p typescript@5.6.3 tsc --noEmit --jsx react-jsx --skipLibCheck --moduleResolution bundler --module esnext --target es2022 <files>`. Treat its errors as advisory, because the frontend has no tsconfig.
 3. **Backend** (if `backend/` changed):
    ```bash
@@ -22,4 +23,5 @@ The repo has no test suite, so this checklist is the safety net. Run only the pa
    With Postgres up, run `npm run dev` and `curl -s localhost:3001/api/health`. It should report the DB as ok.
 4. **Contract:** if an API shape changed, confirm the serializer, `src/types.ts` and `src/lib/api.ts` agree.
 5. **Config:** a new env var means updated `.env.example` and `SETUP.md`. A new external host means updated `vercel.json` CSP.
-6. **Hygiene:** no `console.log` debugging left behind, no `.DS_Store`/`dist/` noise staged, no secrets in the diff.
+6. **Progress:** for backend work, tick `PROGRESS.md` §8 and add a dated row to §11.
+7. **Hygiene:** no `console.log` debugging left behind, no `.DS_Store`/`dist/` noise staged, no secrets in the diff.

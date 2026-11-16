@@ -33,5 +33,5 @@ Work through the chain in order. Skipping a link is the usual cause of "works on
 6. **Frontend types:** update `src/types.ts`, and `shared/types.ts` if the type lives there too.
 7. **Client:** add the method to the right object in `src/lib/api.ts` (`contactsApi`, `transactionsApi`, …) using `request<T>()`.
 8. **Hook:** expose it from `src/hooks/useBookkeeping.ts` (handle loading/error, refresh `contacts`/`summary` after writes). Components call `bk.foo()`, never `fetch`.
-9. **Docs:** add the row to the endpoint table in `SETUP.md` §9.
+9. **Docs:** add the row to the endpoint table in `SETUP.md` §9 and to the API surface in `PROGRESS.md` §5.
 10. **Verify:** `cd backend && npm run build` (tsc strict), then `npm run build` at the root. If a DB is available, hit the endpoint with `curl -H "Authorization: Bearer $TOKEN" ...`. Test both the happy path and another user's id (it must 404).

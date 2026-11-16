@@ -5,8 +5,12 @@ paths:
 
 # Backend rules (Express + Prisma + Zod)
 
+Read `PROGRESS.md` first: it has the architecture, the API surface, the phase checklist and the known issues. Update its checklist and progress log when backend work lands.
+
 ## Request pipeline
 `router.<verb>(path, readLimiter|writeLimiter, validate(schema), controller)`, with `router.use(sessionAuth)` for anything user-scoped. Mount new routers in `backend/src/index.ts` **before** `notFound`/`errorHandler`.
+
+Exception and known gap: `routes/pi.ts` currently has **no** `sessionAuth`, limiter or Zod validation. Don't copy that pattern. When editing Pi routes, add auth so `req.user` is set; the Pi controllers depend on it.
 
 ## Validation
 - Zod schemas live in `backend/src/schemas/<entity>.schema.ts`, shaped `{ body?, query?, params? }`.

@@ -1,0 +1,218 @@
+# Bookkeeping — Backend Architecture & Progress Reference
+
+> Working reference for future sessions. Source of truth for intent: [design/bookkeeping_full_stack_plan.md](design/bookkeeping_full_stack_plan.md).
+> Source of truth for reality: `backend/` code. This file reconciles the two.
+> Last reviewed: 2026-11-16 (backend `tsc --noEmit` passes clean).
+
+---
+
+## 1. What the app is
+
+Pi Network bookkeeping dApp. Each Pi wallet = one user. A user keeps **contacts** (people/businesses with a Pi wallet) and a **ledger of transactions** (credit/debit, manual or from Pi Network). The Pi integration currently sells a single in-app product: **"Premium Bookkeeping Plan" for 1 Pi** (User-to-App payment).
+
+## 2. Plan (design doc) — summary
+
+| Area | Plan says | Actually built |
+|---|---|---|
+| Repo | Monorepo, `frontend/` + `backend/` + `shared/`, npm workspaces | **Not migrated.** Frontend still at repo root (`src/`, root `package.json`). `package.monorepo.json` is empty. No workspaces. `shared/types.ts` exists but backend does not import it. |
+| Backend | Node + Express + TS | ✅ Express 4, TS 5, CommonJS, Node ≥ 20 |
+| DB | Doc says Supabase as a placeholder, asks for a real choice (user prefers Railway) | ✅ **Railway PostgreSQL.** No Supabase, no `directUrl`, no RLS, no Realtime |
+| ORM | Prisma | ✅ Prisma 5.22 |
+| Auth Ph 1-3 | Skipped (`?userWallet=` query param) | **Improved:** opaque session token (`Session` table, `Authorization: Bearer`) |
+| Auth Ph 4 | Pi OAuth → verify token → JWT | ❌ Not built. `jsonwebtoken` installed but unused; `JWT_SECRET` unused |
+| Deploy | Vercel (FE) + Railway (BE) | ✅ `vercel.json` + `backend/railway.json` |
+| Rate limiting | express-rate-limit | ✅ 3 tiers |
+| CI/CD | GitHub Actions | ❌ No `.github/` |
+
+Plan also references a deeper converged design at `design/backend-architecture/final/architecture.html` (schema comments cite it). Code comments use issue IDs like `G-001`, `G-018`, `V-001`, `OQ-001`, which come from that review (grill/verification iterations).
+
+## 3. Backend layout
+
+```
+backend/
+├── package.json         scripts: dev (ts-node-dev), build (prisma generate + tsc), start (migrate deploy + node dist)
+├── tsconfig.json        strict, ES2022, CommonJS, rootDir src → outDir dist
+├── railway.json         NIXPACKS; healthcheck /api/health; migrate deploy runs in preDeploy AND start (redundant ×3)
+├── .env.example         DATABASE_URL, PORT, NODE_ENV, CORS_ORIGIN, LOG_LEVEL, PI_NETWORK_API_KEY, PI_PLATFORM_API_URL, JWT_SECRET
+├── prisma/
+│   ├── schema.prisma
+│   ├── migrations/20260927094600_init/   single init migration
+│   └── seed.ts          demo user 0x7a8f… + 5 contacts + credit/debit txns
+└── src/
+    ├── index.ts         app wiring, middleware order, graceful shutdown, starts cron in prod
+    ├── lib/
+    │   ├── config.ts      env → config object (all have fallbacks; `required()` never actually throws)
+    │   ├── logger.ts      pino (+ pino-pretty in dev), redacts authorization / tokens
+    │   ├── prisma.ts      PrismaClient singleton (globalThis cache outside prod)
+    │   ├── serializers.ts Prisma model → API JSON (Decimal → number, Date → ISO)
+    │   └── piClient.ts    Pi Platform API client (getPayment / approve / complete), PREMIUM_PRODUCT, PiApiError
+    ├── middleware/
+    │   ├── auth.ts        sessionAuth: Bearer token → Session lookup → req.user
+    │   ├── validate.ts    validate(zodSchema) parses {body,query,params} and REPLACES them with parsed values
+    │   ├── rateLimiter.ts readLimiter 100/min, writeLimiter 20/min (key = user id ?? IP), authLimiter 200/min/IP
+    │   └── errorHandler.ts Prisma error → HTTP mapping + notFound
+    ├── schemas/         Zod: common (sanitizedString via xss, walletAddress), user, contact, transaction
+    ├── routes/          health, users, contacts, transactions, pi (thin: limiter → auth → validate → controller)
+    ├── controllers/     users, contacts, transactions, pi (all logic + Prisma calls live here; no service layer)
+    └── jobs/
+        └── reconciliation.ts  node-cron every 5 min (prod only): pending/expired Pi txns + expired-session cleanup
+```
+
+**Layering convention:** `route → [rateLimiter] → [sessionAuth] → validate(schema) → controller`. Controllers call `prisma` directly, `try/catch → next(err)`, and respond via serializers. There is no service or repository layer. Pi controllers handle `PiApiError` inline and return `{error, message, details}` with the Pi status code.
+
+**Middleware order in `index.ts`:** helmet (frameguard **off** so the Pi Browser can iframe it; CORP cross-origin) → cors (origins from `CORS_ORIGIN`, default localhost:5173 + bookkeeping-v1.vercel.app; credentials; headers Content-Type/Authorization) → `express.json({limit:'100kb'})` → pino-http (skips /api/health) → routes → notFound → errorHandler.
+
+## 4. Data model (Prisma / Postgres)
+
+```
+User 1─* Session        (cascade)
+User 1─* Contact        (cascade)   @@unique(userId, piWalletAddress)
+User 1─* Transaction    (cascade)
+Contact 1─* Transaction (onDelete: SetNull → history survives contact deletion)
+```
+
+- **User**: `id cuid`, `piWalletAddress @unique`, `piUsername? @unique`, `piUid? @unique` (Phase 4 fields, never set yet), `displayName` default "Pioneer User".
+- **Session**: `token @unique` (randomUUID), `expiresAt` (24h TTL), `userId`.
+- **Contact**: `name`, `category` ("individual"|"business", plain string; enforced only by Zod), `piWalletAddress`. **Totals are not stored.** They're computed by raw SQL JOIN + GROUP BY.
+- **Transaction**: `amount Decimal(18,7)` (Pi has 7 dp), `type` credit|debit, `source` manual|pi_network, `status` pending|completed|failed|cancelled|expired (default completed), `idempotencyKey @unique` (required), `txHash?`, `piPaymentId?`, `expiresAt?`, `deletedAt?` (soft delete), `timestamp`.
+- Indexes: `(userId)`, `(userId, contactId)`, `(userId, timestamp)`, `(status, expiresAt)` for the cron job. Some indexes duplicate unique indexes (wallet, token, idempotencyKey), which is harmless but redundant.
+
+## 5. API surface (as built)
+
+Response conventions: single → `{ user | contact | transaction }`; lists → `{ data, pagination{page,limit,total,totalPages,hasNext,hasPrev} }` (contacts list has no pagination); errors → `{ error: CODE, message, details? }`.
+
+### Health
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/api/health` | – | `SELECT 1`; 200 ok / 503 degraded. Railway healthcheck |
+
+### Users (`routes/users.ts`)
+| GET | `/api/users/:walletAddress` | authLimiter | **Login.** Upserts user, creates a new Session, returns `{user, sessionToken, expiresAt}` |
+|---|---|---|---|
+| PUT | `/api/users/:walletAddress` | writeLimiter → sessionAuth | Update `displayName`; 403 if URL wallet ≠ session user |
+
+### Contacts (`router.use(sessionAuth)`)
+| GET | `/api/contacts?search=` | read | Raw SQL aggregate: totalCredit/totalDebit/lastSeen (non-deleted txns), ILIKE search, ordered by lastSeen |
+|---|---|---|---|
+| POST | `/api/contacts` | write | 409 `DUPLICATE_CONTACT` on same wallet per user |
+| GET | `/api/contacts/:id` | read | Same aggregate for one contact |
+| PUT | `/api/contacts/:id` | write | name/category; ownership check |
+| DELETE | `/api/contacts/:id` | write | **Hard** delete; txns keep row with contactId=null |
+
+### Transactions (`router.use(sessionAuth)`; `/summary` and `/contact/:id` registered before `/:id`)
+| GET | `/api/transactions/summary` | read | totals + balance + count (completed, non-deleted only) |
+|---|---|---|---|
+| GET | `/api/transactions/contact/:contactId?page&limit(50)` | read | Contact ledger, paginated |
+| GET | `/api/transactions?type&contactId&from&to&page&limit(20, max 100)` | read | Filtered, paginated, newest first |
+| POST | `/api/transactions` | write | Requires `idempotencyKey` (uuid). Same key + same user → 200 `{idempotent:true}`; other user → 409. Source always `manual`, status `completed`. Amount 0.0000001–1,000,000 |
+| GET | `/api/transactions/:id` | read | |
+| DELETE | `/api/transactions/:id` | write | Soft delete (`deletedAt`). `pi_network` txns → 403 |
+
+### Pi Network (`routes/pi.ts`): **no auth, no rate limit, no Zod**
+| POST | `/api/pi/approve` (alias `/approve-payment`) | `{paymentId}` → GET payment, validate product (amount==1 & productId/memo), POST `/v2/payments/:id/approve` (skips if already approved) |
+|---|---|---|
+| POST | `/api/pi/complete` (alias `/complete-payment`) | `{paymentId, txid}` → validate, POST `/complete`, then `recordCompletedPayment()` writes a `pi_network` debit txn with `idempotencyKey = paymentId` |
+| POST | `/api/pi/incomplete-payment` | `{paymentId, txid?}` → approve if needed, complete if txid known; for Pi SDK `onIncompletePaymentFound` |
+| GET | `/api/pi/payment/:id` | Proxy to Pi `GET /v2/payments/:id` |
+| GET | `/api/pi/premium-status` | `isPremium` = exists completed pi_network txn with amount 1 |
+| GET | `/api/pi/blockchain/payments/:address?limit&order` | Proxies Pi Horizon: mainnet first, falls back to testnet |
+
+The plan's `create-payment`, `cancel-payment`, `balance`, and `/api/auth` endpoints **do not exist**. Payment creation happens client-side via `Pi.createPayment()`, and the server only handles the approve/complete callbacks.
+
+### Pi U2A payment flow (as implemented)
+```
+FE Pi.createPayment(PREMIUM_PRODUCT)
+  ├─ onReadyForServerApproval(paymentId) → POST /api/pi/approve   → Pi /approve
+  ├─ (user signs on blockchain)
+  ├─ onReadyForServerCompletion(paymentId, txid) → POST /api/pi/complete → Pi /complete → DB txn (completed)
+  └─ onIncompletePaymentFound(payment) → POST /api/pi/incomplete-payment
+Pi Platform auth header: `Authorization: Key <PI_NETWORK_API_KEY>`; base `PI_PLATFORM_API_URL` (api.minepi.com)
+```
+
+## 6. Error mapping (`errorHandler.ts`)
+P2002 → 409 DUPLICATE · P2025 → 404 · P2024 (pool timeout) → 503 · P2021 (table missing) → 500 DATABASE_TABLE_MISSING · Init/RustPanic → 503 · otherwise 500 INTERNAL_ERROR **with raw `err.message`** · Zod → 400 VALIDATION_ERROR `details[{field,message}]` · PiApiError → its own status/code.
+
+## 7. Frontend touchpoints (integration status only)
+`src/lib/api.ts` and `src/lib/piBlockchain.ts` call every backend endpoint above, so **Phase 2 wiring exists**. (The frontend architecture itself is intentionally not documented here.)
+
+---
+
+## 8. Phase checklist (plan vs reality)
+
+**Phase 1 — Backend foundation**
+- [ ] Monorepo with npm workspaces (frontend not moved; no workspaces)
+- [x] Express + TS backend
+- [x] Postgres (Railway instead of Supabase) + Prisma + init migration
+- [x] `/api/users`, `/api/contacts`, `/api/transactions`
+- [x] Zod validation (+ XSS sanitization), CORS
+- [ ] Automated tests (none exist: no test runner, no test files)
+
+**Phase 2 — FE ↔ BE integration**
+- [x] API client exists and covers all endpoints (`src/lib/api.ts`)
+- [~] Session token instead of wallet in localStorage (not verified in FE code)
+
+**Phase 3 — Deployment**
+- [x] `.env.example` (backend), Railway config, `prisma migrate deploy` on start, Vercel config with CSP for Pi domains
+- [x] Rate limiting, helmet, graceful shutdown, health check, pino logging
+- [ ] GitHub Actions CI/CD
+
+**Phase 4 — Pi Network**
+- [x] Server-side approve / complete / incomplete with Server API Key; product validation; DB record of completed payment
+- [x] Horizon blockchain payment lookup proxy
+- [ ] `Pi.authenticate()` access-token verification on backend (`GET https://api.minepi.com/v2/me` with `Bearer <accessToken>`)
+- [ ] JWT issuance + JWT middleware (only `middleware/auth.ts` should need to change)
+- [ ] Populate `User.piUid` / `piUsername`
+- [ ] Strict Stellar wallet regex `^G[A-Z2-7]{55}$` (`schemas/common.ts`)
+- [ ] Pending-transaction record at approve time (so reconciliation has something to reconcile)
+- [ ] Live Pi balance endpoint
+- N/A RLS (Supabase-only; ownership is enforced in controllers via `userId` filters instead)
+
+**Phase 5 — Polish**
+- [x] Server-side pagination (transactions)
+- [ ] Realtime, push, Sentry, PostHog, offline cache
+
+---
+
+## 9. Known issues / risks found in review (fix candidates)
+
+Ordered by severity.
+
+1. **Pi routes are unauthenticated, so `req.user` is always undefined there.** As a result:
+   - `recordCompletedPayment` looks up the user by `piUid` (never populated) or `piWalletAddress == payment.to_address`. For U2A payments `to_address` is the **app's** wallet, not the payer's. It then falls back to **`prisma.user.findFirst()`**, which credits the payment to whichever user happens to be first in the DB.
+   - `/api/pi/premium-status` drops the `userId` filter, so **any user's premium purchase makes everyone premium.**
+   - Fix: add `sessionAuth` to the Pi routes (or Phase 4 JWT), pass `req.user.id`, and remove the `findFirst()` fallback.
+2. **Login is not authentication.** `GET /api/users/:walletAddress` issues a session to anyone who knows a wallet address. Note: the frontend actually sends the **Pi uid** from App Studio sign-in here (`bk.login(session.user.uid)` in `App.tsx`), so `User.piWalletAddress` holds the Pi uid, and `piUid`/`piUsername` stay null. That is the same spoofing risk G-001 meant to fix, just moved to login. The real fix is Phase 4 Pi token verification.
+3. **Reconciliation job is effectively a no-op** for payments. Nothing ever writes `status: "pending"` or `expiresAt`, because approve doesn't create a row and complete writes `completed` directly. It also runs only when `NODE_ENV=production`, so expired sessions never get cleaned in dev.
+4. `errorHandler` returns raw `err.message` on 500s in production, which can leak internals.
+5. `/api/pi/*` has no rate limiting and no Zod validation. The Horizon proxy is an open, unauthenticated outbound fetch.
+6. `updateContact` returns `serializeContact(contact)` without computed totals, so the response shows `totalCredit/totalDebit = 0` and `lastSeen = null`.
+7. A new Session row is created on every login and never revoked. There is no logout endpoint.
+8. `config.required()` always has a fallback (DATABASE_URL, JWT_SECRET), so a misconfigured prod fails late instead of at boot.
+9. `PUT /api/users` applies `writeLimiter` before `sessionAuth`, so that limiter keys by IP, not user.
+10. `listTransactions` / contact ledger / contact totals don't filter by `status`, while `/summary` does (completed only). Totals can diverge once pending/expired Pi rows exist.
+11. `railway.json` + `npm start` run `prisma migrate deploy` up to three times per deploy.
+12. Redundant indexes on columns that are already `@unique`.
+
+---
+
+## 10. Commands
+
+```bash
+cd backend
+npm run dev              # ts-node-dev on :3001
+npm run build            # prisma generate + tsc → dist/
+npm start                # migrate deploy + node dist/index.js
+npm run prisma:migrate   # create/apply dev migration
+npm run prisma:studio
+npm run db:seed          # demo user 0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e
+npx tsc --noEmit         # typecheck (clean as of 2026-11-16)
+```
+
+Env: `backend/.env` (untracked; present locally). Required for Pi endpoints: `PI_NETWORK_API_KEY` (Pi Developer Portal → App → Server API Key).
+
+## 11. Progress log
+
+| Date | Note |
+|---|---|
+| 2026-11-16 | Initial backend architecture review; this file created. No code changes. |
+| 2026-11-16 | Local `main` fast-forwarded to `origin/main` (`515b127`). Cherry-picked only `515b127` (CLAUDE.md, `.claude/rules`, `.claude/skills`) onto this branch as `5d0afc6`. Updated those files for this branch: precompiled Tailwind, Node path, Pi uid login, unauthenticated Pi routes, PROGRESS.md references. |
