@@ -75,7 +75,7 @@ export function ContactSearchDropdown({
             onFocus={() => setIsOpen(true)}
             onChange={(e) => { setQuery(e.target.value); setIsOpen(true); }}
             placeholder={placeholder}
-            className={`w-full pl-12 pr-4 py-3 ${inputBgClassName} border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all`}
+            className={`w-full pl-12 pr-4 py-3 ${inputBgClassName} border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent caret-black dark:caret-white transition-all`}
           />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
           {isOpen && query.trim().length > 0 && filtered.length > 0 && (

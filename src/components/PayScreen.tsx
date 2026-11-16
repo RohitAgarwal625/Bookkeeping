@@ -364,7 +364,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 onBlur={handlePioneerBlur}
                 onChange={(e) => handlePioneerSearchChange(e.target.value)}
                 placeholder="Select from Contacts"
-                className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground outline-none text-base font-medium caret-[#A47CF3]"
+                className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground outline-none text-base font-medium caret-black dark:caret-white"
               />
               <ChevronDown
                 className={`w-4 h-4 text-gray-400 dark:text-muted-foreground flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}

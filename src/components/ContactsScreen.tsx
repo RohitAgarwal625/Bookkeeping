@@ -84,7 +84,7 @@ export function ContactsScreen({
               }
             }}
             enterKeyHint="go"
-            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary border border-transparent focus:border-gray-300 dark:focus:border-gray-600 text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none caret-black dark:caret-white transition"
+            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary border border-transparent focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none caret-black dark:caret-white transition"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
