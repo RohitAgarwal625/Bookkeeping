@@ -199,7 +199,7 @@ export function Settings({
                       setEditingName(displayName);
                     }
                   }}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-[#F5EDE6] dark:hover:bg-purple-950/30 transition-colors"
                   aria-label="Edit Display Name"
                 >
                   <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
@@ -221,7 +221,7 @@ export function Settings({
                   onChange={(e) => setEditingName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
                   autoFocus
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#592C16] bg-purple-50/50 dark:bg-secondary dark:border-[#8A532B]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B]"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#592C16] bg-[#F5EDE6] dark:bg-secondary dark:border-[#8A532B]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B]"
                 />
                 <button
                   onClick={handleSaveName}
@@ -423,7 +423,7 @@ export function Settings({
           {/* What We Do */}
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-4">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-[#F5EDE6] dark:bg-purple-950/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-sm">⚡</span>
               </div>
               <h3 className="text-gray-900 dark:text-foreground font-semibold">What We Do</h3>

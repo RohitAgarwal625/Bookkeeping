@@ -382,7 +382,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                   <div
                     key={contact.id}
                     onMouseDown={(e) => { e.preventDefault(); handleSelectPioneer(contact); }}
-                    className={`flex items-center gap-3 px-4 py-3 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors ${i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
+                    className={`flex items-center gap-3 px-4 py-3 hover:bg-[#F5EDE6] dark:hover:bg-secondary cursor-pointer transition-colors ${i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
                       }`}
                   >
                     <div className="w-9 h-9 rounded-full flex items-center justify-center text-[#592C16] text-sm font-bold shadow-sm" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
@@ -439,7 +439,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                   onClick={() => setAmount(preset)}
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${isSelected
                     ? "text-white shadow-md border-0"
-                    : "bg-white dark:bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-[#592C16] dark:hover:border-[#8A532B] hover:text-[#A47CF3] dark:hover:text-[#A47CF3]"
+                    : "bg-white dark:bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-[#592C16] dark:hover:border-[#8A532B] hover:text-[#592C16] dark:hover:text-[#A47CF3]"
                     }`}
                   style={isSelected ? { background: GRADIENT } : undefined}
                 >
@@ -477,7 +477,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               </div>
               <div className="text-right flex-shrink-0 pl-3">
                 <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Amount</p>
-                <p className={`font-black text-lg leading-none ${amount ? "text-[#6F3C97] dark:text-[#A47CF3]" : "text-gray-300 dark:text-muted-foreground"}`}>
+                <p className={`font-black text-lg leading-none ${amount ? "text-[#592C16] dark:text-[#A47CF3]" : "text-gray-300 dark:text-muted-foreground"}`}>
                   {amount ? `${amount} π` : "— π"}
                 </p>
               </div>

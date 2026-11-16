@@ -151,7 +151,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
               <span className={`font-medium ${label === "Transactions Added"
-                  ? "text-[#6F3C97] font-bold text-xl"
+                  ? "text-[#592C16] font-bold text-xl"
                   : "text-gray-900 dark:text-foreground"
                 }`}>{value}</span>
             </div>

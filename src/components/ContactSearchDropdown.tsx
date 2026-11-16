@@ -52,7 +52,7 @@ export function ContactSearchDropdown({
   return (
     <div className="relative z-50" ref={containerRef}>
       {selected ? (
-        <div className="flex items-center justify-between px-4 py-3 bg-purple-50/60 dark:bg-[#6F3C97]/20 border border-[#592C16]/20 dark:border-[#8A532B]/40 rounded-xl">
+        <div className="flex items-center justify-between px-4 py-3 bg-[#F5EDE6] dark:bg-[#6F3C97]/20 border border-[#592C16]/20 dark:border-[#8A532B]/40 rounded-xl">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
               {getInitials(selected)}
@@ -89,7 +89,7 @@ export function ContactSearchDropdown({
                     setIsOpen(false);
                     setQuery("");
                   }}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#F5EDE6] dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
                 >
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                     {getInitials(name)}

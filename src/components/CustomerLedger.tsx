@@ -348,7 +348,7 @@ export function CustomerLedger({ customerName, onBack, initialNewTransactions }:
                             autoFocus
                             rows={2}
                             placeholder="Edit note (max 100 characters)..."
-                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#592C16] bg-purple-50/50 dark:bg-secondary dark:border-[#8A532B]/60 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] resize-none"
+                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#592C16] bg-[#F5EDE6] dark:bg-secondary dark:border-[#8A532B]/60 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] resize-none"
                           />
                         </div>
 
