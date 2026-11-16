@@ -118,7 +118,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           ))}
         </div>
         <p className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Fetching Transactions</p>
-        <p className="text-[#A47CF3] text-base text-center font-semibold mb-2">{selectedContact?.name}</p>
+        <p className="text-[#B55A38] text-base text-center font-semibold mb-2">{selectedContact?.name}</p>
         <p className="text-gray-400 dark:text-muted-foreground text-sm text-center animate-pulse">{msg}</p>
         <style>{`@keyframes bounce-dot { 0%, 80%, 100% { transform: translateY(0); opacity: 0.5; } 40% { transform: translateY(-18px); opacity: 1; } }`}</style>
       </div>
@@ -285,7 +285,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               </div>
               <div className="text-right flex-shrink-0 pl-3">
                 <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Period</p>
-                <p className={`font-semibold text-sm leading-none ${fromDate && toDate ? "text-[#6F3C97] dark:text-[#A47CF3]" : "text-gray-400 dark:text-gray-500"}`}>
+                <p className={`font-semibold text-sm leading-none ${fromDate && toDate ? "text-[#B55A38]" : "text-gray-400 dark:text-gray-500"}`}>
                   {fromDate && toDate ? `${fmtDate(fromDate)} - ${fmtDate(toDate)}` : "Maximum Limit: 1 Year"}
                 </p>
               </div>
