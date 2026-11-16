@@ -9,7 +9,7 @@ export function BookkeepingLogo({ compact = false }: BookkeepingLogoProps) {
     <img
       src={logo}
       alt="Bookkeeping"
-      className={compact ? "w-8 h-8 object-contain flex-shrink-0" : "w-20 h-20 object-contain drop-shadow-md"}
+      className={compact ? "w-10 h-10 relative left-3 object-contain flex-shrink-0" : "w-20 h-20 object-contain drop-shadow-md"}
     />
   );
 }

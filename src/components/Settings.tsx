@@ -467,7 +467,7 @@ export function Settings({
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
-        <div className="w-8 flex-shrink-0" />
+        <div className="w-10 flex-shrink-0" />
         <h1 className="text-base font-bold text-gray-900 dark:text-foreground flex-1 text-center">Settings</h1>
         <div className="flex-shrink-0">
           <BookkeepingLogo compact />

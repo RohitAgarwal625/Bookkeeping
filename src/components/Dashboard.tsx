@@ -91,11 +91,11 @@ export function Dashboard({
         <div className="flex items-center gap-3">
           <button
             onClick={handleBellClick}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors relative"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors relative left-3"
           >
             <Bell className="w-5 h-5 text-gray-700 dark:text-foreground" />
             {!bellRead && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#B55A38] rounded-full animate-pulse" />
             )}
           </button>
           <BookkeepingLogo compact />

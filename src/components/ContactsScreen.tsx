@@ -61,7 +61,7 @@ export function ContactsScreen({
       {/* Header — only contains "Contacts" title + separator */}
       <header className="bg-background shadow-sm border-b border-gray-200 dark:border-border px-6 py-4 z-10 relative">
         <div className="flex items-center">
-          <div className="w-8 flex-shrink-0" />
+          <div className="w-10 flex-shrink-0" />
           <h1 className="flex-1 text-base font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
           <div className="flex-shrink-0">
             <BookkeepingLogo compact />
