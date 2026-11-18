@@ -245,7 +245,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
               <div style={{ position: 'absolute', bottom: '-5px', right: '-5px', width: '5px', height: '45px', backgroundColor: '#ffffff' }} />
 
               {/* Animated scan line */}
-              <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#592C16] to-transparent"
+              <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#B55A38] to-transparent"
                 style={{ animation: "scanLine 2s ease-in-out infinite", top: "50%" }} />
 
               {/* Centered instruction text */}
