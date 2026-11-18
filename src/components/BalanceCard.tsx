@@ -95,7 +95,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                     onClick={() => { closePioneer(); onAddCustomer("individual"); }}
                     className="flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "#592C16" }}>
                       <User className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-base text-gray-700 dark:text-gray-300 font-bold hover:text-gray-900 dark:hover:text-white transition-colors">
