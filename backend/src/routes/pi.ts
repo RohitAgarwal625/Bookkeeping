@@ -7,6 +7,16 @@ import {
   getPremiumStatusHandler,
   getBlockchainPaymentsHandler,
 } from "../controllers/pi.controller";
+import { sessionAuth } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { readLimiter, writeLimiter } from "../middleware/rateLimiter";
+import {
+  approvePaymentSchema,
+  completePaymentSchema,
+  incompletePaymentSchema,
+  paymentIdSchema,
+  blockchainPaymentsSchema,
+} from "../schemas/pi.schema";
 
 /**
  * Pi Network Payment Routes
@@ -22,23 +32,26 @@ import {
 const router = Router();
 
 // Server Approval endpoints
-router.post("/approve", approvePaymentHandler);
-router.post("/approve-payment", approvePaymentHandler);
+router.post("/approve", sessionAuth, writeLimiter, validate(approvePaymentSchema), approvePaymentHandler);
+router.post("/approve-payment", sessionAuth, writeLimiter, validate(approvePaymentSchema), approvePaymentHandler);
 
 // Server Completion endpoints
-router.post("/complete", completePaymentHandler);
-router.post("/complete-payment", completePaymentHandler);
+router.post("/complete", sessionAuth, writeLimiter, validate(completePaymentSchema), completePaymentHandler);
+router.post("/complete-payment", sessionAuth, writeLimiter, validate(completePaymentSchema), completePaymentHandler);
 
-// Incomplete payment resolution
-router.post("/incomplete-payment", incompletePaymentHandler);
+// Incomplete payment resolution.
+// No sessionAuth: the Pi SDK calls onIncompletePaymentFound during
+// Pi.authenticate, before the backend login has issued a session token.
+// The owner is resolved from the Pi Platform's payment.user_uid instead.
+router.post("/incomplete-payment", writeLimiter, validate(incompletePaymentSchema), incompletePaymentHandler);
 
 // Payment inspection
-router.get("/payment/:id", getPaymentStatusHandler);
+router.get("/payment/:id", sessionAuth, readLimiter, validate(paymentIdSchema), getPaymentStatusHandler);
 
-// Premium feature entitlement status
-router.get("/premium-status", getPremiumStatusHandler);
+// Premium feature entitlement status (per user)
+router.get("/premium-status", sessionAuth, readLimiter, getPremiumStatusHandler);
 
-// Blockchain payments inspection
-router.get("/blockchain/payments/:address", getBlockchainPaymentsHandler);
+// Blockchain payments inspection (public chain data; no user scope, no auth)
+router.get("/blockchain/payments/:address", readLimiter, validate(blockchainPaymentsSchema), getBlockchainPaymentsHandler);
 
 export default router;

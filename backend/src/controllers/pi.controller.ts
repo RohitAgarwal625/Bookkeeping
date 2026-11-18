@@ -12,32 +12,20 @@ import {
 /**
  * Record completed Pi payment as a transaction in the local database.
  * Uses paymentId as the idempotencyKey to ensure idempotency.
+ *
+ * The owner is taken from payment.user_uid, which comes from the Pi Platform
+ * API (server-to-server), not from the client. Backend login stores the
+ * App Studio uid in User.piWalletAddress, so that is the column to match.
  */
 async function recordCompletedPayment(
   payment: PiPaymentResponse,
-  txid: string,
-  userId?: string
+  txid: string
 ): Promise<void> {
   try {
-    // If userId not passed via session, try to find user by piUid or wallet
-    let resolvedUserId = userId;
-    if (!resolvedUserId) {
-      const user = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { piUid: payment.user_uid },
-            { piWalletAddress: payment.to_address },
-          ],
-        },
-      });
-      resolvedUserId = user?.id;
-    }
-
-    if (!resolvedUserId) {
-      // Find the first user or create a placeholder if this is the only active pioneer
-      const firstUser = await prisma.user.findFirst();
-      resolvedUserId = firstUser?.id;
-    }
+    const user = await prisma.user.findUnique({
+      where: { piWalletAddress: payment.user_uid },
+    });
+    const resolvedUserId = user?.id;
 
     if (!resolvedUserId) {
       logger.warn(
@@ -165,7 +153,7 @@ export async function completePaymentHandler(
     const payment = await piClient.completePayment(paymentId, txid);
 
     // Save in database
-    await recordCompletedPayment(payment, txid, req.user?.id);
+    await recordCompletedPayment(payment, txid);
 
     res.status(200).json({
       success: true,
@@ -221,7 +209,7 @@ export async function incompletePaymentHandler(
     const activeTxid = txid || payment.transaction?.txid;
     if (activeTxid && !payment.status?.developer_completed && !payment.status?.cancelled) {
       payment = await piClient.completePayment(paymentId, activeTxid);
-      await recordCompletedPayment(payment, activeTxid, req.user?.id);
+      await recordCompletedPayment(payment, activeTxid);
     }
 
     res.status(200).json({
@@ -276,12 +264,12 @@ export async function getPremiumStatusHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = req.user!.id;
 
-    // Check if there is any completed transaction for the product
+    // Check if this user has a completed transaction for the product
     const premiumTx = await prisma.transaction.findFirst({
       where: {
-        ...(userId ? { userId } : {}),
+        userId,
         source: "pi_network",
         status: "completed",
         amount: new Prisma.Decimal(PREMIUM_PRODUCT.amount),

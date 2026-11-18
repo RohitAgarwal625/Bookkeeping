@@ -182,7 +182,7 @@ export const piClient = {
    * GET https://api.minepi.com/v2/payments/:id
    */
   async getPayment(paymentId: string): Promise<PiPaymentResponse> {
-    return piRequest<PiPaymentResponse>(`/v2/payments/${paymentId}`, "GET");
+    return piRequest<PiPaymentResponse>(`/v2/payments/${encodeURIComponent(paymentId)}`, "GET");
   },
 
   /**
@@ -202,7 +202,7 @@ export const piClient = {
 
     // 2. Call /approve endpoint on Pi Platform API
     const approvedPayment = await piRequest<PiPaymentResponse>(
-      `/v2/payments/${paymentId}/approve`,
+      `/v2/payments/${encodeURIComponent(paymentId)}/approve`,
       "POST",
       {}
     );
@@ -232,7 +232,7 @@ export const piClient = {
 
     // 2. Call /complete endpoint on Pi Platform API
     const completedPayment = await piRequest<PiPaymentResponse>(
-      `/v2/payments/${paymentId}/complete`,
+      `/v2/payments/${encodeURIComponent(paymentId)}/complete`,
       "POST",
       { txid }
     );
