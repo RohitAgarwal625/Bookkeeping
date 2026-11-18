@@ -95,7 +95,7 @@ export function Dashboard({
           >
             <Bell className="w-5 h-5 text-gray-700 dark:text-foreground" />
             {!bellRead && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#B55A38] rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#B55A38] rounded-full animate-pulse" />
             )}
           </button>
           <BookkeepingLogo compact />
