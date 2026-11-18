@@ -51,7 +51,7 @@ backend/
     │   ├── validate.ts    validate(zodSchema) parses {body,query,params} and REPLACES them with parsed values
     │   ├── rateLimiter.ts readLimiter 100/min, writeLimiter 20/min (key = user id ?? IP), authLimiter 200/min/IP
     │   └── errorHandler.ts Prisma error → HTTP mapping + notFound
-    ├── schemas/         Zod: common (sanitizedString via xss, walletAddress), user, contact, transaction
+    ├── schemas/         Zod: common (sanitizedString via xss, walletAddress), user, contact, transaction, pi
     ├── routes/          health, users, contacts, transactions, pi (thin: limiter → auth → validate → controller)
     ├── controllers/     users, contacts, transactions, pi (all logic + Prisma calls live here; no service layer)
     └── jobs/
@@ -108,14 +108,15 @@ Response conventions: single → `{ user | contact | transaction }`; lists → `
 | GET | `/api/transactions/:id` | read | |
 | DELETE | `/api/transactions/:id` | write | Soft delete (`deletedAt`). `pi_network` txns → 403 |
 
-### Pi Network (`routes/pi.ts`): **no auth, no rate limit, no Zod**
-| POST | `/api/pi/approve` (alias `/approve-payment`) | `{paymentId}` → GET payment, validate product (amount==1 & productId/memo), POST `/v2/payments/:id/approve` (skips if already approved) |
-|---|---|---|
-| POST | `/api/pi/complete` (alias `/complete-payment`) | `{paymentId, txid}` → validate, POST `/complete`, then `recordCompletedPayment()` writes a `pi_network` debit txn with `idempotencyKey = paymentId` |
-| POST | `/api/pi/incomplete-payment` | `{paymentId, txid?}` → approve if needed, complete if txid known; for Pi SDK `onIncompletePaymentFound` |
-| GET | `/api/pi/payment/:id` | Proxy to Pi `GET /v2/payments/:id` |
-| GET | `/api/pi/premium-status` | `isPremium` = exists completed pi_network txn with amount 1 |
-| GET | `/api/pi/blockchain/payments/:address?limit&order` | Proxies Pi Horizon: mainnet first, falls back to testnet |
+### Pi Network (`routes/pi.ts`, Zod schemas in `schemas/pi.schema.ts`)
+| Method | Path | Auth / limiter | Notes |
+|---|---|---|---|
+| POST | `/api/pi/approve` (alias `/approve-payment`) | sessionAuth → write | `{paymentId}` → GET payment, validate product (amount==1 & productId/memo), POST `/v2/payments/:id/approve` (skips if already approved) |
+| POST | `/api/pi/complete` (alias `/complete-payment`) | sessionAuth → write | `{paymentId, txid}` → validate, POST `/complete`, then `recordCompletedPayment()` writes a `pi_network` debit txn with `idempotencyKey = paymentId` for the user whose `piWalletAddress == payment.user_uid` (from the Pi Platform API). No match → not recorded, warning logged |
+| POST | `/api/pi/incomplete-payment` | write (**no auth**, by design) | `{paymentId, txid?}` → approve if needed, complete if txid known; for Pi SDK `onIncompletePaymentFound`, which runs inside `Pi.authenticate` before the backend login, so there is no session yet. Owner resolved from `payment.user_uid` as above |
+| GET | `/api/pi/payment/:id` | sessionAuth → read | Proxy to Pi `GET /v2/payments/:id` |
+| GET | `/api/pi/premium-status` | sessionAuth → read | `isPremium` = **this user** has a completed pi_network txn with amount 1 |
+| GET | `/api/pi/blockchain/payments/:address?limit&order` | read (no auth; public chain data) | Proxies Pi Horizon: mainnet first, falls back to testnet |
 
 The plan's `create-payment`, `cancel-payment`, `balance`, and `/api/auth` endpoints **do not exist**. Payment creation happens client-side via `Pi.createPayment()`, and the server only handles the approve/complete callbacks.
 
@@ -145,7 +146,7 @@ P2002 → 409 DUPLICATE · P2025 → 404 · P2024 (pool timeout) → 503 · P202
 - [x] Postgres (Railway instead of Supabase) + Prisma + init migration
 - [x] `/api/users`, `/api/contacts`, `/api/transactions`
 - [x] Zod validation (+ XSS sanitization), CORS
-- [ ] Automated tests (none exist: no test runner, no test files)
+- [x] Automated backend API tests: `backend/tests/` (`npm run test:api`), 9 suites / 116 checks, real Postgres `*_test` DB + fake Pi Platform API. No frontend tests.
 
 **Phase 2 — FE ↔ BE integration**
 - [x] API client exists and covers all endpoints (`src/lib/api.ts`)
@@ -177,14 +178,14 @@ P2002 → 409 DUPLICATE · P2025 → 404 · P2024 (pool timeout) → 503 · P202
 
 Ordered by severity.
 
-1. **Pi routes are unauthenticated, so `req.user` is always undefined there.** As a result:
+1. ✅ **Fixed 2026-11-18** (see progress log). ~~**Pi routes are unauthenticated, so `req.user` is always undefined there.**~~ As a result:
    - `recordCompletedPayment` looks up the user by `piUid` (never populated) or `piWalletAddress == payment.to_address`. For U2A payments `to_address` is the **app's** wallet, not the payer's. It then falls back to **`prisma.user.findFirst()`**, which credits the payment to whichever user happens to be first in the DB.
    - `/api/pi/premium-status` drops the `userId` filter, so **any user's premium purchase makes everyone premium.**
    - Fix: add `sessionAuth` to the Pi routes (or Phase 4 JWT), pass `req.user.id`, and remove the `findFirst()` fallback.
 2. **Login is not authentication.** `GET /api/users/:walletAddress` issues a session to anyone who knows a wallet address. Note: the frontend actually sends the **Pi uid** from App Studio sign-in here (`bk.login(session.user.uid)` in `App.tsx`), so `User.piWalletAddress` holds the Pi uid, and `piUid`/`piUsername` stay null. That is the same spoofing risk G-001 meant to fix, just moved to login. The real fix is Phase 4 Pi token verification.
 3. **Reconciliation job is effectively a no-op** for payments. Nothing ever writes `status: "pending"` or `expiresAt`, because approve doesn't create a row and complete writes `completed` directly. It also runs only when `NODE_ENV=production`, so expired sessions never get cleaned in dev.
 4. `errorHandler` returns raw `err.message` on 500s in production, which can leak internals.
-5. `/api/pi/*` has no rate limiting and no Zod validation. The Horizon proxy is an open, unauthenticated outbound fetch.
+5. ✅ **Fixed 2026-11-18.** ~~`/api/pi/*` has no rate limiting and no Zod validation.~~ The Horizon proxy is still unauthenticated on purpose (public chain data), but is now rate limited (read, per IP) and input-validated.
 6. `updateContact` returns `serializeContact(contact)` without computed totals, so the response shows `totalCredit/totalDebit = 0` and `lastSeen = null`.
 7. A new Session row is created on every login and never revoked. There is no logout endpoint.
 8. `config.required()` always has a fallback (DATABASE_URL, JWT_SECRET), so a misconfigured prod fails late instead of at boot.
@@ -192,6 +193,7 @@ Ordered by severity.
 10. `listTransactions` / contact ledger / contact totals don't filter by `status`, while `/summary` does (completed only). Totals can diverge once pending/expired Pi rows exist.
 11. `railway.json` + `npm start` run `prisma migrate deploy` up to three times per deploy.
 12. Redundant indexes on columns that are already `@unique`.
+13. **Open (decision pending):** the Premium payment is stored as a `pi_network` **debit** with no contact, so the subscription fee shows up in the user's khata totals, balance and transaction count.
 
 ---
 
@@ -206,7 +208,10 @@ npm run prisma:migrate   # create/apply dev migration
 npm run prisma:studio
 npm run db:seed          # demo user 0x7a8f9c3e4b5d6a1e2f3c4b5a6d7e8f9a0b1c2d3e
 npx tsc --noEmit         # typecheck (clean as of 2026-11-16)
+npm run test:api         # build + API tests against bookkeeping_test (see tests/README.md)
 ```
+
+Local Postgres 17 via Homebrew: `brew services start postgresql@17` (port 5432). Role `postgres` (superuser) was created so the URLs in `backend/.env` and `backend/tests` work on every laptop. Databases: `bookkeeping` (dev, used by `backend/.env`) and `bookkeeping_test` (API tests). Node lives in nvm on this laptop: `export PATH="$HOME/.nvm/versions/node/v26.13.1/bin:$PATH"`.
 
 Env: `backend/.env` (untracked; present locally). Required for Pi endpoints: `PI_NETWORK_API_KEY` (Pi Developer Portal → App → Server API Key).
 
@@ -216,3 +221,6 @@ Env: `backend/.env` (untracked; present locally). Required for Pi endpoints: `PI
 |---|---|
 | 2026-11-16 | Initial backend architecture review; this file created. No code changes. |
 | 2026-11-16 | Local `main` fast-forwarded to `origin/main` (`515b127`). Cherry-picked only `515b127` (CLAUDE.md, `.claude/rules`, `.claude/skills`) onto this branch as `5d0afc6`. Updated those files for this branch: precompiled Tailwind, Node path, Pi uid login, unauthenticated Pi routes, PROGRESS.md references. |
+| 2026-11-18 | Fixed known issues #1 and #5. `routes/pi.ts`: `sessionAuth` on approve/complete (+aliases), `payment/:id`, `premium-status`; write/read limiters and Zod (`schemas/pi.schema.ts`) on all Pi routes; `incomplete-payment` and the Horizon proxy stay unauthenticated (reasons in §5). `pi.controller.ts`: `recordCompletedPayment` resolves the owner by `piWalletAddress == payment.user_uid` (Pi Platform data) and the `findFirst()` fallback is removed; `premium-status` filters by `req.user.id`. Verified: `tsc` clean; 401s without a token, 400 `VALIDATION_ERROR` on bad input. DB-backed checks pending. |
+| 2026-11-18 | Local Postgres 17 set up (Homebrew `postgresql@17`, see §10): role `postgres`, databases `bookkeeping` and `bookkeeping_test`, migrations applied; `backend/.env` created. |
+| 2026-11-18 | `lib/piClient.ts`: `paymentId` is now `encodeURIComponent`-ed in the three `/v2/payments/...` paths (before, `"../me"` reached `/v2/me` with the app's API key). Added `backend/tests/` API suite + `npm run test:api`: 116/116 pass; on the pre-fix code 5 checks fail (payer attribution, unregistered payer, incomplete payer, path escape). Rule files (`.claude/rules/backend.md`, `pi-network.md`), CLAUDE.md and the `verify` skill updated to match. Open question kept open by decision: the Premium fee is recorded as a `debit` with no contact, so it counts in the user's khata totals/balance (§9 #13). |

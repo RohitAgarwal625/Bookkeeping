@@ -5,7 +5,7 @@ description: Check that Bookkeeping changes actually work before reporting done.
 
 # Verify a change
 
-The repo has no test suite, so this checklist is the safety net. Run only the parts relevant to what changed, and report each result honestly: passed, failed (with output), or skipped (with the reason).
+Only the backend has automated tests (`backend/tests/`); for everything else this checklist is the safety net. Run only the parts relevant to what changed, and report each result honestly: passed, failed (with output), or skipped (with the reason).
 
 1. **What changed:** `git status --short` and `git diff --stat`.
 2. **Frontend** (if `src/` changed):
@@ -20,7 +20,7 @@ The repo has no test suite, so this checklist is the safety net. Run only the pa
    ```bash
    cd backend && ([ -d node_modules ] || npm install) && npm run build
    ```
-   With Postgres up, run `npm run dev` and `curl -s localhost:3001/api/health`. It should report the DB as ok.
+   With Postgres up, run `npm run test:api` (all suites must pass; add or update a suite in `backend/tests/suites/` when behaviour changes). For a quick manual check, `npm run dev` and `curl -s localhost:3001/api/health` should report the DB as ok.
 4. **Contract:** if an API shape changed, confirm the serializer, `src/types.ts` and `src/lib/api.ts` agree.
 5. **Config:** a new env var means updated `.env.example` and `SETUP.md`. A new external host means updated `vercel.json` CSP.
 6. **Progress:** for backend work, tick `PROGRESS.md` §8 and add a dated row to §11.

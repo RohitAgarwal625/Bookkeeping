@@ -10,7 +10,7 @@ Read `PROGRESS.md` first: it has the architecture, the API surface, the phase ch
 ## Request pipeline
 `router.<verb>(path, readLimiter|writeLimiter, validate(schema), controller)`, with `router.use(sessionAuth)` for anything user-scoped. Mount new routers in `backend/src/index.ts` **before** `notFound`/`errorHandler`.
 
-Exception and known gap: `routes/pi.ts` currently has **no** `sessionAuth`, limiter or Zod validation. Don't copy that pattern. When editing Pi routes, add auth so `req.user` is set; the Pi controllers depend on it.
+Pi routes (`routes/pi.ts`, schemas in `schemas/pi.schema.ts`) use per-route `sessionAuth` → limiter → `validate(schema)`. Two routes are deliberately **unauthenticated** and must stay that way: `POST /api/pi/incomplete-payment` (the Pi SDK calls it inside `Pi.authenticate`, before the backend login exists) and `GET /api/pi/blockchain/payments/:address` (public chain data). They still have a limiter and Zod. Payment ownership comes from `payment.user_uid` returned by the Pi Platform API, never from `req.user` or the request body.
 
 ## Validation
 - Zod schemas live in `backend/src/schemas/<entity>.schema.ts`, shaped `{ body?, query?, params? }`.

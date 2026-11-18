@@ -17,12 +17,13 @@ npm install && npm run dev            # frontend → http://localhost:3000 (vite
 npm run build                         # frontend production build → dist/ (no type check: vite only strips types)
 cd backend && npm install && npm run dev   # backend → http://localhost:3001, health: /api/health
 cd backend && npm run build           # prisma generate + tsc (the only real type check in the repo)
+cd backend && npm run test:api        # build + backend API tests (needs Postgres + a *_test DB; see backend/tests/README.md)
 cd backend && npm run prisma:migrate  # create/apply a migration in dev
 cd backend && npm run db:seed         # demo data
 brew services start postgresql@17     # local Postgres (see SETUP.md if brew services fails)
 ```
 
-There are no tests and no linter. To verify a change, run the builds above and check it in the browser.
+There is no linter and no frontend test suite. The backend has an end-to-end API test suite in `backend/tests/` (plain Node, real Postgres, fake Pi API). To verify a change, run the builds above, run `npm run test:api` for backend changes, and check the UI in the browser.
 If `npm` isn't on PATH, add the machine's Node bin dir: Homebrew `/opt/homebrew/opt/node@20/bin` on one laptop, nvm `~/.nvm/versions/node/v26.13.1/bin` on the other.
 
 ## Repo layout
@@ -58,7 +59,7 @@ dist/, build/            committed build output; don't edit by hand
 6. **Pi identity:** trust only the uid/username returned by App Studio, never the values from `Pi.authenticate` in the browser. Pi payment approve/complete calls happen **only on the backend** (they need `PI_NETWORK_API_KEY`).
    - Backend login is `GET /api/users/:walletAddress`. The frontend passes the **Pi `uid`** there (`bk.login(session.user.uid)` in `App.tsx`), so `User.piWalletAddress` actually stores the Pi uid. `User.piUid` and `User.piUsername` are never set.
    - That endpoint issues a session to anyone who supplies an id. Real token verification (Phase 4) isn't built.
-   - `/api/pi/*` routes have no `sessionAuth`. That causes known bugs: payments get attributed to the wrong user, and premium status is global. See `PROGRESS.md` §9 before touching Pi payment code.
+   - `/api/pi/*` routes require `sessionAuth`, except `incomplete-payment` (runs during sign-in, before login) and the Horizon proxy (public data). Payments are recorded for `payment.user_uid` from the Pi API, and premium status is per user. See `PROGRESS.md` §5 and §9 before touching Pi payment code.
 7. **CSP lives in `vercel.json`.** Any new external host (API, font, script, image CDN) must be added there or it gets blocked in production. The same applies to backend `CORS_ORIGIN`. Locally, Vite serves on **:3000** but the backend's default CORS allows only `:5173`, so set `CORS_ORIGIN="http://localhost:3000"` in `backend/.env`.
 8. Never commit secrets. `.env.local` is tracked (it holds only `VITE_API_URL`); keep real keys in `backend/.env` (gitignored) or the Railway/Vercel dashboards.
 
