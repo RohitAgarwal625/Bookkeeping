@@ -13,7 +13,8 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "db:seed": "ts-node-dev --transpile-only prisma/seed.ts"
+    "db:seed": "ts-node-dev --transpile-only prisma/seed.ts",
+    "test:api": "npm run build && node tests/run.mjs"
   },
   "prisma": {
     "seed": "ts-node-dev --transpile-only prisma/seed.ts"
