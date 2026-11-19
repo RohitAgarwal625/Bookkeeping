@@ -23,6 +23,7 @@ import { PremiumModal } from "./components/PremiumModal";
 import { BottomNav } from "./components/BottomNav";
 import { Contact, Transaction, normalizeContactName } from "./types";
 import { useBookkeeping } from "./hooks/useBookkeeping";
+import { useAutoSync, useRecentTransactions } from "./hooks/useAutoSync";
 import { ApiError, auth, contactsApi } from "./lib/api";
 import { signInWithPi, type PiSession } from "./lib/piAuth";
 import { checkPremiumStatus } from "./lib/piPayments";
@@ -175,6 +176,25 @@ function AppContent() {
     setSelectedCategory(category);
     setCurrentScreen("addCustomer");
   };
+
+  // Background Pi payment sync (sent = debit, received = credit); see hooks/useAutoSync.ts.
+  useAutoSync({
+    enabled: bk.isAuthenticated && !isGuest,
+    userId: bk.user?.id,
+    userWalletAddress: bk.user?.walletPublicKey,
+    contacts: bk.contacts,
+    importScannedTransactions: bk.importScannedTransactions,
+    onImported: (contact, saved) => {
+      // Highlighted as "New" the next time that ledger is opened.
+      setPendingNewTransactions((prev) => {
+        const existing = prev[contact.name] || [];
+        const ids = new Set(existing.map((t) => t.id));
+        return { ...prev, [contact.name]: [...saved.filter((t) => !ids.has(t.id)).map((t) => ({ ...t, isNew: true })), ...existing] };
+      });
+    },
+  });
+  // Dashboard history: newest saved entries, reloaded whenever the summary changes (add/import/sync).
+  const recentTransactions = useRecentTransactions(bk.isAuthenticated && !isGuest, bk.summary, 100);
 
   const handleNavigateToCustomerLedger = (customerName: string, contactId?: string, newTransactions?: Transaction[]) => {
     setSelectedCustomer(customerName);
@@ -629,6 +649,8 @@ function AppContent() {
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigate={handleNavigate}
           isGuest={isGuest}
+          recentTransactions={recentTransactions}
+          contacts={contacts}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         <SharedOverlays />
@@ -649,6 +671,8 @@ function AppContent() {
           onNavigateToAddEntry={handleNavigateToAddEntry}
           onNavigateToAutoEntry={handleNavigateToAutoEntry}
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
+          recentTransactions={recentTransactions}
+          contacts={contacts}
           onNavigate={handleNavigate}
           isGuest={isGuest}
           isPremium={isPremium}

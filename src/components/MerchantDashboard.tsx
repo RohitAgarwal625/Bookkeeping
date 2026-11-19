@@ -18,7 +18,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { ReportsAnalytics } from "./ReportsAnalytics";
-import { getInitials } from "../types";
+import { Contact, Transaction, getInitials } from "../types";
+import { formatPiAmount } from "../lib/piAmount";
 import { useDarkMode } from "../contexts/DarkModeContext";
 
 interface MerchantDashboardProps {
@@ -29,6 +30,17 @@ interface MerchantDashboardProps {
   onNavigateToCustomerLedger: (customerName: string) => void;
   onNavigate: (screen: string) => void;
   isGuest?: boolean;
+  /** Newest saved entries across all contacts (signed-in users), shown in History. */
+  recentTransactions?: Transaction[];
+  /** Used to show each entry's contact name, category and wallet address. */
+  contacts?: Contact[];
+}
+
+/** "19 Nov 2026, 14:30" in local time. */
+function formatHistoryDate(timestamp: string): string {
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) return timestamp;
+  return `${d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}, ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
 interface PastTransaction {
@@ -121,6 +133,8 @@ export function MerchantDashboard({
   onNavigateToCustomerLedger,
   onNavigate,
   isGuest,
+  recentTransactions = [],
+  contacts = [],
 }: MerchantDashboardProps) {
   const [selectedMerchant, setSelectedMerchant] = useState<MerchantRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<"individual" | "business">("individual");
@@ -133,8 +147,29 @@ export function MerchantDashboard({
 
   const { isDarkMode: isDark } = useDarkMode();
 
-  const individualMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "individual");
-  const businessMerchants = isGuest ? [] : mockMerchants.filter((m) => m.category === "business");
+  // Saved entries (manual, Pay and Auto Sync), newest first. Saved entries are always completed.
+  const contactById = new Map(contacts.map((c) => [c.id, c]));
+  const historyRecords: MerchantRecord[] = isGuest ? [] : recentTransactions.flatMap((t) => {
+    const c = t.contactId ? contactById.get(t.contactId) : undefined;
+    if (!c) return [];
+    return [{
+      id: t.id,
+      merchantName: c.name,
+      category: c.category,
+      date: formatHistoryDate(t.timestamp),
+      amount: t.amount,
+      type: t.type,
+      status: "completed" as const,
+      piWalletAddress: c.piWalletAddress ?? "",
+      description: t.description,
+      txHash: t.chainPaymentId ?? "",
+      totalCredit: 0,
+      totalDebit: 0,
+      pastTransactions: [],
+    }];
+  });
+  const individualMerchants = historyRecords.filter((m) => m.category === "individual");
+  const businessMerchants = historyRecords.filter((m) => m.category === "business");
 
   const handleCopyWallet = (id: string, address: string) => {
     navigator.clipboard.writeText(address).catch(() => { });
@@ -268,7 +303,7 @@ export function MerchantDashboard({
                         </div>
                       </div>
                       <span className={`text-sm font-medium flex-shrink-0 ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                        {merchant.type === "credit" ? "+" : "-"}{merchant.amount.toFixed(2)} π
+                        {merchant.type === "credit" ? "+" : "-"}{formatPiAmount(merchant.amount)} π
                       </span>
                     </div>
                     <div className="space-y-1.5">
@@ -372,7 +407,7 @@ export function MerchantDashboard({
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400"
                     }`}>
-                    {selectedMerchant.type === "credit" ? "+" : "-"}{selectedMerchant.amount.toFixed(2)} π
+                    {selectedMerchant.type === "credit" ? "+" : "-"}{formatPiAmount(selectedMerchant.amount)} π
                   </span>
                 </div>
               </div>
@@ -439,7 +474,7 @@ export function MerchantDashboard({
                     </button>
                   </div>
                   <span className="text-xs text-gray-900 dark:text-foreground font-mono">
-                    {selectedMerchant.status === "pending" ? "-" : `${selectedMerchant.txHash.slice(0, 14)}...`}
+                    {selectedMerchant.status === "pending" || !selectedMerchant.txHash ? "-" : selectedMerchant.txHash.length > 14 ? `${selectedMerchant.txHash.slice(0, 14)}...` : selectedMerchant.txHash}
                   </span>
                 </div>
                 {showTxIdInfo && (

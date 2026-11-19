@@ -2,7 +2,8 @@ import { Bell, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { BalanceCard } from "./BalanceCard";
 import { BookkeepingLogo } from "./BookkeepingLogo";
-import { getInitials } from "../types";
+import { Contact, Transaction, getInitials } from "../types";
+import { formatPiAmount } from "../lib/piAmount";
 
 interface DashboardProps {
   userName: string;
@@ -12,14 +13,23 @@ interface DashboardProps {
   onNavigateToAddCustomer: (category: "individual" | "business") => void;
   onNavigateToAddEntry: () => void;
   onNavigateToAutoEntry: () => void;
-  onNavigateToCustomerLedger: (customerName: string) => void;
+  onNavigateToCustomerLedger: (customerName: string, contactId?: string) => void;
+  /** Newest saved entries across all contacts (signed-in users). */
+  recentTransactions?: Transaction[];
+  /** Used to show each entry's contact name. */
+  contacts?: Contact[];
   onNavigate: (screen: string) => void;
   isGuest?: boolean;
   isPremium?: boolean;
   onOpenPremiumModal?: () => void;
 }
 
-const recentEntries: Array<{ id: string; customerName: string; type: "debit" | "credit"; amount: string; date: string }> = [];
+/** "19 Nov 2026, 14:30" in local time. */
+function formatHistoryDate(timestamp: string): string {
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) return timestamp;
+  return `${d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}, ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+}
 
 const notifications: Array<{ id: string; message: string; time: string; type: "debit" | "credit" }> = [];
 
@@ -32,6 +42,8 @@ export function Dashboard({
   onNavigateToAddEntry,
   onNavigateToAutoEntry,
   onNavigateToCustomerLedger,
+  recentTransactions = [],
+  contacts = [],
   onNavigate,
   isGuest,
   isPremium = false,
@@ -56,6 +68,21 @@ export function Dashboard({
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, [showBell]);
+
+  // Entries from the Pi blockchain (Pay / Auto Sync) read "Sent"/"Received"; manual ones "Debit"/"Credit".
+  const contactNames = new Map(contacts.map((c) => [c.id, c.name]));
+  const recentEntries = recentTransactions
+    .filter((t) => t.contactId && contactNames.has(t.contactId))
+    .slice(0, 20)
+    .map((t) => ({
+      id: t.id,
+      contactId: t.contactId as string,
+      customerName: contactNames.get(t.contactId as string) as string,
+      type: t.type,
+      amount: formatPiAmount(t.amount),
+      label: t.chainPaymentId ? (t.type === "debit" ? "Sent" : "Received") : (t.type === "debit" ? "Debit" : "Credit"),
+      date: formatHistoryDate(t.timestamp),
+    }));
 
   const handleBellClick = () => {
     setShowBell((prev) => !prev);
@@ -184,7 +211,7 @@ export function Dashboard({
               {recentEntries.map((transaction, index) => (
                 <div
                   key={transaction.id}
-                  onClick={() => onNavigateToCustomerLedger(transaction.customerName)}
+                  onClick={() => onNavigateToCustomerLedger(transaction.customerName, transaction.contactId)}
                   className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors ${index < recentEntries.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
                     }`}
                 >
@@ -195,7 +222,7 @@ export function Dashboard({
                     <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">
                       {transaction.customerName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-muted-foreground">{transaction.date}</p>
+                    <p className="text-xs text-gray-500 dark:text-muted-foreground">{transaction.label} · {transaction.date}</p>
                   </div>
                   <span className={`text-sm font-medium flex-shrink-0 ${transaction.type === "credit"
                     ? "text-green-600 dark:text-green-400"
