@@ -1,6 +1,8 @@
 import { ArrowLeft, ChevronDown, Check, CheckCircle, X, Users } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { checkPiAccountExists, cleanWalletInput, isPiPublicKey } from "../lib/piBlockchain";
 
 interface AddCustomerProps {
   onBack: () => void;
@@ -18,6 +20,9 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
 
   // Pi-wallet validation flow state
   const [isValidated, setIsValidated] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  // Bumped on every check and every edit, so a slow check for old text is ignored.
+  const validationRun = useRef(0);
   const [showInvalidPopup, setShowInvalidPopup] = useState(false);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const [pendingCustomer, setPendingCustomer] = useState<{ name: string; piWallet: string; category: "individual" | "business" } | null>(null);
@@ -42,20 +47,32 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
   const handleWalletChange = (val: string) => {
     setPiWallet(val);
     if (isValidated) setIsValidated(false);
+    validationRun.current += 1;
+    if (isValidating) setIsValidating(false);
   };
 
-  const handleValidate = () => {
-    // ── DUMMY VALIDATION ─────────────────────────────────────────────────
-    // TODO: Replace with a real call to the Pi blockchain TESTNET RPC server
-    //       (Horizon style: GET https://api.testnet.minepi.com/accounts/{address})
-    //       to verify the wallet address actually exists on the Pi network.
-    //       For now we only run a lightweight check so the UI flow is demoable.
-    const address = piWallet.trim();
-    const isValidPiAddress = address.length >= 8; // dummy rule — replace with RPC result
-    if (isValidPiAddress) {
-      setIsValidated(true);
-    } else {
+  // Real check on the Pi blockchain: the address must be a Pi public key
+  // (G + 55 letters/digits) AND an existing account on Horizon
+  // (GET /accounts/{address}; testnet unless VITE_PI_NETWORK=mainnet).
+  const handleValidate = async () => {
+    if (isValidating) return;
+    const address = cleanWalletInput(piWallet);
+    if (!isPiPublicKey(address)) {
       setShowInvalidPopup(true);
+      return;
+    }
+    const run = ++validationRun.current;
+    setIsValidating(true);
+    const result = await checkPiAccountExists(address);
+    if (run !== validationRun.current) return; // address was edited meanwhile
+    setIsValidating(false);
+    if (result === "exists") {
+      setPiWallet(address); // save exactly the address that was checked
+      setIsValidated(true);
+    } else if (result === "missing") {
+      setShowInvalidPopup(true);
+    } else {
+      toast.error("Couldn't reach the Pi blockchain to check this address. Please try again.");
     }
   };
 
@@ -276,11 +293,11 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
           ) : (
             <button
               onClick={handleValidate}
-              disabled={!allFieldsFilled}
+              disabled={!allFieldsFilled || isValidating}
               className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
             >
-              Validate
+              {isValidating ? "Validating..." : "Validate"}
             </button>
           )}
         </div>

@@ -521,11 +521,14 @@ function AppContent() {
 
   if (currentScreen === "addCustomer") {
     return (
-      <AddCustomer
-        onBack={handleBackToDashboard}
-        onSave={handleSaveCustomer}
-        defaultCategory={selectedCategory}
-      />
+      <>
+        <AddCustomer
+          onBack={handleBackToDashboard}
+          onSave={handleSaveCustomer}
+          defaultCategory={selectedCategory}
+        />
+        <Toaster position="bottom-center" />
+      </>
     );
   }
 
