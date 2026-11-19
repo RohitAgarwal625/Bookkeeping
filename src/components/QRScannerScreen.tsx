@@ -1,10 +1,30 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, CheckCircle, Upload } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
+import { toast } from "sonner";
+import { isPiPublicKey } from "../lib/piBlockchain";
 
 interface QRScannerScreenProps {
   onBack: () => void;
   onScanned: (walletAddress: string) => void;
+}
+
+const NOT_AN_ADDRESS = "This QR code doesn't contain a Pi wallet address.";
+
+/**
+ * The Pi wallet address in a scanned QR text, or null. Accepts a plain "G…" address
+ * (spaces/line breaks and lower case tolerated) or one inside a pi:// link, URL,
+ * "publicKey=…" or JSON payload. Rejects text with no address or with two different ones.
+ */
+export function extractPiAddress(raw: string): string | null {
+  const text = (raw || "").trim();
+  if (!text) return null;
+  const plain = text.replace(/\s+/g, "").toUpperCase();
+  if (isPiPublicKey(plain)) return plain;
+  let decoded = text;
+  try { decoded = decodeURIComponent(text); } catch { /* keep the raw text */ }
+  const found = new Set(Array.from(decoded.matchAll(/(?:^|[^A-Za-z0-9])(G[A-Z2-7]{55})(?![A-Za-z0-9])/g), (m) => m[1]));
+  return found.size === 1 ? [...found][0] : null;
 }
 
 export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
@@ -19,6 +39,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
   const handleUploadQR = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = ""; // so picking the same image again still triggers a scan
 
     // Stop camera first if running
     if (scannerRef.current) {
@@ -29,7 +50,12 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
     uploadScanner
       .scanFile(file, /* showImage */ false)
       .then((decoded) => {
-        setScannedValue(decoded);
+        const address = extractPiAddress(decoded);
+        if (!address) {
+          toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
+          return;
+        }
+        setScannedValue(address);
         setStatus("success");
       })
       .catch(() => {
@@ -53,7 +79,13 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decoded: string) => {
-          setScannedValue(decoded);
+          const address = extractPiAddress(decoded);
+          if (!address) {
+            // Keep scanning; one toast (same id) however many frames see the code.
+            toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
+            return;
+          }
+          setScannedValue(address);
           setStatus("success");
           scanner.stop().catch(() => {});
         },
