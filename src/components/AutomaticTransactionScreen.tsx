@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info, AlertCircle, RefreshCw } from "lucide-react";
 import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
-import { fetchPiBlockchainTransactions, PiBlockchainScanResult } from "../lib/piBlockchain";
+import { fetchPiBlockchainTransactions, PiBlockchainScanResult, PI_NETWORK } from "../lib/piBlockchain";
 import { auth } from "../lib/api";
 
 interface AutomaticTransactionScreenProps {
@@ -16,7 +16,7 @@ type Step = "selectContact" | "dateRange" | "scanning" | "summary";
 const SCAN_MESSAGES = [
   "Connecting to Pi Horizon node...",
   "Querying Pi Blockchain for account payments...",
-  "Scanning Mainnet & Testnet ledgers...",
+  `Scanning Pi ${PI_NETWORK === "testnet" ? "Testnet" : "Mainnet"} ledger...`,
   "Matching Pioneer wallet address...",
   "Verifying transaction signatures & amounts...",
   "Synchronizing ledger entries...",

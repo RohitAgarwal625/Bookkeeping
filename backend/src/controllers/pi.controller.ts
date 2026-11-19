@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
+import { config } from "../lib/config";
 import {
   piClient,
   PiApiError,
@@ -295,7 +296,8 @@ export async function getPremiumStatusHandler(
 
 /**
  * GET /api/pi/blockchain/payments/:address
- * Proxies request to Pi Horizon nodes (Mainnet / Testnet) for an account address.
+ * Proxies one page of an account's payments from Pi Horizon on config.piNetwork
+ * (testnet by default). Pass ?cursor=<paging_token> for the next page.
  */
 export async function getBlockchainPaymentsHandler(
   req: Request,
@@ -312,20 +314,12 @@ export async function getBlockchainPaymentsHandler(
     const limit = Math.min(Math.max(parseInt((req.query.limit as string) || "50", 10), 1), 200);
     const order = req.query.order === "asc" ? "asc" : "desc";
 
-    // 1. Try Mainnet Horizon first
-    const mainnetUrl = `https://api.mainnet.minepi.com/accounts/${encodeURIComponent(address)}/payments?limit=${limit}&order=${order}`;
-    let network = "mainnet";
-    let horizonRes: globalThis.Response | null = await fetch(mainnetUrl).catch(() => null);
+    const cursor = typeof req.query.cursor === "string" ? req.query.cursor : "";
 
-    // 2. If mainnet returns 404 or fails, fallback to Testnet Horizon
-    if (!horizonRes || !horizonRes.ok) {
-      const testnetUrl = `https://api.testnet.minepi.com/accounts/${encodeURIComponent(address)}/payments?limit=${limit}&order=${order}`;
-      const testnetRes = await fetch(testnetUrl).catch(() => null);
-      if (testnetRes && testnetRes.ok) {
-        horizonRes = testnetRes;
-        network = "testnet";
-      }
-    }
+    // Only the configured network (config.piNetwork, testnet by default).
+    const network = config.piNetwork;
+    const url = `https://api.${network}.minepi.com/accounts/${encodeURIComponent(address)}/payments?limit=${limit}&order=${order}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+    const horizonRes: globalThis.Response | null = await fetch(url).catch(() => null);
 
     if (!horizonRes || !horizonRes.ok) {
       const status = horizonRes ? horizonRes.status : 502;

@@ -3,8 +3,8 @@
  *
  * Interacts with Pi Network's Stellar-based Horizon nodes to query:
  * - Account payments and transaction history (/accounts/{account_id}/payments)
- * - Mainnet Horizon: https://api.mainnet.minepi.com
- * - Testnet Horizon: https://api.testnet.minepi.com
+ * - One network only (PI_NETWORK below): Testnet https://api.testnet.minepi.com
+ *   (or Mainnet https://api.mainnet.minepi.com when VITE_PI_NETWORK=mainnet)
  * - Backend proxy fallback: /api/pi/blockchain/payments/:address
  */
 
@@ -110,7 +110,86 @@ async function fetchHorizonWithTimeout(
 }
 
 /**
- * Fetches transactions from Pi Blockchain Horizon nodes with multi-network and proxy fallback.
+ * The Pi network this app reads from. Testnet only for now.
+ * To move to mainnet later, set VITE_PI_NETWORK=mainnet (no code change needed);
+ * the backend proxy has the matching PI_NETWORK setting.
+ */
+export const PI_NETWORK: "mainnet" | "testnet" =
+  (import.meta as { env?: { VITE_PI_NETWORK?: string } }).env?.VITE_PI_NETWORK === "mainnet"
+    ? "mainnet"
+    : "testnet";
+const PI_HORIZON_URL = `https://api.${PI_NETWORK}.minepi.com`;
+
+/** Horizon returns at most 200 records per page. */
+const PAGE_SIZE = 200;
+/** Safety cap: 50 pages x 200 = 10,000 payments per scan. */
+const MAX_PAGES = 50;
+
+/**
+ * Reads every page of an account's payments, newest first, following the
+ * paging_token cursor, until a page goes past `fromDate` or there are no more.
+ * Tries Horizon directly; if that can't be reached (network/CORS), uses the backend proxy.
+ */
+async function fetchAllPayments(
+  address: string,
+  fromDate?: string
+): Promise<{ found: boolean; records: PiHorizonPaymentRecord[]; truncated: boolean }> {
+  const encoded = encodeURIComponent(address);
+  const directUrl = (cursor: string) =>
+    `${PI_HORIZON_URL}/accounts/${encoded}/payments?limit=${PAGE_SIZE}&order=desc${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+  const proxyUrl = (cursor: string) =>
+    `/api/pi/blockchain/payments/${encoded}?limit=${PAGE_SIZE}&order=desc${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+
+  // Pick the source with the first page: direct Horizon, else the backend proxy.
+  let pageUrl = directUrl;
+  let page = await fetchHorizonWithTimeout(directUrl(""));
+  if (!page.ok && page.status === 0) {
+    pageUrl = proxyUrl;
+    page = await fetchProxyPage(proxyUrl(""));
+  }
+  if (!page.ok) {
+    // 404 = this address has no account on this network.
+    return { found: false, records: [], truncated: false };
+  }
+
+  const records: PiHorizonPaymentRecord[] = [];
+  for (let pageNo = 1; ; pageNo++) {
+    records.push(...page.records);
+    const last = page.records[page.records.length - 1];
+    const reachedStart =
+      !!fromDate && !!last && (last.created_at || "").slice(0, 10) < fromDate;
+    if (page.records.length < PAGE_SIZE || reachedStart) {
+      return { found: true, records, truncated: false };
+    }
+    if (pageNo >= MAX_PAGES) {
+      console.warn(`[Pi] Scan stopped after ${MAX_PAGES} pages; older payments were not read.`);
+      return { found: true, records, truncated: true };
+    }
+    page = pageUrl === directUrl
+      ? await fetchHorizonWithTimeout(directUrl(last.paging_token))
+      : await fetchProxyPage(proxyUrl(last.paging_token));
+    if (!page.ok) {
+      throw new Error("Pi blockchain stopped responding part-way through the scan. Please try again.");
+    }
+  }
+}
+
+/** One page from the backend Horizon proxy (same shape as a direct Horizon page). */
+async function fetchProxyPage(
+  url: string
+): Promise<{ ok: boolean; status: number; records: PiHorizonPaymentRecord[] }> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return { ok: false, status: res.status, records: [] };
+    const data = (await res.json()) as { records?: PiHorizonPaymentRecord[] };
+    return { ok: true, status: res.status, records: data.records || [] };
+  } catch {
+    return { ok: false, status: 0, records: [] };
+  }
+}
+
+/**
+ * Fetches a wallet's payments from the Pi blockchain (PI_NETWORK only) within the date range.
  */
 export async function fetchPiBlockchainTransactions(
   options: ScanOptions
@@ -129,73 +208,18 @@ export async function fetchPiBlockchainTransactions(
     };
   }
 
-  const limit = Math.min(Math.max(options.limit || 50, 1), 200);
-  let activeNetwork: "mainnet" | "testnet" | "none" = "none";
-  let records: PiHorizonPaymentRecord[] = [];
+  const activeNetwork = PI_NETWORK;
+  const { found, records } = await fetchAllPayments(cleanAddress, fromDate);
 
-  // 1. Try Mainnet Horizon directly
-  const mainnetUrl = `https://api.mainnet.minepi.com/accounts/${encodeURIComponent(
-    cleanAddress
-  )}/payments?limit=${limit}&order=desc`;
-
-  const mainnetRes = await fetchHorizonWithTimeout(mainnetUrl);
-  if (mainnetRes.ok && mainnetRes.records.length > 0) {
-    activeNetwork = "mainnet";
-    records = mainnetRes.records;
-  } else if (mainnetRes.ok) {
-    // Mainnet account exists with 0 payments, but let's also check testnet in case user is on testnet
-    activeNetwork = "mainnet";
-    records = [];
-  }
-
-  // 2. If no records on Mainnet, check Testnet Horizon
-  if (records.length === 0) {
-    const testnetUrl = `https://api.testnet.minepi.com/accounts/${encodeURIComponent(
-      cleanAddress
-    )}/payments?limit=${limit}&order=desc`;
-
-    const testnetRes = await fetchHorizonWithTimeout(testnetUrl);
-    if (testnetRes.ok && testnetRes.records.length > 0) {
-      activeNetwork = "testnet";
-      records = testnetRes.records;
-    } else if (testnetRes.ok && activeNetwork === "none") {
-      activeNetwork = "testnet";
-    }
-  }
-
-  // 3. Fallback to Backend Proxy (if direct fetch ran into CORS / network restrictions)
-  if (records.length === 0 && activeNetwork === "none") {
-    try {
-      const backendUrl = `/api/pi/blockchain/payments/${encodeURIComponent(
-        cleanAddress
-      )}?limit=${limit}&order=desc`;
-      const proxyRes = await fetch(backendUrl).catch(() => null);
-      if (proxyRes && proxyRes.ok) {
-        const proxyData = (await proxyRes.json()) as {
-          network?: "mainnet" | "testnet";
-          records?: PiHorizonPaymentRecord[];
-        };
-        if (proxyData.records && proxyData.records.length > 0) {
-          activeNetwork = proxyData.network || "mainnet";
-          records = proxyData.records;
-        }
-      }
-    } catch {
-      // Backend not running or unreachable
-    }
-  }
-
-  // If still no records or account not found
   if (records.length === 0) {
     return {
       success: true,
-      network: activeNetwork,
+      network: found ? activeNetwork : "none",
       totalScanned: 0,
       transactions: [],
-      error:
-        activeNetwork === "none"
-          ? "No account found on Pi blockchain with this public key. Please verify the wallet address."
-          : `No transactions found on Pi ${activeNetwork} for this wallet address.`,
+      error: !found
+        ? `No account found on Pi ${activeNetwork} with this public key. Please verify the wallet address.`
+        : `No transactions found on Pi ${activeNetwork} for this wallet address.`,
       walletAddress: cleanAddress,
     };
   }

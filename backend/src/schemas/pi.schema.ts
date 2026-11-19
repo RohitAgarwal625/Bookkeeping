@@ -34,5 +34,7 @@ export const blockchainPaymentsSchema = z.object({
   query: z.object({
     limit: z.string().max(10).optional(),
     order: z.string().max(10).optional(),
+    // Horizon paging_token of the last record already read (numeric string).
+    cursor: z.string().regex(/^\d{1,30}$/).optional(),
   }),
 });
