@@ -480,6 +480,11 @@ function AppContent() {
             if (!bk.isAuthenticated) throw new Error("Please sign in with Pi to save your wallet address.");
             await bk.updateWalletPublicKey(address);
           }}
+          savedDisplayName={bk.user?.displayName}
+          onSaveDisplayName={async (name) => {
+            if (!bk.isAuthenticated) throw new Error("Please sign in with Pi to save your Display Name.");
+            await bk.updateDisplayName(name);
+          }}
           onBack={handleBackToDashboard}
           onNavigate={handleNavigate}
           onLogout={handleLogout}

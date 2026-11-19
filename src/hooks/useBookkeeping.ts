@@ -174,6 +174,14 @@ export function useBookkeeping() {
     return res.user;
   }, []);
 
+  /** Save the user's Display Name (Settings -> Profile). Throws on failure. */
+  const updateDisplayName = useCallback(async (displayName: string) => {
+    if (!user) throw new Error("Please sign in with Pi to save your Display Name.");
+    const res = await usersApi.updateProfile(user.piWalletAddress, displayName);
+    setUser(res.user);
+    return res.user;
+  }, [user]);
+
   const getLedger = useCallback(async (contactId: string) => {
     const res = await transactionsApi.ledger(contactId);
     return res.data;
@@ -205,5 +213,6 @@ export function useBookkeeping() {
     importScannedTransactions,
     getLedger,
     updateWalletPublicKey,
+    updateDisplayName,
   };
 }

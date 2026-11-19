@@ -151,7 +151,8 @@ export const initialContacts: Contact[] = [
 
 export interface User {
   id: string;
-  walletAddress: string;
+  /** Holds the Pi uid (the backend's User.piWalletAddress), not a wallet address. */
+  piWalletAddress: string;
   displayName?: string | null;
   /** The user's own public Pi wallet address (G...), entered in Settings -> Profile. */
   walletPublicKey?: string | null;

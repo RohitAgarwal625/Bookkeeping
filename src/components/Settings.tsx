@@ -15,7 +15,7 @@ import {
   Pencil,
   Check,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Switch } from "./ui/switch";
 import { useDarkMode } from "../contexts/DarkModeContext";
@@ -35,6 +35,10 @@ interface SettingsProps {
   onOpenPremiumModal?: () => void;
   /** Saves the user's own public Pi wallet address; throws with a readable message on failure. */
   onSaveWalletAddress?: (address: string) => Promise<void>;
+  /** Display Name saved on the backend (null/undefined when not loaded). */
+  savedDisplayName?: string | null;
+  /** Saves the Display Name on the backend; throws on failure. */
+  onSaveDisplayName?: (name: string) => Promise<void>;
 }
 
 const faqData = [
@@ -101,15 +105,23 @@ export function Settings({
   isPremium = false,
   onOpenPremiumModal,
   onSaveWalletAddress,
+  savedDisplayName,
+  onSaveDisplayName,
 }: SettingsProps) {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [copied, setCopied] = useState(false);
   const [activeSubScreen, setActiveSubScreen] = useState<ActiveSubScreen>(null);
 
   // Edit Profile state
-  const [displayName, setDisplayName] = useState(initialUserName);
-  const [editingName, setEditingName] = useState(initialUserName);
+  // The backend default "Pioneer User" means the user never set one: fall back to the Pi username.
+  const resolvedDisplayName = savedDisplayName && savedDisplayName !== "Pioneer User" ? savedDisplayName : initialUserName;
+  const [displayName, setDisplayName] = useState(resolvedDisplayName);
+  const [editingName, setEditingName] = useState(resolvedDisplayName);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [savingName, setSavingName] = useState(false);
+  useEffect(() => {
+    setDisplayName(resolvedDisplayName);
+  }, [resolvedDisplayName]);
   const [showDisplayNameInfo, setShowDisplayNameInfo] = useState(false);
 
   // FAQs state
@@ -167,11 +179,28 @@ export function Settings({
   };
 
 
-  const handleSaveName = () => {
-    if (editingName.trim()) {
-      setDisplayName(editingName.trim());
+  const handleSaveName = async () => {
+    if (isGuest) {
+      onTriggerGuestModal?.();
+      return;
     }
-    setIsEditingName(false);
+    const name = editingName.trim();
+    if (!name || savingName) return;
+    if (name === displayName) {
+      setIsEditingName(false);
+      return;
+    }
+    setSavingName(true);
+    try {
+      await onSaveDisplayName?.(name);
+      setDisplayName(name);
+      setIsEditingName(false);
+      toast.success("Display Name saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save the Display Name. Please try again.");
+    } finally {
+      setSavingName(false);
+    }
   };
 
   const settingsItems = [
@@ -269,19 +298,20 @@ export function Settings({
                   type="text"
                   value={editingName}
                   onChange={(e) => setEditingName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
+                  onKeyDown={(e) => e.key === "Enter" && void handleSaveName()}
                   autoFocus
                   className="flex-1 px-4 py-2.5 rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3]"
                 />
                 <button
-                  onClick={handleSaveName}
-                  disabled={!editingName.trim()}
+                  onClick={() => void handleSaveName()}
+                  disabled={!editingName.trim() || savingName}
                   className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center disabled:opacity-40"
                 >
                   <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
                 </button>
                 <button
                   onClick={() => { setIsEditingName(false); setEditingName(displayName); }}
+                  disabled={savingName}
                   className="w-8 h-8 rounded-full bg-gray-100 dark:bg-secondary flex items-center justify-center"
                 >
                   <X className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
@@ -370,16 +400,9 @@ export function Settings({
               Pi Account Info
             </p>
             <div>
-              <p className="text-xs text-gray-400 dark:text-muted-foreground mb-1">Legal Name</p>
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-secondary rounded-xl border border-gray-200 dark:border-border">
-                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "Guest User" : (displayName || "-")}</p>
-                <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-secondary/80 px-2 py-0.5 rounded-full">From Pi Auth</span>
-              </div>
-            </div>
-            <div>
               <p className="text-xs text-gray-400 dark:text-muted-foreground mb-1">Username</p>
               <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-secondary rounded-xl border border-gray-200 dark:border-border">
-                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "@guest_user" : (displayName ? `@${displayName.toLowerCase().replace(/\s+/g, '_')}` : "-")}</p>
+                <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm">{isGuest ? "@guest_user" : (initialUserName ? `@${initialUserName}` : "-")}</p>
                 <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-secondary/80 px-2 py-0.5 rounded-full">From Pi Auth</span>
               </div>
             </div>
