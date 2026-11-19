@@ -7,13 +7,18 @@ import { normalizeContactName } from "../types";
 
 interface AddCustomerProps {
   onBack: () => void;
-  onSave: (customer: { name: string; piWallet: string; category: "individual" | "business" }) => void;
+  /** Saves the contact; resolves true when saved (then the success screen shows), false on failure. */
+  onSave: (customer: { name: string; piWallet: string; category: "individual" | "business" }) => Promise<boolean>;
+  /** "Open Contacts" on the success screen. */
+  onDone: () => void;
   defaultCategory?: "individual" | "business";
   /** Names of the user's contacts; a new contact can't reuse one. */
   existingNames?: string[];
+  /** The user's contacts' wallet addresses and names; a new contact can't reuse an address. */
+  existingWallets?: { name: string; piWalletAddress: string }[];
 }
 
-export function AddCustomer({ onBack, onSave, defaultCategory = "individual", existingNames = [] }: AddCustomerProps) {
+export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individual", existingNames = [], existingWallets = [] }: AddCustomerProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [piWallet, setPiWallet] = useState("");
@@ -29,6 +34,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual", ex
   const [showInvalidPopup, setShowInvalidPopup] = useState(false);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const [pendingCustomer, setPendingCustomer] = useState<{ name: string; piWallet: string; category: "individual" | "business" } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const capitalizeWords = (val: string) =>
     val.replace(/\b\w/g, (c) => c.toUpperCase());
@@ -79,8 +85,8 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual", ex
     }
   };
 
-  const handleSave = () => {
-    if (!isValidated) return;
+  const handleSave = async () => {
+    if (!isValidated || isSaving) return;
     if (firstName.trim() && piWallet.trim()) {
       const customerData = {
         name: lastName.trim() ? `${firstName.trim()} ${lastName.trim()}` : firstName.trim(),
@@ -91,6 +97,21 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual", ex
         toast.error(`The name "${customerData.name}" is already taken. You must enter another name.`);
         return;
       }
+      const walletKey = customerData.piWallet.toLowerCase();
+      const walletOwner = existingWallets.find((c) => (c.piWalletAddress ?? "").trim().toLowerCase() === walletKey);
+      if (walletOwner) {
+        toast.error(`The wallet address you entered is already assigned to ${walletOwner.name}`);
+        return;
+      }
+      // Save first; show the success screen only once the contact is really saved.
+      setIsSaving(true);
+      let saved = false;
+      try {
+        saved = await onSave(customerData);
+      } finally {
+        setIsSaving(false);
+      }
+      if (!saved) return;
       setPendingCustomer(customerData);
       setShowSuccessOverlay(true);
       // Clear form
@@ -125,8 +146,8 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual", ex
           <button
             onClick={() => {
               setShowSuccessOverlay(false);
-              if (pendingCustomer) onSave(pendingCustomer);
               setPendingCustomer(null);
+              onDone();
             }}
             className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2"
             style={{
@@ -291,11 +312,12 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual", ex
           {/* Validate / Save Button */}
           {isValidated ? (
             <button
-              onClick={handleSave}
-              className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
+              onClick={() => void handleSave()}
+              disabled={isSaving}
+              className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
             >
-              Save
+              {isSaving ? "Saving..." : "Save"}
             </button>
           ) : (
             <button

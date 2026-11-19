@@ -226,7 +226,12 @@ function AppContent() {
     setCurrentScreen("autoTransaction");
   };
 
-  const handleSaveCustomer = async (customer: { name: string; piWallet: string; category: "individual" | "business" }) => {
+  /** Saves a new contact. Returns true when saved; AddCustomer then shows its success screen. */
+  const handleSaveCustomer = async (customer: { name: string; piWallet: string; category: "individual" | "business" }): Promise<boolean> => {
+    const sameWallet = (list: Contact[]) => {
+      const key = customer.piWallet.trim().toLowerCase();
+      return list.find((c) => (c.piWalletAddress ?? "").trim().toLowerCase() === key);
+    };
     if (bk.isAuthenticated) {
       try {
         const newContact = await bk.addContact({
@@ -236,15 +241,30 @@ function AppContent() {
         });
         setNewContactId(newContact.id);
         setSelectedContactDetails(newContact);
-        setCurrentScreen("contacts");
-        return;
+        return true;
       } catch (err) {
         if (err instanceof ApiError && err.code === "CONTACT_NAME_TAKEN") {
           toast.error(`The name "${customer.name}" is already taken. You must enter another name.`);
-          return;
+          return false;
+        }
+        if (err instanceof ApiError && err.status === 409) {
+          // DUPLICATE_CONTACT: this wallet address already belongs to one of the user's contacts.
+          let owner = sameWallet(contacts);
+          if (!owner) {
+            try { owner = sameWallet((await contactsApi.list()).data); } catch { /* use the generic text */ }
+          }
+          toast.error(owner
+            ? `The wallet address you entered is already assigned to ${owner.name}`
+            : "The wallet address you entered is already assigned to another contact");
+          return false;
         }
         // Fall through to local state creation if API fails
       }
+    }
+    const localOwner = sameWallet(localContacts);
+    if (localOwner) {
+      toast.error(`The wallet address you entered is already assigned to ${localOwner.name}`);
+      return false;
     }
     // Fallback: create contact in local state (guest mode or offline)
     const newContact: Contact = {
@@ -260,7 +280,7 @@ function AppContent() {
     setLocalContacts((prev) => [...prev, newContact]);
     setNewContactId(newContact.id);
     setSelectedContactDetails(newContact);
-    setCurrentScreen("contacts");
+    return true;
   };
 
   const handleNavigate = (screen: string) => {
@@ -570,8 +590,10 @@ function AppContent() {
         <AddCustomer
           onBack={handleBackToDashboard}
           onSave={handleSaveCustomer}
+          onDone={() => setCurrentScreen("contacts")}
           defaultCategory={selectedCategory}
           existingNames={contacts.map((c) => c.name)}
+          existingWallets={contacts}
         />
         <Toaster position="bottom-center" />
       </>
