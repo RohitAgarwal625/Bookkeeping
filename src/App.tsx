@@ -170,24 +170,27 @@ function AppContent() {
 
   const handlePaymentSuccess = async (customerName: string, newTx: Transaction) => {
     if (!customerName) return;
+    // Use the saved row (backend id) when available, so the ledger's id dedupe matches the API copy.
+    let pendingTx = newTx;
     if (bk.isAuthenticated) {
       const matchingContact = contacts.find(
         (c) => c.name.toLowerCase() === customerName.toLowerCase()
       );
       try {
-        await bk.addTransaction({
+        const saved = await bk.addTransaction({
           description: newTx.description,
           amount: newTx.amount,
           type: newTx.type,
           contactId: matchingContact?.id,
         });
+        pendingTx = { ...saved, isNew: true };
       } catch (e) {
         console.error("Failed to save payment transaction to database:", e);
       }
     }
     setPendingNewTransactions((prev) => ({
       ...prev,
-      [customerName]: [newTx, ...(prev[customerName] || [])],
+      [customerName]: [pendingTx, ...(prev[customerName] || [])],
     }));
   };
 
