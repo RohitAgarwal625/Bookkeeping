@@ -86,5 +86,7 @@ dist/, build/            committed build output; don't edit by hand
 - `prisma-migration` — changing `schema.prisma` safely (Decimal, indexes, Railway deploy).
 - `verify` — build both apps and smoke-test before calling work done.
 - `design-convergence` — runs the proposal → grill → verify loop documented in `skills/*.md`.
+- `backend-e2e-audit` — full end-to-end audit of every backend feature (test DB + fake Pi only); writes `audits/backend/<date>/report.md` + `findings.json`.
+- `backend-audit-fix` — re-checks (grills) the audit's findings, then fixes confirmed ones one at a time with a regression test each, and updates the report.
 
 `todo.txt` holds the product's pending UI change list. Check it when asked about "the pending changes".
