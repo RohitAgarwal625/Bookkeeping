@@ -167,6 +167,8 @@ The `vercel.json` is already configured with SPA rewrites.
 | `CORS_ORIGIN` | Backend `.env` / Railway | Frontend URL |
 | `LOG_LEVEL` | Backend `.env` / Railway | `info` |
 | `JWT_SECRET` | Backend `.env` / Railway | Strong random secret (Phase 4) |
+| `PI_NETWORK` | Backend `.env` / Railway | Optional. `testnet` (default) or `mainnet`: the chain the Horizon proxy reads |
+| `VITE_PI_NETWORK` | Frontend `.env.local` / Vercel | Optional. `testnet` (default) or `mainnet`: the chain the Automatic scan reads |
 
 ---
 
@@ -176,12 +178,14 @@ The `vercel.json` is already configured with SPA rewrites.
 |--------|------|-------------|
 | GET | `/api/health` | Health check |
 | GET | `/api/users/:walletAddress` | Login / upsert user + create session |
+| PUT | `/api/users/me/wallet` | Save (or clear with `null`) the user's own public Pi wallet address (`G…`) |
 | GET | `/api/contacts` | List contacts (with totals) |
 | POST | `/api/contacts` | Create contact |
 | PUT | `/api/contacts/:id` | Update contact |
 | DELETE | `/api/contacts/:id` | Soft-delete contact |
 | GET | `/api/transactions` | List transactions |
 | POST | `/api/transactions` | Create transaction (idempotencyKey required) |
+| POST | `/api/transactions/import` | Save Automatic-scan entries for a contact (max 100); payments saved before are skipped |
 | GET | `/api/transactions/summary` | Dashboard totals |
 | GET | `/api/transactions/contact/:contactId` | Ledger for a contact |
 | DELETE | `/api/transactions/:id` | Soft-delete transaction |

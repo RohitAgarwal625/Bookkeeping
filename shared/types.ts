@@ -20,6 +20,8 @@ export interface User {
   piUsername: string | null;
   piUid: string | null;
   displayName: string;
+  /** The user's own public Pi wallet address (G...), entered in Settings. Pi doesn't share it with apps. */
+  walletPublicKey: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -48,6 +50,8 @@ export interface Transaction {
   source: TransactionSource;
   txHash: string | null;
   piPaymentId: string | null;
+  /** Horizon payment id; set only on entries saved by the Automatic scan. */
+  chainPaymentId: string | null;
   status: TransactionStatus;
   timestamp: string;
   userId: string;
@@ -62,6 +66,24 @@ export interface AuthResponse {
 }
 
 /** Dashboard summary. */
+/** POST /api/transactions/import body: Automatic-scan entries for one contact (max 100). */
+export interface ImportTransactionsInput {
+  contactId: string;
+  entries: {
+    chainPaymentId: string;
+    description: string;
+    amount: number;
+    type: TransactionType;
+  }[];
+}
+
+/** POST /api/transactions/import response: rows created now; payments saved before are skipped. */
+export interface ImportTransactionsResponse {
+  transactions: Transaction[];
+  added: number;
+  skipped: number;
+}
+
 export interface TransactionSummary {
   totalCredit: number;
   totalDebit: number;
