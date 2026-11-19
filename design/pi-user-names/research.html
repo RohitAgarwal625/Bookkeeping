@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pi User Names</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#6F3C97;--accent-soft:#f3ecfb;--ok:#047857;--ok-soft:#ecfdf5;--warn:#b45309;--warn-soft:#fffbeb;
+  --bad:#b91c1c;--bad-soft:#fef2f2;--bg:#ffffff;--panel:#f8f9fa;--border:#e2e8f0;--text:#1a1a2e;--heading:#0f172a;--muted:#5b6470;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --accent:#c4a4f7;--accent-soft:#2a2140;--ok:#6ee7b7;--ok-soft:#0f2a22;--warn:#fbbf24;--warn-soft:#2b2210;
+    --bad:#fca5a5;--bad-soft:#2d1515;--bg:#0f1115;--panel:#171a21;--border:#2a2f3a;--text:#e5e7eb;--heading:#f8fafc;--muted:#9aa3af;
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.65;color:var(--text);background:var(--bg);max-width:900px;margin:0 auto;padding:2rem 16px 4rem}
+h1{font-size:1.9rem;line-height:1.25;font-weight:700;color:var(--heading);margin-bottom:.4rem}
+h2{font-size:1.35rem;font-weight:700;color:var(--heading);margin:2.4rem 0 .9rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+h3{font-size:1.05rem;font-weight:600;color:var(--heading);margin:1.4rem 0 .5rem}
+p{margin-bottom:.7rem}
+ul,ol{margin:.3rem 0 .9rem 1.4rem}li{margin-bottom:.35rem}
+a{color:var(--accent)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:0 4px;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:.9rem;margin-bottom:1.6rem}
+.tldr{background:var(--accent-soft);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:1.1rem 1.25rem;margin:1rem 0 1.5rem}
+.tldr p:last-child,.card p:last-child{margin-bottom:0}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:1rem 0}
+.table-wrap{overflow-x:auto;margin:.8rem 0 1.2rem;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:.92rem;min-width:560px}
+th{background:var(--panel);font-weight:600;text-align:left;padding:.55rem .75rem;border-bottom:1px solid var(--border);vertical-align:bottom}
+td{padding:.55rem .75rem;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.yes{background:var(--ok-soft);color:var(--ok)}.no{background:var(--bad-soft);color:var(--bad)}.maybe{background:var(--warn-soft);color:var(--warn)}.pick{background:var(--accent);color:#fff}
+@media (prefers-color-scheme: dark){.pick{color:#0f1115}}
+.small{font-size:.85rem;color:var(--muted)}
+nav.toc{font-size:.92rem;margin:0 0 1.5rem}
+nav.toc ol{margin-left:1.2rem}
+/* Figures: wide diagrams scroll sideways on a phone instead of shrinking their text */
+figure{margin:1.2rem 0 1.7rem}
+.fig{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--bg);padding:12px}
+figcaption{font-size:.88rem;color:var(--muted);margin-top:.5rem}
+figcaption b{color:var(--text)}
+svg.dg{display:block;width:100%;height:auto;min-width:640px;color:var(--text);font-family:Inter,system-ui,sans-serif}
+.dg .bx{fill:var(--panel);stroke:var(--border);stroke-width:1.5}
+.dg .bx-acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+.dg .bx-ok{fill:var(--ok-soft);stroke:var(--ok);stroke-width:1.5}
+.dg .bx-bad{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.5}
+.dg .bx-warn{fill:var(--warn-soft);stroke:var(--warn);stroke-width:1.5}
+.dg .fld{fill:var(--bg);stroke:var(--border);stroke-width:1.2}
+.dg .pill{fill:var(--panel);stroke:var(--border);stroke-width:1}
+.dg .pill-acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1}
+.dg .wall{fill:var(--muted)}
+.dg .dash{stroke-dasharray:6 4}
+.dg .ln{stroke:currentColor;stroke-width:1.5;fill:none}
+.dg .ln-mut{stroke:var(--muted)}
+.dg .ln-bad{stroke:var(--bad)}
+.dg .ln-ok{stroke:var(--ok)}
+.dg .ln-acc{stroke:var(--accent)}
+.dg .t{fill:currentColor;font-size:13px}
+.dg .ts{fill:var(--muted);font-size:11.5px}
+.dg .tb{font-weight:700}
+.dg .tm{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.dg .tok{fill:var(--ok)}
+.dg .tbad{fill:var(--bad)}
+.dg .tacc{fill:var(--accent)}
+.dg .twarn{fill:var(--warn)}
+.dg .ah{fill:currentColor}
+.dg .ah-bad{fill:var(--bad)}
+.dg .ah-ok{fill:var(--ok)}
+.dg .ah-mut{fill:var(--muted)}
+.dg .x{stroke:var(--bad);stroke-width:2.5;stroke-linecap:round}
+</style>
+</head>
+<body>
+
+<h1>Which names Pi gives an app, and which it doesn't</h1>
+<p class="meta">Research record · Bookkeeping (Pi Network dApp) · 19 Nov 2026 · Evidence: our live sign-in tests (18–19 Nov 2026), the Pi SDK and Pi Browser code, Pi's developer docs, Pi's Privacy Policy and Developer Terms, and the source of other Pi apps.</p>
+
+<div class="tldr">
+<p><b>Short answer.</b> When a Pioneer signs in, an app like ours gets an app-specific id (<code>uid</code>) and the Pi <b>username</b> (for you: <code>rohitagarwal2003</code>). That is all. No sign-in scope or Platform API field gives a third-party app the user's <b>legal name, real name or display name</b>, or their email, phone number, photo or country. The only route to identity data is PiVerify, Pi's paid KYC service for businesses (section 5).</p>
+<p><b>Pi does know your name.</b> You gave it to Pi, and KYC checks it against your ID. Pi's own apps read it through Pi's internal API, which uses your own login: the Pi Browser menu, for example, shows a display name followed by <code>@username</code>. That data stays inside Pi.</p>
+<p><b>So the "two names" you saw</b> came from either a Pi app or an app where someone typed the name in. <b>Our best move:</b> keep the contact names users type (already built), and optionally let each user enter a display name, always shown next to their <code>@username</code> and never called "legal" or "verified".</p>
+</div>
+
+<nav class="toc"><ol>
+<li><a href="#s1">What Pi returned when you signed in</a></li>
+<li><a href="#s2">Every scope an app can ask for</a></li>
+<li><a href="#s3">Pi has your name, but keeps it inside Pi</a></li>
+<li><a href="#s4">Why Pi doesn't share names</a></li>
+<li><a href="#s5">How apps that show two names do it</a></li>
+<li><a href="#s6">Where our app stands today</a></li>
+<li><a href="#s7">Ways forward, ranked</a></li>
+<li><a href="#s8">Recommended next step: an optional display name</a></li>
+<li><a href="#s9">What we checked, and what we couldn't</a></li>
+</ol></nav>
+
+<!-- ============================================================ -->
+<h2 id="s1">1. What Pi returned when you signed in</h2>
+<p>We signed in with your Pi account in the Pi Sandbox on 18 and 19 Nov 2026 and logged exactly what came back. We asked Pi twice, in two different ways: the browser SDK call (<code>Pi.authenticate</code>) and our backend's call to Pi's Platform API (<code>GET /v2/me</code>). Both gave the same answer: an id and the username, plus technical fields such as when the sign-in expires. Nothing else about you.</p>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 440" role="img" aria-label="Sign-in sequence. Our app asks Pi to authenticate with the username and payments scopes and receives an access token. Our backend sends the token to Pi's /v2/me and receives the user object: uid, username, credentials, app_id and receiving_email. No name, email, phone, KYC status, avatar, country or wallet address is in it.">
+<defs><marker id="d1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="25" y="14" width="210" height="40" rx="8" class="bx"/>
+<text x="130" y="39" text-anchor="middle" class="t tb">Our app (in Pi Browser)</text>
+<rect x="295" y="14" width="210" height="40" rx="8" class="bx-acc"/>
+<text x="400" y="39" text-anchor="middle" class="t tb">Pi (SDK + Pi servers)</text>
+<rect x="565" y="14" width="210" height="40" rx="8" class="bx"/>
+<text x="670" y="39" text-anchor="middle" class="t tb">Our backend</text>
+<line x1="130" y1="54" x2="130" y2="276" class="ln ln-mut dash"/>
+<line x1="400" y1="54" x2="400" y2="276" class="ln ln-mut dash"/>
+<line x1="670" y1="54" x2="670" y2="276" class="ln ln-mut dash"/>
+<line x1="130" y1="92" x2="398" y2="92" class="ln" marker-end="url(#d1a)"/>
+<text x="265" y="84" text-anchor="middle" class="t tm">authenticate(username, payments)</text>
+<line x1="400" y1="134" x2="132" y2="134" class="ln dash" marker-end="url(#d1a)"/>
+<text x="265" y="126" text-anchor="middle" class="t">accessToken (after you tap Allow)</text>
+<line x1="130" y1="176" x2="668" y2="176" class="ln" marker-end="url(#d1a)"/>
+<text x="265" y="168" text-anchor="middle" class="t">accessToken</text>
+<line x1="670" y1="218" x2="402" y2="218" class="ln" marker-end="url(#d1a)"/>
+<text x="535" y="210" text-anchor="middle" class="t tm">GET /v2/me</text>
+<line x1="400" y1="260" x2="668" y2="260" class="ln dash" marker-end="url(#d1a)"/>
+<text x="535" y="252" text-anchor="middle" class="t">the user object</text>
+<rect x="25" y="294" width="365" height="134" rx="10" class="bx-ok"/>
+<text x="43" y="318" class="t tb tok">In the reply</text>
+<text x="43" y="344" class="t tm">uid: "…"  (different in every app)</text>
+<text x="43" y="366" class="t tm">username: "rohitagarwal2003"</text>
+<text x="43" y="388" class="t tm">credentials: { scopes, valid_until }</text>
+<text x="43" y="410" class="t tm">app_id, receiving_email: true</text>
+<rect x="410" y="294" width="365" height="134" rx="10" class="bx-bad"/>
+<text x="428" y="318" class="t tb tbad">Not in the reply (no such field)</text>
+<text x="428" y="344" class="t">legal / real name, display name</text>
+<text x="428" y="366" class="t">email address, phone number</text>
+<text x="428" y="388" class="t">KYC status, avatar, country, age</text>
+<text x="428" y="410" class="t">wallet address (even with that scope)</text>
+</svg>
+</div>
+<figcaption><b>Figure 1.</b> The whole sign-in, and everything it returns. Dashed arrows are replies. <code>receiving_email</code> is only a true/false flag, not an email address, and Pi doesn't document what it means. The <code>uid</code> is an id Pi makes for this app only.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2 id="s2">2. Every scope an app can ask for</h2>
+<p>A <b>scope</b> is a piece of data or a permission an app asks for at sign-in. Pi shows the requested scopes on its consent screen. The Pi SDK only accepts a fixed list of seven, which is written in its code. Here is the full list, what the consent screen says for each, and what the app actually receives.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Scope</th><th>Consent screen says</th><th>What the app receives</th><th>How sure</th></tr></thead>
+<tbody>
+<tr><td><code>username</code></td><td>Your Pi username</td><td><code>username</code> field</td><td><span class="badge yes">confirmed live</span></td></tr>
+<tr><td><code>payments</code></td><td>(no text)</td><td>no field; the app can request payments</td><td><span class="badge yes">confirmed live</span></td></tr>
+<tr><td><code>wallet_address</code></td><td>Your wallet address</td><td>no field; the wallet API it unlocks answers <code>unauthorized_app</code> unless Pi allowlists the app</td><td><span class="badge yes">confirmed live</span></td></tr>
+<tr><td><code>roles</code></td><td>Your Pi Community roles (e.g. Moderator)</td><td><code>roles</code>: a list such as <code>["core_team"]</code></td><td><span class="badge maybe">in Pi's own code, not tried live</span></td></tr>
+<tr><td><code>preferred_language</code></td><td>Your preferred language</td><td>a <code>preferred_language</code> field</td><td><span class="badge maybe">Pi docs, not tried live</span></td></tr>
+<tr><td><code>in_app_notifications</code></td><td>Send you in-app notifications</td><td>no field; lets the app send notifications (Pi calls this internal for now)</td><td><span class="badge maybe">Pi demo code</span></td></tr>
+<tr><td><code>platform</code></td><td>(no text)</td><td>no visible field; Pi added it by itself in our test</td><td><span class="badge maybe">purpose unknown</span></td></tr>
+<tr><td>anything else, e.g. a name</td><td>(never shown)</td><td>the SDK throws "Invalid scopes found" before contacting Pi</td><td><span class="badge yes">confirmed in SDK code</span></td></tr>
+</tbody></table></div>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 388" role="img" aria-label="The seven allowed scopes and what each puts in the app's hands. Only username, roles and preferred_language add a field. wallet_address adds nothing for normal apps. Any name, email, phone or KYC scope is rejected by the SDK.">
+<defs><marker id="d2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker><marker id="d2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah-bad"/></marker></defs>
+<rect x="20" y="16" width="230" height="34" rx="17" class="bx"/><text x="135" y="38" text-anchor="middle" class="t tm">username</text>
+<line x1="250" y1="33" x2="318" y2="33" class="ln" marker-end="url(#d2a)"/>
+<rect x="320" y="16" width="460" height="34" rx="8" class="bx-ok"/><text x="334" y="38" class="t tm">username: "rohitagarwal2003"</text><text x="766" y="37" text-anchor="end" class="ts">confirmed live</text>
+
+<rect x="20" y="62" width="230" height="34" rx="17" class="bx"/><text x="135" y="84" text-anchor="middle" class="t tm">payments</text>
+<line x1="250" y1="79" x2="318" y2="79" class="ln" marker-end="url(#d2a)"/>
+<rect x="320" y="62" width="460" height="34" rx="8" class="bx"/><text x="334" y="84" class="t">no field; lets the app request payments</text><text x="766" y="83" text-anchor="end" class="ts">confirmed live</text>
+
+<rect x="20" y="108" width="230" height="34" rx="17" class="bx"/><text x="135" y="130" text-anchor="middle" class="t tm">wallet_address</text>
+<line x1="250" y1="125" x2="318" y2="125" class="ln" marker-end="url(#d2a)"/>
+<rect x="320" y="108" width="460" height="34" rx="8" class="bx-bad"/><text x="334" y="130" class="t">no field; wallet API is allowlist-only</text><text x="766" y="129" text-anchor="end" class="ts">confirmed live</text>
+
+<rect x="20" y="154" width="230" height="34" rx="17" class="bx"/><text x="135" y="176" text-anchor="middle" class="t tm">roles</text>
+<line x1="250" y1="171" x2="318" y2="171" class="ln" marker-end="url(#d2a)"/>
+<rect x="320" y="154" width="460" height="34" rx="8" class="bx-ok"/><text x="334" y="176" class="t tm">roles: ["core_team", …]</text><text x="766" y="175" text-anchor="end" class="ts">Pi code, not tried live</text>
+
+<rect x="20" y="200" width="230" height="34" rx="17" class="bx"/><text x="135" y="222" text-anchor="middle" class="t tm">preferred_language</text>
+<line x1="250" y1="217" x2="318" y2="217" class="ln" marker-end="url(#d2a)"/>
+<rect x="320" y="200" width="460" height="34" rx="8" class="bx-ok"/><text x="334" y="222" class="t tm">preferred_language: "…"</text><text x="766" y="221" text-anchor="end" class="ts">Pi docs, not tried live</text>
+
+<rect x="20" y="246" width="230" height="34" rx="17" class="bx"/><text x="135" y="268" text-anchor="middle" class="t tm">in_app_notifications</text>
+<line x1="250" y1="263" x2="318" y2="263" class="ln" marker-end="url(#d2a)"/>
+<rect x="320" y="246" width="460" height="34" rx="8" class="bx"/><text x="334" y="268" class="t">no field; lets the app notify you</text><text x="766" y="267" text-anchor="end" class="ts">internal for now</text>
+
+<rect x="20" y="292" width="230" height="34" rx="17" class="bx"/><text x="135" y="314" text-anchor="middle" class="t tm">platform</text>
+<line x1="250" y1="309" x2="318" y2="309" class="ln" marker-end="url(#d2a)"/>
+<rect x="320" y="292" width="460" height="34" rx="8" class="bx"/><text x="334" y="314" class="t">no visible field</text><text x="766" y="313" text-anchor="end" class="ts">added by Pi in our test</text>
+
+<rect x="20" y="338" width="230" height="34" rx="17" class="bx-bad dash"/><text x="135" y="360" text-anchor="middle" class="t tm tbad">name, email, phone, kyc…</text>
+<line x1="250" y1="355" x2="318" y2="355" class="ln ln-bad dash" marker-end="url(#d2b)"/>
+<rect x="320" y="338" width="460" height="34" rx="8" class="bx-bad"/><text x="334" y="360" class="t tbad">not a scope: the SDK throws an error</text><text x="766" y="359" text-anchor="end" class="ts">confirmed in SDK</text>
+</svg>
+</div>
+<figcaption><b>Figure 2.</b> Scope in, data out. Green rows put a value in the app's hands, grey rows only grant a permission, and red rows give nothing. None of the seven carries a name.</figcaption>
+</figure>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 300" role="img" aria-label="Flowchart of Pi.authenticate. If any requested scope is not one of the seven allowed scopes, the SDK throws an error and nothing is sent to Pi. Otherwise, if consent for that exact set of scopes was not given before, Pi shows the consent screen. Then the app receives an access token, uid and username.">
+<defs><marker id="d3a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="10" y="40" width="200" height="56" rx="8" class="bx"/>
+<text x="110" y="63" text-anchor="middle" class="t">App calls</text>
+<text x="110" y="83" text-anchor="middle" class="t tm">Pi.authenticate(scopes)</text>
+<line x1="210" y1="68" x2="253" y2="68" class="ln" marker-end="url(#d3a)"/>
+<rect x="255" y="40" width="210" height="56" rx="8" class="bx-warn"/>
+<text x="360" y="63" text-anchor="middle" class="t">Is every scope one of</text>
+<text x="360" y="83" text-anchor="middle" class="t">the 7 allowed scopes?</text>
+<line x1="360" y1="96" x2="360" y2="150" class="ln" marker-end="url(#d3a)"/>
+<text x="370" y="127" class="t tb">no</text>
+<rect x="255" y="152" width="210" height="56" rx="8" class="bx-bad"/>
+<text x="360" y="175" text-anchor="middle" class="t">SDK throws an error;</text>
+<text x="360" y="195" text-anchor="middle" class="t">nothing is sent to Pi</text>
+<line x1="465" y1="68" x2="518" y2="68" class="ln" marker-end="url(#d3a)"/>
+<text x="491" y="60" text-anchor="middle" class="t tb">yes</text>
+<rect x="520" y="40" width="215" height="56" rx="8" class="bx-warn"/>
+<text x="627" y="63" text-anchor="middle" class="t">Consent already given</text>
+<text x="627" y="83" text-anchor="middle" class="t">for this set of scopes?</text>
+<line x1="627" y1="96" x2="627" y2="150" class="ln" marker-end="url(#d3a)"/>
+<text x="637" y="127" class="t tb">no</text>
+<rect x="520" y="152" width="215" height="56" rx="8" class="bx"/>
+<text x="627" y="175" text-anchor="middle" class="t">Pi shows the consent</text>
+<text x="627" y="195" text-anchor="middle" class="t">screen; you tap Allow</text>
+<line x1="627" y1="208" x2="627" y2="240" class="ln" marker-end="url(#d3a)"/>
+<rect x="520" y="242" width="215" height="48" rx="8" class="bx-ok"/>
+<text x="627" y="271" text-anchor="middle" class="t">accessToken + uid, username</text>
+<path d="M735,68 H760 V266 H737" class="ln" marker-end="url(#d3a)"/>
+<text x="766" y="170" class="t tb">yes</text>
+</svg>
+</div>
+<figcaption><b>Figure 3.</b> The scope check runs <b>inside the SDK</b>, before anything reaches Pi, so an app can't even ask for a name. Pi remembers consent for each set of scopes. Adding a scope brings the consent screen back, which we saw in our tests.</figcaption>
+</figure>
+
+<p class="small">Outside the Pi Browser, Pi has a web sign-in (<code>Pi.signIn</code>, an OAuth page at <code>/oauth/authorize</code> on Pi's sign-in host). Its list is even shorter: <code>username</code>, <code>roles</code>, <code>wallet_address</code>, <code>preferred_language</code>, with <code>username</code> as the default. It has no name either.</p>
+<p class="small"><b>Watch out:</b> Pi's <code>pi-sdk-js</code> package declares a <code>PiUser</code> type with a <code>name</code> field, but its code only asks for <code>payments</code> and <code>username</code>, so that field is never filled.</p>
+
+<!-- ============================================================ -->
+<h2 id="s3">3. Pi has your name, but keeps it inside Pi</h2>
+<p>Pi's Privacy Policy (updated 28 June 2026) says Pi collects contact and identity details such as your name, phone number, email, Facebook name and username. The Pi Browser's own code reads these through a separate, internal API (<code>socialchain.app/api</code>) using <b>your own</b> Pi login. That API has your first and last name, a display name, and your KYC status. Pi's screens use it: the side menu shows a display name followed by <code>@username</code>, the security circle shows display names, and there is even a privacy switch to hide your real name from your earning team.</p>
+<p>Third-party apps never get that login. They only see the public door, the SDK plus <code>/v2/me</code>, and that door passes the <code>uid</code> and username, plus roles and language if the app asks for them and you allow it.</p>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 400" role="img" aria-label="Pi account data sits inside Pi. Pi's internal API, used with the user's own login, feeds Pi's own screens such as the menu and Social Profiles. A wall separates Pi from third-party apps. The only opening is the Pi Platform API (/v2/me), which passes uid and username. Names, phone, email and KYC status stop at the wall.">
+<defs><marker id="d4a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="10" y="10" width="456" height="380" rx="12" class="bx-acc"/>
+<text x="28" y="34" class="t tb tacc">Inside Pi</text>
+<text x="28" y="52" class="ts">read with your own Pi login</text>
+<path d="M30,140 V270 A80,12 0 0 0 190,270 V140" class="bx"/>
+<ellipse cx="110" cy="140" rx="80" ry="12" class="bx"/>
+<text x="110" y="176" text-anchor="middle" class="t tb">Your Pi account</text>
+<text x="110" y="198" text-anchor="middle" class="ts">first &amp; last name</text>
+<text x="110" y="216" text-anchor="middle" class="ts">display name</text>
+<text x="110" y="234" text-anchor="middle" class="ts">phone, email</text>
+<text x="110" y="252" text-anchor="middle" class="ts">KYC status, wallets</text>
+<rect x="230" y="70" width="215" height="52" rx="8" class="bx"/>
+<text x="337" y="92" text-anchor="middle" class="t tb">Pi internal API</text>
+<text x="337" y="110" text-anchor="middle" class="ts tm">socialchain.app/api</text>
+<path d="M190,150 H208 V96 H228" class="ln" marker-end="url(#d4a)"/>
+<rect x="230" y="142" width="215" height="70" rx="8" class="bx"/>
+<text x="337" y="162" text-anchor="middle" class="t tb">Pi's own screens</text>
+<text x="337" y="182" text-anchor="middle" class="ts">menu: name + @username</text>
+<text x="337" y="200" text-anchor="middle" class="ts">Social Profiles, circles</text>
+<line x1="337" y1="122" x2="337" y2="140" class="ln" marker-end="url(#d4a)"/>
+<line x1="190" y1="232" x2="464" y2="232" class="ln ln-bad dash"/>
+<path d="M190,262 H212 V322 H398" class="ln" marker-end="url(#d4a)"/>
+<rect x="472" y="10" width="14" height="282" class="wall"/>
+<rect x="472" y="352" width="14" height="38" class="wall"/>
+<line x1="470" y1="224" x2="488" y2="240" class="x"/><line x1="488" y1="224" x2="470" y2="240" class="x"/>
+<rect x="496" y="10" width="294" height="380" rx="12" class="bx"/>
+<text x="512" y="34" class="t tb">Third-party apps</text>
+<text x="512" y="52" class="ts">Bookkeeping (us), Map of Pi, any app</text>
+<rect x="400" y="296" width="160" height="52" rx="8" class="bx-acc"/>
+<text x="480" y="318" text-anchor="middle" class="t tb">Pi Platform API</text>
+<text x="480" y="336" text-anchor="middle" class="ts tm">SDK + /v2/me</text>
+<rect x="512" y="88" width="262" height="62" rx="8" class="bx"/>
+<text x="643" y="114" text-anchor="middle" class="t">A name you see in a third-party</text>
+<text x="643" y="134" text-anchor="middle" class="t">app was typed into that app</text>
+<text x="500" y="228" class="t tbad">names, phone, email, KYC: never cross</text>
+<rect x="600" y="296" width="180" height="52" rx="8" class="bx-ok"/>
+<text x="690" y="318" text-anchor="middle" class="t tb tok">uid · username</text>
+<text x="690" y="336" text-anchor="middle" class="ts">+ roles, language if asked</text>
+<line x1="560" y1="322" x2="598" y2="322" class="ln" marker-end="url(#d4a)"/>
+</svg>
+</div>
+<figcaption><b>Figure 4.</b> One account, two doors. The internal door, which uses your own login, serves only Pi's apps. The public door (Platform API) is the only one open to apps like ours, and it passes no names.</figcaption>
+</figure>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 360" role="img" aria-label="Funnel. At the top is what Pi holds: legal name, phone, email, Facebook name, KYC status, wallet addresses, username, roles and language. It passes through the scope allowlist and the user's consent. At the bottom, an app can get uid and username, plus roles and language if asked and allowed.">
+<defs><marker id="d6a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<text x="400" y="24" text-anchor="middle" class="t tb">What Pi holds about you</text>
+<rect x="94" y="38" width="140" height="28" rx="14" class="bx-bad"/><text x="164" y="57" text-anchor="middle" class="t">real name</text>
+<rect x="246" y="38" width="120" height="28" rx="14" class="bx-bad"/><text x="306" y="57" text-anchor="middle" class="t">phone number</text>
+<rect x="378" y="38" width="80" height="28" rx="14" class="bx-bad"/><text x="418" y="57" text-anchor="middle" class="t">email</text>
+<rect x="470" y="38" width="125" height="28" rx="14" class="bx-bad"/><text x="532" y="57" text-anchor="middle" class="t">Facebook name</text>
+<rect x="607" y="38" width="100" height="28" rx="14" class="bx-bad"/><text x="657" y="57" text-anchor="middle" class="t">KYC status</text>
+<rect x="175" y="76" width="140" height="28" rx="14" class="bx-bad"/><text x="245" y="95" text-anchor="middle" class="t">wallet addresses</text>
+<rect x="327" y="76" width="100" height="28" rx="14" class="bx-ok"/><text x="377" y="95" text-anchor="middle" class="t">username</text>
+<rect x="439" y="76" width="80" height="28" rx="14" class="bx-ok"/><text x="479" y="95" text-anchor="middle" class="t">roles</text>
+<rect x="531" y="76" width="95" height="28" rx="14" class="bx-ok"/><text x="578" y="95" text-anchor="middle" class="t">language</text>
+<path d="M70,120 L730,120 L520,240 L280,240 Z" class="bx-acc"/>
+<text x="400" y="162" text-anchor="middle" class="t tb">scope allowlist + your consent</text>
+<text x="400" y="184" text-anchor="middle" class="ts">the SDK rejects anything else</text>
+<text x="400" y="222" text-anchor="middle" class="ts">plus: a different uid for every app</text>
+<line x1="400" y1="240" x2="400" y2="260" class="ln" marker-end="url(#d6a)"/>
+<rect x="250" y="262" width="300" height="62" rx="10" class="bx-ok"/>
+<text x="400" y="287" text-anchor="middle" class="t tb tok">An app can get</text>
+<text x="400" y="309" text-anchor="middle" class="t tm">uid · username · roles* · language*</text>
+<text x="400" y="348" text-anchor="middle" class="ts">* only if the app asks for that scope and you allow it</text>
+</svg>
+</div>
+<figcaption><b>Figure 5.</b> Data minimisation in one picture. Red chips stay inside Pi and green chips can reach an app. Wallet addresses are red because only apps Pi has allowlisted can read them; we tested this live and got <code>unauthorized_app</code>.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2 id="s4">4. Why Pi doesn't share names</h2>
+<p>Pi doesn't publish a single reason. Its documents and design point the same way, though, and the reasons below are what we infer from them.</p>
+<ul>
+<li><b>Names are KYC data.</b> The name on a Pi account is checked against an ID during KYC, and Pi's help wiki says a name change must still describe the same person. That makes it sensitive personal data, not a profile nickname. <span class="badge maybe">likely</span></li>
+<li><b>The Privacy Policy gives developers nothing.</b> Its sharing section has no clause for passing personal data to app developers. KYC results go only to businesses using Pi's KYC service, and only with your consent. <span class="badge yes">read</span></li>
+<li><b>The Developer Terms point the same way.</b> Developers may not collect information about Pi users without their consent, and may not pass on user ids, usernames or access tokens except to their own service providers. <span class="badge yes">read</span></li>
+<li><b>Each app gets a different <code>uid</code> for the same person.</b> Pi's sign-in docs say this is so two apps can't link the same person. Sharing names would undo that. <span class="badge yes">Pi docs</span></li>
+<li><b>Users control who sees their full name.</b> Pi's Social Profiles have a "full name visibility" setting; in Pi's own screenshot it is set to Private, visible only to you. Pi has said Social Profiles may become a developer resource "eventually"; it hasn't shipped. <span class="badge yes">Pi blog</span></li>
+</ul>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 230" role="img" aria-label="One Pioneer signs in to two apps. App A sees uid u_7f3c and App B sees uid u_19ad, but both see the same username. Because the uids differ, the two apps cannot match their records by uid.">
+<defs><marker id="d5a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="20" y="85" width="220" height="60" rx="10" class="bx-acc"/>
+<text x="130" y="110" text-anchor="middle" class="t tb">One Pioneer</text>
+<text x="130" y="130" text-anchor="middle" class="t tm">@rohitagarwal2003</text>
+<line x1="240" y1="104" x2="468" y2="54" class="ln" marker-end="url(#d5a)"/>
+<text x="345" y="66" text-anchor="middle" class="t">signs in</text>
+<line x1="240" y1="126" x2="468" y2="176" class="ln" marker-end="url(#d5a)"/>
+<text x="345" y="176" text-anchor="middle" class="t">signs in</text>
+<rect x="470" y="20" width="310" height="64" rx="10" class="bx"/>
+<text x="625" y="45" text-anchor="middle" class="t tb">App A (Bookkeeping)</text>
+<text x="625" y="67" text-anchor="middle" class="t tm">uid u_7f3c… · @rohitagarwal2003</text>
+<rect x="470" y="146" width="310" height="64" rx="10" class="bx"/>
+<text x="625" y="171" text-anchor="middle" class="t tb">App B (any other Pi app)</text>
+<text x="625" y="193" text-anchor="middle" class="t tm">uid u_19ad… · @rohitagarwal2003</text>
+<line x1="625" y1="84" x2="625" y2="146" class="ln ln-bad dash"/>
+<line x1="617" y1="107" x2="633" y2="123" class="x"/><line x1="633" y1="107" x2="617" y2="123" class="x"/>
+<text x="642" y="119" class="t tbad">can't match by uid</text>
+</svg>
+</div>
+<figcaption><b>Figure 6.</b> Pi gives each app its own <code>uid</code> for the same person, on purpose (the uids shown are made up). The username is the same in every app.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2 id="s5">5. How apps that show two names do it</h2>
+<p>Every app we found that shows a name next to the username uses one of three patterns. Only the first gets the name from Pi.</p>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 380" role="img" aria-label="Three patterns. A: Pi's own apps read the name from your Pi account through Pi's internal API and show the name with @username. B: a third-party app asks you to type a name, stores it in its own database and shows it with the @username from sign-in. C: a business uses Pi's KYC service, and with your consent receives a verification result.">
+<defs><marker id="d7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="12" y="10" width="246" height="38" rx="8" class="bx-acc"/><text x="135" y="34" text-anchor="middle" class="t tb">A. Pi's own apps</text>
+<rect x="277" y="10" width="246" height="38" rx="8" class="bx-ok"/><text x="400" y="34" text-anchor="middle" class="t tb">B. App asks you to type it</text>
+<rect x="542" y="10" width="246" height="38" rx="8" class="bx-warn"/><text x="665" y="34" text-anchor="middle" class="t tb">C. KYC service (PiVerify)</text>
+
+<rect x="25" y="66" width="220" height="50" rx="8" class="bx"/><text x="135" y="87" text-anchor="middle" class="t tb">Your Pi account</text><text x="135" y="105" text-anchor="middle" class="ts">the name on your account</text>
+<line x1="135" y1="116" x2="135" y2="144" class="ln" marker-end="url(#d7a)"/>
+<rect x="25" y="146" width="220" height="50" rx="8" class="bx"/><text x="135" y="167" text-anchor="middle" class="t tb">Pi internal API</text><text x="135" y="185" text-anchor="middle" class="ts">your own Pi login</text>
+<line x1="135" y1="196" x2="135" y2="224" class="ln" marker-end="url(#d7a)"/>
+<rect x="25" y="226" width="220" height="74" rx="12" class="fld"/><text x="135" y="258" text-anchor="middle" class="t tb">Asha V.</text><text x="135" y="280" text-anchor="middle" class="ts">@ashaverma7</text>
+<text x="135" y="326" text-anchor="middle" class="ts">seen in Pi Browser code:</text>
+<text x="135" y="344" text-anchor="middle" class="ts">menu, Social Profiles, circles</text>
+
+<rect x="290" y="66" width="220" height="50" rx="8" class="bx"/><text x="400" y="87" text-anchor="middle" class="t tb">You type a name</text><text x="400" y="105" text-anchor="middle" class="ts">in the app's settings or sign-up</text>
+<line x1="400" y1="116" x2="400" y2="144" class="ln" marker-end="url(#d7a)"/>
+<rect x="290" y="146" width="220" height="50" rx="8" class="bx"/><text x="400" y="167" text-anchor="middle" class="t tb">The app's own database</text><text x="400" y="185" text-anchor="middle" class="ts">Pi is not involved</text>
+<line x1="400" y1="196" x2="400" y2="224" class="ln" marker-end="url(#d7a)"/>
+<rect x="290" y="226" width="220" height="74" rx="12" class="fld"/><text x="400" y="258" text-anchor="middle" class="t tb">Asha Verma</text><text x="400" y="280" text-anchor="middle" class="ts">@ashaverma7 (from sign-in)</text>
+<text x="400" y="326" text-anchor="middle" class="ts">Map of Pi: an editable Name</text>
+<text x="400" y="344" text-anchor="middle" class="ts">SilkRoad: full name at sign-up</text>
+
+<rect x="555" y="66" width="220" height="50" rx="8" class="bx"/><text x="665" y="87" text-anchor="middle" class="t tb">Business contract</text><text x="665" y="105" text-anchor="middle" class="ts">with Pi's KYC service</text>
+<line x1="665" y1="116" x2="665" y2="144" class="ln" marker-end="url(#d7a)"/>
+<rect x="555" y="146" width="220" height="50" rx="8" class="bx"/><text x="665" y="167" text-anchor="middle" class="t tb">You consent</text><text x="665" y="185" text-anchor="middle" class="ts">to share your verification</text>
+<line x1="665" y1="196" x2="665" y2="224" class="ln" marker-end="url(#d7a)"/>
+<rect x="555" y="226" width="220" height="74" rx="12" class="bx-warn dash"/><text x="665" y="258" text-anchor="middle" class="t tb">Verification result</text><text x="665" y="280" text-anchor="middle" class="ts">to that business only</text>
+<text x="665" y="326" text-anchor="middle" class="ts">paid, B2B, heavy compliance</text>
+<text x="665" y="344" text-anchor="middle" class="ts">exact output: not verified by us</text>
+</svg>
+</div>
+<figcaption><b>Figure 7.</b> Where the second name comes from, using a made-up example user. <b>A</b> is the only pattern where the name comes from Pi, and only Pi's own apps can use it. <b>B</b> is what third-party apps do; Pi just supplies the username. <b>C</b> is a paid identity check for businesses, not a profile name.</figcaption>
+</figure>
+
+<div class="card">
+<p><b>Which case did you see?</b> If you, or the other person, typed the name into that app, it was pattern B. If the name appeared without anyone typing it, it was a Pi app (pattern A): the Pi Browser menu, a Social Profile, Fireside Forum (Pi says Social Profiles were integrated there; we didn't verify that it shows full names) or the security circle. A third-party app can't show a name nobody typed.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s6">6. Where our app stands today</h2>
+<p>We traced every name our app shows back to its source. Two findings matter for this decision. Neither was changed as part of this research.</p>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 470" role="img" aria-label="Name lineage in our app. The Pi username from sign-in is kept in app memory and shown in the Home header. It also starts the Settings screen's display name, which the pencil edit changes but never saves. That one on-screen value fills the Profile's Display Name, its 'Legal Name' row and its 'Username' row, both tagged From Pi Auth. User.displayName in the database is never saved to or shown. Contact names typed in Add Contact go to Contact.name and appear in contacts and ledgers. User.piUsername is never filled in.">
+<defs><marker id="d8a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker><marker id="d8b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah-bad"/></marker><marker id="d8c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah-mut"/></marker></defs>
+<text x="110" y="14" text-anchor="middle" class="ts tb">comes from</text>
+<text x="385" y="14" text-anchor="middle" class="ts tb">kept in</text>
+<text x="680" y="14" text-anchor="middle" class="ts tb">shown on screen</text>
+<rect x="15" y="24" width="190" height="48" rx="8" class="bx-acc"/><text x="110" y="44" text-anchor="middle" class="t tb">Pi sign-in</text><text x="110" y="62" text-anchor="middle" class="ts">username</text>
+<rect x="270" y="24" width="230" height="48" rx="8" class="bx"/><text x="385" y="44" text-anchor="middle" class="t tb">App memory</text><text x="385" y="62" text-anchor="middle" class="ts tm">piSession.user.username</text>
+<rect x="570" y="26" width="220" height="44" rx="8" class="bx"/><text x="680" y="44" text-anchor="middle" class="t tb">Home header</text><text x="680" y="61" text-anchor="middle" class="ts">Welcome, rohitagarwal2003</text>
+<line x1="205" y1="48" x2="268" y2="48" class="ln" marker-end="url(#d8a)"/>
+<line x1="500" y1="48" x2="568" y2="48" class="ln" marker-end="url(#d8a)"/>
+<line x1="385" y1="72" x2="385" y2="136" class="ln" marker-end="url(#d8a)"/>
+<text x="395" y="108" class="ts">starts as</text>
+<rect x="15" y="138" width="190" height="48" rx="8" class="bx"/><text x="110" y="158" text-anchor="middle" class="t tb">You, in Profile</text><text x="110" y="176" text-anchor="middle" class="ts">pencil edit</text>
+<rect x="270" y="138" width="230" height="48" rx="8" class="bx-warn"/><text x="385" y="158" text-anchor="middle" class="t tb">Settings screen state</text><text x="385" y="176" text-anchor="middle" class="ts">one value, not saved</text>
+<line x1="205" y1="162" x2="268" y2="162" class="ln" marker-end="url(#d8a)"/>
+<rect x="570" y="90" width="220" height="44" rx="8" class="bx"/><text x="680" y="108" text-anchor="middle" class="t tb">Profile: Display Name</text><text x="680" y="125" text-anchor="middle" class="ts">username, or your edit</text>
+<rect x="570" y="140" width="220" height="44" rx="8" class="bx-bad"/><text x="680" y="158" text-anchor="middle" class="t tb tbad">Profile: "Legal Name"</text><text x="680" y="175" text-anchor="middle" class="ts">same value · From Pi Auth</text>
+<rect x="570" y="190" width="220" height="44" rx="8" class="bx-bad"/><text x="680" y="208" text-anchor="middle" class="t tb tbad">Profile: "Username"</text><text x="680" y="225" text-anchor="middle" class="ts">@ + same value · From Pi Auth</text>
+<line x1="500" y1="154" x2="568" y2="112" class="ln" marker-end="url(#d8a)"/>
+<line x1="500" y1="162" x2="568" y2="162" class="ln ln-bad" marker-end="url(#d8b)"/>
+<line x1="500" y1="170" x2="568" y2="212" class="ln ln-bad" marker-end="url(#d8b)"/>
+<line x1="385" y1="186" x2="385" y2="260" class="ln ln-bad dash"/>
+<line x1="377" y1="215" x2="393" y2="231" class="x"/><line x1="393" y1="215" x2="377" y2="231" class="x"/>
+<text x="401" y="227" class="ts tbad">never saved</text>
+<rect x="15" y="262" width="190" height="48" rx="8" class="bx"/><text x="110" y="282" text-anchor="middle" class="t tb">Backend default</text><text x="110" y="300" text-anchor="middle" class="ts">"Pioneer User"</text>
+<rect x="270" y="262" width="230" height="48" rx="8" class="bx-warn"/><text x="385" y="282" text-anchor="middle" class="t tb">User.displayName</text><text x="385" y="300" text-anchor="middle" class="ts">database; PUT never called</text>
+<rect x="570" y="264" width="220" height="44" rx="8" class="bx dash"/><text x="680" y="291" text-anchor="middle" class="ts">not shown anywhere</text>
+<line x1="205" y1="286" x2="268" y2="286" class="ln" marker-end="url(#d8a)"/>
+<line x1="500" y1="286" x2="568" y2="286" class="ln ln-mut dash" marker-end="url(#d8c)"/>
+<rect x="15" y="340" width="190" height="48" rx="8" class="bx"/><text x="110" y="360" text-anchor="middle" class="t tb">You, in Add Contact</text><text x="110" y="378" text-anchor="middle" class="ts">the contact's name</text>
+<rect x="270" y="340" width="230" height="48" rx="8" class="bx"/><text x="385" y="360" text-anchor="middle" class="t tb">Contact.name</text><text x="385" y="378" text-anchor="middle" class="ts">database</text>
+<rect x="570" y="342" width="220" height="44" rx="8" class="bx"/><text x="680" y="360" text-anchor="middle" class="t tb">Contacts and ledgers</text><text x="680" y="377" text-anchor="middle" class="ts">the name you typed</text>
+<line x1="205" y1="364" x2="268" y2="364" class="ln" marker-end="url(#d8a)"/>
+<line x1="500" y1="364" x2="568" y2="364" class="ln" marker-end="url(#d8a)"/>
+<rect x="270" y="410" width="230" height="46" rx="8" class="bx dash"/><text x="385" y="429" text-anchor="middle" class="t tb">User.piUsername</text><text x="385" y="446" text-anchor="middle" class="ts">column exists, never filled in</text>
+</svg>
+</div>
+<figcaption><b>Figure 8.</b> Every name on screen, traced to its source. Red is the problem: the Profile's "Legal Name" and "Username" rows are both built from the same on-screen value and tagged "From Pi Auth", but Pi never sends a legal name. Editing your Display Name with the pencil changes both rows too, and nothing is saved. The backend's <code>displayName</code> column and update endpoint are never used.</figcaption>
+</figure>
+
+<ul>
+<li><b>The "Legal Name" label is wrong, and the pencil edit makes it worse.</b> In Settings → Profile, the Display Name, "Legal Name" and "Username" rows all come from one value that starts as the Pi username (<code>src/components/Settings.tsx</code>). If you change the Display Name to "Rohit Agarwal", the screen shows "Legal Name: Rohit Agarwal" and "Username: @rohit_agarwal", both tagged "From Pi Auth", and neither is true. The edit isn't saved, so it is gone after a reload.</li>
+<li><b>Most of a display-name feature already exists.</b> The Profile screen has a Display Name field with a pencil edit and an info note ("visible to other users of this dApp in the future"). The backend has <code>User.displayName</code> (default "Pioneer User") and an owner-only <code>PUT /api/users/:walletAddress</code> that accepts 1–100 characters and strips HTML. <code>usersApi.updateProfile</code> exists in <code>src/lib/api.ts</code>, but nothing calls it. <code>User.piUsername</code> exists and is never set.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="s7">7. Ways forward, ranked</h2>
+
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Option</th><th>Works today?</th><th>Effort</th><th>Privacy and rules</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><b>Contact names typed by the owner</b>, as in a paper khata</td><td><span class="badge yes">yes, built</span></td><td>none</td><td>Private to the owner. They describe someone else, so keep them visible only to the owner and deletable.</td><td><span class="badge yes">keep</span></td></tr>
+<tr><td>2</td><td><b>Optional display name chosen by each user</b>, shown as "Name · @username"</td><td><span class="badge yes">yes</span></td><td>small: the Profile field, column and endpoint exist; needs saving, display, relabelling, and a small migration so the name can be cleared</td><td>The user typed it, so they consented. Never call it legal or verified. Let users edit and clear it, and mention it in the privacy notice.</td><td><span class="badge pick">recommended</span></td></tr>
+<tr><td>3</td><td><b>Username only</b> (what we do now)</td><td><span class="badge yes">yes</span></td><td>none (but fix the "Legal Name" label)</td><td>Lowest risk.</td><td><span class="badge yes">fallback</span></td></tr>
+<tr><td>4</td><td><b><code>roles</code> scope</b> for community badges</td><td><span class="badge yes">yes</span></td><td>small</td><td>Adds a row to the consent screen and gives badges, not names.</td><td><span class="badge maybe">only if badges are wanted</span></td></tr>
+<tr><td>5</td><td><b>PiVerify</b> (Pi's KYC service for businesses)</td><td><span class="badge maybe">B2B only</span></td><td>high</td><td>Contract, consent, and compliance and biometric-data duties. What it returns is not verified by us.</td><td><span class="badge maybe">only for real KYC needs</span></td></tr>
+<tr><td>6</td><td>A "name" scope, Pi's internal API, or a Social Profiles API</td><td><span class="badge no">no</span></td><td>—</td><td>The SDK rejects unknown scopes. The internal API is for Pi's own apps, and using it would break the Developer Terms. The Social Profiles API hasn't shipped.</td><td><span class="badge no">not viable</span></td></tr>
+</tbody></table></div>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 340" role="img" aria-label="Decision tree. If a legally verified name is needed, use PiVerify, Pi's B2B KYC service. If not, and people should see a real-looking name, use an optional display name typed by the user and shown with @username. Otherwise keep username only. Separately, community badges come from the roles scope. A name scope and Pi's internal API are not possible.">
+<defs><marker id="d9a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="250" y="14" width="300" height="56" rx="8" class="bx-warn"/>
+<text x="400" y="38" text-anchor="middle" class="t tb">Need a legally verified name?</text>
+<text x="400" y="56" text-anchor="middle" class="ts">KYC-grade, e.g. for compliance</text>
+<line x1="550" y1="42" x2="593" y2="42" class="ln" marker-end="url(#d9a)"/>
+<text x="571" y="34" text-anchor="middle" class="t tb">yes</text>
+<rect x="595" y="14" width="195" height="56" rx="8" class="bx"/>
+<text x="692" y="38" text-anchor="middle" class="t tb">PiVerify (B2B KYC)</text>
+<text x="692" y="56" text-anchor="middle" class="ts">contract, consent, compliance</text>
+<line x1="400" y1="70" x2="400" y2="108" class="ln" marker-end="url(#d9a)"/>
+<text x="410" y="93" class="t tb">no</text>
+<rect x="250" y="110" width="300" height="56" rx="8" class="bx-warn"/>
+<text x="400" y="134" text-anchor="middle" class="t tb">Should people see a real-looking name?</text>
+<text x="400" y="152" text-anchor="middle" class="ts">chosen by the user, not verified</text>
+<line x1="550" y1="138" x2="593" y2="138" class="ln" marker-end="url(#d9a)"/>
+<text x="571" y="130" text-anchor="middle" class="t tb">yes</text>
+<rect x="595" y="110" width="195" height="72" rx="8" class="bx-acc"/>
+<text x="692" y="134" text-anchor="middle" class="t tb tacc">Optional display name</text>
+<text x="692" y="152" text-anchor="middle" class="ts">typed by the user</text>
+<text x="692" y="170" text-anchor="middle" class="ts">shown with @username</text>
+<line x1="400" y1="166" x2="400" y2="204" class="ln" marker-end="url(#d9a)"/>
+<text x="410" y="189" class="t tb">no</text>
+<rect x="250" y="206" width="300" height="48" rx="8" class="bx"/>
+<text x="400" y="235" text-anchor="middle" class="t tb">Username only (today)</text>
+<rect x="10" y="110" width="200" height="56" rx="8" class="bx-warn"/>
+<text x="110" y="134" text-anchor="middle" class="t tb">Want community badges?</text>
+<text x="110" y="152" text-anchor="middle" class="ts">e.g. Moderator</text>
+<line x1="110" y1="166" x2="110" y2="204" class="ln" marker-end="url(#d9a)"/>
+<text x="120" y="189" class="t tb">yes</text>
+<rect x="10" y="206" width="200" height="48" rx="8" class="bx"/>
+<text x="110" y="235" text-anchor="middle" class="t tb">roles scope (no names)</text>
+<rect x="10" y="276" width="780" height="54" rx="8" class="bx-bad dash"/>
+<text x="400" y="299" text-anchor="middle" class="t tb tbad">Not possible: a "name" scope (the SDK rejects it)</text>
+<text x="400" y="318" text-anchor="middle" class="ts">Not allowed: Pi's internal API, which belongs to Pi's own apps (Developer Terms)</text>
+</svg>
+</div>
+<figcaption><b>Figure 9.</b> Two questions decide the name; badges are a separate choice. For a khata, neither party needs a KYC-grade name, so the answer lands on the purple box (if we want names at all) or stays at username only.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2 id="s8">8. Recommended next step: an optional display name</h2>
+<p>This is a suggestion; nothing has been built yet. The Profile field, the database column and the update endpoint already exist, so the work is mainly connecting them. One small backend change is needed: today the name can't be cleared (the column defaults to "Pioneer User" and the endpoint needs at least 1 character), so making it optional means a nullable column (one small migration) and letting the endpoint accept an empty name.</p>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 290" role="img" aria-label="Build plan. Write path: the existing Profile Display Name pencil edit calls a new useBookkeeping updateDisplayName function, which calls the existing PUT /api/users/:walletAddress endpoint and saves User.displayName, made nullable. Read path: the sign-in reply already includes displayName, and Home and Profile would show the name with @username, falling back to the username when no name is set.">
+<defs><marker id="d10a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="10" y="10" width="30" height="16" rx="4" class="bx"/><text x="48" y="23" class="ts">exists today</text>
+<rect x="140" y="10" width="30" height="16" rx="4" class="bx dash"/><text x="178" y="23" class="ts">to build or change</text>
+<rect x="10" y="50" width="170" height="60" rx="8" class="bx-acc"/><text x="95" y="75" text-anchor="middle" class="t tb">Profile: Display Name</text><text x="95" y="94" text-anchor="middle" class="ts">pencil edit (exists)</text>
+<line x1="180" y1="80" x2="198" y2="80" class="ln" marker-end="url(#d10a)"/>
+<rect x="200" y="50" width="170" height="60" rx="8" class="bx dash"/><text x="285" y="75" text-anchor="middle" class="t tb">useBookkeeping</text><text x="285" y="94" text-anchor="middle" class="ts tm">updateDisplayName()</text>
+<line x1="370" y1="80" x2="388" y2="80" class="ln" marker-end="url(#d10a)"/>
+<rect x="390" y="50" width="230" height="60" rx="8" class="bx"/><text x="505" y="75" text-anchor="middle" class="t tm">PUT /api/users/:walletAddress</text><text x="505" y="94" text-anchor="middle" class="ts">owner-only; allow empty (change)</text>
+<line x1="620" y1="80" x2="638" y2="80" class="ln" marker-end="url(#d10a)"/>
+<rect x="640" y="50" width="150" height="60" rx="8" class="bx dash"/><text x="715" y="75" text-anchor="middle" class="t tb">User.displayName</text><text x="715" y="94" text-anchor="middle" class="ts">make nullable</text>
+<line x1="715" y1="110" x2="715" y2="168" class="ln" marker-end="url(#d10a)"/>
+<text x="725" y="144" class="ts">read back</text>
+<rect x="640" y="170" width="150" height="60" rx="8" class="bx"/><text x="715" y="195" text-anchor="middle" class="t tb">Sign-in reply</text><text x="715" y="214" text-anchor="middle" class="ts">includes displayName</text>
+<line x1="640" y1="200" x2="622" y2="200" class="ln" marker-end="url(#d10a)"/>
+<rect x="200" y="170" width="420" height="60" rx="8" class="bx-ok dash"/><text x="410" y="195" text-anchor="middle" class="t tb">Home + Profile: "Asha Verma · @ashaverma7"</text><text x="410" y="214" text-anchor="middle" class="ts">fall back to the username when no name is set</text>
+<text x="10" y="266" class="ts">Also: rename "Legal Name"; show the real @username instead of one built from the name; keep names short (≤ 60 characters, no links).</text>
+</svg>
+</div>
+<figcaption><b>Figure 10.</b> The build plan. Solid boxes already exist in the code, dashed boxes are new or need a small change. No new endpoint is needed: a frontend call, display changes, and a small migration so the name can be cleared.</figcaption>
+</figure>
+
+<figure>
+<div class="fig">
+<svg class="dg" viewBox="0 0 800 330" role="img" aria-label="Before and after mock of Settings Profile for an example user who edited their Display Name to Asha Verma. Today: Legal Name shows Asha Verma and Username shows @asha_verma, both tagged From Pi Auth, and neither is true. Proposed: Name (you entered) Asha Verma with Edit, and Pi username @ashaverma7 tagged from Pi.">
+<defs><marker id="d11a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="20" y="20" width="350" height="290" rx="14" class="bx"/>
+<text x="40" y="48" class="t tb">Today, after a pencil edit</text>
+<text x="40" y="82" class="ts">Legal Name</text>
+<rect x="40" y="90" width="310" height="40" rx="10" class="fld"/><text x="54" y="115" class="t">Asha Verma</text>
+<rect x="250" y="100" width="90" height="20" rx="10" class="pill"/><text x="295" y="114" text-anchor="middle" class="ts">From Pi Auth</text>
+<text x="40" y="152" class="ts">Username</text>
+<rect x="40" y="160" width="310" height="40" rx="10" class="fld"/><text x="54" y="185" class="t">@asha_verma</text>
+<rect x="250" y="170" width="90" height="20" rx="10" class="pill"/><text x="295" y="184" text-anchor="middle" class="ts">From Pi Auth</text>
+<text x="40" y="236" class="t tb tbad">Neither came from Pi.</text>
+<text x="40" y="258" class="ts">The real username is @ashaverma7, and Pi never</text>
+<text x="40" y="276" class="ts">sends a legal name. The edit is lost on reload.</text>
+<line x1="372" y1="160" x2="428" y2="160" class="ln" marker-end="url(#d11a)"/>
+<rect x="430" y="20" width="350" height="290" rx="14" class="bx-acc"/>
+<text x="450" y="48" class="t tb">Proposed</text>
+<text x="450" y="82" class="ts">Name (you entered)</text>
+<rect x="450" y="90" width="310" height="40" rx="10" class="fld"/><text x="464" y="115" class="t">Asha Verma</text>
+<rect x="690" y="100" width="60" height="20" rx="10" class="pill-acc"/><text x="720" y="114" text-anchor="middle" class="ts tacc">Edit</text>
+<text x="450" y="152" class="ts">Pi username</text>
+<rect x="450" y="160" width="310" height="40" rx="10" class="fld"/><text x="464" y="185" class="t">@ashaverma7</text>
+<rect x="680" y="170" width="70" height="20" rx="10" class="pill"/><text x="715" y="184" text-anchor="middle" class="ts">from Pi</text>
+<text x="450" y="236" class="t tb tok">Each value says where it came from.</text>
+<text x="450" y="258" class="ts">The name is saved, optional and clearable;</text>
+<text x="450" y="276" class="ts">empty shows the username.</text>
+</svg>
+</div>
+<figcaption><b>Figure 11.</b> What changes on the Profile screen, shown with a made-up user (Pi username <code>ashaverma7</code>) who typed "Asha Verma" as their Display Name. The only Pi-sourced value is the username, and it is labelled that way. The name row belongs to the user.</figcaption>
+</figure>
+
+<h3>Rules to follow if we build it</h3>
+<ul>
+<li><b>Never claim it is real.</b> No "legal", "verified" or tick icon next to a typed name.</li>
+<li><b>Always show <code>@username</code> next to it.</b> Anyone can type "Pi Core Team" as a name; the username, which Pi provides, is what identifies the person. Pi's own side menu also shows the name followed by <code>@username</code>.</li>
+<li><b>Keep it optional, editable and clearable</b>, and mention it in the privacy notice. Cap it at about 60 characters (today's limit is 100) and reject links; <code>sanitizedString</code> already strips HTML.</li>
+<li><b>Don't share it.</b> The Developer Terms restrict passing user ids and usernames to anyone but our own service providers; treat the display name the same way.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="s9">9. What we checked, and what we couldn't</h2>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Source</th><th>What it showed</th><th>How sure</th></tr></thead>
+<tbody>
+<tr><td>Our live sign-ins in the Pi Sandbox, 18–19 Nov 2026 (<code>Pi.authenticate</code> and <code>/v2/me</code>)</td><td><code>uid</code>, <code>username</code>, <code>credentials</code>, <code>app_id</code>, <code>receiving_email</code>. No name. The <code>wallet_address</code> scope added nothing, and the wallet API answered <code>unauthorized_app</code>.</td><td><span class="badge yes">confirmed</span></td></tr>
+<tr><td>Pi SDK code (<code>sdk.minepi.com/pi-sdk.js</code>)</td><td>The 7-scope allowlist and the "Invalid scopes found" error. The <code>Pi.signIn</code> list. Zero matches for legal/real/full/first/last/display name, KYC, avatar, phone or profile picture.</td><td><span class="badge yes">confirmed</span></td></tr>
+<tr><td>Pi Browser code (sandbox host bundle <code>main.10a77ea3.js</code>)</td><td>Consent-screen texts. Internal API <code>socialchain.app/api</code> with first/last name fields, display names, KYC status, and a "hide my real name" setting.</td><td><span class="badge yes">confirmed</span></td></tr>
+<tr><td>Pi developer docs (<code>pi-platform-docs</code>)</td><td>Scope type <code>username | payments | wallet_address</code>. The user is <code>uid</code> + <code>username</code>. The uid differs per app, so apps can't link a person. Other consented fields (e.g. <code>preferred_language</code>) come back with the uid.</td><td><span class="badge yes">confirmed</span></td></tr>
+<tr><td>Privacy Policy (updated 28 Jun 2026) and Developer Terms (9 Jan 2023)</td><td>Pi collects name, phone, email, Facebook name and username. No sharing clause for app developers; KYC data goes to KYC clients only with consent. Developers may not collect user info without consent.</td><td><span class="badge yes">read</span></td></tr>
+<tr><td>Pi demo app (PR #462), Map of Pi, SilkRoad</td><td><code>roles: string[]</code> used to gate <code>core_team</code>. Map of Pi stores its own editable <code>user_name</code> next to <code>pi_username</code>. SilkRoad's sign-up form asks for a full name.</td><td><span class="badge yes">in their code</span></td></tr>
+</tbody></table></div>
+
+<p><b>Not verified:</b></p>
+<ul>
+<li>The <code>roles</code> and <code>preferred_language</code> fields: Pi's code and docs show them, but we haven't requested them live, because that would show you a new consent screen.</li>
+<li>Which app showed you a "legal name". Section 5 explains how to tell.</li>
+<li>That Fireside Forum shows full names (Pi says Social Profiles were integrated there).</li>
+<li>What PiVerify returns, and its terms.</li>
+<li>What <code>receiving_email</code> and the <code>platform</code> scope are for. Pi doesn't document either.</li>
+</ul>
+
+<h2>Sources</h2>
+<ul class="small">
+<li>Live sign-in tests in the Pi Sandbox, app "Bookkeepv2", 18–19 Nov 2026 (see <a href="../wallet-address/decision.html">wallet-address decision record</a>, section 2).</li>
+<li>Pi SDK: <a href="https://sdk.minepi.com/pi-sdk.js">https://sdk.minepi.com/pi-sdk.js</a> (copy read on 19 Nov 2026)</li>
+<li>Pi Browser sandbox host bundle: <code>app-cdn.minepi.com/static/js/main.10a77ea3.js</code></li>
+<li>Pi platform docs: <a href="https://github.com/pi-apps/pi-platform-docs">https://github.com/pi-apps/pi-platform-docs</a> (SDK_reference.md, pi-sign-in.md, platform_API.md)</li>
+<li>Pi SDK docs: <a href="https://pi-apps.github.io/pi-sdk-docs/pi-sdk/Core">https://pi-apps.github.io/pi-sdk-docs/pi-sdk/Core</a></li>
+<li>Pi demo app, roles: <a href="https://github.com/pi-apps/demo/pull/462">https://github.com/pi-apps/demo/pull/462</a></li>
+<li>Pi help wiki, Account Settings (name changes): <a href="https://pinetwork.atlassian.net/wiki/spaces/WIKI/pages/27066411/Account+Settings">https://pinetwork.atlassian.net/wiki/spaces/WIKI/pages/27066411/Account+Settings</a></li>
+<li>pi-sdk-js (<code>PiUser</code> type): <a href="https://github.com/pi-apps/pi-sdk-js">https://github.com/pi-apps/pi-sdk-js</a></li>
+<li>Privacy Policy: <a href="https://minepi.com/privacy-policy/">https://minepi.com/privacy-policy/</a> (redirects to socialchain.app/privacy)</li>
+<li>Developer Terms: <a href="https://socialchain.app/developer_terms">https://socialchain.app/developer_terms</a></li>
+<li>Social Profiles: <a href="https://minepi.com/blog/social-profiles/">https://minepi.com/blog/social-profiles/</a>, <a href="https://minepi.com/blog/pi2day2024/">https://minepi.com/blog/pi2day2024/</a></li>
+<li>Map of Pi: <a href="https://github.com/pi-apps/map-of-pi">https://github.com/pi-apps/map-of-pi</a> · SilkRoad: <a href="https://github.com/pi-apps/SilkRoad">https://github.com/pi-apps/SilkRoad</a></li>
+</ul>
+
+</body>
+</html>

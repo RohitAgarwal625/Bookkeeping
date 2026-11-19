@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallet Address Decision</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#6F3C97;--accent-soft:#f3ecfb;--ok:#047857;--ok-soft:#ecfdf5;--warn:#b45309;--warn-soft:#fffbeb;
+  --bad:#b91c1c;--bad-soft:#fef2f2;--bg:#ffffff;--panel:#f8f9fa;--border:#e2e8f0;--text:#1a1a2e;--heading:#0f172a;--muted:#5b6470;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --accent:#c4a4f7;--accent-soft:#2a2140;--ok:#6ee7b7;--ok-soft:#0f2a22;--warn:#fbbf24;--warn-soft:#2b2210;
+    --bad:#fca5a5;--bad-soft:#2d1515;--bg:#0f1115;--panel:#171a21;--border:#2a2f3a;--text:#e5e7eb;--heading:#f8fafc;--muted:#9aa3af;
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.65;color:var(--text);background:var(--bg);max-width:900px;margin:0 auto;padding:2rem 16px 4rem}
+h1{font-size:1.9rem;line-height:1.25;font-weight:700;color:var(--heading);margin-bottom:.4rem}
+h2{font-size:1.35rem;font-weight:700;color:var(--heading);margin:2.4rem 0 .9rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+h3{font-size:1.05rem;font-weight:600;color:var(--heading);margin:1.4rem 0 .5rem}
+p{margin-bottom:.7rem}
+ul,ol{margin:.3rem 0 .9rem 1.4rem}li{margin-bottom:.35rem}
+a{color:var(--accent)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:0 4px;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:.9rem;margin-bottom:1.6rem}
+.tldr{background:var(--accent-soft);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:1.1rem 1.25rem;margin:1rem 0 1.5rem}
+.tldr p:last-child,.card p:last-child{margin-bottom:0}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin:1rem 0}
+.table-wrap{overflow-x:auto;margin:.8rem 0 1.2rem;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:.92rem;min-width:560px}
+th{background:var(--panel);font-weight:600;text-align:left;padding:.55rem .75rem;border-bottom:1px solid var(--border);vertical-align:bottom}
+td{padding:.55rem .75rem;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.yes{background:var(--ok-soft);color:var(--ok)}.no{background:var(--bad-soft);color:var(--bad)}.maybe{background:var(--warn-soft);color:var(--warn)}.pick{background:var(--accent);color:#fff}
+@media (prefers-color-scheme: dark){.pick{color:#0f1115}}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:.8rem 0 1rem}
+.flow span{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.3rem .6rem;font-size:.9rem}
+.flow b{color:var(--muted);font-weight:600}
+.small{font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<h1>Why users type their own Pi wallet address</h1>
+<p class="meta">Decision record · Bookkeeping (Pi Network dApp) · Decided 19 Nov 2026 · Built on <code>feature_branch/backend-implementation</code>, not deployed yet</p>
+
+<div class="tldr">
+  <p><strong>Decision:</strong> the app asks each user, once, for their own public Pi wallet address (Settings → Profile → Pi Wallet Address).</p>
+  <p><strong>Why:</strong> Pi doesn't give apps the user's wallet address unless Pi has put the app on an allowlist. We tried every route live and got either no address or <code>unauthorized_app</code>.</p>
+  <p><strong>Why we need it:</strong> the Pi blockchain only knows wallet addresses. Without the user's own address, the app can't tell which of a contact's payments were with <em>this</em> user. Before this change it imported the contact's payments with everyone.</p>
+  <p><strong>Is it safe?</strong> A public wallet address is meant to be shared, like a UPI ID. It can receive Pi but can't be used to spend it. A wrong address only affects that user's own khata.</p>
+</div>
+
+<h2>1. The problem, in one example</h2>
+<p>The <strong>Automatic</strong> screen reads a contact's payments from the Pi blockchain and adds them to the user's khata. In our test (Pi Testnet, 18 Sep → 18 Nov 2026), the test contact had <strong>49 payments</strong> in the chosen dates:</p>
+<ul>
+  <li><strong>2</strong> were with our test wallet: these belong in the khata.</li>
+  <li><strong>47</strong> were the contact paying, or being paid by, other people. The old scan still added them as "Pi received from …".</li>
+</ul>
+<p>To keep only the right ones, the app has to compare both ends of each payment with two addresses: the contact's (we already have it, because Add Contact requires one) and the user's own, which we didn't have.</p>
+
+<h2>2. What Pi tells an app about a user</h2>
+<p>We captured exactly what came back when our test account signed in, both in the browser (<code>Pi.authenticate</code>) and from Pi's server (<code>GET /v2/me</code>). The two were identical.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Data</th><th>Do we get it?</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>uid</code></td><td><span class="badge yes">Yes</span></td><td>An ID Pi makes for this app only. It changes if the user removes the app's access.</td></tr>
+    <tr><td><code>username</code></td><td><span class="badge yes">Yes</span></td><td>The Pi handle, e.g. <code>someone2003</code>. Not a real name.</td></tr>
+    <tr><td><code>app_id</code>, <code>credentials.scopes</code>, <code>valid_until</code></td><td><span class="badge yes">Yes</span></td><td>Which permissions the user allowed, and when the sign-in expires (24 h).</td></tr>
+    <tr><td><code>receiving_email</code></td><td><span class="badge maybe">Flag only</span></td><td><code>true</code>/<code>false</code>. The email itself is never shared.</td></tr>
+    <tr><td><strong>Wallet address</strong></td><td><span class="badge no">No</span></td><td>Missing even after the user allowed the "Wallet address" permission.</td></tr>
+    <tr><td>Real name, email, phone, KYC data</td><td><span class="badge no">No</span></td><td>No field and no permission exists for these.</td></tr>
+  </tbody>
+</table></div>
+
+<h2>3. Every route we tried</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>#</th><th>Route</th><th>Result</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Ask for the <code>wallet_address</code> permission at sign-in</td><td>Pi's consent screen listed "Wallet address" and the user allowed it, but the sign-in result held no address.</td><td>18 Nov, live in Pi Sandbox</td></tr>
+    <tr><td>2</td><td>Ask Pi's server who the user is (<code>GET /v2/me</code>)</td><td>Same fields. The granted scopes list <code>wallet_address</code>, still no address.</td><td>18 Nov, live</td></tr>
+    <tr><td>3</td><td><code>Pi.Wallet.getUserWalletAddresses()</code>, found in Pi's live SDK code (not in the main docs)</td><td><code>Error: Unauthorized app.</code> (same for <code>getUserMigratedWalletAddresses()</code>)</td><td>19 Nov, live</td></tr>
+    <tr><td>4</td><td>The same data straight from Pi's server (<code>GET /v2/user_wallets</code>, <code>/v2/user_migrated_wallets</code>) with the user's token</td><td>HTTP 400 <code>{"error":"unauthorized_app"}</code></td><td>19 Nov, live</td></tr>
+    <tr><td>5</td><td>How Pi's own demo app does it (<a href="https://github.com/pi-apps/demo/pull/465">pi-apps/demo PR #465</a>)</td><td>It calls <code>Pi.Wallet.getUserWalletAddresses()</code>, and says "The platform only gives wallet addresses to an allowlist of apps". Pi had to add its own demo app to that list.</td><td>Read 19 Nov</td></tr>
+    <tr><td>6</td><td>The blockchain itself (Pi Horizon) and a username → address lookup</td><td>Account records hold only the address, balances and signers. There's no username or name. Pi publishes no lookup service (<code>stellar.toml</code> returns 404 on all Pi domains).</td><td>19 Nov</td></tr>
+  </tbody>
+</table></div>
+
+<h2>4. Options we considered</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Option</th><th>Works today?</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td><strong>A.</strong> Read the address at sign-in through the <code>wallet_address</code> permission</td><td><span class="badge no">No</span></td><td>Rejected: Pi doesn't return it (tests 1–2).</td></tr>
+    <tr><td><strong>B.</strong> Ask Pi to allowlist Bookkeeping, then call <code>Pi.Wallet.getUserWalletAddresses()</code></td><td><span class="badge maybe">Not yet</span></td><td>Best long-term UX (no typing), but it depends on Pi's approval, with no public process or timeline. <strong>Apply in parallel.</strong></td></tr>
+    <tr><td><strong>C.</strong> The user types or pastes it once in Settings</td><td><span class="badge yes">Yes</span></td><td><span class="badge pick">Chosen</span> Works for everyone now.</td></tr>
+    <tr><td><strong>D.</strong> Read it from the user's Premium payment (Pi's payment record includes <code>from_address</code>)</td><td><span class="badge maybe">Partly</span></td><td>Only for users who paid 1 π to the app. Useful later to pre-fill option C.</td></tr>
+    <tr><td><strong>E.</strong> Look it up from the Pi username</td><td><span class="badge no">No</span></td><td>Impossible: no such lookup exists (test 6).</td></tr>
+    <tr><td><strong>F.</strong> Route payments through the app's wallet (middleman)</td><td><span class="badge maybe">Technically</span></td><td>Rejected. The app would hold users' money. The receiver must also use our app, because Pi's app-to-user payments go to a Pi uid, not an address. The blockchain would show "you → app → contact", so the "you ↔ contact" history disappears. Fees are paid twice. It also turns us into a payment provider.</td></tr>
+  </tbody>
+</table></div>
+
+<h2>5. Why option C</h2>
+<ol>
+  <li><strong>It's the only option that works for every user today</strong>, without waiting on Pi.</li>
+  <li><strong>The address is public by design.</strong> Sharing it is like sharing a UPI ID to receive money. It can't be used to spend Pi.</li>
+  <li><strong>Low risk.</strong> A wrong address, or someone else's, only changes what <em>that</em> user's own khata imports. No one else's data is touched.</li>
+  <li><strong>One-time and quick:</strong> copy it from the Pi Wallet, paste, save.</li>
+  <li><strong>It keeps the better options open.</strong> If Pi allowlists us (B), the field can fill itself, and a Premium payment (D) can pre-fill it.</li>
+</ol>
+
+<h2>6. What was built (19 Nov 2026)</h2>
+<h3>Settings → Profile → Pi Wallet Address</h3>
+<ul>
+  <li>An <strong>Add my wallet address</strong> / <strong>Change wallet address</strong> button. Guests see the sign-in prompt instead.</li>
+  <li>Before saving, the app checks the format (<code>G</code> followed by 55 letters or digits; spaces and line breaks are removed) and that the address <strong>exists on Pi Testnet</strong>, which catches typos.</li>
+  <li>Stored on the server as <code>User.walletPublicKey</code> (a new optional column) through <code>PUT /api/users/me/wallet</code>. Only signed-in users can call it, and the rate limit counts per user. The address comes back with the user at every sign-in.</li>
+</ul>
+<h3>Automatic scan</h3>
+<p>The scan won't start without the user's address. It shows "Add your own Pi wallet address first" with an <strong>Open Settings</strong> button. When it runs, it reads <strong>Pi Testnet only</strong>, every page in the date range, and keeps only these payments:</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Payment on the blockchain</th><th>In the khata</th></tr></thead>
+  <tbody>
+    <tr><td>From the <strong>contact</strong> to <strong>you</strong></td><td>Credit: you received</td></tr>
+    <tr><td>From <strong>you</strong> to the <strong>contact</strong></td><td>Debit: you paid</td></tr>
+    <tr><td>Contact ↔ anyone else, or tokens other than Pi</td><td>Skipped</td></tr>
+  </tbody>
+</table></div>
+<h3>How it was checked</h3>
+<ul>
+  <li><strong>Real testnet data:</strong> 49 payments in range became 2 for the test wallet, matching an independent count. A wallet with no shared payments got 0 and a clear message. With no address saved, the scan is blocked.</li>
+  <li><strong>Backend tests:</strong> new suite <code>11-user-wallet</code> (13 checks: sign-in required, format, pasted spaces, per-user, clearing). All 140 checks pass.</li>
+</ul>
+
+<h2>7. Risks and how they're handled</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Risk</th><th>Handling</th></tr></thead>
+  <tbody>
+    <tr><td>User pastes a wrong address</td><td>Format check, plus the address must exist on the app's network. The saved address is shown and can be changed at any time.</td></tr>
+    <tr><td>User enters someone else's address</td><td>Only their own imports change. Ownership proof can come later, through Pi allowlisting or a small payment from that wallet.</td></tr>
+    <tr><td>User has more than one wallet</td><td>One address for now. More can be supported later if needed.</td></tr>
+    <tr><td>Mainnet address while the app is on Testnet</td><td>The exists-check runs on the app's network (<code>PI_NETWORK</code>, Testnet today), so it's rejected.</td></tr>
+  </tbody>
+</table></div>
+
+<h2>8. Paying a contact without a middleman: ways forward</h2>
+<p>The same rule applies to the Pay button: money must go straight from the user's wallet to the contact's wallet. The app never holds it. Pi's SDK can't send to another user (<code>Pi.createPayment</code> only pays the app), so the actual "send" happens in the <strong>Pi Wallet</strong>. The app's job is to get the user there with everything filled in, then confirm the payment on the blockchain.</p>
+<p>What we found in Pi's own code on 19 Nov 2026 (SDK, the Pi Browser host bundle and the wallet):</p>
+<ul>
+  <li>The wallet's send screen is <code>wallet.pinet.com/pay-request</code>. It reads <code>publicKey</code> (the recipient) and <code>amount</code> from the link. It does <strong>not</strong> read a memo.</li>
+  <li>The same link is Pi's official wallet QR-code format: <code>https://wallet.pinet.com/pay-request?publicKey=G…&amp;amount=10</code>.</li>
+  <li>An app can open a <code>pi://</code> or <code>https://</code> link outside itself with <code>Pi.openUrlInSystemBrowser(url)</code>. There's no allowlist for this. In the desktop sandbox it does nothing, so it can only be tested on a phone.</li>
+  <li><code>Pi.Wallet.signTransaction</code> / <code>submitTransaction</code> (signing inside our app) only work for four of Pi's own apps (<code>domains</code>, <code>ecosystem</code>, <code>tiramisu</code>, <code>launchpad</code>), listed in the code. <code>navigateHost</code> is limited to Pi's <code>ecosystem</code> app.</li>
+</ul>
+<div class="flow"><span>Tap Pay</span><b>→</b><span>Pi Wallet opens: recipient + amount filled</span><b>→</b><span>User confirms</span><b>→</b><span>App finds it on the blockchain</span><b>→</b><span>Khata entry with transaction hash</span></div>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>Rank</th><th>Way</th><th>Works today without Pi's approval?</th><th>Trade-offs</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><strong>Open the wallet's send screen:</strong> <code>Pi.openUrlInSystemBrowser("pi://wallet.pinet.com/pay-request?publicKey=G…&amp;amount=N")</code>, then confirm on the blockchain</td><td><span class="badge maybe">Likely</span> (must be tested on a phone)</td><td>Best experience that's open to us. It isn't documented by Pi and could differ between iOS and Android. The user can change the amount, there's no memo, and we get no callback. So the app watches the blockchain for a payment from the user to that contact (amount + time) and only then records it.</td></tr>
+    <tr><td>2</td><td><strong>QR code or shareable link</strong> in Pi's official format, for paying in person (another phone scans it) or sending "pay me" requests to people who owe you</td><td><span class="badge yes">Yes</span></td><td>Official format. On the same phone the user would have to upload a QR image into the wallet's scanner, so it's not ideal as the main Pay flow.</td></tr>
+    <tr><td>3</td><td><strong>Copy the address</strong> (<code>Pi.copyText</code>) and ask the user to open the Pi Wallet and paste it</td><td><span class="badge yes">Yes</span></td><td>Always works; the most manual. A good fallback if way 1 doesn't open.</td></tr>
+    <tr><td>4</td><td>Ask Pi to allowlist us for <code>Pi.Wallet.signTransaction</code> (the wallet opens over our app, with an exact memo and the transaction ID returned)</td><td><span class="badge no">No</span></td><td>The best experience, but today only four of Pi's own apps are allowed. Approval is unlikely.</td></tr>
+    <tr><td>×</td><td><code>navigateHost</code>, Stellar payment links (SEP-7), wallet "payment requests", <code>Pi.createPayment</code> / app-to-user</td><td><span class="badge no">No</span></td><td>Restricted to Pi's apps, not supported, or reported switched off after scams (Dec 2025). The last pair is the middleman model.</td></tr>
+  </tbody>
+</table></div>
+<p><strong>Recommended:</strong> build way 1 with way 3 as its fallback, and add way 2 for in-person payments and payment requests. Whichever way is used, the Pay screen must stop showing "payment successful" before the payment is actually on the blockchain. Today it records a debit without any Pi moving.</p>
+<p class="small">Confirming a payment: Pi's public blockchain API (Horizon) lists each payment's sender, receiver, amount, asset, time and transaction hash, with the memo through <code>join=transactions</code>. It also supports live updates, so the app can see the payment arrive while the user is in the wallet.</p>
+
+<h2>9. Open items</h2>
+<ul>
+  <li>Apply to Pi to have Bookkeeping allowlisted for wallet addresses (option B).</li>
+  <li><strong>Pay button:</strong> build "open the wallet's send screen" with copy-address as the fallback (section 8), test it on a real phone, and remove the fake "payment successful" message.</li>
+  <li><strong>Re-scan duplicates:</strong> scanning the same dates twice adds the payments twice. Fix by storing each payment's blockchain transaction hash and skipping known ones.</li>
+  <li>Imported entries get today's date instead of the payment's date on the blockchain.</li>
+  <li>Add Contact's address check is still a placeholder (any 8 or more characters). It should reuse the new format and exists check.</li>
+</ul>
+
+<h2>Sources</h2>
+<ul class="small">
+  <li><a href="https://github.com/pi-apps/demo/pull/465">Pi demo app, PR #465: wallet via <code>Pi.Wallet.getUserWalletAddresses()</code>, allowlist</a></li>
+  <li><a href="https://github.com/pi-apps/demo/pull/462">Pi demo app, PR #462</a></li>
+  <li><a href="https://github.com/pi-apps/pi-platform-docs/blob/master/SDK_reference.md">Pi SDK reference (scopes, <code>Pi.authenticate</code>)</a></li>
+  <li><a href="https://github.com/pi-apps/pi-platform-docs/blob/master/platform_API.md">Pi Platform API (<code>/v2/me</code>, payment records with <code>from_address</code>)</a></li>
+  <li><a href="https://developers.minepi.com/docs/use-native-features/Wallet">Pi developer docs: Pi Wallet</a></li>
+  <li>Pi SDK code as served on 19 Nov 2026: <code>https://sdk.minepi.com/pi-sdk.js</code> (<code>Pi.Wallet</code> methods, <code>/v2/user_wallets</code>)</li>
+  <li>Pi Browser host code as served on 19 Nov 2026: <code>https://app-cdn.minepi.com/static/js/main.10a77ea3.js</code> (signing allowlist, <code>navigateHost</code> limit, <code>openUrlInSystemBrowser</code> link check, <code>pay-request</code> link parameters)</li>
+  <li><a href="https://minepi.com/blog/qr-code/">Pi blog: Pi Wallet QR codes</a> · <a href="https://minepi.com/blog/open-network-pifest/">Pi blog: PiFest (merchants share their wallet QR)</a></li>
+  <li><a href="https://github.com/pi-apps/map-of-pi/blob/HEAD/src/config/payment.ts">Map of Pi: in-app orders use <code>Pi.createPayment</code> (pays the app)</a></li>
+  <li><a href="https://beincrypto.com/pi-network-disables-payment-requests-after-4-million-pi-drained">News, Dec 2025: Pi disables wallet payment requests after scams</a></li>
+  <li>Live tests in the Pi Sandbox, 18–19 Nov 2026 (backend logs, test account)</li>
+</ul>
+
+</body>
+</html>
