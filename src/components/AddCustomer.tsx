@@ -53,7 +53,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
 
   // Real check on the Pi blockchain: the address must be a Pi public key
   // (G + 55 letters/digits) AND an existing account on Horizon
-  // (GET /accounts/{address}; testnet unless VITE_PI_NETWORK=mainnet).
+  // (GET /accounts/{address}) on testnet OR mainnet.
   const handleValidate = async () => {
     if (isValidating) return;
     const address = cleanWalletInput(piWallet);
@@ -63,7 +63,7 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
     }
     const run = ++validationRun.current;
     setIsValidating(true);
-    const result = await checkPiAccountExists(address);
+    const result = await checkPiAccountExists(address, { anyNetwork: true });
     if (run !== validationRun.current) return; // address was edited meanwhile
     setIsValidating(false);
     if (result === "exists") {

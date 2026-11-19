@@ -66,15 +66,34 @@ export function isPiPublicKey(address: string): boolean {
 
 /**
  * Does this address have an account on the app's Pi network (PI_NETWORK)?
+ * With { anyNetwork: true }, an account on either testnet or mainnet counts:
+ * "missing" only if both say 404, "unknown" if neither confirms and one couldn't be reached.
  * "unknown" when the Pi blockchain couldn't be reached, so callers can decide.
  */
 export async function checkPiAccountExists(
+  address: string,
+  options?: { anyNetwork?: boolean }
+): Promise<"exists" | "missing" | "unknown"> {
+  if (!options?.anyNetwork) return checkPiAccountOn(PI_HORIZON_URL, address);
+  const otherUrl = `https://api.${PI_NETWORK === "mainnet" ? "testnet" : "mainnet"}.minepi.com`;
+  const results = await Promise.all([
+    checkPiAccountOn(PI_HORIZON_URL, address),
+    checkPiAccountOn(otherUrl, address),
+  ]);
+  if (results.includes("exists")) return "exists";
+  if (results.every((r) => r === "missing")) return "missing";
+  return "unknown";
+}
+
+/** GET {horizonUrl}/accounts/{address} on one Pi network. */
+async function checkPiAccountOn(
+  horizonUrl: string,
   address: string
 ): Promise<"exists" | "missing" | "unknown"> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 7000);
   try {
-    const res = await fetch(`${PI_HORIZON_URL}/accounts/${encodeURIComponent(address)}`, {
+    const res = await fetch(`${horizonUrl}/accounts/${encodeURIComponent(address)}`, {
       signal: controller.signal,
       headers: { Accept: "application/json" },
     });
