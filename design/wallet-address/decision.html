@@ -172,12 +172,94 @@ tr:last-child td{border-bottom:none}
 
 <h2>9. Open items</h2>
 <ul>
-  <li>Apply to Pi to have Bookkeeping allowlisted for wallet addresses (option B).</li>
-  <li><strong>Pay button:</strong> build "open the wallet's send screen" with copy-address as the fallback (section 8), test it on a real phone, and remove the fake "payment successful" message.</li>
-  <li><strong>Re-scan duplicates:</strong> scanning the same dates twice adds the payments twice. Fix by storing each payment's blockchain transaction hash and skipping known ones.</li>
-  <li>Imported entries get today's date instead of the payment's date on the blockchain.</li>
-  <li>Add Contact's address check is still a placeholder (any 8 or more characters). It should reuse the new format and exists check.</li>
+  <li><span class="badge maybe">Open</span> Apply to Pi to have Bookkeeping allowlisted for wallet addresses (option B).</li>
+  <li><span class="badge yes">✓ Fixed</span> <strong>Pay button:</strong> build "open the wallet's send screen" with copy-address as the fallback (section 8), test it on a real phone, and remove the fake "payment successful" message. <span class="small">Built in <code>7c88044</code>; coming back from the wallet reopens the waiting screen (<code>107e936</code>). Opened the Pi Wallet on a real phone, 19 Nov.</span></li>
+  <li><span class="badge yes">✓ Fixed</span> <strong>Re-scan duplicates:</strong> scanning the same dates twice adds the payments twice. Fix by storing each payment's blockchain transaction hash and skipping known ones. <span class="small">Each payment is saved once by its blockchain payment id (<code>chainPaymentId</code>); re-scans skip known ones.</span></li>
+  <li><span class="badge yes">✓ Fixed</span> Imported entries get today's date instead of the payment's date on the blockchain. <span class="small">Imports now save the payment's time on the blockchain.</span></li>
+  <li><span class="badge yes">✓ Fixed</span> Add Contact's address check is still a placeholder (any 8 or more characters). It should reuse the new format and exists check. <span class="small">Add Contact checks the format and that the address exists on the app's network (<code>6c19a42</code>).</span></li>
 </ul>
+
+<h2>10. Can the app pay through Pi's RPC server? (research, 19 Nov 2026)</h2>
+<div class="tldr">
+  <p><strong>Short answer:</strong> no, not on its own. The RPC server is a <em>delivery</em> service for the blockchain. It reads data and delivers transactions that are <strong>already signed</strong>. Moving Pi out of a wallet needs that wallet's <strong>secret key</strong>, and only the Pi Wallet holds it. The RPC server changes nothing about who can sign.</p>
+</div>
+
+<h3>What the RPC server is</h3>
+<ul>
+  <li>Pi launched a free public RPC server on Testnet in April 2026: <code>https://rpc.testnet.minepi.com</code>. It's the standard Stellar RPC server (Pi's chain is built on Stellar), made mainly for <strong>smart contracts</strong>.</li>
+  <li>We called it live on 19 Nov 2026: <code>getHealth</code> → <code>"healthy"</code>, <code>getNetwork</code> → passphrase <code>"Pi Testnet"</code>, protocol 30. It's the same Testnet blockchain our Horizon calls already read.</li>
+  <li>What it does: read accounts, balances and contract data; simulate a contract call; <strong>submit a transaction that is already signed</strong> (<code>sendTransaction</code>). What it doesn't do: sign anything, or move Pi for anyone.</li>
+</ul>
+
+<div class="flow"><span>1. Build the payment<br><span class="small">(any app can)</span></span><b>→</b><span><strong>2. Sign it with the payer's secret key</strong><br><span class="small">(only the Pi Wallet can)</span></span><b>→</b><span>3. Submit to the blockchain<br><span class="small">(RPC server or Horizon)</span></span></div>
+<p>The RPC server only helps with step 3, which we could already do through Horizon. Step 2 is the part Pi keeps inside the Pi Wallet, and that's the step that matters.</p>
+
+<h3>Every way to pay from inside the app</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Option</th><th>How</th><th>Pays inside the app?</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td><strong>A.</strong> Ask for the user's passphrase or secret key</td><td>The app signs with the key and submits through RPC</td><td><span class="badge yes">Yes</span></td><td><span class="badge no">Never</span> As far as we know, the same 24-word passphrase controls the user's <strong>mainnet</strong> wallet too, so we'd be collecting the keys to their real Pi. This is exactly what phishing apps do, and Pi can block the app for it.</td></tr>
+    <tr><td><strong>B.</strong> <code>Pi.Wallet.submitTransaction(xdr)</code> / <code>signTransaction</code></td><td>Pi Browser signs or submits a transaction for the app</td><td><span class="badge yes">Yes</span></td><td><span class="badge no">Blocked</span> Pi's docs say the transaction must already be signed. In Pi's code these calls work only for four of Pi's own apps (section 8). For us, <code>Pi.Wallet</code> returns <code>unauthorized_app</code>.</td></tr>
+    <tr><td><strong>C.</strong> A smart contract (escrow) through RPC</td><td>The user calls a contract that pays the contact</td><td><span class="badge yes">Yes</span></td><td><span class="badge no">Same problem</span> The user still has to sign the contract call, and the Pi popup can't sign contract calls.</td></tr>
+    <tr><td><strong>D.</strong> App wallet in the middle</td><td>The user pays the app in Pi's popup (<code>Pi.createPayment</code>), then our backend sends the same amount from the app's wallet to the contact's address, signed with the app wallet's key and submitted through RPC or Horizon</td><td><span class="badge yes">Yes</span> (the bnpi-style popup)</td><td><span class="badge maybe">Possible on Testnet</span> The only in-app route that works. Trade-offs below.</td></tr>
+    <tr><td><strong>E.</strong> Open the Pi Wallet's send screen (what's built now)</td><td><code>Pi.openUrlInSystemBrowser("pi://wallet.pinet.com/pay-request?…")</code>, then confirm on the blockchain</td><td><span class="badge no">No</span>, the wallet opens</td><td><span class="badge pick">Current</span> Money goes straight from the user to the contact. The app saves the entry only once the payment is on the blockchain.</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Option D in detail</h3>
+<div class="flow"><span>Tap Pay</span><b>→</b><span>Pi popup in our app: user pays the <strong>app</strong></span><b>→</b><span>Backend approves + completes</span><b>→</b><span>Backend sends app wallet → contact</span><b>→</b><span>Khata entry with both hashes</span></div>
+<ul>
+  <li><strong>Secret key on our server:</strong> the backend must keep the app wallet's secret key, in Railway variables only, never in git.</li>
+  <li><strong>We hold the user's money</strong> for a few seconds. If the second payment fails, we must retry it or refund the user, so it needs a retry job.</li>
+  <li><strong>The blockchain shows "you → app → contact"</strong>, not "you → contact". It also costs two network fees.</li>
+  <li><strong>Mainnet:</strong> apps that hold and pass on users' money may break Pi's developer rules and can count as a payment service. We'd need to check with Pi before launch.</li>
+  <li><strong>Size:</strong> a medium backend build (new payment type, app-wallet send, retry/refund, tests).</li>
+</ul>
+<p>Note: the "contact must also use our app" limit in section 4 (option F) applies only to Pi's official app-to-user API. A plain blockchain payment from the app wallet can go to any address.</p>
+<p><strong>Recommendation:</strong> keep option E. Build D on Testnet only if the client decides that paying inside the app matters more than "straight from you to the contact", and accepts the trade-offs above. Never build A.</p>
+
+<h3>Horizon vs RPC: which one should the app use?</h3>
+<p>Both read and write the same Pi blockchain, but they're built for different jobs. Neither can sign a payment.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th></th><th>Horizon (what the app uses)</th><th>RPC server</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Made for</strong></td><td>Payments and account history</td><td>Smart contracts</td></tr>
+    <tr><td><strong>"All payments of this account"</strong></td><td><span class="badge yes">Yes</span> One call, with paging and date order</td><td><span class="badge no">No</span> No such call. You'd have to scan blocks yourself</td></tr>
+    <tr><td><strong>How far back</strong></td><td>Full history</td><td>About 3 months. Its oldest data was from about 19 Aug 2026 when we checked on 19 Nov 2026</td></tr>
+    <tr><td><strong>Smart contracts</strong> (simulate, events, contract data)</td><td><span class="badge no">No</span></td><td><span class="badge yes">Yes</span></td></tr>
+    <tr><td><strong>Submit a signed payment</strong></td><td><span class="badge yes">Yes</span></td><td><span class="badge yes">Yes</span></td></tr>
+    <tr><td><strong>Sign a payment</strong></td><td><span class="badge no">No</span></td><td><span class="badge no">No</span></td></tr>
+  </tbody>
+</table></div>
+<ul>
+  <li><strong>For this app, Horizon wins.</strong> Auto Sync and the Pay check need "payments between you and this contact, by date", which Horizon answers in one call. RPC can't, and it forgets anything older than about 3 months.</li>
+  <li><strong>RPC wins only for smart contracts.</strong></li>
+  <li><strong>Overall:</strong> keep Horizon, and add RPC only if the app ever uses smart contracts. In the wider Stellar world new tools lean towards RPC, but on Pi, Horizon is fully live, so there's no reason to switch.</li>
+</ul>
+
+<h2>11. Explaining it to the client</h2>
+<div class="tldr">
+  <p><strong>The one-paragraph answer:</strong> "The RPC server lets apps <em>read</em> the blockchain and <em>deliver</em> payments, but every payment has to be signed by the owner's secret key first, and Pi keeps that key inside the Pi Wallet. No app can sign for the user, on Testnet or Mainnet. That's why Pay opens the Pi Wallet: it's the only place the payment can be signed. Apps that seem to pay inside themselves, like bnpi.app, are taking payment for their own service. Pi allows that, but not paying a third person."</p>
+</div>
+<p><strong>A comparison that usually lands:</strong> the blockchain is like a bank's public ledger, and the RPC server is the bank counter. Anyone can look up an account or hand in a cheque at the counter. But the counter accepts only cheques the account owner has signed, and only the owner's own cheque book (the Pi Wallet) can sign one. Our app can fill in the cheque and take you to your cheque book; it can't sign it for you.</p>
+
+<h3>Questions he is likely to ask</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>He says</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>"Pi launched an RPC server on Testnet, so we can send payments through it."</td><td>The RPC server delivers <em>signed</em> payments. Signing needs the payer's secret key, which only the Pi Wallet has. We tested the server live: it works, and it accepts only signed transactions. It's the same as the Horizon API we already use.</td></tr>
+    <tr><td>"Blockchain data is public. Why can't we use it to move money?"</td><td>Reading and spending are different. Anyone can <em>see</em> every balance and payment (that's how our Auto Sync works). Only the owner can <em>spend</em>, because spending needs their secret key.</td></tr>
+    <tr><td>"Then let the user type in their secret key or passphrase."</td><td>No. That passphrase most likely also unlocks their real Mainnet Pi. Asking for it is what scam apps do, Pi would block us, and if our server were ever hacked, every user's Pi could be stolen.</td></tr>
+    <tr><td>"bnpi.app pays inside the app without opening the wallet."</td><td>bnpi sells hotel bookings, so the user pays <strong>bnpi itself</strong> through Pi's in-app popup (<code>Pi.createPayment</code>). That popup can only pay the app's own wallet, never another person.</td></tr>
+    <tr><td>"So do it like bnpi: the user pays us, and we pay the contact."</td><td>Possible on Testnet (option D). But we'd hold users' money, keep a wallet key on our server, pay two fees, and the history would show "you → app → contact". On Mainnet Pi may not allow it. It's a business decision, not a technical one. See section 10.</td></tr>
+    <tr><td>"The SDK has <code>Pi.Wallet.submitTransaction</code>."</td><td>It needs a transaction that's already signed, and Pi enables these wallet calls only for four of Pi's own apps. For our app it returns <code>unauthorized_app</code>; we tested it.</td></tr>
+    <tr><td>"Use a smart contract on the RPC server."</td><td>A contract still runs only when the user signs the call. The fingerprint unlock only works inside the screens Pi provides: the Pi Wallet's send screen (a plain payment to an address) and the in-app payment popup (which pays the app). Neither can sign a contract call, and the call that could (<code>Pi.Wallet.signTransaction</code>) is limited to Pi's own apps. Same wall.</td></tr>
+    <tr><td>"It's only Testnet, so the rules must be looser."</td><td>Same rules: Testnet is a copy of the real network with test Pi. The signing works the same way, so there's no Testnet-only shortcut.</td></tr>
+    <tr><td>"Why does the user have to unlock with a fingerprint?"</td><td>That's the Pi Wallet asking the owner to sign. It's the security that protects their Pi. Every legitimate wallet works this way, like UPI asking for your PIN in GPay.</td></tr>
+    <tr><td>"Will this ever change?"</td><td>Possibly. We can apply to Pi to be allowlisted for <code>Pi.Wallet.signTransaction</code>, which would open the wallet over our app with everything filled in. Today only Pi's own apps have it, so we can't promise it.</td></tr>
+  </tbody>
+</table></div>
+<p class="small">If he wants proof, show him: the live RPC response (<code>getNetwork</code> → "Pi Testnet"), Pi's SDK docs saying <code>submitTransaction</code> takes a pre-signed transaction, and the <code>unauthorized_app</code> error from our own test.</p>
 
 <h2>Sources</h2>
 <ul class="small">
@@ -192,6 +274,11 @@ tr:last-child td{border-bottom:none}
   <li><a href="https://github.com/pi-apps/map-of-pi/blob/HEAD/src/config/payment.ts">Map of Pi: in-app orders use <code>Pi.createPayment</code> (pays the app)</a></li>
   <li><a href="https://beincrypto.com/pi-network-disables-payment-requests-after-4-million-pi-drained">News, Dec 2025: Pi disables wallet payment requests after scams</a></li>
   <li>Live tests in the Pi Sandbox, 18–19 Nov 2026 (backend logs, test account)</li>
+  <li>Live call to <code>https://rpc.testnet.minepi.com</code> (<code>getHealth</code>, <code>getNetwork</code>), 19 Nov 2026</li>
+  <li><a href="https://coincentral.com/pi-network-unveils-testnet-rpc-server-for-smart-contract-builders-and-apps/">CoinCentral: Pi Testnet RPC server for smart contracts</a> · <a href="https://en.cryptonomist.ch/2026/04/14/pi-network-testnet-rpc/">Cryptonomist: free Testnet RPC</a> · <a href="https://www.kucoin.com/news/flash/pi-network-launches-public-rpc-server-on-testnet-smart-contracts-closer">KuCoin: RPC launch</a></li>
+  <li><a href="https://pi-apps.github.io/pi-sdk-docs/pi-sdk/Wallet">Pi SDK docs: <code>Pi.Wallet.submitTransaction</code> takes a pre-signed transaction</a></li>
+  <li><a href="https://www.hokanews.com/2025/12/pi-network-breaks-into-global-travel.html">Hokanews: BNPi is a travel booking app</a></li>
+  <li><a href="https://stellar-sdk.readthedocs.io/en/stable/payment.html">Stellar SDK: build, sign and submit a payment</a></li>
 </ul>
 
 </body>
