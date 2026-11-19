@@ -74,6 +74,8 @@ export interface ImportTransactionsInput {
     description: string;
     amount: number;
     type: TransactionType;
+    /** ISO datetime of the payment on the Pi blockchain (not in the future); saved as the entry's timestamp. */
+    timestamp: string;
   }[];
 }
 

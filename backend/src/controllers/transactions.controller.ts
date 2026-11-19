@@ -119,6 +119,7 @@ export async function importTransactions(
         description: string;
         amount: number;
         type: "credit" | "debit";
+        timestamp: string;
       }[];
     };
 
@@ -140,6 +141,7 @@ export async function importTransactions(
         source: "manual",
         status: "completed",
         chainPaymentId: e.chainPaymentId,
+        timestamp: new Date(e.timestamp),
         idempotencyKey: randomUUID(),
         userId,
         contactId,

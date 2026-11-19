@@ -7,6 +7,8 @@ export interface Transaction {
   isNew?: boolean;
   /** Horizon payment id: set on Automatic-scan entries (and their saved rows). */
   chainPaymentId?: string | null;
+  /** Automatic-scan entries only: the payment's ISO created_at on the Pi blockchain. */
+  chainTimestamp?: string;
 }
 
 export interface Contact {
@@ -191,6 +193,8 @@ export interface ImportTransactionEntry {
   description: string;
   amount: number;
   type: "credit" | "debit";
+  /** ISO datetime of the payment on the Pi blockchain; saved as the entry's date. */
+  timestamp: string;
 }
 
 /** POST /api/transactions/import: rows created now; already-saved payments are skipped. */

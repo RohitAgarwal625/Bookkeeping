@@ -348,12 +348,13 @@ function AppContent() {
             return bk.importScannedTransactions(
               contactId,
               scanned
-                .filter((tx) => tx.chainPaymentId)
+                .filter((tx) => tx.chainPaymentId && tx.chainTimestamp)
                 .map((tx) => ({
                   chainPaymentId: tx.chainPaymentId as string,
                   description: tx.description,
                   amount: tx.amount,
                   type: tx.type,
+                  timestamp: tx.chainTimestamp as string,
                 }))
             );
           }}

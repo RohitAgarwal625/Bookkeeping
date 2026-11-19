@@ -20,6 +20,7 @@ export default async function run({ api, db }) {
     description: `Auto Sync: Pi received from Ravi #${chainPaymentId}`,
     amount: 10,
     type: "credit",
+    timestamp: "2026-08-28T16:45:00Z",
     ...overrides,
   });
 
@@ -33,6 +34,11 @@ export default async function run({ api, db }) {
   check("saved rows carry chainPaymentId, contact, source manual, status completed",
     !!t1001 && t1001.contactId === ravi && t1001.source === "manual" && t1001.status === "completed", JSON.stringify(t1001));
   check("7-decimal amount kept exactly", t1001?.amount === 10.1234567);
+  check("saved row is dated with the chain timestamp, not today", t1001?.timestamp === "2026-08-28T16:45:00.000Z", JSON.stringify(t1001?.timestamp));
+  const dated = await importScan(A, ravi, [entry("1010", { timestamp: "2026-03-01T10:00:00+05:30" })]);
+  check("timestamp with offset stored as that instant", dated.status === 200 && dated.body.transactions?.[0]?.timestamp === "2026-03-01T04:30:00.000Z", JSON.stringify(dated.body));
+  const dbRow = await db.transaction.findFirst({ where: { userId: alice.user.id, chainPaymentId: "1010" } });
+  check("stored timestamp column holds the chain date", dbRow?.timestamp.toISOString() === "2026-03-01T04:30:00.000Z");
 
   // Same dates scanned again (plus one new payment): only the new one is added.
   const second = await importScan(A, ravi, [entry("1001"), entry("1002", { type: "debit", amount: 5 }), entry("1003"), entry("1004")]);
@@ -45,7 +51,7 @@ export default async function run({ api, db }) {
   check("same payment twice in one request -> added 1, skipped 1", repeated.body.added === 1 && repeated.body.skipped === 1, JSON.stringify(repeated.body));
 
   const ledger = await api.call("GET", `/api/transactions/contact/${ravi}`, { token: A });
-  check("contact ledger lists each payment once (5 rows)", ledger.status === 200 && ledger.body.data?.length === 5, JSON.stringify(ledger.body?.data?.length));
+  check("contact ledger lists each payment once (6 rows)", ledger.status === 200 && ledger.body.data?.length === 6, JSON.stringify(ledger.body?.data?.length));
 
   // Manual entries (chainPaymentId null) are unaffected by the unique index.
   const manual = (description) =>
@@ -76,6 +82,11 @@ export default async function run({ api, db }) {
   check("amount 0 -> 400", (await importScan(val, valContact, [entry("4001", { amount: 0 })])).status === 400);
   check("amount as a string -> 400", (await importScan(val, valContact, [entry("4002", { amount: "5" })])).status === 400);
   check("invalid type -> 400", (await importScan(val, valContact, [entry("4003", { type: "refund" })])).status === 400);
+  check("missing timestamp -> 400", (await importScan(val, valContact, [entry("4005", { timestamp: undefined })])).status === 400);
+  check("timestamp not a datetime -> 400", (await importScan(val, valContact, [entry("4006", { timestamp: "28 Aug 2026" })])).status === 400);
+  check("date-only timestamp -> 400", (await importScan(val, valContact, [entry("4007", { timestamp: "2026-08-28" })])).status === 400);
+  check("timestamp in the future -> 400",
+    (await importScan(val, valContact, [entry("4008", { timestamp: new Date(Date.now() + 24 * 3600 * 1000).toISOString() })])).status === 400);
   check("missing contactId -> 400",
     (await api.call("POST", "/api/transactions/import", { token: val, body: { entries: [entry("4004")] } })).status === 400);
   check("rejected requests saved nothing", (await db.transaction.count({ where: { contactId: valContact } })) === 0);

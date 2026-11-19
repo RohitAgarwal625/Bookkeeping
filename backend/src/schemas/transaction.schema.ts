@@ -20,7 +20,8 @@ export const createTransactionSchema = z.object({
 
 /**
  * Save entries found by the Automatic (blockchain) scan for one contact.
- * chainPaymentId is the Horizon payment operation id (a numeric string).
+ * chainPaymentId is the Horizon payment operation id (a numeric string);
+ * timestamp is the payment's Horizon created_at.
  * At most 100 entries per request (the client sends bigger scans in chunks).
  */
 export const importTransactionsSchema = z.object({
@@ -33,6 +34,12 @@ export const importTransactionsSchema = z.object({
           description: sanitizedString(1, 500),
           amount: z.number().positive().min(0.0000001).max(1_000_000),
           type: z.enum(["credit", "debit"]),
+          // The payment's created_at on the Pi blockchain; stored as the entry's date.
+          // Not in the future (5 minutes of leeway for clock skew between Horizon and us).
+          timestamp: z
+            .string()
+            .datetime({ offset: true })
+            .refine((s) => Date.parse(s) <= Date.now() + 5 * 60 * 1000, "Must not be in the future"),
         })
       )
       .min(1)
