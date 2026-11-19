@@ -324,17 +324,13 @@ export async function fetchPiBlockchainTransactions(
       continue; // the contact paid, or was paid by, someone else
     }
 
-    const shortHash = rec.transaction_hash
-      ? ` #${rec.transaction_hash.slice(0, 6)}...`
-      : "";
-
     const txId = rec.transaction_hash
       ? `pi-${rec.transaction_hash.slice(0, 12)}-${rec.id}`
       : `pi-${rec.id}`;
 
     mappedTransactions.push({
       id: txId,
-      description: `${desc}${shortHash}`,
+      description: desc, // no hash in the note; chainPaymentId/id keep it unique
       amount: numAmount,
       type: txType,
       timestamp: formatPiTimestamp(rec.created_at),
