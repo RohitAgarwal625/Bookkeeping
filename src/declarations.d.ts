@@ -84,6 +84,8 @@ interface PiSDK {
     paymentData: PaymentData,
     callbacks: PaymentCallbacks
   ): Promise<PiPaymentDTO>;
+  /** Opens a URL outside the Pi Browser webview (e.g. a pi:// deep link to the Pi Wallet). Undocumented; may be missing. */
+  openUrlInSystemBrowser?(url: string): Promise<void>;
 }
 
 declare global {

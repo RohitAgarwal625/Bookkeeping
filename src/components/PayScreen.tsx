@@ -1,8 +1,10 @@
 import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, CheckCircle, Home, Lock, UserPlus, BookOpen } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { useDarkMode } from "../contexts/DarkModeContext";
+import { openPiWalletPayRequest, findWalletPayment, shortTxHash } from "../lib/piWalletPay";
 
 interface PayScreenProps {
   onBack: () => void;
@@ -11,15 +13,22 @@ interface PayScreenProps {
   onAddressUsed?: () => void;
   onAddPioneer?: () => void;
   onNavigateToLedger?: (customerName: string, newTransactions?: Transaction[]) => void;
-  onPaymentSuccess?: (customerName: string, newTx: Transaction, contactId?: string) => void;
+  /** Saves a payment found on the blockchain to the contact's ledger. Throws if it can't. */
+  onPaymentConfirmed?: (customerName: string, contactId: string, chainTx: Transaction) => Promise<void>;
+  /** The user's own Pi wallet address (Settings → Profile); needed to find the payment on the blockchain. */
+  userWalletAddress?: string;
+  onOpenSettings?: () => void;
 }
 
 type ScreenState = "form" | "processing" | "success";
 
+const POLL_MS = 8000;
+const POLL_LIMIT_MS = 15 * 60 * 1000;
+
 const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 
-export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger, onPaymentSuccess }: PayScreenProps) {
+export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger, onPaymentConfirmed, userWalletAddress, onOpenSettings }: PayScreenProps) {
   const contactList = contacts || [];
 
   const [publicKey, setPublicKey] = useState("");
@@ -29,6 +38,12 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [screen, setScreen] = useState<ScreenState>("form");
   const [isPublicKeyFocused, setIsPublicKeyFocused] = useState(false);
+  // Waiting for the Pi Wallet payment to appear on the blockchain
+  const [walletOpened, setWalletOpened] = useState(true);
+  const [isChecking, setIsChecking] = useState(false);
+  const [paidTxHash, setPaidTxHash] = useState("");
+  const payTarget = useRef<{ contact: Contact; amount: number; since: Date; startedAt: number } | null>(null);
+  const checking = useRef(false);
 
   const { isDarkMode: isDark } = useDarkMode();
 
@@ -88,6 +103,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   );
 
   const resetForm = () => {
+    payTarget.current = null;
+    setPaidTxHash("");
     setScreen("form");
     setPublicKey("");
     setPioneerQuery("");
@@ -96,20 +113,104 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     setIsDropdownOpen(false);
   };
 
-  const handlePay = () => {
+  // Pay: open the Pi Wallet with the contact's address + amount filled in, then wait
+  // until that payment shows up on the blockchain. Nothing is saved before that.
+  const handlePay = async () => {
+    if (!matchedContact) return;
+    if (!userWalletAddress) {
+      toast.error("Add your own Pi wallet address in Settings → Profile first, so the app can confirm your payment.", {
+        action: onOpenSettings ? { label: "Settings", onClick: onOpenSettings } : undefined,
+      });
+      return;
+    }
+    const amt = parseFloat(amount);
+    if (!(amt > 0)) return;
+    setPaidRecipientName(matchedContact.name);
+    setPaidTxHash("");
+    // 2 minutes of slack for a phone clock that runs ahead of the blockchain's.
+    payTarget.current = { contact: matchedContact, amount: amt, since: new Date(Date.now() - 120000), startedAt: Date.now() };
     setScreen("processing");
-    const targetName = recipientName || pioneerQuery || (publicKey ? `${publicKey.slice(0, 6)}...${publicKey.slice(-4)}` : "Pioneer Contact");
-    setPaidRecipientName(targetName);
-    const newPaidTx: Transaction = {
-      id: `pay-${Date.now()}`,
-      description: "Payment via Pi Network",
-      amount: parseFloat(amount) || 0,
-      type: "debit",
-      timestamp: "Just now",
-      isNew: true,
+
+    const opened = await openPiWalletPayRequest(matchedContact.piWalletAddress, amount);
+    setWalletOpened(opened);
+    if (!opened) {
+      try {
+        await navigator.clipboard.writeText(matchedContact.piWalletAddress);
+        toast("Couldn't open the Pi Wallet here. The address is copied: open your Pi Wallet and send the payment.");
+      } catch {
+        toast("Couldn't open the Pi Wallet here. Open your Pi Wallet and send the payment to the address shown.");
+      }
+    }
+  };
+
+  // Look for the payment on the blockchain; save it and show success once found.
+  const checkForPayment = async (manual: boolean) => {
+    const target = payTarget.current;
+    if (!target || checking.current || !userWalletAddress) return;
+    checking.current = true;
+    setIsChecking(true);
+    try {
+      const tx = await findWalletPayment({
+        userWalletAddress,
+        contactAddress: target.contact.piWalletAddress,
+        contactName: target.contact.name,
+        amount: target.amount,
+        since: target.since,
+      });
+      if (payTarget.current !== target) return; // cancelled meanwhile
+      if (!tx) {
+        if (manual) toast("Payment not found on the blockchain yet. It can take a few seconds after you confirm it in the Pi Wallet.");
+        return;
+      }
+      try {
+        await onPaymentConfirmed?.(target.contact.name, target.contact.id, {
+          ...tx,
+          description: tx.description.replace(/^Auto Sync: Pi sent to .*?(?= #|$)/, "Payment via Pi Wallet"),
+        });
+      } catch (err) {
+        toast.error(`Your payment went through, but it couldn't be saved to your ledger: ${err instanceof Error ? err.message : "unknown error"}. Use Automatic Transaction to add it later.`);
+      }
+      payTarget.current = null;
+      setPaidTxHash(shortTxHash(tx));
+      setScreen("success");
+    } catch (err) {
+      if (manual) toast.error("Couldn't reach the Pi blockchain. Check your connection and try again.");
+      console.error("Payment check failed:", err);
+    } finally {
+      checking.current = false;
+      setIsChecking(false);
+    }
+  };
+
+  // Poll while waiting, and check right away when the user returns from the Pi Wallet.
+  useEffect(() => {
+    if (screen !== "processing") return;
+    const tick = () => {
+      const target = payTarget.current;
+      if (target && Date.now() - target.startedAt > POLL_LIMIT_MS) return;
+      void checkForPayment(false);
     };
-    onPaymentSuccess?.(targetName, newPaidTx, matchedContact?.id);
-    setTimeout(() => setScreen("success"), 2200);
+    const id = window.setInterval(tick, POLL_MS);
+    const onVisible = () => { if (document.visibilityState === "visible") tick(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, userWalletAddress]);
+
+  const cancelWaiting = () => {
+    payTarget.current = null;
+    setScreen("form");
+  };
+
+  const reopenWallet = async () => {
+    const target = payTarget.current;
+    if (!target) return;
+    const opened = await openPiWalletPayRequest(target.contact.piWalletAddress, String(target.amount));
+    setWalletOpened(opened);
+    if (!opened) toast("Couldn't open the Pi Wallet here. Open it yourself and send the payment.");
   };
 
   // ── Processing Screen (pulse / ripple animation — no spinner) ──────────
@@ -140,10 +241,17 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             </div>
           </div>
 
-          <p className="text-gray-900 dark:text-white font-bold text-xl mb-2">Processing Payment</p>
+          <p className="text-gray-900 dark:text-white font-bold text-xl mb-2">Waiting for your payment</p>
           <p className="text-gray-400 text-sm text-center mb-7">
-            Sending {amount} π{recipientName ? ` to ${recipientName}` : ""}…
+            {walletOpened
+              ? `Confirm ${amount} π to ${paidRecipientName} in your Pi Wallet. It is added to your ledger once it appears on the Pi blockchain.`
+              : `Send ${amount} π to ${paidRecipientName} from your Pi Wallet. It is added to your ledger once it appears on the Pi blockchain.`}
           </p>
+          {!walletOpened && payTarget.current && (
+            <p className="text-gray-500 dark:text-muted-foreground text-xs font-mono text-center mb-6" style={{ wordBreak: "break-all" }}>
+              {payTarget.current.contact.piWalletAddress}
+            </p>
+          )}
 
           {/* Bouncing dots */}
           <div className="flex items-center gap-2">
@@ -158,6 +266,29 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 }}
               />
             ))}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "24rem", marginTop: "36px" }}>
+            <button
+              onClick={() => void checkForPayment(true)}
+              disabled={isChecking}
+              className="w-full py-4 rounded-2xl font-bold text-base text-white"
+              style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(164,124,243,0.4)", opacity: isChecking ? 0.7 : 1 }}
+            >
+              {isChecking ? "Checking…" : "I've paid, check now"}
+            </button>
+            <button
+              onClick={() => void reopenWallet()}
+              className="w-full py-4 rounded-2xl border-2 border-gray-200 dark:border-border text-gray-700 dark:text-foreground font-bold text-base"
+            >
+              Open Pi Wallet again
+            </button>
+            <button
+              onClick={cancelWaiting}
+              className="w-full py-3 text-gray-500 dark:text-muted-foreground font-semibold text-sm"
+            >
+              Cancel
+            </button>
           </div>
         </div>
 
@@ -190,7 +321,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           <div className="text-center">
             <p className="text-gray-900 dark:text-white font-bold text-2xl mb-1">Done !</p>
             <p className="text-gray-400 text-sm text-center">
-              Your payment was processed successfully & the transaction is added to your ledger.
+              Your payment is on the Pi blockchain & the transaction is added to your ledger.
             </p>
           </div>
 
@@ -214,6 +345,13 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 <span className="text-gray-400 dark:text-muted-foreground text-sm">Paid To</span>
                 <span className="text-gray-900 dark:text-foreground font-semibold text-sm">{paidRecipientName || recipientName || pioneerQuery || "Pioneer Contact"}</span>
               </div>
+
+              {paidTxHash && (
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 dark:text-muted-foreground text-sm">Transaction</span>
+                  <span className="text-gray-900 dark:text-foreground font-semibold text-sm font-mono">{paidTxHash}</span>
+                </div>
+              )}
 
               <div className="flex items-center justify-between">
                 <span className="text-gray-400 dark:text-muted-foreground text-sm">Status</span>
@@ -486,7 +624,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
           <button
             disabled={!canPay}
-            onClick={handlePay}
+            onClick={() => void handlePay()}
             className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:cursor-not-allowed"
             style={{
               background: !canPay ? (isDark ? "#252830" : "#e5e7eb") : GRADIENT,

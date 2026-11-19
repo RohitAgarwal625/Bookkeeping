@@ -169,29 +169,24 @@ function AppContent() {
     setCurrentScreen("customerLedger");
   };
 
-  const handlePaymentSuccess = async (customerName: string, newTx: Transaction, contactId?: string) => {
-    if (!customerName) return;
-    // Use the saved row (backend id) when available, so the ledger's id dedupe matches the API copy.
-    let pendingTx = newTx;
-    if (bk.isAuthenticated) {
-      try {
-        const saved = await bk.addTransaction({
-          description: newTx.description,
-          amount: newTx.amount,
-          type: newTx.type,
-          contactId,
-        });
-        pendingTx = { ...saved, isNew: true };
-      } catch (e) {
-        console.error("Failed to save payment transaction to database:", e);
-      }
+  // A Pi Wallet payment found on the blockchain: save it with its chain id (re-saving is a no-op).
+  const handlePaymentConfirmed = async (customerName: string, contactId: string, chainTx: Transaction) => {
+    if (!bk.isAuthenticated) throw new Error("Please sign in with Pi to save this payment to your ledger.");
+    const res = await bk.importScannedTransactions(contactId, [{
+      chainPaymentId: chainTx.chainPaymentId as string,
+      description: chainTx.description,
+      amount: chainTx.amount,
+      type: chainTx.type,
+      timestamp: chainTx.chainTimestamp as string,
+    }]);
+    const saved = res.transactions[0];
+    if (saved) {
+      setPendingNewTransactions((prev) => ({
+        ...prev,
+        [customerName]: [{ ...saved, isNew: true }, ...(prev[customerName] || [])],
+      }));
     }
-    setPendingNewTransactions((prev) => ({
-      ...prev,
-      [customerName]: [pendingTx, ...(prev[customerName] || [])],
-    }));
   };
-
 
   const handleBackToDashboard = () => {
     setCurrentScreen("dashboard");
@@ -419,7 +414,9 @@ function AppContent() {
           onAddressUsed={() => setScannedWalletAddress("")}
           onAddPioneer={() => { handleNavigateToAddCustomer("individual"); }}
           onNavigateToLedger={handleNavigateToCustomerLedger}
-          onPaymentSuccess={handlePaymentSuccess}
+          onPaymentConfirmed={handlePaymentConfirmed}
+          userWalletAddress={bk.user?.walletPublicKey ?? ""}
+          onOpenSettings={() => handleNavigate("settings")}
         />
         <Toaster position="bottom-center" />
       </>
