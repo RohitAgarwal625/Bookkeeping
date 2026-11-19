@@ -70,3 +70,29 @@ export async function updateUser(
     next(err);
   }
 }
+
+/**
+ * PUT /api/users/me/wallet
+ * Save (or clear with null) the signed-in user's own public Pi wallet address.
+ * Pi doesn't share it with apps, so the user types it in Settings. It's used to keep
+ * only payments between the user's wallet and a contact's wallet (Automatic scan).
+ * Not unique on purpose: an address only affects its owner's own khata.
+ */
+export async function updateMyWallet(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { walletPublicKey } = req.body as { walletPublicKey: string | null };
+
+    const user = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { walletPublicKey },
+    });
+
+    res.status(200).json({ user: serializeUser(user) });
+  } catch (err) {
+    next(err);
+  }
+}

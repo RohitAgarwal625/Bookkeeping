@@ -149,6 +149,8 @@ export interface User {
   id: string;
   walletAddress: string;
   displayName?: string | null;
+  /** The user's own public Pi wallet address (G...), entered in Settings -> Profile. */
+  walletPublicKey?: string | null;
   createdAt: string;
 }
 

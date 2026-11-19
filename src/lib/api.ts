@@ -115,6 +115,12 @@ export const usersApi = {
       `/api/users/${encodeURIComponent(walletAddress)}`,
       { method: "PUT", body: JSON.stringify({ displayName }) }
     ),
+  /** Save (or clear with null) the signed-in user's own public Pi wallet address. */
+  updateWallet: (walletPublicKey: string | null) =>
+    request<{ user: User }>(`/api/users/me/wallet`, {
+      method: "PUT",
+      body: JSON.stringify({ walletPublicKey }),
+    }),
 };
 
 // --- Contacts ---

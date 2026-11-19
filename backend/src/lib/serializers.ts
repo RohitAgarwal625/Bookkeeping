@@ -13,6 +13,7 @@ export function serializeUser(user: User) {
     piUsername: user.piUsername,
     piUid: user.piUid,
     displayName: user.displayName,
+    walletPublicKey: user.walletPublicKey,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
   };

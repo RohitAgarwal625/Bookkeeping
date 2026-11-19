@@ -54,6 +54,40 @@ export function normalizePiAddress(address: string): string {
   return address.trim();
 }
 
+/** Removes spaces/line breaks and upper-cases a pasted wallet address. */
+export function cleanWalletInput(address: string): string {
+  return (address || "").replace(/\s+/g, "").toUpperCase();
+}
+
+/** True for a Pi (Stellar) public wallet address: "G" + 55 base32 characters. */
+export function isPiPublicKey(address: string): boolean {
+  return /^G[A-Z2-7]{55}$/.test(address);
+}
+
+/**
+ * Does this address have an account on the app's Pi network (PI_NETWORK)?
+ * "unknown" when the Pi blockchain couldn't be reached, so callers can decide.
+ */
+export async function checkPiAccountExists(
+  address: string
+): Promise<"exists" | "missing" | "unknown"> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 7000);
+  try {
+    const res = await fetch(`${PI_HORIZON_URL}/accounts/${encodeURIComponent(address)}`, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    });
+    if (res.ok) return "exists";
+    if (res.status === 404 || res.status === 400) return "missing";
+    return "unknown";
+  } catch {
+    return "unknown";
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * Converts ISO 8601 string (e.g. "2026-08-28T16:45:00Z") to "YYYY-MM-DD HH:MM"
  */
@@ -208,6 +242,20 @@ export async function fetchPiBlockchainTransactions(
     };
   }
 
+  // Only payments between the user's own wallet and this contact belong in the user's khata.
+  // Without the user's address we can't tell which payments those are, so don't scan.
+  const myAddress = normalizePiAddress(userWalletAddress || "");
+  if (!myAddress) {
+    return {
+      success: false,
+      network: "none",
+      totalScanned: 0,
+      transactions: [],
+      error: "Add your own Pi wallet address in Settings → Profile first.",
+      walletAddress: cleanAddress,
+    };
+  }
+
   const activeNetwork = PI_NETWORK;
   const { found, records } = await fetchAllPayments(cleanAddress, fromDate);
 
@@ -224,7 +272,11 @@ export async function fetchPiBlockchainTransactions(
     };
   }
 
-  // 4. Filter records by date range and map to Bookkeeping Transactions
+  // 4. Keep only Pi transfers between YOUR wallet and the contact's wallet, inside the dates:
+  //    contact -> you = credit (you received), you -> contact = debit (you paid).
+  //    Payments between the contact and anyone else are skipped.
+  const contactKey = cleanAddress.toUpperCase();
+  const myKey = myAddress.toUpperCase();
   const mappedTransactions: Transaction[] = [];
 
   for (const rec of records) {
@@ -232,32 +284,28 @@ export async function fetchPiBlockchainTransactions(
     if (fromDate && rawDate && rawDate < fromDate) continue;
     if (toDate && rawDate && rawDate > toDate) continue;
 
+    // Only Pi itself: other tokens on the Pi chain have asset_type other than "native".
+    // (create_account records have no asset_type and always move Pi.)
+    if (rec.asset_type && rec.asset_type !== "native") continue;
+
     const rawAmount = rec.amount || rec.starting_balance || "0";
     const numAmount = parseFloat(rawAmount);
     if (isNaN(numAmount) || numAmount <= 0) continue;
 
-    // Sender and recipient detection
-    const sender = (rec.from || rec.funder || "").trim();
-    const recipient = (rec.to || rec.account || rec.into || "").trim();
+    // payment: from -> to.  create_account: funder -> account.
+    const sender = (rec.from || rec.funder || "").trim().toUpperCase();
+    const recipient = (rec.to || rec.account || "").trim().toUpperCase();
 
-    // Determine type:
-    // If contact sent Pi -> money received in Bookkeeping ledger -> "credit"
-    // If contact received Pi -> money paid out in Bookkeeping ledger -> "debit"
-    let txType: "credit" | "debit" = "credit";
-    let desc = `Auto Sync: Pi received from ${contactName}`;
-
-    if (sender.toLowerCase() === cleanAddress.toLowerCase()) {
+    let txType: "credit" | "debit";
+    let desc: string;
+    if (sender === contactKey && recipient === myKey) {
       txType = "credit";
       desc = `Auto Sync: Pi received from ${contactName}`;
-    } else if (recipient.toLowerCase() === cleanAddress.toLowerCase()) {
+    } else if (sender === myKey && recipient === contactKey) {
       txType = "debit";
       desc = `Auto Sync: Pi sent to ${contactName}`;
-    } else if (
-      userWalletAddress &&
-      sender.toLowerCase() === userWalletAddress.toLowerCase()
-    ) {
-      txType = "debit";
-      desc = `Auto Sync: Pi sent to ${contactName}`;
+    } else {
+      continue; // the contact paid, or was paid by, someone else
     }
 
     const shortHash = rec.transaction_hash
@@ -283,6 +331,9 @@ export async function fetchPiBlockchainTransactions(
     network: activeNetwork,
     totalScanned: records.length,
     transactions: mappedTransactions,
+    error: mappedTransactions.length === 0
+      ? `No Pi payments between your wallet and ${contactName} on Pi ${activeNetwork} in these dates.`
+      : undefined,
     walletAddress: cleanAddress,
   };
 }

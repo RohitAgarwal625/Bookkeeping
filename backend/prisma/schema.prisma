@@ -17,6 +17,10 @@ model User {
   piUsername      String?       @unique
   piUid           String?       @unique
   displayName     String        @default("Pioneer User")
+  // The user's own public Pi wallet address (G..., 56 chars), entered in Settings.
+  // Pi doesn't give it to apps (its /v2/user_wallets is allowlist-only), so the user types it.
+  // Not to be confused with piWalletAddress above, which actually holds the Pi uid.
+  walletPublicKey String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   contacts        Contact[]

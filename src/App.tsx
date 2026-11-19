@@ -82,7 +82,6 @@ function AppContent() {
   const [piSession, setPiSession] = useState<PiSession | null>(null);
   const userName = piSession?.user.username ?? (isGuest ? "Guest User" : "");
   const [piBalance] = useState("0.00");
-  const [piWalletAddress] = useState("");
   const [piSignInLoading, setPiSignInLoading] = useState(false);
   const [piSignInError, setPiSignInError] = useState<string | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
@@ -339,6 +338,8 @@ function AppContent() {
         <AutomaticTransactionScreen
           contacts={contacts}
           onBack={handleBackToDashboard}
+          userWalletAddress={bk.user?.walletPublicKey ?? ""}
+          onOpenSettings={() => handleNavigate("settings")}
           onNavigateToLedger={async (customerName, contactId, newTransactions) => {
             if (bk.isAuthenticated && newTransactions && newTransactions.length > 0) {
               const matchingContact = contacts.find(
@@ -475,7 +476,11 @@ function AppContent() {
       <>
         <Settings
           userName={userName}
-          piWalletAddress={piWalletAddress}
+          piWalletAddress={bk.user?.walletPublicKey ?? ""}
+          onSaveWalletAddress={async (address) => {
+            if (!bk.isAuthenticated) throw new Error("Please sign in with Pi to save your wallet address.");
+            await bk.updateWalletPublicKey(address);
+          }}
           onBack={handleBackToDashboard}
           onNavigate={handleNavigate}
           onLogout={handleLogout}

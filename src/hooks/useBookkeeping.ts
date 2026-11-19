@@ -139,6 +139,13 @@ export function useBookkeeping() {
     [refreshContacts, refreshSummary]
   );
 
+  /** Save the user's own public Pi wallet address (Settings -> Profile). Throws on failure. */
+  const updateWalletPublicKey = useCallback(async (walletPublicKey: string | null) => {
+    const res = await usersApi.updateWallet(walletPublicKey);
+    setUser(res.user);
+    return res.user;
+  }, []);
+
   const getLedger = useCallback(async (contactId: string) => {
     const res = await transactionsApi.ledger(contactId);
     return res.data;
@@ -168,5 +175,6 @@ export function useBookkeeping() {
     addContact,
     addTransaction,
     getLedger,
+    updateWalletPublicKey,
   };
 }

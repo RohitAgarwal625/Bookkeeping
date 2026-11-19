@@ -16,8 +16,10 @@ import {
   Check,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Switch } from "./ui/switch";
 import { useDarkMode } from "../contexts/DarkModeContext";
+import { checkPiAccountExists, cleanWalletInput, isPiPublicKey, PI_NETWORK } from "../lib/piBlockchain";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { getInitials } from "../types";
 
@@ -31,6 +33,8 @@ interface SettingsProps {
   onTriggerGuestModal?: () => void;
   isPremium?: boolean;
   onOpenPremiumModal?: () => void;
+  /** Saves the user's own public Pi wallet address; throws with a readable message on failure. */
+  onSaveWalletAddress?: (address: string) => Promise<void>;
 }
 
 const faqData = [
@@ -96,6 +100,7 @@ export function Settings({
   onTriggerGuestModal,
   isPremium = false,
   onOpenPremiumModal,
+  onSaveWalletAddress,
 }: SettingsProps) {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [copied, setCopied] = useState(false);
@@ -118,6 +123,47 @@ export function Settings({
     navigator.clipboard.writeText(piWalletAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Own wallet address (Pi doesn't share it with apps, so the user enters it here)
+  const [isEditingWallet, setIsEditingWallet] = useState(false);
+  const [walletInput, setWalletInput] = useState("");
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const [savingWallet, setSavingWallet] = useState(false);
+  const networkName = PI_NETWORK === "testnet" ? "Pi Testnet" : "Pi Mainnet";
+
+  const startEditingWallet = () => {
+    if (isGuest) {
+      onTriggerGuestModal?.();
+      return;
+    }
+    setWalletInput(piWalletAddress);
+    setWalletError(null);
+    setIsEditingWallet(true);
+  };
+
+  const handleSaveWallet = async () => {
+    const address = cleanWalletInput(walletInput);
+    if (!isPiPublicKey(address)) {
+      setWalletError("This isn't a Pi wallet address. It starts with G and is 56 characters long.");
+      return;
+    }
+    setSavingWallet(true);
+    setWalletError(null);
+    try {
+      // Catch typos: the address must have an account on the network the app uses.
+      if ((await checkPiAccountExists(address)) === "missing") {
+        setWalletError(`No wallet with this address exists on ${networkName}. Please check it.`);
+        return;
+      }
+      await onSaveWalletAddress?.(address);
+      setIsEditingWallet(false);
+      toast.success("Wallet address saved");
+    } catch (err) {
+      setWalletError(err instanceof Error ? err.message : "Couldn't save the wallet address. Please try again.");
+    } finally {
+      setSavingWallet(false);
+    }
   };
 
 
@@ -248,26 +294,73 @@ export function Settings({
             )}
           </div>
 
-          {/* Wallet Address (read-only) */}
+          {/* Own wallet address: entered by the user (Pi doesn't give it to apps) */}
           <div className="w-full bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
             <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-3 font-medium">
               Pi Wallet Address
             </p>
-            <div className="flex items-center gap-2">
-              <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm font-mono truncate">
-                {truncatedAddress}
-              </p>
-              {piWalletAddress ? (
+            {isEditingWallet ? (
+              <div>
+                <input
+                  type="text"
+                  value={walletInput}
+                  onChange={(e) => { setWalletInput(e.target.value); setWalletError(null); }}
+                  onKeyDown={(e) => e.key === "Enter" && !savingWallet && void handleSaveWallet()}
+                  placeholder="G..."
+                  autoFocus
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  aria-label="Your Pi wallet address"
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-gray-900 dark:text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+                />
+                {walletError && (
+                  <p className="text-xs text-red-500 dark:text-red-400 mt-2">{walletError}</p>
+                )}
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => void handleSaveWallet()}
+                    disabled={!walletInput.trim() || savingWallet}
+                    className="flex-1 h-12 rounded-xl text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+                  >
+                    {savingWallet ? "Checking..." : "Save"}
+                  </button>
+                  <button
+                    onClick={() => { setIsEditingWallet(false); setWalletError(null); }}
+                    disabled={savingWallet}
+                    className="flex-1 h-12 rounded-xl font-bold text-sm text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border disabled:opacity-40"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm font-mono truncate">
+                    {truncatedAddress}
+                  </p>
+                  {piWalletAddress ? (
+                    <button
+                      onClick={handleCopyAddress}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
+                    >
+                      <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+                    </button>
+                  ) : null}
+                </div>
                 <button
-                  onClick={handleCopyAddress}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
+                  onClick={startEditingWallet}
+                  className={`w-full mt-3 h-12 rounded-xl font-bold text-sm ${piWalletAddress ? "bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground" : "text-white"}`}
+                  style={piWalletAddress ? undefined : { background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
                 >
-                  <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+                  {piWalletAddress ? "Change wallet address" : "Add my wallet address"}
                 </button>
-              ) : null}
-            </div>
+              </>
+            )}
             <p className="text-xs text-gray-400 dark:text-muted-foreground mt-2">
-              Wallet address cannot be changed — it's your blockchain identity.
+              Your own public {networkName} wallet address (starts with G). Copy it from your Pi Wallet. Pi doesn't share it with apps, so we ask once. It's used to find the payments between you and your contacts.
             </p>
           </div>
 

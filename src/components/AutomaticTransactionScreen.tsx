@@ -3,12 +3,14 @@ import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info, AlertC
 import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { fetchPiBlockchainTransactions, PiBlockchainScanResult, PI_NETWORK } from "../lib/piBlockchain";
-import { auth } from "../lib/api";
 
 interface AutomaticTransactionScreenProps {
   contacts: Contact[];
   onBack: () => void;
   onNavigateToLedger: (name: string, contactId?: string, newTransactions?: Transaction[]) => void;
+  /** The signed-in user's own public Pi wallet address (Settings -> Profile). Required to scan. */
+  userWalletAddress?: string;
+  onOpenSettings?: () => void;
 }
 
 type Step = "selectContact" | "dateRange" | "scanning" | "summary";
@@ -23,7 +25,7 @@ const SCAN_MESSAGES = [
   "Finalizing...",
 ];
 
-export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedger }: AutomaticTransactionScreenProps) {
+export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedger, userWalletAddress, onOpenSettings }: AutomaticTransactionScreenProps) {
   const [step, setStep] = useState<Step>("selectContact");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
@@ -117,7 +119,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         contactName: selectedContact.name,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
-        userWalletAddress: auth.getWallet() || undefined,
+        userWalletAddress: userWalletAddress || undefined,
       });
 
       const elapsed = Date.now() - startTime;
@@ -329,6 +331,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   if (step === "dateRange") {
     const maxTo = getMaxToDate(fromDate);
     const isValid = !!(fromDate && toDate && fromDate <= toDate && (!maxTo || toDate <= maxTo));
+    // The scan keeps only payments between the user's wallet and the contact, so it needs the user's address.
+    const canFetch = isValid && !!userWalletAddress;
 
     return (
       <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
@@ -340,6 +344,25 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           <BookkeepingLogo compact />
         </header>
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 24px 24px" }} className="space-y-6">
+          {!userWalletAddress && (
+            <div className="bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border rounded-2xl p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-[#A47CF3] flex-shrink-0" />
+                <p className="text-xs text-gray-600 dark:text-muted-foreground">
+                  Add your own Pi wallet address first (Settings → Profile). The scan only adds payments between your wallet and {selectedContact?.name ?? "this contact"}.
+                </p>
+              </div>
+              {onOpenSettings && (
+                <button
+                  onClick={onOpenSettings}
+                  className="w-full mt-3 h-12 rounded-xl text-white font-bold text-sm"
+                  style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+                >
+                  Open Settings
+                </button>
+              )}
+            </div>
+          )}
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-6 md:p-7 space-y-8">
             <div className="border-b border-gray-100 dark:border-border pb-4 space-y-3">
               <div className="flex items-center gap-1.5">
@@ -422,13 +445,13 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           )}
 
           <button
-            disabled={!isValid}
+            disabled={!canFetch}
             onClick={handleStartScan}
             className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
-              background: isValid ? "linear-gradient(135deg,#A47CF3,#F7C548)" : "#e5e7eb",
-              color: isValid ? "#fff" : "#9ca3af",
-              boxShadow: isValid ? "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" : "none"
+              background: canFetch ? "linear-gradient(135deg,#A47CF3,#F7C548)" : "#e5e7eb",
+              color: canFetch ? "#fff" : "#9ca3af",
+              boxShadow: canFetch ? "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" : "none"
             }}
           >
             Fetch
