@@ -8,7 +8,7 @@ description: Challenge and fix the findings of a backend E2E audit. Reads audits
 Input: the newest `audits/backend/<date>/findings.json`, or a path the user gives.
 Output:
 - fixed code, with a regression test for each fix;
-- an updated `findings.json` and `report.md`;
+- an updated `findings.json` and `report.html`;
 - a fix log.
 
 Follow the `law` skill: change only what each finding needs.
@@ -66,7 +66,7 @@ Independent findings in different files may be fixed in parallel with the Agent 
 
 ## 3. Update the report
 
-- In `report.md`, add a **Fix log** section with a table: finding, verdict, what changed (files), regression test, status.
+- In `report.html`, add a **Fix log** section with a table: finding, verdict, what changed (files), regression test, status. Keep the page's existing style and diagrams; update the numbers in them.
 - Update the headline numbers (open / fixed / false-positive / by-design / blocked).
 - Mark findings that stay open, and why.
 - Add a dated row to `PROGRESS.md` §11, and update §9 (known issues) for anything fixed or newly known.

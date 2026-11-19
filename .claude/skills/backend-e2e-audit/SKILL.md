@@ -144,7 +144,7 @@ For **every** feature in the inventory, decide its edge cases from the checklist
 
 Write two files to `audits/backend/<date>/`.
 
-**`report.md`**, written for the project owner in plain English:
+**`report.html`**, a self-contained HTML page (inline CSS and inline SVG diagrams, no external scripts, readable in light and dark mode), written for the project owner in plain English. Add diagrams wherever they explain a mechanism: architecture, request pipeline, data model, coverage by area, findings by severity, and the flows the findings touch. Sections:
 1. **Summary:** the date, branch and commit, how long it took, and the headline numbers:
    - total features;
    - tested-pass, tested-fail, partially-tested and not-tested;
