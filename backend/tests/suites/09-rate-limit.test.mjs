@@ -8,6 +8,8 @@ export default async function run({ api }) {
     (await api.call("GET", `/api/pi/blockchain/payments/${"G".repeat(120)}`)).status === 400);
   check("blockchain proxy rejects an over-long order param -> 400",
     (await api.call("GET", "/api/pi/blockchain/payments/GABC?order=descendingorder")).status === 400);
+  check("blockchain proxy rejects a non-numeric cursor -> 400",
+    (await api.call("GET", "/api/pi/blockchain/payments/GABC?cursor=abc%26limit%3D1")).status === 400);
 
   // writeLimiter: 20/min per user, or per IP when unauthenticated.
   const statuses = [];

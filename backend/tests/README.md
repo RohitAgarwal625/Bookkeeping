@@ -43,7 +43,9 @@ tests/
     ├── 06-money-precision.test.mjs     Decimal(18,7) exactness, no float drift
     ├── 07-pi-payments.test.mjs         approve/complete/incomplete, payer attribution, path encoding
     ├── 08-premium-status.test.mjs      premium is per user
-    └── 09-rate-limit.test.mjs          per-IP and per-user write limits (keep last)
+    ├── 09-rate-limit.test.mjs          per-IP and per-user write limits (uses the write budget; keep after other write-heavy suites)
+    ├── 11-user-wallet.test.mjs         PUT /api/users/me/wallet: own wallet address (format, per-user, clear)
+    └── 12-transactions-import.test.mjs POST /api/transactions/import: scan entries saved once, re-scans skipped
 ```
 
 ## Writing a suite
