@@ -31,6 +31,15 @@ const MOCK_TRANSACTIONS: Transaction[] = [
 ];
 */
 
+// API rows carry ISO timestamps; show them like local entries ("YYYY-MM-DD HH:mm", local time).
+function formatLedgerTimestamp(timestamp: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(timestamp)) return timestamp;
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) return timestamp;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function CustomerLedger({ customerName, contactId, onBack, initialNewTransactions }: CustomerLedgerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -305,7 +314,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
 
                           {/* Timestamp & Edit Button */}
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-xs text-gray-400 dark:text-muted-foreground">{transaction.timestamp}</p>
+                            <p className="text-xs text-gray-400 dark:text-muted-foreground">{formatLedgerTimestamp(transaction.timestamp)}</p>
                             <button
                               type="button"
                               onClick={() => handleStartEdit(transaction)}
