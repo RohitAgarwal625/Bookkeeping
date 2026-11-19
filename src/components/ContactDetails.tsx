@@ -7,10 +7,13 @@ import { contactsApi } from "../lib/api";
 interface ContactDetailsProps {
   contact: Contact;
   onBack: () => void;
-  onUpdate: (updated: Contact) => void;
+  /** Return false (or a promise of false) when the change was not saved; the screen then shows the old value again. */
+  onUpdate: (updated: Contact) => void | boolean | Promise<boolean>;
   onNavigateToLedger: (customerName: string, contactId: string) => void;
   onDelete?: (contactId: string) => void;
   hideDeleteButton?: boolean;
+  /** false hides the wallet address pencil (the server can't change a saved contact's wallet). */
+  canEditWallet?: boolean;
 }
 
 export function ContactDetails({
@@ -20,6 +23,7 @@ export function ContactDetails({
   onNavigateToLedger,
   onDelete,
   hideDeleteButton = true, // Hide delete contact button for the time being while keeping feature functional
+  canEditWallet = true,
 }: ContactDetailsProps) {
   const [editingField, setEditingField] = useState<"name" | "wallet" | null>(null);
   const [draftName, setDraftName] = useState(contact.name);
@@ -36,12 +40,14 @@ export function ContactDetails({
   const capitalizeFirst = (val: string) =>
     val.length === 0 ? val : val.charAt(0).toUpperCase() + val.slice(1);
 
-  const handleSaveName = () => {
+  const handleSaveName = async () => {
     const trimmed = draftName.trim();
     if (!trimmed) return;
+    const previousName = displayName;
     setDisplayName(trimmed);
-    onUpdate({ ...contact, name: trimmed });
     setEditingField(null);
+    const saved = await onUpdate({ ...contact, name: trimmed });
+    if (saved === false) setDisplayName(previousName);
   };
 
   const handleSaveWallet = () => {
@@ -134,7 +140,7 @@ export function ContactDetails({
               <label className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
                 Pi Wallet Address
               </label>
-              {editingField !== "wallet" && (
+              {editingField !== "wallet" && canEditWallet && (
                 <button
                   onClick={() => { setDraftWallet(displayWallet); setEditingField("wallet"); }}
                   className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"

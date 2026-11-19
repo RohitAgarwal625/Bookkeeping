@@ -19,6 +19,7 @@ import type {
   ImportTransactionsResponse,
   Transaction,
   TransactionSummary,
+  UpdateContactInput,
   User,
 } from "../types";
 
@@ -125,6 +126,16 @@ export function useBookkeeping() {
     [refreshContacts]
   );
 
+  /** Save a contact's changes (PUT /api/contacts/:id), then reload the list. Throws on failure. */
+  const updateContact = useCallback(
+    async (id: string, input: UpdateContactInput): Promise<Contact> => {
+      const res = await contactsApi.update(id, input);
+      await refreshContacts();
+      return res.contact;
+    },
+    [refreshContacts]
+  );
+
   const addTransaction = useCallback(
     async (
       input: Omit<CreateTransactionInput, "idempotencyKey"> & {
@@ -209,6 +220,7 @@ export function useBookkeeping() {
     refreshContacts,
     refreshSummary,
     addContact,
+    updateContact,
     addTransaction,
     importScannedTransactions,
     getLedger,

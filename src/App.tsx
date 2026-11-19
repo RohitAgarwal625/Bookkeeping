@@ -11,6 +11,7 @@ import { Settings } from "./components/Settings";
 import { AddEntry } from "./components/AddEntry";
 import { MerchantDashboard } from "./components/MerchantDashboard";
 import { Toaster } from "./components/ui/sonner";
+import { toast } from "sonner";
 import { DarkModeProvider } from "./contexts/DarkModeContext";
 import { PayScreen } from "./components/PayScreen";
 import { ContactsScreen } from "./components/ContactsScreen";
@@ -429,21 +430,33 @@ function AppContent() {
 
   if (currentScreen === "contactDetails" && selectedContactDetails) {
     return (
-      <ContactDetails
-        contact={selectedContactDetails}
-        onBack={() => setCurrentScreen("contacts")}
-        onUpdate={(updated) => {
-          setLocalContacts((prev) => prev.map((c) => c.id === updated.id ? updated : c));
-          setSelectedContactDetails(updated);
-          if (bk.isAuthenticated) void bk.refreshContacts();
-        }}
-        onNavigateToLedger={handleNavigateToCustomerLedger}
-        onDelete={(contactId) => {
-          setLocalContacts((prev) => prev.filter((c) => c.id !== contactId));
-          if (bk.isAuthenticated) void bk.refreshContacts();
-          setCurrentScreen("contacts");
-        }}
-      />
+      <>
+        <ContactDetails
+          contact={selectedContactDetails}
+          canEditWallet={!bk.isAuthenticated}
+          onBack={() => setCurrentScreen("contacts")}
+          onUpdate={async (updated) => {
+            if (bk.isAuthenticated) {
+              try {
+                await bk.updateContact(updated.id, { name: updated.name });
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Couldn't save the name. Please try again.");
+                return false;
+              }
+            }
+            setLocalContacts((prev) => prev.map((c) => c.id === updated.id ? updated : c));
+            setSelectedContactDetails(updated);
+            return true;
+          }}
+          onNavigateToLedger={handleNavigateToCustomerLedger}
+          onDelete={(contactId) => {
+            setLocalContacts((prev) => prev.filter((c) => c.id !== contactId));
+            if (bk.isAuthenticated) void bk.refreshContacts();
+            setCurrentScreen("contacts");
+          }}
+        />
+        <Toaster position="bottom-center" />
+      </>
     );
   }
 
