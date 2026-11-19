@@ -21,9 +21,9 @@ import { QRScannerScreen } from "./components/QRScannerScreen";
 import { PayMethodModal } from "./components/PayMethodModal";
 import { PremiumModal } from "./components/PremiumModal";
 import { BottomNav } from "./components/BottomNav";
-import { Contact, Transaction } from "./types";
+import { Contact, Transaction, normalizeContactName } from "./types";
 import { useBookkeeping } from "./hooks/useBookkeeping";
-import { contactsApi } from "./lib/api";
+import { ApiError, contactsApi } from "./lib/api";
 import { signInWithPi, type PiSession } from "./lib/piAuth";
 import { checkPremiumStatus } from "./lib/piPayments";
 
@@ -219,7 +219,11 @@ function AppContent() {
         setSelectedContactDetails(newContact);
         setCurrentScreen("contacts");
         return;
-      } catch {
+      } catch (err) {
+        if (err instanceof ApiError && err.code === "CONTACT_NAME_TAKEN") {
+          toast.error(`The name "${customer.name}" is already taken. You must enter another name.`);
+          return;
+        }
         // Fall through to local state creation if API fails
       }
     }
@@ -430,11 +434,17 @@ function AppContent() {
           canEditWallet={!bk.isAuthenticated}
           onBack={() => setCurrentScreen("contacts")}
           onUpdate={async (updated) => {
+            if (contacts.some((c) => c.id !== updated.id && normalizeContactName(c.name) === normalizeContactName(updated.name))) {
+              toast.error(`The name "${updated.name}" is already taken. You must enter another name.`);
+              return false;
+            }
             if (bk.isAuthenticated) {
               try {
                 await bk.updateContact(updated.id, { name: updated.name });
               } catch (err) {
-                toast.error(err instanceof Error ? err.message : "Couldn't save the name. Please try again.");
+                toast.error(err instanceof ApiError && err.code === "CONTACT_NAME_TAKEN"
+                  ? `The name "${updated.name}" is already taken. You must enter another name.`
+                  : err instanceof Error ? err.message : "Couldn't save the name. Please try again.");
                 return false;
               }
             }
@@ -537,6 +547,7 @@ function AppContent() {
           onBack={handleBackToDashboard}
           onSave={handleSaveCustomer}
           defaultCategory={selectedCategory}
+          existingNames={contacts.map((c) => c.name)}
         />
         <Toaster position="bottom-center" />
       </>

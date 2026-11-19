@@ -37,4 +37,33 @@ export default async function run({ api }) {
   check("delete other user's contact -> 404", (await api.call("DELETE", `/api/contacts/${sita}`, { token: B })).status === 404);
   check("delete own contact -> 204", (await api.call("DELETE", `/api/contacts/${sita}`, { token: A })).status === 204);
   check("deleted contact -> 404", (await api.call("GET", `/api/contacts/${sita}`, { token: A })).status === 404);
+
+  // Contact names are unique per user: compared trimmed, inner spaces collapsed, ignoring case.
+  // Fresh users (C: 8 writes, D: 1 write) so the per-user write limit is not reached.
+  const C = (await api.login("contacts_names")).sessionToken;
+  const D = (await api.login("contacts_names_other")).sessionToken;
+  const show = (r) => `${r.status} ${JSON.stringify(r.body)}`;
+  const nameTaken = (r) => r.status === 409 && r.body?.error === "CONTACT_NAME_TAKEN";
+  const rename = (token, id, name) => api.call("PUT", `/api/contacts/${id}`, { token, body: { name } });
+
+  const kumar = await create(C, { name: "Ravi Kumar", category: "individual", piWalletAddress: "GNAMES1" });
+  check("create contact with a new name -> 201", kumar.status === 201, show(kumar));
+  const kumarId = kumar.body?.contact?.id;
+  const sameCase = await create(C, { name: "Ravi Kumar", category: "individual", piWalletAddress: "GNAMES2" });
+  check("duplicate name, same case -> 409 CONTACT_NAME_TAKEN", nameTaken(sameCase), show(sameCase));
+  const otherCase = await create(C, { name: "RAVI kumar", category: "business", piWalletAddress: "GNAMES3" });
+  check("duplicate name, different case -> 409 CONTACT_NAME_TAKEN", nameTaken(otherCase), show(otherCase));
+  const spaced = await create(C, { name: "  Ravi   Kumar  ", category: "individual", piWalletAddress: "GNAMES4" });
+  check("duplicate name with extra spaces -> 409 CONTACT_NAME_TAKEN", nameTaken(spaced), show(spaced));
+  const otherUser = await create(D, { name: "Ravi Kumar", category: "individual", piWalletAddress: "GNAMESD" });
+  check("same name for a different user -> 201", otherUser.status === 201, show(otherUser));
+
+  const sitaC = await create(C, { name: "Sita", category: "individual", piWalletAddress: "GNAMES5" });
+  const sitaCId = sitaC.body?.contact?.id;
+  const toTaken = await rename(C, sitaCId, "ravi kumar");
+  check("rename to another contact's name -> 409 CONTACT_NAME_TAKEN", sitaC.status === 201 && nameTaken(toTaken), show(toTaken));
+  const toOwn = await rename(C, kumarId, "RAVI KUMAR");
+  check("rename to its own name in different case -> 200", toOwn.status === 200 && toOwn.body.contact.name === "RAVI KUMAR", show(toOwn));
+  const toNew = await rename(C, sitaCId, "Sita Devi");
+  check("rename to a new unique name -> 200", toNew.status === 200 && toNew.body.contact.name === "Sita Devi", show(toNew));
 }

@@ -3,14 +3,17 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { checkPiAccountExists, cleanWalletInput, isPiPublicKey } from "../lib/piBlockchain";
+import { normalizeContactName } from "../types";
 
 interface AddCustomerProps {
   onBack: () => void;
   onSave: (customer: { name: string; piWallet: string; category: "individual" | "business" }) => void;
   defaultCategory?: "individual" | "business";
+  /** Names of the user's contacts; a new contact can't reuse one. */
+  existingNames?: string[];
 }
 
-export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: AddCustomerProps) {
+export function AddCustomer({ onBack, onSave, defaultCategory = "individual", existingNames = [] }: AddCustomerProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [piWallet, setPiWallet] = useState("");
@@ -84,6 +87,10 @@ export function AddCustomer({ onBack, onSave, defaultCategory = "individual" }: 
         piWallet: piWallet.trim(),
         category,
       };
+      if (existingNames.some((n) => normalizeContactName(n) === normalizeContactName(customerData.name))) {
+        toast.error(`The name "${customerData.name}" is already taken. You must enter another name.`);
+        return;
+      }
       setPendingCustomer(customerData);
       setShowSuccessOverlay(true);
       // Clear form

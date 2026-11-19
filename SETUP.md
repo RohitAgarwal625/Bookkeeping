@@ -180,8 +180,8 @@ The `vercel.json` is already configured with SPA rewrites.
 | GET | `/api/users/:walletAddress` | Login / upsert user + create session |
 | PUT | `/api/users/me/wallet` | Save (or clear with `null`) the user's own public Pi wallet address (`G…`) |
 | GET | `/api/contacts` | List contacts (with totals) |
-| POST | `/api/contacts` | Create contact |
-| PUT | `/api/contacts/:id` | Update contact |
+| POST | `/api/contacts` | Create contact (409 `CONTACT_NAME_TAKEN` if another of your contacts has the same name, ignoring case and extra spaces) |
+| PUT | `/api/contacts/:id` | Update contact (409 `CONTACT_NAME_TAKEN` if another contact has the new name) |
 | DELETE | `/api/contacts/:id` | Soft-delete contact |
 | GET | `/api/transactions` | List transactions |
 | POST | `/api/transactions` | Create transaction (idempotencyKey required) |

@@ -35,6 +35,11 @@ export function getInitials(fullName: string): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
+/** Contact names must be unique per user, ignoring case and extra spaces (the backend checks the same way). */
+export function normalizeContactName(name: string): string {
+  return name.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
 /**
  * Parses timestamp string into unix timestamp (milliseconds).
  * Handles formats like:
