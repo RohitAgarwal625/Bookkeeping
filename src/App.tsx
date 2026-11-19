@@ -487,6 +487,7 @@ function AppContent() {
                   shownTransaction = { ...saved, isNew: true };
                 } catch (e) {
                   console.error("Failed to save entry to database:", e);
+                  toast.error("Couldn't save the entry to your ledger. Please try again.");
                 }
               }
             }
