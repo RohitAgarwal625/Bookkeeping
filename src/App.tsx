@@ -169,20 +169,17 @@ function AppContent() {
     setCurrentScreen("customerLedger");
   };
 
-  const handlePaymentSuccess = async (customerName: string, newTx: Transaction) => {
+  const handlePaymentSuccess = async (customerName: string, newTx: Transaction, contactId?: string) => {
     if (!customerName) return;
     // Use the saved row (backend id) when available, so the ledger's id dedupe matches the API copy.
     let pendingTx = newTx;
     if (bk.isAuthenticated) {
-      const matchingContact = contacts.find(
-        (c) => c.name.toLowerCase() === customerName.toLowerCase()
-      );
       try {
         const saved = await bk.addTransaction({
           description: newTx.description,
           amount: newTx.amount,
           type: newTx.type,
-          contactId: matchingContact?.id,
+          contactId,
         });
         pendingTx = { ...saved, isNew: true };
       } catch (e) {
@@ -289,7 +286,6 @@ function AppContent() {
     setCurrentScreen("qrPay");
   };
 
-  const contactNames = contacts.map((c) => c.name);
   const totalDebit = bk.isAuthenticated && bk.summary
     ? bk.summary.totalDebit
     : contacts.reduce((sum, c) => sum + (c.totalDebit || 0), 0);
@@ -382,20 +378,17 @@ function AppContent() {
       <>
         <AddEntry
           onBack={handleBackToDashboard}
-          onSuccess={async (contactName, newTransaction) => {
+          onSuccess={async (contactName, newTransaction, contactId) => {
             let savedContactId: string | undefined = undefined;
             if (bk.isAuthenticated && newTransaction) {
-              const matchingContact = contacts.find(
-                (c) => c.name.toLowerCase() === contactName.toLowerCase()
-              );
-              if (matchingContact) {
-                savedContactId = matchingContact.id;
+              if (contactId) {
+                savedContactId = contactId;
                 try {
                   await bk.addTransaction({
                     description: newTransaction.description,
                     amount: newTransaction.amount,
                     type: newTransaction.type,
-                    contactId: matchingContact.id,
+                    contactId,
                   });
                 } catch (e) {
                   console.error("Failed to save entry to database:", e);
@@ -404,7 +397,7 @@ function AppContent() {
             }
             handleNavigateToCustomerLedger(contactName, savedContactId, newTransaction ? [newTransaction] : undefined);
           }}
-          contacts={contactNames}
+          contacts={contacts}
         />
         <Toaster position="bottom-center" />
       </>

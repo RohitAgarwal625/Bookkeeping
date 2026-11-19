@@ -11,7 +11,7 @@ interface PayScreenProps {
   onAddressUsed?: () => void;
   onAddPioneer?: () => void;
   onNavigateToLedger?: (customerName: string, newTransactions?: Transaction[]) => void;
-  onPaymentSuccess?: (customerName: string, newTx: Transaction) => void;
+  onPaymentSuccess?: (customerName: string, newTx: Transaction, contactId?: string) => void;
 }
 
 type ScreenState = "form" | "processing" | "success";
@@ -108,7 +108,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
       timestamp: "Just now",
       isNew: true,
     };
-    onPaymentSuccess?.(targetName, newPaidTx);
+    onPaymentSuccess?.(targetName, newPaidTx, matchedContact?.id);
     setTimeout(() => setScreen("success"), 2200);
   };
 

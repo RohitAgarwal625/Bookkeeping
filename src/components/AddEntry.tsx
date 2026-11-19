@@ -1,18 +1,19 @@
 import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info, BookOpen } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import { getInitials, Transaction } from "../types";
+import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface AddEntryProps {
   onBack: () => void;
-  onSuccess?: (contactName: string, newTransaction?: Transaction) => void;
-  contacts?: string[];
+  /** contactId is the picked contact. */
+  onSuccess?: (contactName: string, newTransaction?: Transaction, contactId?: string) => void;
+  contacts?: Contact[];
 }
 
 export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const savedCustomers = contacts ?? [];
-  const [selectedCustomer, setSelectedCustomer] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState<Contact | null>(null);
   const [customerQuery, setCustomerQuery] = useState("");
   const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -26,6 +27,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const nameInputRef = useRef<HTMLDivElement>(null);
   // Save contact name and transaction before form is cleared
   const savedContactName = useRef<string>("");
+  const savedContactId = useRef<string | undefined>(undefined);
   const savedTransaction = useRef<Transaction | undefined>(undefined);
 
   // Close dropdown on click outside
@@ -44,8 +46,14 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   }, []);
 
   const filteredCustomers = savedCustomers.filter((c) =>
-    c.toLowerCase().includes(customerQuery.toLowerCase())
+    c.name.toLowerCase().includes(customerQuery.toLowerCase())
   );
+
+  // Two contacts can share a name: show their wallet address so the user can tell them apart.
+  const hasSameName = (contact: Contact) =>
+    savedCustomers.some((c) => c.id !== contact.id && c.name.trim().toLowerCase() === contact.name.trim().toLowerCase());
+  const shortWallet = (address: string) =>
+    address.length > 10 ? `${address.slice(0, 5)}.....${address.slice(-5)}` : address;
 
   const handleAmountChange = (val: string) => {
     if (val === "") {
@@ -100,7 +108,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
     };
 
     console.log("Saving manual entry:", {
-      customer: selectedCustomer,
+      customer: selectedCustomer.name,
       amount: parseFloat(amount),
       type: transactionType,
       date,
@@ -110,14 +118,15 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
     });
 
     // Save the contact name and transaction before clearing the form
-    savedContactName.current = selectedCustomer;
+    savedContactName.current = selectedCustomer.name;
+    savedContactId.current = selectedCustomer.id;
     savedTransaction.current = newTx;
 
     // Show full-screen success overlay
     setShowSuccess(true);
 
     // Clear form
-    setSelectedCustomer("");
+    setSelectedCustomer(null);
     setCustomerQuery("");
     setAmount("");
     setDate("");
@@ -147,7 +156,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             Your transaction has been recorded successfully.
           </p>
           <button
-            onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current) : onBack()}
+            onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current, savedContactId.current) : onBack()}
             className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
             style={{
               background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
@@ -191,12 +200,15 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                 <div className="flex items-center justify-between px-4 py-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 rounded-xl">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
-                      {getInitials(selectedCustomer)}
+                      {getInitials(selectedCustomer.name)}
                     </div>
-                    <span className="text-gray-900 dark:text-foreground font-medium text-sm">{selectedCustomer}</span>
+                    <span className="text-gray-900 dark:text-foreground font-medium text-sm">{selectedCustomer.name}</span>
+                    {hasSameName(selectedCustomer) && (
+                      <span className="text-gray-400 dark:text-muted-foreground text-xs font-mono">{shortWallet(selectedCustomer.piWalletAddress)}</span>
+                    )}
                   </div>
                   <button
-                    onClick={() => { setSelectedCustomer(""); setCustomerQuery(""); }}
+                    onClick={() => { setSelectedCustomer(null); setCustomerQuery(""); }}
                     className="p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors group"
                   >
                     <X className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
@@ -215,21 +227,24 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
                   {isCustomerDropdownOpen && customerQuery.trim().length > 0 && filteredCustomers.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-2xl max-h-44 overflow-y-auto z-[9999]">
-                      {filteredCustomers.map((name) => (
+                      {filteredCustomers.map((contact) => (
                         <div
-                          key={name}
+                          key={contact.id}
                           onMouseDown={(e) => {
                             e.preventDefault();
-                            setSelectedCustomer(name);
+                            setSelectedCustomer(contact);
                             setIsCustomerDropdownOpen(false);
                             setCustomerQuery("");
                           }}
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
                         >
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
-                            {getInitials(name)}
+                            {getInitials(contact.name)}
                           </div>
-                          <span className="text-gray-900 dark:text-foreground text-sm font-medium">{name}</span>
+                          <span className="text-gray-900 dark:text-foreground text-sm font-medium">{contact.name}</span>
+                          {hasSameName(contact) && (
+                            <span className="text-gray-400 dark:text-muted-foreground text-xs font-mono">{shortWallet(contact.piWalletAddress)}</span>
+                          )}
                         </div>
                       ))}
                     </div>
