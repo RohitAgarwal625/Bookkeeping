@@ -25,6 +25,8 @@ const API_URL =
 
 const TOKEN_KEY = "bk_session_token";
 const WALLET_KEY = "bk_wallet_address";
+// Pi username (not secret) kept so a reload can show it without signing in again.
+const USERNAME_KEY = "bk_pi_username";
 
 export class ApiError extends Error {
   status: number;
@@ -51,9 +53,12 @@ export const auth = {
   getWallet: () => localStorage.getItem(WALLET_KEY),
   setWallet: (w: string) => localStorage.setItem(WALLET_KEY, w),
   clearWallet: () => localStorage.removeItem(WALLET_KEY),
+  getUsername: () => localStorage.getItem(USERNAME_KEY),
+  setUsername: (u: string) => localStorage.setItem(USERNAME_KEY, u),
   clearAll: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(WALLET_KEY);
+    localStorage.removeItem(USERNAME_KEY);
   },
 };
 
@@ -112,6 +117,8 @@ async function request<T>(
 export const usersApi = {
   login: (walletAddress: string) =>
     request<AuthResponse>(`/api/users/${encodeURIComponent(walletAddress)}`),
+  /** The signed-in user (from the stored session token); used to restore a session on reload. */
+  me: () => request<{ user: User }>(`/api/users/me`),
   updateProfile: (walletAddress: string, displayName: string) =>
     request<{ user: User }>(
       `/api/users/${encodeURIComponent(walletAddress)}`,

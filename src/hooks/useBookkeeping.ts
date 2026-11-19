@@ -50,6 +50,9 @@ export function useBookkeeping() {
   const [summary, setSummary] = useState<TransactionSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Startup session restore: true while a stored token is being checked (GET /api/users/me).
+  const [restoringSession, setRestoringSession] = useState<boolean>(() => !!auth.getToken());
+  const sessionReady = !restoringSession;
 
   const isAuthenticated = !!auth.getToken();
 
@@ -198,11 +201,24 @@ export function useBookkeeping() {
     return res.data;
   }, []);
 
-  // On mount, if a token exists, restore session data.
+  // On mount, if a token exists, restore the user + data (page reload, Pi Wallet round-trip).
+  // A 401 (expired/invalid token) clears the token in api.ts, so the user sees the login screen.
   useEffect(() => {
-    if (auth.getToken()) {
-      void refreshAll();
-    }
+    if (!auth.getToken()) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await usersApi.me();
+        if (cancelled) return;
+        setUser(res.user);
+        await refreshAll();
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) auth.clearAll();
+      } finally {
+        if (!cancelled) setRestoringSession(false);
+      }
+    })();
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -213,6 +229,8 @@ export function useBookkeeping() {
     loading,
     error,
     isAuthenticated,
+    restoringSession,
+    sessionReady,
     setError,
     login,
     logout,

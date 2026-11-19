@@ -96,3 +96,25 @@ export async function updateMyWallet(
     next(err);
   }
 }
+
+/**
+ * GET /api/users/me
+ * Return the signed-in user (from the session token). The frontend calls it on startup
+ * to restore a session after a page reload or a Pi Wallet round-trip.
+ */
+export async function getMe(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
+    if (!user) {
+      res.status(401).json({ error: "UNAUTHORIZED", message: "User not found" });
+      return;
+    }
+    res.status(200).json({ user: serializeUser(user) });
+  } catch (err) {
+    next(err);
+  }
+}

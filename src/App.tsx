@@ -23,7 +23,7 @@ import { PremiumModal } from "./components/PremiumModal";
 import { BottomNav } from "./components/BottomNav";
 import { Contact, Transaction, normalizeContactName } from "./types";
 import { useBookkeeping } from "./hooks/useBookkeeping";
-import { ApiError, contactsApi } from "./lib/api";
+import { ApiError, auth, contactsApi } from "./lib/api";
 import { signInWithPi, type PiSession } from "./lib/piAuth";
 import { checkPremiumStatus } from "./lib/piPayments";
 
@@ -81,7 +81,9 @@ function AppContent() {
   const [isGuest, setIsGuest] = useState(false);
   // Pi-verified session (uid + username from App Studio — never from the browser)
   const [piSession, setPiSession] = useState<PiSession | null>(null);
-  const userName = piSession?.user.username ?? (isGuest ? "Guest User" : "");
+  // Username saved at sign-in; shown after a reload restores the session (no new Pi sign-in).
+  const [restoredUsername, setRestoredUsername] = useState<string | null>(null);
+  const userName = piSession?.user.username ?? restoredUsername ?? (isGuest ? "Guest User" : "");
   const [piBalance] = useState("0.00");
   const [piSignInLoading, setPiSignInLoading] = useState(false);
   const [piSignInError, setPiSignInError] = useState<string | null>(null);
@@ -124,6 +126,7 @@ function AppContent() {
     try {
       const session = await signInWithPi();
       setPiSession(session);
+      auth.setUsername(session.user.username);
       // Log in to the bookkeeping backend using the App-Studio-verified uid
       try {
         await bk.login(session.user.uid);
@@ -139,6 +142,15 @@ function AppContent() {
       setPiSignInLoading(false);
     }
   };
+
+  // Session restore: once the stored token is checked, a signed-in user goes straight to the dashboard.
+  useEffect(() => {
+    if (!bk.sessionReady || !bk.user) return;
+    setRestoredUsername(auth.getUsername());
+    setIsGuest(false);
+    setCurrentScreen((s) => (s === "login" ? "dashboard" : s));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bk.sessionReady]);
 
   const handleGuestLogin = () => {
     setIsGuest(true);
@@ -262,6 +274,7 @@ function AppContent() {
   const handleLogout = () => {
     bk.logout();
     setPiSession(null);
+    setRestoredUsername(null);
     setIsGuest(false);
     setLocalContacts([]);
     setCurrentScreen("login");
@@ -591,6 +604,20 @@ function AppContent() {
         <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
+    );
+  }
+
+  // ── Restoring a saved session (avoid flashing the login screen) ──
+  if (bk.restoringSession) {
+    return (
+      <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px" }}>
+        <style>{`@keyframes bk-restore-spin { to { transform: rotate(360deg); } }`}</style>
+        <div
+          aria-label="Loading"
+          style={{ width: "40px", height: "40px", borderRadius: "9999px", border: "4px solid rgba(164,124,243,0.25)", borderTopColor: "#A47CF3", animation: "bk-restore-spin 0.8s linear infinite" }}
+        />
+        <p className="text-sm text-gray-500 dark:text-muted-foreground">Loading your khata...</p>
+      </div>
     );
   }
 

@@ -178,6 +178,7 @@ The `vercel.json` is already configured with SPA rewrites.
 |--------|------|-------------|
 | GET | `/api/health` | Health check |
 | GET | `/api/users/:walletAddress` | Login / upsert user + create session |
+| GET | `/api/users/me` | The signed-in user `{user}` from the Bearer token (restores the session after a reload); 401 if the token is missing, invalid or expired |
 | PUT | `/api/users/me/wallet` | Save (or clear with `null`) the user's own public Pi wallet address (`G…`) |
 | GET | `/api/contacts` | List contacts (with totals) |
 | POST | `/api/contacts` | Create contact (409 `CONTACT_NAME_TAKEN` if another of your contacts has the same name, ignoring case and extra spaces) |

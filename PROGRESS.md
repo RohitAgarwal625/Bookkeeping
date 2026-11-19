@@ -90,6 +90,7 @@ Response conventions: single → `{ user | contact | transaction }`; lists → `
 | GET | `/api/users/:walletAddress` | authLimiter | **Login.** Upserts user, creates a new Session, returns `{user, sessionToken, expiresAt}` |
 |---|---|---|---|
 | PUT | `/api/users/:walletAddress` | writeLimiter → sessionAuth | Update `displayName`; 403 if URL wallet ≠ session user |
+| GET | `/api/users/me` | sessionAuth → readLimiter | Returns `{user}` for the session token (no new token). Registered above `GET /:walletAddress`, otherwise "me" would be upserted as a user. Used on startup to restore a session |
 | PUT | `/api/users/me/wallet` | sessionAuth → writeLimiter (per user) | `{walletPublicKey: "G…" \| null}`. Spaces removed, upper-cased, must match `^G[A-Z2-7]{55}$` (`stellarPublicKey` in `schemas/common.ts`). Returns `{user}`. Pi won't give apps the address (`/v2/user_wallets` → `unauthorized_app`), so the user types it |
 
 ### Contacts (`router.use(sessionAuth)`)
