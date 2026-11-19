@@ -1,5 +1,5 @@
-import { ArrowLeft, Pencil, Check, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowLeft, Pencil, Check, X, ChevronUp, ChevronDown } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { toast } from "sonner";
@@ -99,6 +99,14 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingNote, setEditingNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  // True once the server ledger has loaded (or there is nothing to load), so the
+  // jump to the first "New" entry happens on the final, time-ordered list.
+  const [ledgerReady, setLedgerReady] = useState(!contactId);
+  // "New" entry navigator: rows can be anywhere in the time-ordered list.
+  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [newIndex, setNewIndex] = useState(0);
+  const [flashId, setFlashId] = useState<string | null>(null);
+  const jumpedToFirstNew = useRef(false);
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
     if (initialNewTransactions && initialNewTransactions.length > 0) {
       return mergeWithPending([], initialNewTransactions);
@@ -125,7 +133,10 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
         }
       })
       .finally(() => {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+          setLedgerReady(true);
+        }
       });
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -223,6 +234,28 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
     console.log("Settling balance for", customerName);
   };
 
+  // ── "New" entries: jump to the first one, then ↑/↓ moves between them ──
+  const newIds = transactions.filter((t) => t.isNew).map((t) => t.id);
+  const newCount = newIds.length;
+  const currentNew = Math.min(newIndex, Math.max(newCount - 1, 0));
+
+  const goToNew = (index: number) => {
+    const id = newIds[index];
+    if (!id) return;
+    setNewIndex(index);
+    rowRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setFlashId(id);
+    window.setTimeout(() => setFlashId((f) => (f === id ? null : f)), 1400);
+  };
+
+  useEffect(() => {
+    if (!ledgerReady || newCount === 0 || jumpedToFirstNew.current) return;
+    jumpedToFirstNew.current = true;
+    // Wait a frame so the rows are laid out before scrolling.
+    window.requestAnimationFrame(() => goToNew(0));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ledgerReady, newCount]);
+
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
@@ -290,6 +323,8 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                 return (
                   <div
                     key={transaction.id}
+                    ref={transaction.isNew ? (el) => { rowRefs.current[transaction.id] = el; } : undefined}
+                    style={flashId === transaction.id ? { animation: "ledger-new-flash 1.4s ease-out" } : undefined}
                     className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
                       transaction.isNew
                         ? "bg-purple-50 dark:bg-card border-2 border-[#A47CF3] dark:border-[#A47CF3] shadow-[0_0_12px_rgba(164,124,243,0.12)]"
@@ -409,6 +444,44 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
         </div>
       </div>
 
+
+      {/* "New" entries navigator: New 1 of N, ↑ previous, ↓ next */}
+      {newCount > 0 && (
+        <div style={{ position: "fixed", left: 0, right: 0, bottom: "24px", zIndex: 40, display: "flex", justifyContent: "center", padding: "0 16px", pointerEvents: "none" }}>
+          <div
+            className="bg-white dark:bg-card border border-gray-100 dark:border-border shadow-lg rounded-full flex items-center"
+            style={{ pointerEvents: "auto", padding: "4px 4px 4px 18px", gap: "6px" }}
+          >
+            <span className="text-sm font-bold text-gray-900 dark:text-foreground" style={{ whiteSpace: "nowrap", marginRight: "4px" }}>
+              New {currentNew + 1} of {newCount}
+            </span>
+            <button
+              onClick={() => goToNew(currentNew - 1)}
+              disabled={currentNew === 0}
+              aria-label="Previous new entry"
+              className="rounded-full flex items-center justify-center"
+              style={{ width: "44px", height: "44px", background: currentNew === 0 ? "transparent" : "rgba(164,124,243,0.12)", opacity: currentNew === 0 ? 0.35 : 1 }}
+            >
+              <ChevronUp className="w-5 h-5 text-[#A47CF3]" />
+            </button>
+            <button
+              onClick={() => goToNew(currentNew + 1)}
+              disabled={currentNew >= newCount - 1}
+              aria-label="Next new entry"
+              className="rounded-full flex items-center justify-center"
+              style={{
+                width: "44px",
+                height: "44px",
+                background: currentNew >= newCount - 1 ? "transparent" : "linear-gradient(135deg, #A47CF3, #F7C548)",
+                opacity: currentNew >= newCount - 1 ? 0.35 : 1,
+              }}
+            >
+              <ChevronDown className="w-5 h-5" style={{ color: currentNew >= newCount - 1 ? "#A47CF3" : "#fff" }} />
+            </button>
+          </div>
+        </div>
+      )}
+      <style>{`@keyframes ledger-new-flash { 0% { box-shadow: 0 0 0 0 rgba(164,124,243,0.7); transform: scale(1.02); } 100% { box-shadow: 0 0 0 14px rgba(164,124,243,0); transform: scale(1); } }`}</style>
 
       {/* Add Entry Modal */}
       <AddEntryModal
