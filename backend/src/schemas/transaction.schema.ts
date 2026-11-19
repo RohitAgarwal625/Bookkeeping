@@ -18,6 +18,28 @@ export const createTransactionSchema = z.object({
   }),
 });
 
+/**
+ * Save entries found by the Automatic (blockchain) scan for one contact.
+ * chainPaymentId is the Horizon payment operation id (a numeric string).
+ * At most 100 entries per request (the client sends bigger scans in chunks).
+ */
+export const importTransactionsSchema = z.object({
+  body: z.object({
+    contactId: z.string().min(1),
+    entries: z
+      .array(
+        z.object({
+          chainPaymentId: z.string().regex(/^\d{1,30}$/, "Must be a Horizon payment id"),
+          description: sanitizedString(1, 500),
+          amount: z.number().positive().min(0.0000001).max(1_000_000),
+          type: z.enum(["credit", "debit"]),
+        })
+      )
+      .min(1)
+      .max(100),
+  }),
+});
+
 export const listTransactionsSchema = z.object({
   query: z.object({
     type: z.enum(["credit", "debit"]).optional(),

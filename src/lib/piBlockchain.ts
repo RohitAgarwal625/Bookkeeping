@@ -323,6 +323,7 @@ export async function fetchPiBlockchainTransactions(
       type: txType,
       timestamp: formatPiTimestamp(rec.created_at),
       isNew: true,
+      chainPaymentId: rec.id,
     });
   }
 

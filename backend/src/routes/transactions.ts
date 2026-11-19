@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createTransaction,
+  importTransactions,
   listTransactions,
   getSummary,
   getContactLedger,
@@ -12,6 +13,7 @@ import { validate } from "../middleware/validate";
 import { readLimiter, writeLimiter } from "../middleware/rateLimiter";
 import {
   createTransactionSchema,
+  importTransactionsSchema,
   listTransactionsSchema,
   transactionIdSchema,
   contactLedgerSchema,
@@ -32,6 +34,7 @@ router.get(
 );
 router.get("/", readLimiter, validate(listTransactionsSchema), listTransactions);
 router.post("/", writeLimiter, validate(createTransactionSchema), createTransaction);
+router.post("/import", writeLimiter, validate(importTransactionsSchema), importTransactions);
 router.get("/:id", readLimiter, validate(transactionIdSchema), getTransaction);
 router.delete("/:id", writeLimiter, validate(transactionIdSchema), deleteTransaction);
 

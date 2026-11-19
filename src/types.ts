@@ -5,6 +5,8 @@ export interface Transaction {
   type: "credit" | "debit";
   timestamp: string;
   isNew?: boolean;
+  /** Horizon payment id: set on Automatic-scan entries (and their saved rows). */
+  chainPaymentId?: string | null;
 }
 
 export interface Contact {

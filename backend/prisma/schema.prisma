@@ -65,6 +65,10 @@ model Transaction {
   source         String    @default("manual") // "manual" | "pi_network"
   txHash         String?
   piPaymentId    String?
+  // Horizon payment operation id; set only on entries saved by the Automatic
+  // (blockchain) scan. Unique per user, so scanning the same dates again skips
+  // payments that are already in the ledger instead of adding them twice.
+  chainPaymentId String?
   idempotencyKey String    @unique
   status         String    @default("completed") // pending|completed|failed|cancelled|expired
   expiresAt      DateTime?
@@ -80,4 +84,5 @@ model Transaction {
   @@index([userId, timestamp])
   @@index([idempotencyKey])
   @@index([status, expiresAt])
+  @@unique([userId, chainPaymentId])
 }

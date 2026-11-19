@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { randomUUID } from "crypto";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { serializeTransaction } from "../lib/serializers";
@@ -91,6 +92,67 @@ export async function createTransaction(
         return;
       }
     }
+    next(err);
+  }
+}
+
+/**
+ * POST /api/transactions/import
+ * Saves the entries the Automatic (blockchain) scan found for one contact.
+ * - contactId ownership verified (G-026).
+ * - Each entry carries its Horizon payment id (chainPaymentId). The unique
+ *   index on (userId, chainPaymentId) makes payments that were imported before
+ *   (or repeated in this request) get skipped, so re-scans never add duplicates.
+ * - Responds with only the rows created now, plus added/skipped counts.
+ */
+export async function importTransactions(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const { contactId, entries } = req.body as {
+      contactId: string;
+      entries: {
+        chainPaymentId: string;
+        description: string;
+        amount: number;
+        type: "credit" | "debit";
+      }[];
+    };
+
+    const contact = await prisma.contact.findFirst({
+      where: { id: contactId, userId },
+    });
+    if (!contact) {
+      res
+        .status(404)
+        .json({ error: "CONTACT_NOT_FOUND", message: "Contact not found" });
+      return;
+    }
+
+    const created = await prisma.transaction.createManyAndReturn({
+      data: entries.map((e) => ({
+        description: e.description,
+        amount: new Prisma.Decimal(e.amount),
+        type: e.type,
+        source: "manual",
+        status: "completed",
+        chainPaymentId: e.chainPaymentId,
+        idempotencyKey: randomUUID(),
+        userId,
+        contactId,
+      })),
+      skipDuplicates: true,
+    });
+
+    res.status(200).json({
+      transactions: created.map(serializeTransaction),
+      added: created.length,
+      skipped: entries.length - created.length,
+    });
+  } catch (err) {
     next(err);
   }
 }

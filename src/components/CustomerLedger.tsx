@@ -54,7 +54,9 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
         // API returned real data — use it, merging any pending new transactions on top
         const apiTxs = res.data;
         if (initialNewTransactions && initialNewTransactions.length > 0) {
-          setTransactions(sortTransactionsDescending([...initialNewTransactions, ...apiTxs]));
+          // Saved new rows also come back from the API: keep only the highlighted copy.
+          const newIds = new Set(initialNewTransactions.map((t) => t.id));
+          setTransactions(sortTransactionsDescending([...initialNewTransactions, ...apiTxs.filter((t) => !newIds.has(t.id))]));
         } else {
           setTransactions(sortTransactionsDescending(apiTxs));
         }

@@ -28,6 +28,7 @@ export function serializeTransaction(tx: Transaction) {
     source: tx.source,
     txHash: tx.txHash,
     piPaymentId: tx.piPaymentId,
+    chainPaymentId: tx.chainPaymentId,
     status: tx.status,
     timestamp: tx.timestamp.toISOString(),
     userId: tx.userId,
