@@ -159,9 +159,33 @@ function AppContent() {
   // Session restore: once the stored token is checked, a signed-in user goes straight to the dashboard.
   useEffect(() => {
     if (!bk.sessionReady || !bk.user) return;
-    setRestoredUsername(auth.getUsername());
+    const savedUsername = auth.getUsername();
+    setRestoredUsername(savedUsername);
     setIsGuest(false);
     setCurrentScreen((s) => (s === "login" ? "dashboard" : s));
+    // The backend doesn't store the Pi username, so a session saved without it (signed in
+    // before the username was kept, or storage cleared) would show no name. Ask Pi again
+    // in the background: after the first consent Pi.authenticate is silent in the Pi Browser.
+    if (!savedUsername) {
+      const restoredUid = bk.user.piWalletAddress;
+      void Promise.race([
+        signInWithPi(),
+        new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error("timeout")), 15000)),
+      ])
+        .then((session) => {
+          // Pi is signed in to a different account than the saved session: don't switch
+          // silently. Sign out and show the sign-in screen so the user chooses to continue.
+          if (session.user.uid !== restoredUid) {
+            handleLogout();
+            toast("You're signed in to a different Pi account. Sign in again to continue.");
+            return;
+          }
+          setPiSession(session);
+          auth.setUsername(session.user.username);
+          setRestoredUsername(session.user.username);
+        })
+        .catch(() => { /* keep the restored session; the name shows after the next sign-in */ });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bk.sessionReady]);
 
