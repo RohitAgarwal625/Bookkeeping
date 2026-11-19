@@ -6,8 +6,8 @@ import { BookkeepingLogo } from "./BookkeepingLogo";
 
 interface AddEntryProps {
   onBack: () => void;
-  /** contactId is the picked contact. */
-  onSuccess?: (contactName: string, newTransaction?: Transaction, contactId?: string) => void;
+  /** contactId is the picked contact; timestamp (ISO, UTC) is set only when the user picked a date. */
+  onSuccess?: (contactName: string, newTransaction?: Transaction, contactId?: string, timestamp?: string) => void;
   contacts?: Contact[];
 }
 
@@ -29,6 +29,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const savedContactName = useRef<string>("");
   const savedContactId = useRef<string | undefined>(undefined);
   const savedTransaction = useRef<Transaction | undefined>(undefined);
+  const savedTimestamp = useRef<string | undefined>(undefined);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -84,6 +85,12 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
       toast.error("Please enter the transaction hash");
       return;
     }
+    // The picked date and time are local time; the API stores UTC.
+    const pickedTime = date ? new Date(`${date}T${time || "00:00"}`) : null;
+    if (pickedTime && isNaN(pickedTime.getTime())) {
+      toast.error("Please enter a valid date");
+      return;
+    }
 
     let formattedTimestamp = "";
     if (date) {
@@ -121,6 +128,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
     savedContactName.current = selectedCustomer.name;
     savedContactId.current = selectedCustomer.id;
     savedTransaction.current = newTx;
+    savedTimestamp.current = pickedTime ? pickedTime.toISOString() : undefined;
 
     // Show full-screen success overlay
     setShowSuccess(true);
@@ -156,7 +164,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
             Your transaction has been recorded successfully.
           </p>
           <button
-            onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current, savedContactId.current) : onBack()}
+            onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current, savedContactId.current, savedTimestamp.current) : onBack()}
             className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
             style={{
               background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",

@@ -378,7 +378,7 @@ function AppContent() {
       <>
         <AddEntry
           onBack={handleBackToDashboard}
-          onSuccess={async (contactName, newTransaction, contactId) => {
+          onSuccess={async (contactName, newTransaction, contactId, timestamp) => {
             let savedContactId: string | undefined = undefined;
             if (bk.isAuthenticated && newTransaction) {
               if (contactId) {
@@ -389,6 +389,7 @@ function AppContent() {
                     amount: newTransaction.amount,
                     type: newTransaction.type,
                     contactId,
+                    timestamp,
                   });
                 } catch (e) {
                   console.error("Failed to save entry to database:", e);

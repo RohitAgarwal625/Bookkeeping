@@ -186,6 +186,8 @@ export interface CreateTransactionInput {
   idempotencyKey: string;
   txHash?: string;
   occurredAt?: string;
+  /** ISO 8601 UTC time of the entry; the server uses the current time when it's missing. */
+  timestamp?: string;
 }
 
 /** One Automatic-scan entry sent to POST /api/transactions/import. */
