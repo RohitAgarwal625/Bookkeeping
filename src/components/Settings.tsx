@@ -390,7 +390,7 @@ export function Settings({
               </>
             )}
             <p className="text-xs text-gray-400 dark:text-muted-foreground mt-2">
-              Your own public {networkName} wallet address (starts with G). Copy it from your Pi Wallet. Pi doesn't share it with apps, so we ask once. It's used to find the payments between you and your contacts.
+              Your own public {networkName} wallet address. It's used to find the payments between you and your contacts.
             </p>
           </div>
 
