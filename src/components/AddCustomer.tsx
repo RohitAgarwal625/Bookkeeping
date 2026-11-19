@@ -2,7 +2,7 @@ import { ArrowLeft, ChevronDown, Check, CheckCircle, X, Users } from "lucide-rea
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { BookkeepingLogo } from "./BookkeepingLogo";
-import { checkPiAccountExists, cleanWalletInput, isPiPublicKey } from "../lib/piBlockchain";
+import { checkPiAccountExists, cleanWalletInput, isPiPublicKey, PI_NETWORK, PI_OTHER_NETWORK } from "../lib/piBlockchain";
 import { normalizeContactName } from "../types";
 
 interface AddCustomerProps {
@@ -62,7 +62,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
 
   // Real check on the Pi blockchain: the address must be a Pi public key
   // (G + 55 letters/digits) AND an existing account on Horizon
-  // (GET /accounts/{address}) on testnet OR mainnet.
+  // (GET /accounts/{address}) on the Pi network the app runs on (PI_NETWORK) only.
   const handleValidate = async () => {
     if (isValidating) return;
     const address = cleanWalletInput(piWallet);
@@ -72,7 +72,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
     }
     const run = ++validationRun.current;
     setIsValidating(true);
-    const result = await checkPiAccountExists(address, { anyNetwork: true });
+    const result = await checkPiAccountExists(address, { reportOtherNetwork: true });
     if (run !== validationRun.current) return; // address was edited meanwhile
     setIsValidating(false);
     if (result === "exists") {
@@ -80,6 +80,8 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
       setIsValidated(true);
     } else if (result === "missing") {
       setShowInvalidPopup(true);
+    } else if (result === "otherNetwork") {
+      toast.error(`This wallet address exists only on Pi ${PI_OTHER_NETWORK}. This app uses Pi ${PI_NETWORK}: please enter the pioneer's ${PI_NETWORK} wallet address.`);
     } else {
       toast.error("Couldn't reach the Pi blockchain to check this address. Please try again.");
     }

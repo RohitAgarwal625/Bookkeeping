@@ -66,23 +66,18 @@ export function isPiPublicKey(address: string): boolean {
 
 /**
  * Does this address have an account on the app's Pi network (PI_NETWORK)?
- * With { anyNetwork: true }, an account on either testnet or mainnet counts:
- * "missing" only if both say 404, "unknown" if neither confirms and one couldn't be reached.
- * "unknown" when the Pi blockchain couldn't be reached, so callers can decide.
+ * Only PI_NETWORK counts. With { reportOtherNetwork: true }, an address missing on PI_NETWORK
+ * is also looked up on the other network, and "otherNetwork" is returned if it exists only there,
+ * so callers can say so. "unknown" when the Pi blockchain couldn't be reached, so callers can decide.
  */
 export async function checkPiAccountExists(
   address: string,
-  options?: { anyNetwork?: boolean }
-): Promise<"exists" | "missing" | "unknown"> {
-  if (!options?.anyNetwork) return checkPiAccountOn(PI_HORIZON_URL, address);
-  const otherUrl = `https://api.${PI_NETWORK === "mainnet" ? "testnet" : "mainnet"}.minepi.com`;
-  const results = await Promise.all([
-    checkPiAccountOn(PI_HORIZON_URL, address),
-    checkPiAccountOn(otherUrl, address),
-  ]);
-  if (results.includes("exists")) return "exists";
-  if (results.every((r) => r === "missing")) return "missing";
-  return "unknown";
+  options?: { reportOtherNetwork?: boolean }
+): Promise<"exists" | "missing" | "otherNetwork" | "unknown"> {
+  const onAppNetwork = await checkPiAccountOn(PI_HORIZON_URL, address);
+  if (onAppNetwork !== "missing" || !options?.reportOtherNetwork) return onAppNetwork;
+  const otherUrl = `https://api.${PI_OTHER_NETWORK}.minepi.com`;
+  return (await checkPiAccountOn(otherUrl, address)) === "exists" ? "otherNetwork" : "missing";
 }
 
 /** GET {horizonUrl}/accounts/{address} on one Pi network. */
@@ -172,6 +167,8 @@ export const PI_NETWORK: "mainnet" | "testnet" =
     ? "mainnet"
     : "testnet";
 const PI_HORIZON_URL = `https://api.${PI_NETWORK}.minepi.com`;
+/** The Pi network the app does not use (only for "this address is on the other network" messages). */
+export const PI_OTHER_NETWORK: "mainnet" | "testnet" = PI_NETWORK === "mainnet" ? "testnet" : "mainnet";
 
 /** Horizon returns at most 200 records per page. */
 const PAGE_SIZE = 200;
