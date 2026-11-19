@@ -4,7 +4,10 @@ import { toast } from "sonner";
 import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { useDarkMode } from "../contexts/DarkModeContext";
-import { openPiWalletPayRequest, findWalletPayment, shortTxHash } from "../lib/piWalletPay";
+import {
+  openPiWalletPayRequest, findWalletPayment, shortTxHash,
+  PendingWalletPayment, loadPendingWalletPayment, savePendingWalletPayment, clearPendingWalletPayment, WALLET_POLL_LIMIT_MS,
+} from "../lib/piWalletPay";
 
 interface PayScreenProps {
   onBack: () => void;
@@ -23,7 +26,7 @@ interface PayScreenProps {
 type ScreenState = "form" | "processing" | "success";
 
 const POLL_MS = 8000;
-const POLL_LIMIT_MS = 15 * 60 * 1000;
+const POLL_LIMIT_MS = WALLET_POLL_LIMIT_MS;
 
 const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
@@ -31,18 +34,21 @@ const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger, onPaymentConfirmed, userWalletAddress, onOpenSettings }: PayScreenProps) {
   const contactList = contacts || [];
 
+  // A payment still being waited for (saved before opening the Pi Wallet, which can reload
+  // the app) brings the screen straight back to "Waiting for your payment".
+  const [restored] = useState<PendingWalletPayment | null>(() => loadPendingWalletPayment());
   const [publicKey, setPublicKey] = useState("");
   const [pioneerQuery, setPioneerQuery] = useState("");
-  const [paidRecipientName, setPaidRecipientName] = useState("");
-  const [amount, setAmount] = useState("");
+  const [paidRecipientName, setPaidRecipientName] = useState(restored?.contactName ?? "");
+  const [amount, setAmount] = useState(restored?.amountText ?? "");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [screen, setScreen] = useState<ScreenState>("form");
+  const [screen, setScreen] = useState<ScreenState>(restored ? "processing" : "form");
   const [isPublicKeyFocused, setIsPublicKeyFocused] = useState(false);
   // Waiting for the Pi Wallet payment to appear on the blockchain
   const [walletOpened, setWalletOpened] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
   const [paidTxHash, setPaidTxHash] = useState("");
-  const payTarget = useRef<{ contact: Contact; amount: number; since: Date; startedAt: number } | null>(null);
+  const payTarget = useRef<PendingWalletPayment | null>(restored);
   const checking = useRef(false);
 
   const { isDarkMode: isDark } = useDarkMode();
@@ -104,6 +110,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
   const resetForm = () => {
     payTarget.current = null;
+    clearPendingWalletPayment();
     setPaidTxHash("");
     setScreen("form");
     setPublicKey("");
@@ -128,7 +135,17 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     setPaidRecipientName(matchedContact.name);
     setPaidTxHash("");
     // 2 minutes of slack for a phone clock that runs ahead of the blockchain's.
-    payTarget.current = { contact: matchedContact, amount: amt, since: new Date(Date.now() - 120000), startedAt: Date.now() };
+    const target: PendingWalletPayment = {
+      contactId: matchedContact.id,
+      contactName: matchedContact.name,
+      contactAddress: matchedContact.piWalletAddress,
+      amountText: amount,
+      amount: amt,
+      since: new Date(Date.now() - 120000).toISOString(),
+      startedAt: Date.now(),
+    };
+    payTarget.current = target;
+    savePendingWalletPayment(target); // before leaving the app: the Pi Browser may reload it
     setScreen("processing");
 
     const opened = await openPiWalletPayRequest(matchedContact.piWalletAddress, amount);
@@ -146,16 +163,21 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   // Look for the payment on the blockchain; save it and show success once found.
   const checkForPayment = async (manual: boolean) => {
     const target = payTarget.current;
-    if (!target || checking.current || !userWalletAddress) return;
+    if (!target || checking.current) return;
+    if (!userWalletAddress) {
+      // After a reload the account may still be loading; the check runs once it has loaded.
+      if (manual) toast("Still loading your account. The payment is checked as soon as it's ready.");
+      return;
+    }
     checking.current = true;
     setIsChecking(true);
     try {
       const tx = await findWalletPayment({
         userWalletAddress,
-        contactAddress: target.contact.piWalletAddress,
-        contactName: target.contact.name,
+        contactAddress: target.contactAddress,
+        contactName: target.contactName,
         amount: target.amount,
-        since: target.since,
+        since: new Date(target.since),
       });
       if (payTarget.current !== target) return; // cancelled meanwhile
       if (!tx) {
@@ -163,7 +185,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         return;
       }
       try {
-        await onPaymentConfirmed?.(target.contact.name, target.contact.id, {
+        await onPaymentConfirmed?.(target.contactName, target.contactId, {
           ...tx,
           description: tx.description.replace(/^Auto Sync: Pi sent to .*?(?= #|$)/, "Payment via Pi Wallet"),
         });
@@ -171,6 +193,9 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         toast.error(`Your payment went through, but it couldn't be saved to your ledger: ${err instanceof Error ? err.message : "unknown error"}. Use Automatic Transaction to add it later.`);
       }
       payTarget.current = null;
+      clearPendingWalletPayment();
+      setPaidRecipientName(target.contactName);
+      setAmount(target.amountText);
       setPaidTxHash(shortTxHash(tx));
       setScreen("success");
     } catch (err) {
@@ -182,33 +207,43 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     }
   };
 
-  // Poll while waiting, and check right away when the user returns from the Pi Wallet.
+  // Always call the latest checkForPayment (it reads the latest props, e.g. onPaymentConfirmed).
+  const checkRef = useRef(checkForPayment);
+  checkRef.current = checkForPayment;
+
+  // Poll while waiting, and check right away on mount / once the user's wallet address loads
+  // (after a reload) and whenever the user returns from the Pi Wallet.
   useEffect(() => {
     if (screen !== "processing") return;
     const tick = () => {
       const target = payTarget.current;
       if (target && Date.now() - target.startedAt > POLL_LIMIT_MS) return;
-      void checkForPayment(false);
+      void checkRef.current(false);
     };
+    tick();
     const id = window.setInterval(tick, POLL_MS);
     const onVisible = () => { if (document.visibilityState === "visible") tick(); };
     document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("pageshow", tick);
+    window.addEventListener("focus", tick);
     return () => {
       window.clearInterval(id);
       document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("pageshow", tick);
+      window.removeEventListener("focus", tick);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, userWalletAddress]);
 
   const cancelWaiting = () => {
     payTarget.current = null;
+    clearPendingWalletPayment();
     setScreen("form");
   };
 
   const reopenWallet = async () => {
     const target = payTarget.current;
     if (!target) return;
-    const opened = await openPiWalletPayRequest(target.contact.piWalletAddress, String(target.amount));
+    const opened = await openPiWalletPayRequest(target.contactAddress, target.amountText);
     setWalletOpened(opened);
     if (!opened) toast("Couldn't open the Pi Wallet here. Open it yourself and send the payment.");
   };
@@ -249,7 +284,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           </p>
           {!walletOpened && payTarget.current && (
             <p className="text-gray-500 dark:text-muted-foreground text-xs font-mono text-center mb-6" style={{ wordBreak: "break-all" }}>
-              {payTarget.current.contact.piWalletAddress}
+              {payTarget.current.contactAddress}
             </p>
           )}
 

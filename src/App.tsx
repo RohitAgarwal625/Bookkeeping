@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
@@ -26,6 +26,7 @@ import { useBookkeeping } from "./hooks/useBookkeeping";
 import { ApiError, auth, contactsApi } from "./lib/api";
 import { signInWithPi, type PiSession } from "./lib/piAuth";
 import { checkPremiumStatus } from "./lib/piPayments";
+import { loadPendingWalletPayment, clearPendingWalletPayment } from "./lib/piWalletPay";
 
 
 type Screen =
@@ -112,6 +113,17 @@ function AppContent() {
       })
       .catch(() => {});
   }, [bk.isAuthenticated]);
+
+  // Resume a Pi Wallet payment that was still being waited for when the app reloaded (leaving
+  // the app for the Pi Wallet can reload it): reopen Pay, which restores its waiting screen.
+  // Deferred so it runs after the session-restore effect's own navigation to the dashboard.
+  const pendingPayResumed = useRef(false);
+  useEffect(() => {
+    if (pendingPayResumed.current || !bk.sessionReady || !bk.user) return;
+    pendingPayResumed.current = true;
+    if (!loadPendingWalletPayment()) return;
+    window.setTimeout(() => { setShowPayModal(false); setCurrentScreen("pay"); }, 0);
+  }, [bk.sessionReady, bk.user]);
 
   /**
    * Pi Network sign-in:
@@ -272,6 +284,8 @@ function AppContent() {
   };
 
   const handleLogout = () => {
+    clearPendingWalletPayment(); // a payment being waited for belongs to this account
+    pendingPayResumed.current = false;
     bk.logout();
     setPiSession(null);
     setRestoredUsername(null);
