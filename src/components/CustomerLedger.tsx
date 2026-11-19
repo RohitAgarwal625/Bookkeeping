@@ -2,14 +2,52 @@ import { ArrowLeft, Pencil, Check, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AddEntryModal } from "./AddEntryModal";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { toast } from "sonner";
 import { Transaction, sortTransactionsDescending } from "../types";
-import { auth, transactionsApi } from "../lib/api";
+import { transactionsApi } from "../lib/api";
+import { formatPiAmount } from "../lib/piAmount";
 
 interface CustomerLedgerProps {
   customerName: string;
   contactId?: string;
   onBack: () => void;
   initialNewTransactions?: Transaction[];
+  /** Save a new entry for this contact on the server; resolves with the saved row. */
+  onAddEntry?: (entry: { amount: number; description: string; type: "credit" | "debit"; contactId: string }) => Promise<Transaction>;
+  /** Save an entry's edited note on the server; resolves with the saved row. */
+  onUpdateNote?: (id: string, description: string) => Promise<Transaction>;
+}
+
+const sameAmount = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+
+/**
+ * Put the just-added ("New") entries on top of the rows loaded from the server without
+ * showing anything twice. A new entry matches a server row by id, by chain payment id,
+ * or (for an entry kept with a local id) by the same type, amount and note; the matching
+ * server row is shown highlighted instead. Only entries with no match (not saved) stay as they are.
+ */
+function mergeWithPending(apiTxs: Transaction[], pending: Transaction[] = []): Transaction[] {
+  const rows = apiTxs.map((t) => ({ ...t, isNew: false }));
+  const claimed = new Set<number>();
+  const unsaved: Transaction[] = [];
+  for (const p of pending) {
+    let idx = rows.findIndex((r, i) => !claimed.has(i) && r.id === p.id);
+    if (idx < 0 && p.chainPaymentId) {
+      idx = rows.findIndex((r, i) => !claimed.has(i) && r.chainPaymentId === p.chainPaymentId);
+    }
+    if (idx < 0) {
+      // Rows come newest first, so this picks the newest look-alike.
+      idx = rows.findIndex((r, i) => !claimed.has(i) && !r.chainPaymentId === !p.chainPaymentId
+        && r.type === p.type && sameAmount(r.amount, p.amount) && r.description === p.description);
+    }
+    if (idx >= 0) {
+      claimed.add(idx);
+      rows[idx] = { ...rows[idx], isNew: true };
+    } else if (!unsaved.some((u) => u.id === p.id)) {
+      unsaved.push({ ...p, isNew: true });
+    }
+  }
+  return sortTransactionsDescending([...unsaved, ...rows]);
 }
 
 // Mock transactions list (empty to hide dummy data)
@@ -56,14 +94,14 @@ async function fetchWholeLedger(contactId: string): Promise<Transaction[]> {
   }
 }
 
-export function CustomerLedger({ customerName, contactId, onBack, initialNewTransactions }: CustomerLedgerProps) {
+export function CustomerLedger({ customerName, contactId, onBack, initialNewTransactions, onAddEntry, onUpdateNote }: CustomerLedgerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingNote, setEditingNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
     if (initialNewTransactions && initialNewTransactions.length > 0) {
-      return sortTransactionsDescending([...initialNewTransactions]);
+      return mergeWithPending([], initialNewTransactions);
     }
     return [];
   });
@@ -76,20 +114,14 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
     fetchWholeLedger(contactId)
       .then((apiTxs) => {
         if (cancelled) return;
-        // API returned real data — use it, merging any pending new transactions on top
-        if (initialNewTransactions && initialNewTransactions.length > 0) {
-          // Saved new rows also come back from the API: keep only the highlighted copy.
-          const newIds = new Set(initialNewTransactions.map((t) => t.id));
-          setTransactions(sortTransactionsDescending([...initialNewTransactions, ...apiTxs.filter((t) => !newIds.has(t.id))]));
-        } else {
-          setTransactions(sortTransactionsDescending(apiTxs));
-        }
+        // The server list is the truth; new entries only add the "New" highlight (no duplicates).
+        setTransactions(mergeWithPending(apiTxs, initialNewTransactions));
       })
       .catch(() => {
         // Backend offline or auth error — keep the mock fallback already set in initial state.
         if (cancelled) return;
         if (initialNewTransactions && initialNewTransactions.length > 0) {
-          setTransactions(sortTransactionsDescending([...initialNewTransactions, ...MOCK_TRANSACTIONS]));
+          setTransactions(mergeWithPending(MOCK_TRANSACTIONS, initialNewTransactions));
         }
       })
       .finally(() => {
@@ -103,7 +135,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
   useEffect(() => {
     if (contactId) return; // API fetch handles this case
     if (initialNewTransactions && initialNewTransactions.length > 0) {
-      setTransactions(sortTransactionsDescending([...initialNewTransactions, ...MOCK_TRANSACTIONS]));
+      setTransactions(mergeWithPending(MOCK_TRANSACTIONS, initialNewTransactions));
     }
   }, [initialNewTransactions, contactId]);
 
@@ -113,14 +145,23 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
   };
 
   const handleSaveEdit = (id: string) => {
-    const trimmed = editingNote.trim();
-    if (trimmed) {
-      setTransactions((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, description: trimmed.slice(0, 100) } : t))
-      );
-    }
+    const trimmed = editingNote.trim().slice(0, 100);
+    const before = transactions.find((t) => t.id === id);
     setEditingId(null);
     setEditingNote("");
+    if (!trimmed || !before || trimmed === before.description) return;
+    setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, description: trimmed } : t)));
+    // Rows from the server carry their contactId; local-only rows (not saved) stay local.
+    if (!before.contactId) return;
+    const save = onUpdateNote ?? ((txId: string, d: string) => transactionsApi.updateNote(txId, d).then((r) => r.transaction));
+    save(id, trimmed)
+      .then((saved) => {
+        setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, description: saved.description } : t)));
+      })
+      .catch((err: unknown) => {
+        setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, description: before.description } : t)));
+        toast.error(err instanceof Error && err.message ? `Couldn't save the note: ${err.message}` : "Couldn't save the note. Please try again.");
+      });
   };
 
   const handleCancelEdit = () => {
@@ -158,16 +199,23 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
     setTransactions((prev) => sortTransactionsDescending([newTransaction, ...prev]));
     setIsModalOpen(false);
 
-    if (contactId && auth.getToken()) {
-      transactionsApi.create({
+    if (contactId && onAddEntry) {
+      onAddEntry({
         description: entry.note.slice(0, 100) || `${entry.type === "credit" ? "Credit" : "Debit"} Entry`,
         amount: entry.amount,
         type: entry.type,
         contactId,
-        idempotencyKey: crypto.randomUUID(),
-      }).catch((err) => {
-        console.error("Failed to save ledger transaction to database:", err);
-      });
+      })
+        .then((saved) => {
+          // Swap the local copy for the saved row, so a later reload doesn't show it twice.
+          setTransactions((prev) => sortTransactionsDescending(
+            prev.filter((t) => t.id !== saved.id).map((t) => (t.id === newTransaction.id ? { ...saved, isNew: true } : t))
+          ));
+        })
+        .catch(() => {
+          setTransactions((prev) => prev.filter((t) => t.id !== newTransaction.id));
+          toast.error("Couldn't save the entry. Please try again.");
+        });
     }
   };
 
@@ -198,12 +246,12 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
           <div className="flex gap-6">
             <div className="flex-1 text-center py-3">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Debit</p>
-              <p className="text-red-600 dark:text-red-400 font-bold">{totalDebit.toFixed(2)} <span className="text-red-400 dark:text-red-500 text-sm font-semibold">π</span></p>
+              <p className="text-red-600 dark:text-red-400 font-bold">{formatPiAmount(totalDebit)} <span className="text-red-400 dark:text-red-500 text-sm font-semibold">π</span></p>
             </div>
             <div className="w-px bg-gradient-to-b from-transparent via-gray-200 dark:via-border to-transparent flex-shrink-0" />
             <div className="flex-1 text-center py-3">
               <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Credit</p>
-              <p className="text-green-600 dark:text-green-400 font-bold">{totalCredit.toFixed(2)} <span className="text-green-400 dark:text-green-500 text-sm font-semibold">π</span></p>
+              <p className="text-green-600 dark:text-green-400 font-bold">{formatPiAmount(totalCredit)} <span className="text-green-400 dark:text-green-500 text-sm font-semibold">π</span></p>
             </div>
           </div>
         </div>
@@ -263,7 +311,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                             }`}
                           >
                             {transaction.type === "credit" ? "+" : "-"}
-                            {transaction.amount.toFixed(2)} π
+                            {formatPiAmount(transaction.amount)} π
                           </p>
                         </div>
 
@@ -348,7 +396,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                               transaction.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                             }`}
                           >
-                            {transaction.type === "credit" ? "+" : "-"}{transaction.amount.toFixed(2)} π
+                            {transaction.type === "credit" ? "+" : "-"}{formatPiAmount(transaction.amount)} π
                           </p>
                         </div>
                       </div>

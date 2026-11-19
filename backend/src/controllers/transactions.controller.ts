@@ -341,6 +341,38 @@ export async function getTransaction(
 }
 
 /**
+ * PATCH /api/transactions/:id { description }
+ * Edit an entry's note only (the ledger's pencil). Other users' rows -> 404.
+ */
+export async function updateTransaction(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const { id } = req.params;
+    const { description } = req.body as { description: string };
+
+    const tx = await prisma.transaction.findFirst({
+      where: { id, userId, deletedAt: null },
+    });
+    if (!tx) {
+      res.status(404).json({ error: "NOT_FOUND", message: "Transaction not found" });
+      return;
+    }
+
+    const updated = await prisma.transaction.update({
+      where: { id: tx.id },
+      data: { description },
+    });
+    res.status(200).json({ transaction: serializeTransaction(updated) });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
  * DELETE /api/transactions/:id
  * Soft delete (G-011/G-012). Blockchain transactions cannot be deleted.
  */

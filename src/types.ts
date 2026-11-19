@@ -9,6 +9,8 @@ export interface Transaction {
   chainPaymentId?: string | null;
   /** Automatic-scan entries only: the payment's ISO created_at on the Pi blockchain. */
   chainTimestamp?: string;
+  /** Saved rows only: the contact this entry belongs to. */
+  contactId?: string | null;
 }
 
 export interface Contact {

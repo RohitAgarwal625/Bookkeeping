@@ -62,6 +62,14 @@ export const transactionIdSchema = z.object({
   params: z.object({ id: z.string().min(1) }),
 });
 
+/** Edit an entry's note (description) only. Amount, type, date and contact can't change. */
+export const updateTransactionSchema = z.object({
+  params: z.object({ id: z.string().min(1) }),
+  body: z.object({
+    description: sanitizedString(1, 500).refine((s) => s.length > 0, "Note must not be empty"),
+  }).strict(),
+});
+
 export const contactLedgerSchema = z.object({
   params: z.object({ contactId: z.string().min(1) }),
   query: z.object({

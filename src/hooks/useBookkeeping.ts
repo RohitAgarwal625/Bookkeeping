@@ -196,6 +196,12 @@ export function useBookkeeping() {
     return res.user;
   }, [user]);
 
+  /** Save an entry's edited note (PATCH /api/transactions/:id). Throws on failure. */
+  const updateTransactionNote = useCallback(async (id: string, description: string): Promise<Transaction> => {
+    const res = await transactionsApi.updateNote(id, description);
+    return res.transaction;
+  }, []);
+
   const getLedger = useCallback(async (contactId: string) => {
     const res = await transactionsApi.ledger(contactId);
     return res.data;
@@ -242,6 +248,7 @@ export function useBookkeeping() {
     addTransaction,
     importScannedTransactions,
     getLedger,
+    updateTransactionNote,
     updateWalletPublicKey,
     updateDisplayName,
   };

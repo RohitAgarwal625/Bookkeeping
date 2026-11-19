@@ -189,6 +189,7 @@ The `vercel.json` is already configured with SPA rewrites.
 | POST | `/api/transactions/import` | Save Automatic-scan entries for a contact (max 100); payments saved before are skipped |
 | GET | `/api/transactions/summary` | Dashboard totals |
 | GET | `/api/transactions/contact/:contactId` | Ledger for a contact |
+| PATCH | `/api/transactions/:id` | Edit an entry's note only `{description}` (1–500 chars, HTML stripped); 404 for another user's or a deleted entry |
 | DELETE | `/api/transactions/:id` | Soft-delete transaction |
 
 ---

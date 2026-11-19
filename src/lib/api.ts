@@ -189,6 +189,12 @@ export const transactionsApi = {
     request<{ transaction: Transaction }>(`/api/transactions/${id}`),
   remove: (id: string) =>
     request<void>(`/api/transactions/${id}`, { method: "DELETE" }),
+  /** Edit an entry's note only (PATCH /api/transactions/:id). */
+  updateNote: (id: string, description: string) =>
+    request<{ transaction: Transaction }>(`/api/transactions/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ description }),
+    }),
   ledger: (contactId: string, page = 1, limit = 50) =>
     request<Paginated<Transaction>>(
       `/api/transactions/contact/${contactId}?page=${page}&limit=${limit}`

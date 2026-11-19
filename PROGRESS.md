@@ -109,6 +109,7 @@ Response conventions: single → `{ user | contact | transaction }`; lists → `
 | POST | `/api/transactions` | write | Requires `idempotencyKey` (uuid). Same key + same user → 200 `{idempotent:true}`; other user → 409. Source always `manual`, status `completed`. Amount 0.0000001–1,000,000 |
 | POST | `/api/transactions/import` | write | Automatic-scan save: `{contactId, entries[1..100]: {chainPaymentId (digits), description, amount, type}}`. Contact must be the caller's (else 404). `createManyAndReturn({skipDuplicates})` on `(userId, chainPaymentId)`: payments saved before (even soft-deleted) or repeated in the request are skipped. → `{transactions (created now), added, skipped}`. Source `manual` (so a 1 π import can't count as Premium and stays deletable), timestamp = now |
 | GET | `/api/transactions/:id` | read | |
+| PATCH | `/api/transactions/:id` | write | Note edit only: `{description}` (`sanitizedString(1,500)`, `.strict()` so amount/type/date can't change). Ownership + not deleted, else 404 |
 | DELETE | `/api/transactions/:id` | write | Soft delete (`deletedAt`). `pi_network` txns → 403 |
 
 ### Pi Network (`routes/pi.ts`, Zod schemas in `schemas/pi.schema.ts`)

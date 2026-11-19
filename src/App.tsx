@@ -178,7 +178,8 @@ function AppContent() {
 
   const handleNavigateToCustomerLedger = (customerName: string, contactId?: string, newTransactions?: Transaction[]) => {
     setSelectedCustomer(customerName);
-    setSelectedContactId(contactId);
+    // Callers that pass only a name (Pay, Dashboard): find the contact so the ledger loads from the server.
+    setSelectedContactId(contactId ?? contacts.find((c) => normalizeContactName(c.name) === normalizeContactName(customerName))?.id);
     if (newTransactions && newTransactions.length > 0) {
       setPendingNewTransactions((prev) => {
         const existing = prev[customerName] || [];
@@ -426,23 +427,26 @@ function AppContent() {
           onBack={handleBackToDashboard}
           onSuccess={async (contactName, newTransaction, contactId, timestamp) => {
             let savedContactId: string | undefined = undefined;
+            let shownTransaction = newTransaction;
             if (bk.isAuthenticated && newTransaction) {
               if (contactId) {
                 savedContactId = contactId;
                 try {
-                  await bk.addTransaction({
+                  // Show the saved row (server id), so the ledger doesn't list it twice.
+                  const saved = await bk.addTransaction({
                     description: newTransaction.description,
                     amount: newTransaction.amount,
                     type: newTransaction.type,
                     contactId,
                     timestamp,
                   });
+                  shownTransaction = { ...saved, isNew: true };
                 } catch (e) {
                   console.error("Failed to save entry to database:", e);
                 }
               }
             }
-            handleNavigateToCustomerLedger(contactName, savedContactId, newTransaction ? [newTransaction] : undefined);
+            handleNavigateToCustomerLedger(contactName, savedContactId, shownTransaction ? [shownTransaction] : undefined);
           }}
           contacts={contacts}
         />
@@ -574,13 +578,27 @@ function AppContent() {
 
   if (currentScreen === "customerLedger") {
     return (
-      <CustomerLedger
-        key={`${selectedCustomer}-${selectedContactId}-${(pendingNewTransactions[selectedCustomer] || []).map(t => t.id).join('-')}`}
-        customerName={selectedCustomer}
-        contactId={selectedContactId}
-        initialNewTransactions={pendingNewTransactions[selectedCustomer]}
-        onBack={handleBackToDashboard}
-      />
+      <>
+        <CustomerLedger
+          key={`${selectedCustomer}-${selectedContactId}-${(pendingNewTransactions[selectedCustomer] || []).map(t => t.id).join('-')}`}
+          customerName={selectedCustomer}
+          contactId={selectedContactId}
+          initialNewTransactions={pendingNewTransactions[selectedCustomer]}
+          onAddEntry={bk.isAuthenticated ? (entry) => bk.addTransaction(entry) : undefined}
+          onUpdateNote={bk.isAuthenticated ? bk.updateTransactionNote : undefined}
+          onBack={() => {
+            // "New" highlights are shown once: clear them when leaving this ledger.
+            setPendingNewTransactions((prev) => {
+              if (!prev[selectedCustomer]) return prev;
+              const next = { ...prev };
+              delete next[selectedCustomer];
+              return next;
+            });
+            handleBackToDashboard();
+          }}
+        />
+        <Toaster position="bottom-center" />
+      </>
     );
   }
 
