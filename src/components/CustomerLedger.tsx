@@ -40,6 +40,22 @@ function formatLedgerTimestamp(timestamp: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+// The ledger API returns at most 100 rows per page: load every page, so the list and the totals cover all entries.
+async function fetchWholeLedger(contactId: string): Promise<Transaction[]> {
+  const rows: Transaction[] = [];
+  const seen = new Set<string>();
+  for (let page = 1; ; page++) {
+    const res = await transactionsApi.ledger(contactId, page, 100);
+    for (const tx of res.data) {
+      if (!seen.has(tx.id)) {
+        seen.add(tx.id);
+        rows.push(tx);
+      }
+    }
+    if (!res.pagination.hasNext || res.data.length === 0) return rows;
+  }
+}
+
 export function CustomerLedger({ customerName, contactId, onBack, initialNewTransactions }: CustomerLedgerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -57,11 +73,10 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
     if (!contactId) return;
     let cancelled = false;
     setIsLoading(true);
-    transactionsApi.ledger(contactId)
-      .then((res) => {
+    fetchWholeLedger(contactId)
+      .then((apiTxs) => {
         if (cancelled) return;
         // API returned real data — use it, merging any pending new transactions on top
-        const apiTxs = res.data;
         if (initialNewTransactions && initialNewTransactions.length > 0) {
           // Saved new rows also come back from the API: keep only the highlighted copy.
           const newIds = new Set(initialNewTransactions.map((t) => t.id));
