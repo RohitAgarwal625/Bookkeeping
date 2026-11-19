@@ -15,6 +15,8 @@ import type {
   Contact,
   CreateContactInput,
   CreateTransactionInput,
+  ImportTransactionEntry,
+  ImportTransactionsResponse,
   Transaction,
   TransactionSummary,
   User,
@@ -139,6 +141,32 @@ export function useBookkeeping() {
     [refreshContacts, refreshSummary]
   );
 
+  /**
+   * Save Automatic-scan entries for a contact, 100 per request (backend limit).
+   * Payments saved before are skipped by the backend, so a re-scan never
+   * duplicates them. Returns only the rows created now. Throws on failure.
+   */
+  const importScannedTransactions = useCallback(
+    async (
+      contactId: string,
+      entries: ImportTransactionEntry[]
+    ): Promise<ImportTransactionsResponse> => {
+      const created: Transaction[] = [];
+      let skipped = 0;
+      try {
+        for (let i = 0; i < entries.length; i += 100) {
+          const res = await transactionsApi.importScanned(contactId, entries.slice(i, i + 100));
+          created.push(...res.transactions);
+          skipped += res.skipped;
+        }
+      } finally {
+        await Promise.all([refreshContacts(), refreshSummary()]);
+      }
+      return { transactions: created, added: created.length, skipped };
+    },
+    [refreshContacts, refreshSummary]
+  );
+
   /** Save the user's own public Pi wallet address (Settings -> Profile). Throws on failure. */
   const updateWalletPublicKey = useCallback(async (walletPublicKey: string | null) => {
     const res = await usersApi.updateWallet(walletPublicKey);
@@ -174,6 +202,7 @@ export function useBookkeeping() {
     refreshSummary,
     addContact,
     addTransaction,
+    importScannedTransactions,
     getLedger,
     updateWalletPublicKey,
   };

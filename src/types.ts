@@ -185,6 +185,21 @@ export interface CreateTransactionInput {
   occurredAt?: string;
 }
 
+/** One Automatic-scan entry sent to POST /api/transactions/import. */
+export interface ImportTransactionEntry {
+  chainPaymentId: string;
+  description: string;
+  amount: number;
+  type: "credit" | "debit";
+}
+
+/** POST /api/transactions/import: rows created now; already-saved payments are skipped. */
+export interface ImportTransactionsResponse {
+  transactions: Transaction[];
+  added: number;
+  skipped: number;
+}
+
 export interface TransactionSummary {
   totalCredit: number;
   totalDebit: number;

@@ -10,6 +10,8 @@ import type {
   Contact,
   CreateContactInput,
   CreateTransactionInput,
+  ImportTransactionEntry,
+  ImportTransactionsResponse,
   Paginated,
   Transaction,
   TransactionSummary,
@@ -170,6 +172,12 @@ export const transactionsApi = {
       `/api/transactions`,
       { method: "POST", body: JSON.stringify(input) }
     ),
+  /** Save Automatic-scan entries for one contact (max 100 per call); already-saved payments are skipped. */
+  importScanned: (contactId: string, entries: ImportTransactionEntry[]) =>
+    request<ImportTransactionsResponse>(`/api/transactions/import`, {
+      method: "POST",
+      body: JSON.stringify({ contactId, entries }),
+    }),
   get: (id: string) =>
     request<{ transaction: Transaction }>(`/api/transactions/${id}`),
   remove: (id: string) =>

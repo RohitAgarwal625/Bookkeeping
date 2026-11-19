@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info, AlertCircle, RefreshCw } from "lucide-react";
-import { Contact, getInitials, Transaction } from "../types";
+import { Contact, getInitials, ImportTransactionsResponse, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { fetchPiBlockchainTransactions, PiBlockchainScanResult, PI_NETWORK } from "../lib/piBlockchain";
 
@@ -8,6 +8,8 @@ interface AutomaticTransactionScreenProps {
   contacts: Contact[];
   onBack: () => void;
   onNavigateToLedger: (name: string, contactId?: string, newTransactions?: Transaction[]) => void;
+  /** Saves the scan's entries to the ledger; payments saved before are skipped. Throws on failure. */
+  onSaveScanned: (contactId: string, transactions: Transaction[]) => Promise<ImportTransactionsResponse>;
   /** The signed-in user's own public Pi wallet address (Settings -> Profile). Required to scan. */
   userWalletAddress?: string;
   onOpenSettings?: () => void;
@@ -25,7 +27,7 @@ const SCAN_MESSAGES = [
   "Finalizing...",
 ];
 
-export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedger, userWalletAddress, onOpenSettings }: AutomaticTransactionScreenProps) {
+export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedger, onSaveScanned, userWalletAddress, onOpenSettings }: AutomaticTransactionScreenProps) {
   const [step, setStep] = useState<Step>("selectContact");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
@@ -38,6 +40,9 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   const [scanResult, setScanResult] = useState<PiBlockchainScanResult | null>(null);
   const [scannedTransactions, setScannedTransactions] = useState<Transaction[]>([]);
   const [scanError, setScanError] = useState<string | null>(null);
+  // Result of saving the scan's entries to the ledger (done before the summary shows)
+  const [saveResult, setSaveResult] = useState<ImportTransactionsResponse | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Format ISO date string (YYYY-MM-DD) to "DD MMM, YYYY" (e.g. 19 Aug, 2026)
   const fmtDate = (iso: string) => {
@@ -110,6 +115,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
     setScanResult(null);
     setScannedTransactions([]);
     setScanError(null);
+    setSaveResult(null);
+    setSaveError(null);
     setStep("scanning");
 
     const startTime = Date.now();
@@ -122,6 +129,17 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         userWalletAddress: userWalletAddress || undefined,
       });
 
+      // Save now, so the summary says "added to your ledger" only once they are.
+      let saved: ImportTransactionsResponse | null = null;
+      let saveFailure: string | null = null;
+      if (result.transactions.length > 0) {
+        try {
+          saved = await onSaveScanned(selectedContact.id, result.transactions);
+        } catch (err) {
+          saveFailure = err instanceof Error ? err.message : "Could not save to your ledger";
+        }
+      }
+
       const elapsed = Date.now() - startTime;
       const minWait = 2400; // Keep UI animated for at least 2.4s for smooth Pioneer UX
       const remaining = Math.max(0, minWait - elapsed);
@@ -129,6 +147,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
       setTimeout(() => {
         setScanResult(result);
         setScannedTransactions(result.transactions);
+        setSaveResult(saved);
+        setSaveError(saveFailure);
         if (result.error && result.transactions.length === 0) {
           setScanError(result.error);
         }
@@ -175,7 +195,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   }
 
   if (step === "summary") {
-    const count = scannedTransactions.length;
+    const count = scannedTransactions.length; // found on the blockchain
+    const added = saveResult?.added ?? 0; // saved to the ledger now
+    const skipped = saveResult?.skipped ?? 0; // already in the ledger from an earlier scan
+    const addedIds = new Set((saveResult?.transactions ?? []).map((t) => t.chainPaymentId));
+    const addedEntries = scannedTransactions.filter((t) => addedIds.has(t.chainPaymentId));
     const networkLabel = scanResult?.network === "testnet"
       ? "Pi Testnet"
       : scanResult?.network === "mainnet"
@@ -191,19 +215,34 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           className="w-20 h-20 rounded-full flex items-center justify-center mb-5 shadow-2xl mx-auto flex-shrink-0"
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}
         >
-          <CheckCircle className="w-10 h-10 text-white" strokeWidth={2.5} />
+          {saveError ? (
+            <AlertCircle className="w-10 h-10 text-white" strokeWidth={2.5} />
+          ) : (
+            <CheckCircle className="w-10 h-10 text-white" strokeWidth={2.5} />
+          )}
         </div>
 
         <h2 className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">
-          {count > 0 ? "Done !" : "Scan Complete"}
+          {added > 0 ? "Done !" : saveError ? "Not Saved" : "Scan Complete"}
         </h2>
 
         <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-5 max-w-sm">
-          {count > 0 ? (
+          {added > 0 ? (
             <>
-              <span className="font-bold text-[#6F3C97] dark:text-[#A47CF3] text-3xl">{count}</span>{" "}
-              transaction{count > 1 ? "s" : ""} found with{" "}
-              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> and were added to your ledger successfully.
+              <span className="font-bold text-[#6F3C97] dark:text-[#A47CF3] text-3xl">{added}</span>{" "}
+              new transaction{added > 1 ? "s" : ""} found with{" "}
+              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> and {added > 1 ? "were" : "was"} added to your ledger successfully.
+              {skipped > 0 && ` ${skipped} already in your ledger ${skipped > 1 ? "were" : "was"} not added again.`}
+            </>
+          ) : saveError ? (
+            <>
+              {count} transaction{count > 1 ? "s" : ""} found with{" "}
+              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span>, but {count > 1 ? "they" : "it"} could not be saved to your ledger. Please try again.
+            </>
+          ) : skipped > 0 ? (
+            <>
+              No new transactions. {skipped > 1 ? `All ${skipped} transactions` : "The transaction"} found with{" "}
+              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> {skipped > 1 ? "are" : "is"} already in your ledger.
             </>
           ) : (
             <>
@@ -229,6 +268,16 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           </div>
         )}
 
+        {/* Save failed: nothing was added, so say why */}
+        {saveError && (
+          <div className="w-full mb-4 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border rounded-2xl p-4" style={{ textAlign: "left" }}>
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0" />
+              <p className="text-xs text-gray-600 dark:text-muted-foreground">{saveError}</p>
+            </div>
+          </div>
+        )}
+
         {/* Scan Details Card */}
         <div className="w-full max-w-sm bg-white dark:bg-card shadow-md dark:border dark:border-border p-4 mb-4 mx-4 flex-shrink-0" style={{ borderRadius: "24px" }}>
           {[
@@ -236,7 +285,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             { label: "Network", value: networkLabel },
             { label: "From", value: fmtDate(fromDate) },
             { label: "To", value: fmtDate(toDate) },
-            { label: "Transactions Added", value: String(count) },
+            ...(skipped > 0 ? [{ label: "Already in Ledger", value: String(skipped) }] : []),
+            { label: "Transactions Added", value: String(added) },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
@@ -249,13 +299,13 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </div>
 
         {/* Preview of Found Transactions (if any) */}
-        {count > 0 && (
+        {addedEntries.length > 0 && (
           <div className="w-full max-w-sm mb-6 text-left">
             <h4 className="text-xs font-semibold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-2 px-1">
-              Synced Transactions ({count})
+              Synced Transactions ({addedEntries.length})
             </h4>
             <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-              {scannedTransactions.map((tx) => (
+              {addedEntries.map((tx) => (
                 <div
                   key={tx.id}
                   className="bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl p-3 flex items-center justify-between shadow-sm"
@@ -298,10 +348,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         <div className="w-full max-w-sm space-y-3 mt-auto pb-4">
           <button
             onClick={() => {
+              // Already saved above; this only opens the ledger, highlighting the new rows.
               onNavigateToLedger(
                 selectedContact?.name ?? "",
                 selectedContact?.id,
-                scannedTransactions
+                (saveResult?.transactions ?? []).map((t) => ({ ...t, isNew: true }))
               );
             }}
             className="w-full py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2"
@@ -314,7 +365,15 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             <BookOpen className="w-5 h-5" />
           </button>
 
-          {count === 0 && (
+          {saveError ? (
+            <button
+              onClick={handleStartScan}
+              className="w-full py-3 rounded-2xl font-semibold text-sm text-gray-600 dark:text-muted-foreground bg-gray-100 dark:bg-secondary hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Try Again
+            </button>
+          ) : added === 0 && (
             <button
               onClick={() => setStep("dateRange")}
               className="w-full py-3 rounded-2xl font-semibold text-sm text-gray-600 dark:text-muted-foreground bg-gray-100 dark:bg-secondary hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"

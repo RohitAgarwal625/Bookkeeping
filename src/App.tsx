@@ -340,26 +340,21 @@ function AppContent() {
           onBack={handleBackToDashboard}
           userWalletAddress={bk.user?.walletPublicKey ?? ""}
           onOpenSettings={() => handleNavigate("settings")}
-          onNavigateToLedger={async (customerName, contactId, newTransactions) => {
-            if (bk.isAuthenticated && newTransactions && newTransactions.length > 0) {
-              const matchingContact = contacts.find(
-                (c) => c.name.toLowerCase() === customerName.toLowerCase() || (contactId && c.id === contactId)
-              );
-              if (matchingContact) {
-                for (const tx of newTransactions) {
-                  try {
-                    await bk.addTransaction({
-                      description: tx.description,
-                      amount: tx.amount,
-                      type: tx.type,
-                      contactId: matchingContact.id,
-                    });
-                  } catch (e) {
-                    console.error("Failed to persist synced transaction to DB:", e);
-                  }
-                }
-              }
-            }
+          onSaveScanned={async (contactId, scanned) => {
+            if (!bk.isAuthenticated) throw new Error("Please sign in with Pi to save these entries to your ledger.");
+            return bk.importScannedTransactions(
+              contactId,
+              scanned
+                .filter((tx) => tx.chainPaymentId)
+                .map((tx) => ({
+                  chainPaymentId: tx.chainPaymentId as string,
+                  description: tx.description,
+                  amount: tx.amount,
+                  type: tx.type,
+                }))
+            );
+          }}
+          onNavigateToLedger={(customerName, contactId, newTransactions) => {
             handleNavigateToCustomerLedger(customerName, contactId, newTransactions);
           }}
         />
