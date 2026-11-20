@@ -30,9 +30,8 @@ export async function sessionAuth(
 ): Promise<void> {
   try {
     const header = req.headers.authorization;
-    const token = header?.startsWith("Bearer ")
-      ? header.slice("Bearer ".length).trim()
-      : undefined;
+    // The auth scheme is case-insensitive (RFC 7235 §2.1): "Bearer", "bearer", "BEARER".
+    const token = header?.match(/^bearer\s+(.+)$/i)?.[1].trim() || undefined;
 
     if (!token) {
       res
