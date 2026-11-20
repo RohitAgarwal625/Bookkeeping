@@ -41,6 +41,8 @@ export async function getOrCreateUser(
       data: { token, userId: user.id, expiresAt },
     });
 
+    // The body carries a bearer token: browsers and proxies must not cache it.
+    res.set("Cache-Control", "no-store");
     res.status(200).json({
       user: serializeUser(user),
       sessionToken: token,
