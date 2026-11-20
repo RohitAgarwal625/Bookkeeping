@@ -55,7 +55,7 @@ backend/
     ├── routes/          health, users, contacts, transactions, pi (thin: limiter → auth → validate → controller)
     ├── controllers/     users, contacts, transactions, pi (all logic + Prisma calls live here; no service layer)
     └── jobs/
-        └── reconciliation.ts  node-cron every 5 min (prod only): pending/expired Pi txns + expired-session cleanup
+        └── reconciliation.ts  node-cron every 5 min (every environment): deletes expired sessions only
 ```
 
 **Layering convention:** `route → [rateLimiter] → [sessionAuth] → validate(schema) → controller`. Controllers call `prisma` directly, `try/catch → next(err)`, and respond via serializers. There is no service or repository layer. Pi controllers handle `PiApiError` inline and return `{error, message, details}` with the Pi status code.
@@ -168,7 +168,7 @@ P2002 → 409 DUPLICATE · P2025 → 404 · P2024 (pool timeout) → 503 · P202
 - [ ] JWT issuance + JWT middleware (only `middleware/auth.ts` should need to change)
 - [ ] Populate `User.piUid` / `piUsername`
 - [ ] Strict Stellar wallet regex `^G[A-Z2-7]{55}$` (`schemas/common.ts`)
-- [ ] Pending-transaction record at approve time (so reconciliation has something to reconcile)
+- [ ] ~~Pending-transaction record at approve time (so reconciliation has something to reconcile)~~ Dropped 2026-11-19 (AUD-50): Premium removed, the payment reconciliation passes deleted
 - [ ] Live Pi balance endpoint
 - N/A RLS (Supabase-only; ownership is enforced in controllers via `userId` filters instead)
 

@@ -15,7 +15,7 @@ export async function startBackend({ port, databaseUrl, piApiUrl }) {
       ...process.env,
       PORT: String(port),
       DATABASE_URL: databaseUrl,
-      NODE_ENV: "development", // keeps the prod-only reconciliation cron off
+      NODE_ENV: "development",
       CORS_ORIGIN: TEST_ORIGIN,
       PI_NETWORK_API_KEY: TEST_PI_API_KEY,
       PI_PLATFORM_API_URL: piApiUrl,

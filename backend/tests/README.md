@@ -73,5 +73,5 @@ export default async function run({ api, db, pi }) {
 
 - Real Pi servers (testnet/mainnet), `Pi.authenticate` and App Studio login: use the Pi Sandbox for these.
 - Real Horizon: the proxy's upstream calls go to a fake Horizon route on the fake Pi server (`PI_HORIZON_URL`).
-- The prod-only reconciliation cron job.
+- The cron schedule itself (suite 31 runs the session clean-up job function directly).
 - The frontend.

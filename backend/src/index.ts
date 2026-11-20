@@ -7,7 +7,7 @@ import { logger } from "./lib/logger";
 import { prisma } from "./lib/prisma";
 import { errorHandler, notFound } from "./middleware/errorHandler";
 import { authFailureLimiter } from "./middleware/rateLimiter";
-import { startReconciliationJob } from "./jobs/reconciliation";
+import { startSessionCleanupJob } from "./jobs/reconciliation";
 
 import healthRoutes from "./routes/health";
 import userRoutes from "./routes/users";
@@ -69,10 +69,8 @@ const server = app.listen(config.port, () => {
   logger.info(
     `🚀 Bookkeeping API running on port ${config.port} (${config.nodeEnv})`
   );
-  // Reconciliation job is safe to run in all phases (no-op without Pi txns).
-  if (config.isProd) {
-    startReconciliationJob();
-  }
+  // Deletes expired sessions every 5 minutes, in every environment (AUD-50).
+  startSessionCleanupJob();
 });
 
 // --- Graceful shutdown (resolves G-014) ---
