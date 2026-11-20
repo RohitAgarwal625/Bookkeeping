@@ -124,8 +124,10 @@ export async function listContacts(
     const userId = req.user!.id;
     const search = (req.query as { search?: string }).search;
 
+    // Escape LIKE metacharacters so '%', '_' and '\' match literally (AUD-32).
+    const term = search ? search.replace(/[\\%_]/g, (ch) => "\\" + ch) : "";
     const searchFilter = search
-      ? Prisma.sql`AND c.name ILIKE ${"%" + search + "%"}`
+      ? Prisma.sql`AND c.name ILIKE ${"%" + term + "%"}`
       : Prisma.empty;
 
     const rows = await prisma.$queryRaw<ContactRow[]>`
