@@ -68,10 +68,11 @@ export function errorHandler(
     return;
   }
 
+  // Details stay in the server log only; the client gets a fixed message.
   logger.error({ err }, "Unhandled error");
   res.status(500).json({
     error: "INTERNAL_ERROR",
-    message: err instanceof Error ? err.message : "An unexpected error occurred",
+    message: "An unexpected error occurred",
   });
 }
 
