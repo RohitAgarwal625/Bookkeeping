@@ -38,3 +38,18 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "RATE_LIMITED", message: "Too many requests" },
 });
+
+/**
+ * Failed-authentication limiter — 100 rejected (401) requests/min per IP, mounted on /api
+ * before the routers. Only 401 responses count, so normal traffic is unaffected; a client
+ * over the limit gets 429 before sessionAuth does its DB lookup.
+ */
+export const authFailureLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  requestWasSuccessful: (_req, res) => res.statusCode !== 401,
+  message: { error: "RATE_LIMITED", message: "Too many requests" },
+});

@@ -6,6 +6,7 @@ import { config } from "./lib/config";
 import { logger } from "./lib/logger";
 import { prisma } from "./lib/prisma";
 import { errorHandler, notFound } from "./middleware/errorHandler";
+import { authFailureLimiter } from "./middleware/rateLimiter";
 import { startReconciliationJob } from "./jobs/reconciliation";
 
 import healthRoutes from "./routes/health";
@@ -53,6 +54,7 @@ app.use(
 
 // --- Routes ---
 app.use("/api/health", healthRoutes);
+app.use("/api", authFailureLimiter);
 app.use("/api/users", userRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/transactions", transactionRoutes);
