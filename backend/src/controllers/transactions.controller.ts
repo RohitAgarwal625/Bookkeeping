@@ -147,8 +147,15 @@ export async function importTransactions(
       return;
     }
 
+    // Insert in one fixed order (payment id, newest first, as the app sends them) so
+    // concurrent imports of overlapping ids lock rows in the same order and can't deadlock (AUD-66).
+    const ordered = [...entries].sort((a, b) => {
+      const x = BigInt(a.chainPaymentId);
+      const y = BigInt(b.chainPaymentId);
+      return x === y ? 0 : x > y ? -1 : 1;
+    });
     const created = await prisma.transaction.createManyAndReturn({
-      data: entries.map((e) => ({
+      data: ordered.map((e) => ({
         description: e.description,
         amount: new Prisma.Decimal(e.amount),
         type: e.type,
