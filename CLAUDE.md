@@ -61,7 +61,7 @@ dist/, build/            committed build output; don't edit by hand
    - The user's **real** wallet address is `User.walletPublicKey`, typed by the user in Settings → Profile (`PUT /api/users/me/wallet`). Pi doesn't give it to apps (`Pi.Wallet.getUserWalletAddresses()` → `unauthorized_app` unless Pi allowlists the app). The Automatic scan needs it. Why: `design/wallet-address/decision.html`.
    - That endpoint issues a session to anyone who supplies an id. Real token verification (Phase 4) isn't built.
    - `/api/pi/*` routes require `sessionAuth`, except `incomplete-payment` (runs during sign-in, before login) and the Horizon proxy (public data). Payments are recorded for `payment.user_uid` from the Pi API, and premium status is per user. See `PROGRESS.md` §5 and §9 before touching Pi payment code.
-7. **CSP lives in `vercel.json`.** Any new external host (API, font, script, image CDN) must be added there or it gets blocked in production. The same applies to backend `CORS_ORIGIN`. Locally, Vite serves on **:3000** but the backend's default CORS allows only `:5173`, so set `CORS_ORIGIN="http://localhost:3000"` in `backend/.env`.
+7. **CSP lives in `vercel.json`.** Any new external host (API, font, script, image CDN) must be added there or it gets blocked in production. The same applies to backend `CORS_ORIGIN`. Locally, Vite serves on **:3000** but the backend's default CORS (when `CORS_ORIGIN` is unset) allows only `http://localhost:5173` and `https://bookkeeping-v1.vercel.app`, so set `CORS_ORIGIN="http://localhost:3000"` in `backend/.env`.
 8. Never commit secrets. `.env.local` is tracked (it holds only `VITE_API_URL`); keep real keys in `backend/.env` (gitignored) or the Railway/Vercel dashboards.
 
 ## Conventions

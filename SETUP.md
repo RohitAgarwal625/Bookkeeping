@@ -129,7 +129,9 @@ railway link
 # NODE_ENV      → production
 # CORS_ORIGIN   → https://your-vercel-app.vercel.app
 # LOG_LEVEL     → info
-# JWT_SECRET    → generate a strong random secret
+# PI_NETWORK_API_KEY  → the app's Server API Key from the Pi Developer Portal (secret; approve/complete fail without it)
+# PI_PLATFORM_API_URL → optional, defaults to https://api.minepi.com
+# JWT_SECRET    → not used yet (Phase 4)
 
 # Deploy
 railway up
