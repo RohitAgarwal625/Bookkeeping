@@ -67,8 +67,9 @@ export async function updateUser(
     const { displayName } = req.body as { displayName: string };
 
     // Ownership: authenticated user must match the wallet address in the URL.
+    // 404, not 403, for other users (same answer whether or not that user exists).
     if (req.user!.piWalletAddress !== walletAddress) {
-      res.status(403).json({ error: "FORBIDDEN", message: "Cannot update another user" });
+      res.status(404).json({ error: "NOT_FOUND", message: "User not found" });
       return;
     }
 

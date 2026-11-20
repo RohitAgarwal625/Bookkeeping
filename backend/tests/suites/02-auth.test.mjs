@@ -34,8 +34,8 @@ export default async function run({ api, db }) {
   const upd = await api.call("PUT", "/api/users/auth_alice", { token: alice, body: { displayName: "Alice <b>A</b>" } });
   check("update own displayName, HTML stripped", upd.status === 200 && upd.body.user.displayName === "Alice A", JSON.stringify(upd.body));
   check(
-    "update another user's profile -> 403",
-    (await api.call("PUT", "/api/users/auth_bob", { token: alice, body: { displayName: "x" } })).status === 403
+    "update another user's profile -> 404",
+    (await api.call("PUT", "/api/users/auth_bob", { token: alice, body: { displayName: "x" } })).status === 404
   );
   check(
     "update profile without token -> 401",
