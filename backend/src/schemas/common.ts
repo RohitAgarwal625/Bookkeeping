@@ -41,4 +41,40 @@ export const stellarPublicKey = z
   .string()
   .max(120)
   .transform((val) => val.replace(/\s+/g, "").toUpperCase())
-  .pipe(z.string().regex(/^G[A-Z2-7]{55}$/, "Must be a Pi wallet address: G followed by 55 letters/digits"));
+  .pipe(
+    z
+      .string()
+      .regex(/^G[A-Z2-7]{55}$/, "Must be a Pi wallet address: G followed by 55 letters/digits")
+      .refine(isValidStrKeyPublicKey, "This wallet address has a typo (its checksum doesn't match). Please check it.")
+  );
+
+/**
+ * StrKey check for an ed25519 public key (what StrKey.isValidEd25519PublicKey does):
+ * base32-decode the 56 chars to 35 bytes = version byte (6 << 3) + 32-byte key + CRC16-XModem
+ * of the first 33 bytes, little-endian. Catches a mistyped character.
+ */
+function isValidStrKeyPublicKey(address: string): boolean {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const bytes: number[] = [];
+  let bits = 0;
+  let value = 0;
+  for (const ch of address) {
+    const idx = alphabet.indexOf(ch);
+    if (idx < 0) return false;
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      bits -= 8;
+      bytes.push((value >> bits) & 0xff);
+    }
+  }
+  // 56 chars = 280 bits = exactly 35 bytes; leftover bits must be zero.
+  if (bytes.length !== 35 || (value & ((1 << bits) - 1)) !== 0) return false;
+  if (bytes[0] !== 6 << 3) return false;
+  let crc = 0;
+  for (let i = 0; i < 33; i++) {
+    crc ^= bytes[i] << 8;
+    for (let b = 0; b < 8; b++) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+  }
+  return bytes[33] === (crc & 0xff) && bytes[34] === (crc >> 8);
+}
