@@ -11,20 +11,45 @@ import { ensurePiInitialized } from "./piAuth";
 import { fetchPiBlockchainTransactions } from "./piBlockchain";
 import { Transaction } from "../types";
 
-/** Opens the Pi Wallet's send screen. Returns false when this Pi Browser can't open it. */
-export async function openPiWalletPayRequest(contactAddress: string, amount: string): Promise<boolean> {
+/**
+ * The Pi Wallet's pay-request link: the same https URL the wallet's own "Receive" QR code holds
+ * (`https://wallet.pinet.com/pay-request?publicKey=G…`; the Pi Browser's own link list adds
+ * `&amount=`). It must be https, not `pi://`: `Pi.openUrlInSystemBrowser` hands the URL to the
+ * phone's system browser, which can't load `pi://` and shows a blank page. wallet.pinet.com
+ * is an Android App Link / iOS Universal Link of the Pi Browser (package `pi.browser`, see
+ * https://wallet.pinet.com/.well-known/assetlinks.json), so the phone opens it in the Pi Wallet.
+ */
+export function piWalletPayRequestUrl(contactAddress: string, amount: string): string {
+  return (
+    `https://wallet.pinet.com/pay-request?publicKey=${encodeURIComponent(contactAddress.trim())}` +
+    `&amount=${encodeURIComponent(amount)}`
+  );
+}
+
+/** Pi Browser answers openUrlInSystemBrowser through a native callback that may never come. */
+const OPEN_WALLET_TIMEOUT_MS = 4000;
+
+/** Opens a Pi Wallet https link. Returns false when this Pi Browser can't open it. */
+export async function openPiWalletLink(url: string): Promise<boolean> {
   try {
     await ensurePiInitialized();
     if (typeof window.Pi?.openUrlInSystemBrowser !== "function") return false;
-    const url =
-      `pi://wallet.pinet.com/pay-request?publicKey=${encodeURIComponent(contactAddress.trim())}` +
-      `&amount=${encodeURIComponent(amount)}`;
-    await window.Pi.openUrlInSystemBrowser(url);
+    // No answer in time: assume it opened (the caller offers the manual path anyway).
+    await Promise.race([
+      window.Pi.openUrlInSystemBrowser(url),
+      new Promise<void>((resolve) => window.setTimeout(resolve, OPEN_WALLET_TIMEOUT_MS)),
+    ]);
     return true;
   } catch (err) {
+    // e.g. "No minimal requirements" (older Pi Browser) or "Failed to open URL".
     console.error("Could not open the Pi Wallet:", err);
     return false;
   }
+}
+
+/** Opens the Pi Wallet's send screen. Returns false when this Pi Browser can't open it. */
+export function openPiWalletPayRequest(contactAddress: string, amount: string): Promise<boolean> {
+  return openPiWalletLink(piWalletPayRequestUrl(contactAddress, amount));
 }
 
 export interface WalletPaymentQuery {

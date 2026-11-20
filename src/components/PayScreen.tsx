@@ -282,10 +282,36 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               ? `Confirm ${amount} π to ${paidRecipientName} in your Pi Wallet. It is added to your ledger once it appears on the Pi blockchain.`
               : `Send ${amount} π to ${paidRecipientName} from your Pi Wallet. It is added to your ledger once it appears on the Pi blockchain.`}
           </p>
-          {!walletOpened && payTarget.current && (
-            <p className="text-gray-500 dark:text-muted-foreground text-xs font-mono text-center mb-6" style={{ wordBreak: "break-all" }}>
-              {payTarget.current.contactAddress}
-            </p>
+          {payTarget.current && (
+            // Manual path, always shown: the Pi Wallet may not open (or open blank) on some phones.
+            <div className="w-full mb-6 rounded-xl border-2 border-gray-200 dark:border-border bg-gray-50 dark:bg-card" style={{ maxWidth: "24rem", padding: "12px" }}>
+              <p className="text-gray-500 dark:text-muted-foreground text-xs text-center mb-3">
+                {walletOpened ? "Wallet didn't open? " : ""}Open Pi Wallet → Send, paste the address and amount.
+              </p>
+              <p className="text-gray-700 dark:text-foreground text-xs font-mono text-center mb-3" style={{ wordBreak: "break-all" }}>
+                {payTarget.current.contactAddress}
+              </p>
+              <div style={{ display: "flex", gap: "8px" }}>
+                {[
+                  { label: "Copy address", value: payTarget.current.contactAddress, done: "Address copied" },
+                  { label: `Copy ${payTarget.current.amountText} π`, value: payTarget.current.amountText, done: "Amount copied" },
+                ].map((c) => (
+                  <button
+                    key={c.label}
+                    onClick={() => {
+                      navigator.clipboard.writeText(c.value).then(
+                        () => toast(c.done),
+                        () => toast("Couldn't copy. Select the text and copy it yourself.")
+                      );
+                    }}
+                    className="flex-1 rounded-xl border-2 border-gray-200 dark:border-border text-gray-700 dark:text-foreground text-sm font-bold"
+                    style={{ minHeight: "44px" }}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Bouncing dots */}
