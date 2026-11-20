@@ -123,7 +123,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     setIsDropdownOpen(false);
   };
 
-  // Pay: open the Pi Wallet with the contact's address + amount filled in, then wait
+  // Pay: open the Pi Wallet with the contact's address filled in (the amount is typed there), then wait
   // until that payment shows up on the blockchain. Nothing is saved before that.
   const handlePay = async () => {
     if (!matchedContact) return;
@@ -151,7 +151,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     savePendingWalletPayment(target); // before leaving the app: the Pi Browser may reload it
     setScreen("processing");
 
-    const opened = await openPiWalletPayRequest(matchedContact.piWalletAddress, amount);
+    const opened = await openPiWalletPayRequest(matchedContact.piWalletAddress);
     setWalletOpened(opened);
     if (!opened) {
       try {
@@ -246,7 +246,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   const reopenWallet = async () => {
     const target = payTarget.current;
     if (!target) return;
-    const opened = await openPiWalletPayRequest(target.contactAddress, target.amountText);
+    const opened = await openPiWalletPayRequest(target.contactAddress);
     setWalletOpened(opened);
     if (!opened) toast("Couldn't open the Pi Wallet here. Open it yourself and send the payment.");
   };
@@ -282,7 +282,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           <p className="text-gray-900 dark:text-white font-bold text-xl mb-2">Waiting for your payment</p>
           <p className="text-gray-400 text-sm text-center mb-7">
             {walletOpened
-              ? `Confirm ${amount} π to ${paidRecipientName} in your Pi Wallet. It is added to your ledger once it appears on the Pi blockchain.`
+              ? `Enter ${amount} π in your Pi Wallet and send it to ${paidRecipientName}. It is added to your ledger once it appears on the Pi blockchain.`
               : `Send ${amount} π to ${paidRecipientName} from your Pi Wallet. It is added to your ledger once it appears on the Pi blockchain.`}
           </p>
           {payTarget.current && (

@@ -13,17 +13,16 @@ import { Transaction } from "../types";
 
 /**
  * The Pi Wallet's pay-request link: the same https URL the wallet's own "Receive" QR code holds
- * (`https://wallet.pinet.com/pay-request?publicKey=G…`; the Pi Browser's own link list adds
- * `&amount=`). It must be https, not `pi://`: `Pi.openUrlInSystemBrowser` hands the URL to the
+ * (`https://wallet.pinet.com/pay-request?publicKey=G…`). No `&amount=`: tested on a phone, the
+ * QR link (no amount) opened the wallet's send screen after the fingerprint unlock, while the
+ * link with `&amount=` left the user on the wallet home; the amount is typed in the wallet.
+ * It must be https, not `pi://`: `Pi.openUrlInSystemBrowser` hands the URL to the
  * phone's system browser, which can't load `pi://` and shows a blank page. wallet.pinet.com
  * is an Android App Link / iOS Universal Link of the Pi Browser (package `pi.browser`, see
  * https://wallet.pinet.com/.well-known/assetlinks.json), so the phone opens it in the Pi Wallet.
  */
-export function piWalletPayRequestUrl(contactAddress: string, amount: string): string {
-  return (
-    `https://wallet.pinet.com/pay-request?publicKey=${encodeURIComponent(contactAddress.trim())}` +
-    `&amount=${encodeURIComponent(amount)}`
-  );
+export function piWalletPayRequestUrl(contactAddress: string): string {
+  return `https://wallet.pinet.com/pay-request?publicKey=${encodeURIComponent(contactAddress.trim())}`;
 }
 
 /** Pi Browser answers openUrlInSystemBrowser through a native callback that may never come. */
@@ -67,8 +66,8 @@ export async function openPiWalletLink(url: string): Promise<boolean> {
 }
 
 /** Opens the Pi Wallet's send screen. Returns false when this Pi Browser can't open it. */
-export function openPiWalletPayRequest(contactAddress: string, amount: string): Promise<boolean> {
-  return openPiWalletLink(piWalletPayRequestUrl(contactAddress, amount));
+export function openPiWalletPayRequest(contactAddress: string): Promise<boolean> {
+  return openPiWalletLink(piWalletPayRequestUrl(contactAddress));
 }
 
 export interface WalletPaymentQuery {
