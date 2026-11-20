@@ -2,7 +2,12 @@ import { z } from "zod";
 import { walletAddress } from "./common";
 
 /** Pi payment identifiers are opaque strings issued by the Pi Platform. */
-const paymentId = z.string().min(1).max(200);
+// "." and ".." would be normalised out of /v2/payments/<id> by fetch, so they are rejected.
+const paymentId = z
+  .string()
+  .min(1)
+  .max(200)
+  .refine((id) => id !== "." && id !== "..", "Invalid payment id");
 const txid = z.string().min(1).max(200);
 
 export const approvePaymentSchema = z.object({
