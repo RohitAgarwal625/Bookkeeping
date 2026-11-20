@@ -259,6 +259,11 @@ export const piClient = {
     validateProductPayment(payment);
     assertNotCancelled(payment);
 
+    // The txid must match the transaction Pi recorded for this payment.
+    if (payment.transaction?.txid && payment.transaction.txid !== txid) {
+      throw new PiApiError(409, "TXID_MISMATCH", "txid does not match the payment's blockchain transaction");
+    }
+
     // If already completed, return payment
     if (payment.status?.developer_completed) {
       logger.info({ paymentId, txid }, "Payment is already developer_completed");

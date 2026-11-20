@@ -56,8 +56,8 @@ async function recordCompletedPayment(
         where: { id: existing.id },
         data: {
           status: "completed",
-          txHash: txid,
-          piPaymentId: payment.identifier,
+          // Keep a stored txHash; never overwrite it with a caller's txid.
+          ...(existing.txHash ? {} : { txHash: txid }),
         },
       });
       logger.info({ txId: existing.id }, "Updated existing transaction to completed");
@@ -164,7 +164,7 @@ export async function completePaymentHandler(
     const payment = await piClient.completePayment(paymentId, txid);
 
     // Save in database
-    await recordCompletedPayment(payment, txid);
+    await recordCompletedPayment(payment, payment.transaction?.txid ?? txid);
 
     res.status(200).json({
       success: true,
@@ -217,10 +217,11 @@ export async function incompletePaymentHandler(
     }
 
     // Step 2: If blockchain txid exists and not yet completed by developer, complete it
-    const activeTxid = txid || payment.transaction?.txid;
+    // Prefer the txid Pi recorded over the (unauthenticated) caller's.
+    const activeTxid = payment.transaction?.txid ?? txid;
     if (activeTxid && !payment.status?.developer_completed && !payment.status?.cancelled) {
       payment = await piClient.completePayment(paymentId, activeTxid);
-      await recordCompletedPayment(payment, activeTxid);
+      await recordCompletedPayment(payment, payment.transaction?.txid ?? activeTxid);
     }
 
     res.status(200).json({
