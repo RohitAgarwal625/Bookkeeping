@@ -93,6 +93,8 @@ async function piRequest<T>(
   const options: RequestInit = {
     method,
     headers,
+    // Without a timeout a silent Pi API keeps the request (and the reconciliation run) waiting for minutes.
+    signal: AbortSignal.timeout(config.piApiTimeoutMs),
   };
 
   if (body !== undefined) {
@@ -102,9 +104,15 @@ async function piRequest<T>(
   logger.info({ url, method, path }, "Sending request to Pi Platform API");
 
   let res: Response;
+  let responseText: string;
   try {
     res = await fetch(url, options);
+    responseText = await res.text();
   } catch (err) {
+    if (err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError")) {
+      logger.error({ url, timeoutMs: config.piApiTimeoutMs }, "Pi Platform API request timed out");
+      throw new PiApiError(504, "PI_API_TIMEOUT", "The Pi payment service did not answer in time, please try again");
+    }
     logger.error({ err, url }, "Failed to connect to Pi Platform API");
     throw new PiApiError(
       502,
@@ -113,7 +121,6 @@ async function piRequest<T>(
     );
   }
 
-  const responseText = await res.text();
   let json: unknown = null;
   let parsed = true;
   try {

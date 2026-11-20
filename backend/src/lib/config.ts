@@ -49,6 +49,8 @@ export const config = {
   // Pi Network Payments configuration
   piApiKey: process.env.PI_NETWORK_API_KEY ?? process.env.PI_API_KEY ?? "",
   piPlatformApiUrl: process.env.PI_PLATFORM_API_URL ?? "https://api.minepi.com",
+  // Abort a Pi Platform API request that hasn't answered after this many ms (504 PI_API_TIMEOUT).
+  piApiTimeoutMs: Number(process.env.PI_API_TIMEOUT_MS) > 0 ? Number(process.env.PI_API_TIMEOUT_MS) : 10_000,
   // Pi blockchain the Horizon proxy reads from. Testnet only for now; PI_NETWORK=mainnet switches it.
   piNetwork,
 };
