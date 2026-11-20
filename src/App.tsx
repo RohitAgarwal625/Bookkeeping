@@ -752,7 +752,7 @@ function AppContent() {
           aria-label="Loading"
           style={{ width: "40px", height: "40px", borderRadius: "9999px", border: "4px solid rgba(164,124,243,0.25)", borderTopColor: "#A47CF3", animation: "bk-restore-spin 0.8s linear infinite" }}
         />
-        <p className="text-sm text-gray-500 dark:text-muted-foreground">Loading your khata...</p>
+        <p className="text-sm text-gray-500 dark:text-muted-foreground">Loading your app...</p>
       </div>
     );
   }
