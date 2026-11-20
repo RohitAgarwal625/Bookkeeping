@@ -36,7 +36,9 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
   // A payment still being waited for (saved before opening the Pi Wallet, which can reload
   // the app) brings the screen straight back to "Waiting for your payment".
-  const [restored] = useState<PendingWalletPayment | null>(() => loadPendingWalletPayment());
+  // Arriving from a QR scan opens the form for the scanned person instead; the pending payment
+  // stays saved (it resumes the next time Pay opens without a scanned address).
+  const [restored] = useState<PendingWalletPayment | null>(() => (prefilledAddress ? null : loadPendingWalletPayment()));
   const [publicKey, setPublicKey] = useState("");
   const [pioneerQuery, setPioneerQuery] = useState("");
   const [paidRecipientName, setPaidRecipientName] = useState(restored?.contactName ?? "");
