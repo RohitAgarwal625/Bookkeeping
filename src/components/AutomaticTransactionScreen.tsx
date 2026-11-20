@@ -198,8 +198,6 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
     const count = scannedTransactions.length; // found on the blockchain
     const added = saveResult?.added ?? 0; // saved to the ledger now
     const skipped = saveResult?.skipped ?? 0; // already in the ledger from an earlier scan
-    const addedIds = new Set((saveResult?.transactions ?? []).map((t) => t.chainPaymentId));
-    const addedEntries = scannedTransactions.filter((t) => addedIds.has(t.chainPaymentId));
     const networkLabel = scanResult?.network === "testnet"
       ? "Pi Testnet"
       : scanResult?.network === "mainnet"
@@ -297,52 +295,6 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             </div>
           ))}
         </div>
-
-        {/* Preview of Found Transactions (if any) */}
-        {addedEntries.length > 0 && (
-          <div className="w-full max-w-sm mb-6 text-left">
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-2 px-1">
-              Synced Transactions ({addedEntries.length})
-            </h4>
-            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-              {addedEntries.map((tx) => (
-                <div
-                  key={tx.id}
-                  className="bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl p-3 flex items-center justify-between shadow-sm"
-                >
-                  <div className="min-w-0 flex-1 pr-3">
-                    <p className="text-xs font-semibold text-gray-900 dark:text-foreground truncate">
-                      {tx.description}
-                    </p>
-                    <p className="text-[11px] text-gray-400 dark:text-muted-foreground mt-0.5">
-                      {tx.timestamp}
-                    </p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <span
-                      className={`text-sm font-bold ${
-                        tx.type === "credit"
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-rose-600 dark:text-rose-400"
-                      }`}
-                    >
-                      {tx.type === "credit" ? "+" : "-"} {tx.amount.toFixed(4)} π
-                    </span>
-                    <span
-                      className={`block text-[10px] uppercase font-bold tracking-wider mt-0.5 ${
-                        tx.type === "credit"
-                          ? "text-emerald-500"
-                          : "text-rose-500"
-                      }`}
-                    >
-                      {tx.type}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Action Buttons */}
         <div className="w-full max-w-sm space-y-3 mt-auto pb-4">
