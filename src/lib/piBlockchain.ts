@@ -9,6 +9,7 @@
  */
 
 import { Transaction } from "../types";
+import { API_URL } from "./api";
 
 export interface PiHorizonPaymentRecord {
   id: string;
@@ -188,7 +189,7 @@ async function fetchAllPayments(
   const directUrl = (cursor: string) =>
     `${PI_HORIZON_URL}/accounts/${encoded}/payments?limit=${PAGE_SIZE}&order=desc${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
   const proxyUrl = (cursor: string) =>
-    `/api/pi/blockchain/payments/${encoded}?limit=${PAGE_SIZE}&order=desc${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+    `${API_URL}/api/pi/blockchain/payments/${encoded}?limit=${PAGE_SIZE}&order=desc${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
 
   // Pick the source with the first page: direct Horizon, else the backend proxy.
   let pageUrl = directUrl;
