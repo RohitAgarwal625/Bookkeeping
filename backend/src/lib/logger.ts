@@ -13,6 +13,8 @@ export const logger = pino({
       'req.headers["x-wallet-address"]',
       "sessionToken",
       "token",
+      // body-parser errors carry the raw request text (could hold an accessToken).
+      "err.body",
     ],
     remove: true,
   },
