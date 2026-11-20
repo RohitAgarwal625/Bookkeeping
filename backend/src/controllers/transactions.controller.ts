@@ -147,6 +147,31 @@ export async function importTransactions(
       return;
     }
 
+    // Payments saved before under a contact that was since deleted (contactId
+    // SET NULL) belong to no ledger: move them into this contact instead of
+    // skipping them, so a re-added contact gets its history back (AUD-33).
+    // Entries the user deleted (deletedAt set) stay deleted and are skipped.
+    const orphans = await prisma.transaction.findMany({
+      where: {
+        userId,
+        contactId: null,
+        deletedAt: null,
+        chainPaymentId: { in: entries.map((e) => e.chainPaymentId) },
+      },
+      select: { id: true },
+    });
+    let relinked: Awaited<ReturnType<typeof prisma.transaction.findMany>> = [];
+    if (orphans.length > 0) {
+      const ids = orphans.map((o) => o.id);
+      await prisma.transaction.updateMany({
+        where: { id: { in: ids }, userId, contactId: null },
+        data: { contactId },
+      });
+      relinked = await prisma.transaction.findMany({
+        where: { id: { in: ids }, userId, contactId },
+      });
+    }
+
     // Insert in one fixed order (payment id, newest first, as the app sends them) so
     // concurrent imports of overlapping ids lock rows in the same order and can't deadlock (AUD-66).
     const ordered = [...entries].sort((a, b) => {
@@ -170,10 +195,12 @@ export async function importTransactions(
       skipDuplicates: true,
     });
 
+    // Re-linked rows count as added: they are new in this contact's ledger.
+    const added = [...relinked, ...created];
     res.status(200).json({
-      transactions: created.map(serializeTransaction),
-      added: created.length,
-      skipped: entries.length - created.length,
+      transactions: added.map(serializeTransaction),
+      added: added.length,
+      skipped: entries.length - added.length,
     });
   } catch (err) {
     next(err);
