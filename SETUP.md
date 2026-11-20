@@ -168,8 +168,13 @@ The `vercel.json` is already configured with SPA rewrites.
 | `NODE_ENV` | Backend `.env` / Railway | `development` / `production` |
 | `CORS_ORIGIN` | Backend `.env` / Railway | Frontend URL |
 | `LOG_LEVEL` | Backend `.env` / Railway | `info` |
-| `JWT_SECRET` | Backend `.env` / Railway | Strong random secret (Phase 4) |
-| `PI_NETWORK` | Backend `.env` / Railway | Optional. `testnet` (default) or `mainnet`: the chain the Horizon proxy reads |
+| `JWT_SECRET` | Backend `.env` / Railway | Not used yet (Phase 4 token verification) |
+| `PI_NETWORK_API_KEY` | Backend `.env` / Railway | **Secret.** The app's Server API Key (Pi Developer Portal). Required for Pi payment approve/complete (`PI_API_KEY` also accepted) |
+| `PI_PLATFORM_API_URL` | Backend `.env` / Railway | Optional. Pi Platform API base URL, default `https://api.minepi.com` |
+| `PI_API_TIMEOUT_MS` | Backend `.env` / Railway | Optional. Milliseconds before a Pi Platform API call is aborted (504 `PI_API_TIMEOUT`), default `10000` |
+| `PI_NETWORK` | Backend `.env` / Railway | Optional. `testnet` (default) or `mainnet` (case and spaces ignored; any other value stops the boot): the chain the Horizon proxy reads |
+| `TRUST_PROXY` | Backend `.env` / Railway | Optional. Number of reverse-proxy hops in front of the backend, so per-IP rate limits use the client IP from `X-Forwarded-For`. Default `1` when `NODE_ENV=production` (Railway's edge), `0` otherwise |
+| `PI_HORIZON_URL` | Backend test runner only | Optional. Overrides the Horizon base URL (default `https://api.<PI_NETWORK>.minepi.com`). The API tests point it at the fake Pi server; leave unset in production |
 | `VITE_PI_NETWORK` | Frontend `.env.local` / Vercel | Optional. `testnet` (default) or `mainnet`: the chain the Automatic scan reads |
 
 ---
@@ -183,13 +188,15 @@ The `vercel.json` is already configured with SPA rewrites.
 | GET | `/api/users/me` | The signed-in user `{user}` from the Bearer token (restores the session after a reload); 401 if the token is missing, invalid or expired |
 | PUT | `/api/users/:walletAddress` | Update your `displayName` (404 `NOT_FOUND` for any other id) |
 | PUT | `/api/users/me/wallet` | Save (or clear with `null`) the user's own public Pi wallet address (`G…`) |
-| GET | `/api/contacts` | List contacts (with totals) |
-| POST | `/api/contacts` | Create contact (409 `CONTACT_NAME_TAKEN` if another of your contacts has the same name, ignoring case and extra spaces) |
-| PUT | `/api/contacts/:id` | Update contact (409 `CONTACT_NAME_TAKEN` if another contact has the new name) |
+| POST | `/api/users/logout` | Sign out: deletes the current session (204); the token stops working. Other sessions of the user stay valid |
+| GET | `/api/contacts` | List contacts (with totals; only completed entries count) |
+| POST | `/api/contacts` | Create contact (409 `CONTACT_NAME_TAKEN` if another of your contacts has the same name, ignoring case and extra spaces; wallet address stored without whitespace and upper-cased, letters/digits only, 409 `DUPLICATE_CONTACT` if you already have it in any case/spacing) |
+| GET | `/api/contacts/:id` | One contact (with totals); 404 for another user's contact |
+| PUT | `/api/contacts/:id` | Update contact (409 `CONTACT_NAME_TAKEN` if another contact has the new name); answers with the contact's real totals |
 | DELETE | `/api/contacts/:id` | Delete contact (its entries are kept without a contact) |
 | GET | `/api/transactions` | List transactions |
-| POST | `/api/transactions` | Create transaction (idempotencyKey required) |
-| POST | `/api/transactions/import` | Save Automatic-scan entries for a contact (max 100); payments saved before are skipped |
+| POST | `/api/transactions` | Create transaction (idempotencyKey required; optional `timestamp` must be between 2018-01-01 and 1 year from now, else 400) |
+| POST | `/api/transactions/import` | Save Automatic-scan entries for a contact (max 100; entry dates from 2018-01-01 to now + 5 min); payments saved before are skipped, except ones left without a contact by a contact delete, which move into this contact. Own rate limit (60/min per user), so Auto Sync doesn't use up the 20 writes/min |
 | GET | `/api/transactions/summary` | Dashboard totals |
 | GET | `/api/transactions/contact/:contactId` | Ledger for a contact |
 | GET | `/api/transactions/:id` | One transaction; 404 for another user's or a deleted entry |
@@ -201,6 +208,8 @@ The `vercel.json` is already configured with SPA rewrites.
 | GET | `/api/pi/payment/:id` | Pi payment status from the Pi Platform API (session required). Only the payer can read it; anyone else gets 404 `PAYMENT_NOT_FOUND` |
 | GET | `/api/pi/premium-status` | `isPremium` for the signed-in user |
 | GET | `/api/pi/blockchain/payments/:address` | One page of Pi Horizon payments for an address on `PI_NETWORK`. **No session, by design** (public chain data) |
+
+Pi Platform API failures on the payment routes (approve, complete, incomplete-payment, payment/:id): `paymentId` `.`/`..` → 400 `VALIDATION_ERROR`; unknown payment → 404 `PAYMENT_NOT_FOUND`; Pi rejects the server key → 502 `PI_API_UNAVAILABLE` (never 401, which would sign the user out); Pi 5xx or a non-JSON body → 502 `PI_API_ERROR`; no answer within `PI_API_TIMEOUT_MS` → 504 `PI_API_TIMEOUT`; server key not set → 503 `PI_NOT_CONFIGURED`. Upstream text and bodies go to the server log only, never into `details`.
 
 ---
 

@@ -45,7 +45,11 @@ tests/
     ├── 08-premium-status.test.mjs      premium is per user
     ├── 09-rate-limit.test.mjs          per-IP and per-user write limits (uses the write budget; keep after other write-heavy suites)
     ├── 11-user-wallet.test.mjs         PUT /api/users/me/wallet: own wallet address (format, per-user, clear)
-    └── 12-transactions-import.test.mjs POST /api/transactions/import: scan entries saved once, re-scans skipped
+    ├── 12-transactions-import.test.mjs POST /api/transactions/import: scan entries saved once, re-scans skipped
+    ├── 20-28-auditfix-*.test.mjs       regression checks for the 2026-11-19 audit fixes (one suite per group; 22 and 24 start extra backends on :3095 / :3089)
+    ├── 29-auditfix-schema.test.mjs     audit fixes AUD-70/71: redundant indexes dropped, CHECK constraints reject bad rows
+    ├── 30-auditfix-dates-totals.test.mjs audit fixes AUD-36/37: entry date range (2018 to 1 year ahead), contact totals count only completed rows
+    └── 31-auditfix-job.test.mjs        audit fixes AUD-50/54/55: session clean-up job, Railway start command
 ```
 
 ## Writing a suite
