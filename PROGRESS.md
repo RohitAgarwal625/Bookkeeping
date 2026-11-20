@@ -98,7 +98,7 @@ Response conventions: single → `{ user | contact | transaction }`; lists → `
 |---|---|---|---|
 | POST | `/api/contacts` | write | Wallet: whitespace removed, upper-cased, `[A-Z0-9]+` (not yet strict `G…` 56 chars). 409 `DUPLICATE_CONTACT` on same wallet per user (old rows compared normalized); 409 `CONTACT_NAME_TAKEN` on a name another of the user's contacts has (ignoring case and extra spaces) |
 | GET | `/api/contacts/:id` | read | Same aggregate for one contact |
-| PUT | `/api/contacts/:id` | write | name/category; ownership check; 409 `CONTACT_NAME_TAKEN` if another contact has the new name |
+| PUT | `/api/contacts/:id` | write | name/category; ownership check; 409 `CONTACT_NAME_TAKEN` if another contact has the new name; response has the real totals/lastSeen like GET |
 | DELETE | `/api/contacts/:id` | write | **Hard** delete; txns keep row with contactId=null |
 
 ### Transactions (`router.use(sessionAuth)`; `/summary` and `/contact/:id` registered before `/:id`)

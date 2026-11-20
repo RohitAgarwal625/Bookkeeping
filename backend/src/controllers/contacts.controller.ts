@@ -83,6 +83,26 @@ function sendDuplicateWallet(res: Response): void {
   });
 }
 
+/** One of the user's contacts with its computed totals, or null. */
+async function findContactWithTotals(userId: string, id: string): Promise<ContactRow | null> {
+  const rows = await prisma.$queryRaw<ContactRow[]>`
+    SELECT
+      c.id, c.name, c.category, c."piWalletAddress", c."userId",
+      c."createdAt", c."updatedAt",
+      COALESCE(SUM(CASE WHEN t.type = 'credit' THEN t.amount ELSE 0 END), 0)::float AS "totalCredit",
+      COALESCE(SUM(CASE WHEN t.type = 'debit'  THEN t.amount ELSE 0 END), 0)::float AS "totalDebit",
+      MAX(t.timestamp) AS "lastSeen"
+    FROM "Contact" c
+    LEFT JOIN "Transaction" t
+      ON t."contactId" = c.id
+      AND t."userId" = ${userId}
+      AND t."deletedAt" IS NULL
+    WHERE c."userId" = ${userId} AND c.id = ${id}
+    GROUP BY c.id
+  `;
+  return rows[0] ?? null;
+}
+
 function sendNameTaken(res: Response): void {
   res.status(409).json({
     error: "CONTACT_NAME_TAKEN",
@@ -192,28 +212,13 @@ export async function getContact(
     const userId = req.user!.id;
     const { id } = req.params;
 
-    const rows = await prisma.$queryRaw<ContactRow[]>`
-      SELECT
-        c.id, c.name, c.category, c."piWalletAddress", c."userId",
-        c."createdAt", c."updatedAt",
-        COALESCE(SUM(CASE WHEN t.type = 'credit' THEN t.amount ELSE 0 END), 0)::float AS "totalCredit",
-        COALESCE(SUM(CASE WHEN t.type = 'debit'  THEN t.amount ELSE 0 END), 0)::float AS "totalDebit",
-        MAX(t.timestamp) AS "lastSeen"
-      FROM "Contact" c
-      LEFT JOIN "Transaction" t
-        ON t."contactId" = c.id
-        AND t."userId" = ${userId}
-        AND t."deletedAt" IS NULL
-      WHERE c."userId" = ${userId} AND c.id = ${id}
-      GROUP BY c.id
-    `;
-
-    if (rows.length === 0) {
+    const row = await findContactWithTotals(userId, id);
+    if (!row) {
       res.status(404).json({ error: "NOT_FOUND", message: "Contact not found" });
       return;
     }
 
-    res.status(200).json({ contact: mapRow(rows[0]) });
+    res.status(200).json({ contact: mapRow(row) });
   } catch (err) {
     next(err);
   }
@@ -249,7 +254,7 @@ export async function updateContact(
       return;
     }
 
-    const contact = await prisma.contact.update({
+    await prisma.contact.update({
       where: { id },
       data: {
         ...(name !== undefined ? { name } : {}),
@@ -257,7 +262,13 @@ export async function updateContact(
       },
     });
 
-    res.status(200).json({ contact: serializeContact(contact) });
+    // Answer with the real totals, the same as GET /api/contacts/:id (AUD-31).
+    const row = await findContactWithTotals(userId, id);
+    if (!row) {
+      res.status(404).json({ error: "NOT_FOUND", message: "Contact not found" });
+      return;
+    }
+    res.status(200).json({ contact: mapRow(row) });
   } catch (err) {
     next(err);
   }
