@@ -81,14 +81,28 @@ export async function createTransaction(
       err instanceof Prisma.PrismaClientKnownRequestError &&
       err.code === "P2002"
     ) {
-      const existing = await prisma.transaction.findUnique({
-        where: { idempotencyKey: (req.body as { idempotencyKey: string }).idempotencyKey },
-      });
-      if (existing) {
-        res.status(200).json({
-          transaction: serializeTransaction(existing),
-          idempotent: true,
+      // Own try: an error here must reach next(), not become an unhandled rejection (AUD-68).
+      try {
+        const existing = await prisma.transaction.findUnique({
+          where: { idempotencyKey: (req.body as { idempotencyKey: string }).idempotencyKey },
         });
+        if (existing) {
+          // Same rule as the non-race branch: another user's key -> 409, never their row (AUD-34).
+          if (existing.userId !== req.user!.id) {
+            res.status(409).json({
+              error: "DUPLICATE_TRANSACTION",
+              message: "Idempotency key already used",
+            });
+            return;
+          }
+          res.status(200).json({
+            transaction: serializeTransaction(existing),
+            idempotent: true,
+          });
+          return;
+        }
+      } catch (lookupErr) {
+        next(lookupErr);
         return;
       }
     }
