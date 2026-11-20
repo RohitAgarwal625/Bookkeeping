@@ -115,31 +115,45 @@ async function piRequest<T>(
 
   const responseText = await res.text();
   let json: unknown = null;
+  let parsed = true;
   try {
     json = responseText ? JSON.parse(responseText) : {};
   } catch {
-    json = { raw: responseText };
+    parsed = false;
+    json = { raw: responseText.slice(0, 500) };
   }
 
+  // Upstream details (Pi's error text, raw bodies) go to the server log only, never to our client.
   if (!res.ok) {
     logger.error(
       { status: res.status, json, path },
       "Pi Platform API returned error"
     );
 
-    let message = "Pi Platform API request failed";
-    let code = "PI_API_ERROR";
+    // Pi rejected our server key: a server problem, not the caller's session (the frontend signs out on 401).
+    if (res.status === 401 || res.status === 403) {
+      logger.error("Pi Platform API rejected the server API key: check PI_NETWORK_API_KEY");
+      throw new PiApiError(502, "PI_API_UNAVAILABLE", "Payment service is unavailable, please try again later");
+    }
+    if (res.status === 404) {
+      throw new PiApiError(404, "PAYMENT_NOT_FOUND", "Payment not found");
+    }
+    if (res.status >= 500 || !parsed) {
+      throw new PiApiError(502, "PI_API_ERROR", "Pi Platform API error");
+    }
 
-    if (res.status === 401) {
-      code = "PI_API_UNAUTHORIZED";
-      message = "Invalid Pi Network Server API Key. Please verify PI_NETWORK_API_KEY in backend/.env";
-    } else if (typeof json === "object" && json !== null && "error_message" in json) {
+    let message = "Pi Platform API request failed";
+    if (typeof json === "object" && json !== null && "error_message" in json) {
       message = String((json as Record<string, unknown>).error_message);
     } else if (typeof json === "object" && json !== null && "error" in json) {
       message = String((json as Record<string, unknown>).error);
     }
+    throw new PiApiError(res.status, "PI_API_ERROR", message);
+  }
 
-    throw new PiApiError(res.status, code, message, json);
+  if (!parsed || typeof json !== "object" || json === null) {
+    logger.error({ status: res.status, json, path }, "Pi Platform API returned a body that is not JSON");
+    throw new PiApiError(502, "PI_API_ERROR", "Pi Platform API error");
   }
 
   return json as T;

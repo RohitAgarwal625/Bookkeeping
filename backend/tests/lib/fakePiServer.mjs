@@ -8,6 +8,16 @@ import http from "node:http";
 export function startFakePi({ port, apiKey }) {
   const payments = new Map();
   const requests = []; // raw request URLs, for path/encoding assertions
+  // paymentId -> failure mode for /v2/payments/<id>[/approve|/complete]:
+  //   "hang" (never answers), "unauthorized" (401), "500json", "500html", "200html"
+  const failures = new Map();
+  const hung = []; // responses held open by "hang", ended on stop()
+
+  /** Make every Pi call for this payment id fail in the given way (see `failures`). */
+  function setFailure(id, mode) {
+    if (mode) failures.set(id, mode);
+    else failures.delete(id);
+  }
 
   /** Register a payment the fake API will return. */
   function addPayment(id, userUid, { amount = 1, productId = "premium_bookkeeping" } = {}) {
@@ -42,6 +52,15 @@ export function startFakePi({ port, apiKey }) {
         res.writeHead(status, { "Content-Type": "application/json" });
         res.end(JSON.stringify(obj));
       };
+      const failId = req.url.match(/^\/v2\/payments\/([^/]+)/)?.[1];
+      const mode = failId ? failures.get(decodeURIComponent(failId)) : undefined;
+      if (mode === "hang") return hung.push(res);
+      if (mode === "unauthorized") return send(401, { error: "unauthorized" });
+      if (mode === "500json") return send(500, { error: "internal_error", error_message: "payments-db shard 7 timeout (10.0.3.12:5432)", trace_id: "pi-internal-abc123" });
+      if (mode === "500html" || mode === "200html") {
+        res.writeHead(mode === "500html" ? 500 : 200, { "Content-Type": "text/html" });
+        return res.end("<html><body>nginx/1.18.0 upstream payments-svc 10.0.3.12</body></html>");
+      }
       if (req.headers.authorization !== `Key ${apiKey}`) return send(401, { error: "unauthorized" });
 
       const m = req.url.match(/^\/v2\/payments\/([^/]+)(?:\/(approve|complete))?$/);
@@ -65,9 +84,13 @@ export function startFakePi({ port, apiKey }) {
       resolve({
         url: `http://localhost:${port}`,
         addPayment,
+        setFailure,
         payments,
         requests,
-        stop: () => server.close(),
+        stop: () => {
+          for (const r of hung.splice(0)) r.destroy();
+          server.close();
+        },
       })
     )
   );
