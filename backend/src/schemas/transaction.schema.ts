@@ -53,7 +53,8 @@ export const listTransactionsSchema = z.object({
     contactId: z.string().min(1).optional(),
     from: z.string().datetime().optional(),
     to: z.string().datetime().optional(),
-    page: z.coerce.number().int().positive().default(1),
+    // Upper bound so (page - 1) * limit always fits Prisma's 64-bit skip (AUD-16).
+    page: z.coerce.number().int().positive().max(100_000).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
   }),
 });
@@ -73,7 +74,8 @@ export const updateTransactionSchema = z.object({
 export const contactLedgerSchema = z.object({
   params: z.object({ contactId: z.string().min(1) }),
   query: z.object({
-    page: z.coerce.number().int().positive().default(1),
+    // Upper bound so (page - 1) * limit always fits Prisma's 64-bit skip (AUD-16).
+    page: z.coerce.number().int().positive().max(100_000).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(50),
   }),
 });
