@@ -49,7 +49,7 @@ backend/
     ├── middleware/
     │   ├── auth.ts        sessionAuth: Bearer token → Session lookup → req.user
     │   ├── validate.ts    validate(zodSchema) parses {body,query,params} and REPLACES them with parsed values
-    │   ├── rateLimiter.ts readLimiter 100/min, writeLimiter 20/min (key = user id ?? IP), authLimiter 200/min/IP
+    │   ├── rateLimiter.ts readLimiter 100/min, writeLimiter 20/min (key = user id ?? IP), importLimiter 60/min per user (transactions import only), authLimiter 200/min/IP
     │   └── errorHandler.ts Prisma error → HTTP mapping + notFound
     ├── schemas/         Zod: common (sanitizedString: strips tags, keeps plain `<`/`>`/`&`, length checked after cleaning; walletAddress), user, contact, transaction, pi
     ├── routes/          health, users, contacts, transactions, pi (thin: limiter → auth → validate → controller)

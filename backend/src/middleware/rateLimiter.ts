@@ -30,6 +30,21 @@ export const writeLimiter = rateLimit({
   message: { error: "RATE_LIMITED", message: "Too many write requests" },
 });
 
+/**
+ * Import limiter (POST /api/transactions/import) — 60/min per user, separate from
+ * writeLimiter so the every-minute Auto Sync (one request per contact) and big
+ * Automatic scans (100 entries per request) don't use up the 20 writes a minute
+ * the user needs for manual entries (AUD-10).
+ */
+export const importLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: userKey,
+  message: { error: "RATE_LIMITED", message: "Too many import requests" },
+});
+
 /** Unauthenticated (login) limiter — 200/min per IP. */
 export const authLimiter = rateLimit({
   windowMs: 60 * 1000,

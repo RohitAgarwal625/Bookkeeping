@@ -11,7 +11,7 @@ import {
 } from "../controllers/transactions.controller";
 import { sessionAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
-import { readLimiter, writeLimiter } from "../middleware/rateLimiter";
+import { importLimiter, readLimiter, writeLimiter } from "../middleware/rateLimiter";
 import {
   createTransactionSchema,
   importTransactionsSchema,
@@ -36,7 +36,7 @@ router.get(
 );
 router.get("/", readLimiter, validate(listTransactionsSchema), listTransactions);
 router.post("/", writeLimiter, validate(createTransactionSchema), createTransaction);
-router.post("/import", writeLimiter, validate(importTransactionsSchema), importTransactions);
+router.post("/import", importLimiter, validate(importTransactionsSchema), importTransactions);
 router.get("/:id", readLimiter, validate(transactionIdSchema), getTransaction);
 router.patch("/:id", writeLimiter, validate(updateTransactionSchema), updateTransaction);
 router.delete("/:id", writeLimiter, validate(transactionIdSchema), deleteTransaction);
