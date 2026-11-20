@@ -262,7 +262,7 @@ export function MerchantDashboard({
 
         {/* ── Analytics View ── */}
         {activeView === "analytics" && (
-          <ReportsAnalytics onNavigate={onNavigate} embedded isGuest={isGuest} />
+          <ReportsAnalytics onNavigate={onNavigate} embedded isGuest={isGuest} contacts={contacts} />
         )}
 
         {/* ── History View ── */}

@@ -1,33 +1,45 @@
-import { Users, Search, Info, BarChart2, TrendingUp } from "lucide-react";
-import { useState, useEffect } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { getInitials } from "../types";
+import { Users, Search, Info, BarChart2, TrendingUp, X } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Contact, getInitials } from "../types";
 import { transactionsApi } from "../lib/api";
+import { useTransactionsInRange } from "../hooks/useBookkeeping";
 
 interface ReportsAnalyticsProps {
   onNavigate: (screen: string) => void;
   embedded?: boolean;
   isGuest?: boolean;
+  /** Saved contacts (bk.contacts when signed in): search dropdown + Top Pioneers names. */
+  contacts?: Contact[];
 }
 
-const monthlyData: Array<{ month: string; credit: number; debit: number }> = [];
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-const topCustomersMonthly: Array<{ id: string; name: string; transactions: number }> = [];
+/** ISO range for the selected period: last 7 / 30 days, or the custom local dates (inclusive). */
+function periodRange(
+  filter: "week" | "month" | "custom",
+  fromDate: string,
+  toDate: string,
+  customSubmitted: boolean
+): { from: string; to: string } | null {
+  if (filter === "custom") {
+    if (!customSubmitted || !fromDate || !toDate) return null;
+    const start = new Date(`${fromDate}T00:00:00`);
+    const end = new Date(`${toDate}T23:59:59.999`);
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return null;
+    return { from: start.toISOString(), to: end.toISOString() };
+  }
+  const now = Date.now();
+  return {
+    from: new Date(now - (filter === "week" ? 7 : 30) * DAY_MS).toISOString(),
+    to: new Date(now).toISOString(),
+  };
+}
 
-const topCustomersWeekly: Array<{ id: string; name: string; transactions: number }> = [];
-
-export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: ReportsAnalyticsProps) {
+export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contacts = [] }: ReportsAnalyticsProps) {
   const [selectedFilter, setSelectedFilter] = useState<"week" | "month" | "custom">("month");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [analyticsCategory, setAnalyticsCategory] = useState<"individual" | "business">("individual");
   const [showCustomerInfo, setShowCustomerInfo] = useState(false);
   const [fromDate, setFromDate] = useState("");
@@ -59,12 +71,36 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
   };
   const totals = getTotals();
 
-  const activeTopCustomers = selectedFilter === "week" ? topCustomersWeekly : topCustomersMonthly;
+  // Period → ISO range; recomputed only when the period inputs change (so the fetch doesn't loop).
+  const range = useMemo(
+    () => periodRange(selectedFilter, fromDate, toDate, isCustomSubmitted),
+    [selectedFilter, fromDate, toDate, isCustomSubmitted]
+  );
+  const periodTransactions = useTransactionsInRange(!isGuest, range?.from ?? null, range?.to ?? null);
 
-  // Filter customers based on search query
-  const filteredCustomers = activeTopCustomers.filter((customer) => {
-    return customer.name.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  // Top Pioneers: contacts ranked by number of saved transactions in the period.
+  const topPioneers = useMemo(() => {
+    if (!periodTransactions) return [];
+    const byId = new Map(contacts.map((c) => [c.id, c]));
+    const counts = new Map<string, number>();
+    for (const t of periodTransactions) {
+      if (t.contactId && byId.has(t.contactId)) counts.set(t.contactId, (counts.get(t.contactId) ?? 0) + 1);
+    }
+    return Array.from(counts, ([id, transactions]) => ({ id, name: byId.get(id)!.name, transactions }))
+      .sort((a, b) => b.transactions - a.transactions || a.name.localeCompare(b.name));
+  }, [periodTransactions, contacts]);
+
+  // Search: dropdown of matching saved contacts; picking one narrows Top Pioneers to that contact.
+  const query = searchQuery.trim().toLowerCase();
+  const suggestions = query
+    ? contacts.filter((c) => c.name.toLowerCase().includes(query)).slice(0, 8)
+    : [];
+  const filteredCustomers = selectedContactId
+    ? topPioneers.filter((c) => c.id === selectedContactId)
+    : query
+      ? topPioneers.filter((c) => c.name.toLowerCase().includes(query))
+      : topPioneers.slice(0, 10);
+  const selectedContact = selectedContactId ? contacts.find((c) => c.id === selectedContactId) : undefined;
 
   const handleExportReport = () => {
     console.log("Exporting report as PDF...");
@@ -140,7 +176,10 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   type="text"
                   placeholder="Search from Contacts"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setSelectedContactId(null); setShowSuggestions(true); }}
+                  onFocus={() => setShowSuggestions(true)}
+                  // Delay so a tap on a suggestion lands before the list closes.
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       (e.target as HTMLElement).blur();
@@ -148,7 +187,45 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                   }}
                   enterKeyHint="go"
                   className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all"
+                  style={searchQuery ? { paddingRight: "44px" } : undefined}
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => { setSearchQuery(""); setSelectedContactId(null); }}
+                    className="absolute flex items-center justify-center text-gray-400 dark:text-muted-foreground"
+                    style={{ right: "4px", top: "50%", transform: "translateY(-50%)", width: "40px", height: "40px", zIndex: 10 }}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                {showSuggestions && query && !selectedContactId && (
+                  <div
+                    className="absolute left-0 right-0 bg-white dark:bg-card border border-gray-200 dark:border-border rounded-xl shadow-lg overflow-y-auto"
+                    style={{ top: "100%", marginTop: "4px", zIndex: 30, maxHeight: "240px" }}
+                  >
+                    {suggestions.length === 0 ? (
+                      <p className="px-4 py-3 text-sm text-gray-400 dark:text-muted-foreground">No matching contacts</p>
+                    ) : (
+                      suggestions.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => { setSelectedContactId(c.id); setSearchQuery(c.name); setShowSuggestions(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2 dark:hover:bg-secondary"
+                          style={{ minHeight: "48px", textAlign: "left" }}
+                        >
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs font-semibold">{getInitials(c.name)}</span>
+                          </div>
+                          <span className="flex-1 min-w-0 text-sm font-medium text-gray-900 dark:text-foreground truncate">{c.name}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
               </form>
             </div>
 
@@ -270,8 +347,18 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest }: Repo
                     )}
                   </div>
                   <div className="space-y-3">
-                    {filteredCustomers.length === 0 ? (
-                      <p className="text-gray-400 dark:text-muted-foreground text-sm text-center py-6">No transaction activity to report yet.</p>
+                    {!range ? (
+                      <p className="text-gray-400 dark:text-muted-foreground text-sm text-center py-6">Choose a From date on or before the To date.</p>
+                    ) : periodTransactions === null ? (
+                      <p className="text-gray-400 dark:text-muted-foreground text-sm text-center py-6">Loading…</p>
+                    ) : filteredCustomers.length === 0 ? (
+                      <p className="text-gray-400 dark:text-muted-foreground text-sm text-center py-6">
+                        {selectedContact
+                          ? `No transactions with ${selectedContact.name} in this period.`
+                          : query
+                            ? "No matching contacts with activity in this period."
+                            : "No transaction activity to report yet."}
+                      </p>
                     ) : (
                       filteredCustomers.map((customer, index) => (
                         <div key={customer.id}>

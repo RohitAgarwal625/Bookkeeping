@@ -256,3 +256,45 @@ export function useBookkeeping() {
     updateDisplayName,
   };
 }
+
+/**
+ * Every saved transaction between `from` and `to` (ISO strings), paging through
+ * GET /api/transactions 100 rows at a time. Used by Analytics (Top Pioneers),
+ * which needs the whole period, not just the recent rows.
+ * `null` while loading or when disabled; `[]` if the request fails.
+ */
+export function useTransactionsInRange(
+  enabled: boolean,
+  from: string | null,
+  to: string | null,
+  refreshKey?: unknown
+): Transaction[] | null {
+  const [rows, setRows] = useState<Transaction[] | null>(null);
+  useEffect(() => {
+    if (!enabled || !from || !to) {
+      setRows(null);
+      return;
+    }
+    let cancelled = false;
+    setRows(null);
+    (async () => {
+      try {
+        const all: Transaction[] = [];
+        // Safety cap: 50 pages x 100 rows.
+        for (let page = 1; page <= 50; page++) {
+          const res = await transactionsApi.list({ from, to, page, limit: 100 });
+          if (cancelled) return;
+          all.push(...res.data);
+          if (!res.pagination.hasNext) break;
+        }
+        if (!cancelled) setRows(all);
+      } catch {
+        if (!cancelled) setRows([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, from, to, refreshKey]);
+  return rows;
+}
