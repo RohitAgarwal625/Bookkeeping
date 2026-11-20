@@ -1,5 +1,6 @@
 import { config } from "./config";
 import { logger } from "./logger";
+import { Prisma } from "@prisma/client";
 
 /**
  * Standard product definition for the Bookkeeping app.
@@ -170,8 +171,12 @@ async function piRequest<T>(
  * Validate that the payment matches the expected product specs.
  */
 export function validateProductPayment(payment: PiPaymentResponse): void {
-  // Amount check
-  if (Math.abs(payment.amount - PREMIUM_PRODUCT.amount) > 0.0000001) {
+  // Amount check: exactly the product price (compared as Decimal, not float).
+  if (
+    typeof payment.amount !== "number" ||
+    !Number.isFinite(payment.amount) ||
+    !new Prisma.Decimal(payment.amount).equals(PREMIUM_PRODUCT.amount)
+  ) {
     throw new PiApiError(
       400,
       "INVALID_PAYMENT_AMOUNT",
