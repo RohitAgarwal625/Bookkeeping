@@ -75,7 +75,7 @@ Contact 1─* Transaction (onDelete: SetNull → history survives contact deleti
 - **Session**: `token @unique` (randomUUID), `expiresAt` (24h TTL), `userId`.
 - **Contact**: `name`, `category` ("individual"|"business", plain string; enforced only by Zod), `piWalletAddress`. **Totals are not stored.** They're computed by raw SQL JOIN + GROUP BY.
 - **Transaction**: `amount Decimal(18,7)` (Pi has 7 dp), `type` credit|debit, `source` manual|pi_network, `status` pending|completed|failed|cancelled|expired (default completed), `idempotencyKey @unique` (required), `txHash?`, `piPaymentId?`, `chainPaymentId?` (Horizon payment id, set only on Automatic-scan imports; `@@unique([userId, chainPaymentId])` so a re-scan can't add a payment twice; NULLs don't collide), `expiresAt?`, `deletedAt?` (soft delete), `timestamp`.
-- Indexes: `(userId)`, `(userId, contactId)`, `(userId, timestamp)`, `(status, expiresAt)` for the cron job. Some indexes duplicate unique indexes (wallet, token, idempotencyKey), which is harmless but redundant.
+- Indexes: Transaction `(userId, contactId)`, `(userId, timestamp)`, `(status, expiresAt)`, Session `(userId)`, plus the unique indexes. The five redundant plain indexes (`User(piWalletAddress)`, `Session(token)`, `Contact(userId)`, `Transaction(userId)`, `Transaction(idempotencyKey)`; each duplicated a unique index or was the prefix of a composite one) were dropped in migration `20261119164836_drop_redundant_indexes` (AUD-70).
 
 ## 5. API surface (as built)
 

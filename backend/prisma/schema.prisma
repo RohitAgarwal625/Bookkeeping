@@ -27,7 +27,6 @@ model User {
   transactions    Transaction[]
   sessions        Session[]
 
-  @@index([piWalletAddress])
 }
 
 model Session {
@@ -38,7 +37,6 @@ model Session {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  @@index([token])
   @@index([userId])
 }
 
@@ -54,7 +52,6 @@ model Contact {
   updatedAt       DateTime      @updatedAt
 
   @@unique([userId, piWalletAddress])
-  @@index([userId])
 }
 
 model Transaction {
@@ -79,10 +76,8 @@ model Transaction {
   contactId      String?
   contact        Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
 
-  @@index([userId])
   @@index([userId, contactId])
   @@index([userId, timestamp])
-  @@index([idempotencyKey])
   @@index([status, expiresAt])
   @@unique([userId, chainPaymentId])
 }
