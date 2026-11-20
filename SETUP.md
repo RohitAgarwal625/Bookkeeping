@@ -181,6 +181,7 @@ The `vercel.json` is already configured with SPA rewrites.
 | GET | `/api/health` | Health check |
 | GET | `/api/users/:walletAddress` | Login / upsert user + create session |
 | GET | `/api/users/me` | The signed-in user `{user}` from the Bearer token (restores the session after a reload); 401 if the token is missing, invalid or expired |
+| PUT | `/api/users/:walletAddress` | Update your `displayName` (404 `NOT_FOUND` for any other id) |
 | PUT | `/api/users/me/wallet` | Save (or clear with `null`) the user's own public Pi wallet address (`G…`) |
 | GET | `/api/contacts` | List contacts (with totals) |
 | POST | `/api/contacts` | Create contact (409 `CONTACT_NAME_TAKEN` if another of your contacts has the same name, ignoring case and extra spaces) |
@@ -191,8 +192,15 @@ The `vercel.json` is already configured with SPA rewrites.
 | POST | `/api/transactions/import` | Save Automatic-scan entries for a contact (max 100); payments saved before are skipped |
 | GET | `/api/transactions/summary` | Dashboard totals |
 | GET | `/api/transactions/contact/:contactId` | Ledger for a contact |
+| GET | `/api/transactions/:id` | One transaction; 404 for another user's or a deleted entry |
 | PATCH | `/api/transactions/:id` | Edit an entry's note only `{description}` (1–500 chars, HTML stripped); 404 for another user's or a deleted entry |
 | DELETE | `/api/transactions/:id` | Soft-delete transaction |
+| POST | `/api/pi/approve` (alias `/api/pi/approve-payment`) | Approve a Pi payment `{paymentId}` with the Pi Platform API (session required). Amount must be exactly 1 π (else 400 `INVALID_PAYMENT_AMOUNT`); a cancelled payment → 409 `PAYMENT_CANCELLED` |
+| POST | `/api/pi/complete` (alias `/api/pi/complete-payment`) | Complete a Pi payment `{paymentId, txid}` and record it for the payment's Pi user (session required). A `txid` that differs from the one Pi recorded → 409 `TXID_MISMATCH`; cancelled → 409 `PAYMENT_CANCELLED` |
+| POST | `/api/pi/incomplete-payment` | Finish a payment the Pi SDK reports as incomplete during sign-in. **No session, by design** (runs before login) |
+| GET | `/api/pi/payment/:id` | Pi payment status from the Pi Platform API (session required). Only the payer can read it; anyone else gets 404 `PAYMENT_NOT_FOUND` |
+| GET | `/api/pi/premium-status` | `isPremium` for the signed-in user |
+| GET | `/api/pi/blockchain/payments/:address` | One page of Pi Horizon payments for an address on `PI_NETWORK`. **No session, by design** (public chain data) |
 
 ---
 
