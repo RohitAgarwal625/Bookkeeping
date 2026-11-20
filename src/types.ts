@@ -175,24 +175,20 @@ export interface CreateContactInput {
   name: string;
   piWalletAddress: string;
   category: "individual" | "business";
-  notes?: string;
 }
 
+/** The backend can change only the name and category (the wallet address is fixed). */
 export interface UpdateContactInput {
   name?: string;
-  piWalletAddress?: string;
   category?: "individual" | "business";
-  notes?: string;
 }
 
 export interface CreateTransactionInput {
-  contactId: string;
+  contactId?: string;
   type: "credit" | "debit";
   amount: number;
   description: string;
   idempotencyKey: string;
-  txHash?: string;
-  occurredAt?: string;
   /** ISO 8601 UTC time of the entry; the server uses the current time when it's missing. */
   timestamp?: string;
 }
