@@ -86,6 +86,10 @@ interface PiSDK {
   ): Promise<PiPaymentDTO>;
   /** Opens a URL outside the Pi Browser webview (e.g. a pi:// deep link to the Pi Wallet). Undocumented; may be missing. */
   openUrlInSystemBrowser?(url: string): Promise<void>;
+  /** Pi Browser's native QR scanner. Resolves the scanned text, or null when the user closes it; rejects when unsupported or camera permission is denied. */
+  scanQrCode?(config?: { facingMode?: "user" | "environment" }): Promise<string | null>;
+  /** Asks the Pi Browser for a native permission; null when the host doesn't support asking. */
+  requestPermission?(permission: "camera"): Promise<boolean | null>;
 }
 
 declare global {

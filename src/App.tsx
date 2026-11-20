@@ -364,9 +364,18 @@ function AppContent() {
     setCurrentScreen("login");
   };
 
-  const handleQRScanned = (address: string) => {
-    setScannedWalletAddress(address);
-    setCurrentScreen("pay");
+  /** Pay via QR: the Pi Wallet was opened for a saved contact. Auto Sync adds the payment later. */
+  const handleQRWalletOpened = (contactName: string) => {
+    const hasOwnWallet = Boolean(bk.user?.walletPublicKey);
+    setCurrentScreen("dashboard");
+    // After the dashboard's <Toaster> has mounted (a toast sent before that is lost).
+    window.setTimeout(() => {
+      if (hasOwnWallet) {
+        toast.success(`Pi Wallet opened. The payment will be added to ${contactName}'s ledger automatically.`);
+      } else {
+        toast.success(`Pi Wallet opened. The payment will be added to ${contactName}'s ledger only after you add your wallet address in Settings → Profile.`, { duration: 6000 });
+      }
+    }, 300);
   };
 
   // When guest taps Pay via Contacts or Pay via QR — show guest guard instead
@@ -463,7 +472,15 @@ function AppContent() {
   if (currentScreen === "qrPay") {
     return (
       <>
-        <QRScannerScreen onBack={handleBackToDashboard} onScanned={handleQRScanned} />
+        <QRScannerScreen
+          onBack={handleBackToDashboard}
+          contacts={contacts}
+          onSaveContact={(name, walletAddress) =>
+            handleSaveCustomer({ name, piWallet: walletAddress, category: "individual" })}
+          onWalletOpened={handleQRWalletOpened}
+          isGuest={isGuest}
+          onTriggerGuestModal={() => setShowGuestModal(true)}
+        />
         <Toaster position="bottom-center" />
       </>
     );

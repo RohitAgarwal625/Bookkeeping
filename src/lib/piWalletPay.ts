@@ -29,6 +29,25 @@ export function piWalletPayRequestUrl(contactAddress: string, amount: string): s
 /** Pi Browser answers openUrlInSystemBrowser through a native callback that may never come. */
 const OPEN_WALLET_TIMEOUT_MS = 4000;
 
+/** True for a Pi Wallet pay-request link (`https://wallet.pinet.com/pay-request?...`). */
+export function isPiWalletPayRequestUrl(text: string): boolean {
+  try {
+    const url = new URL(text.trim());
+    return url.protocol === "https:" && url.hostname === "wallet.pinet.com" && url.pathname === "/pay-request";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The link to open for a scanned QR code: the scanned text itself when it already is a Pi Wallet
+ * pay-request link (opened exactly as scanned), otherwise a pay-request link for `address`.
+ */
+export function piWalletLinkForScan(scannedText: string, address: string): string {
+  if (isPiWalletPayRequestUrl(scannedText)) return scannedText.trim();
+  return `https://wallet.pinet.com/pay-request?publicKey=${encodeURIComponent(address.trim())}`;
+}
+
 /** Opens a Pi Wallet https link. Returns false when this Pi Browser can't open it. */
 export async function openPiWalletLink(url: string): Promise<boolean> {
   try {

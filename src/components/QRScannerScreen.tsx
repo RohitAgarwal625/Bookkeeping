@@ -1,15 +1,44 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, CheckCircle, Upload } from "lucide-react";
+import { ArrowLeft, CheckCircle, Copy, Upload, UserPlus } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
-import { isPiPublicKey } from "../lib/piBlockchain";
+import { cleanWalletInput, isPiPublicKey } from "../lib/piBlockchain";
+import { ensurePiInitialized } from "../lib/piAuth";
+import { openPiWalletLink, piWalletLinkForScan } from "../lib/piWalletPay";
+import { normalizeContactName } from "../types";
 
 interface QRScannerScreenProps {
   onBack: () => void;
-  onScanned: (walletAddress: string) => void;
+  /** Saved contacts, to find the one whose wallet address was scanned. */
+  contacts: { name: string; piWalletAddress: string }[];
+  /** Saves a new contact (same path as Add Contact). Resolves true when saved. */
+  onSaveContact: (name: string, walletAddress: string) => Promise<boolean>;
+  /** The Pi Wallet was opened to pay this contact; App toasts and leaves the scanner. */
+  onWalletOpened: (contactName: string) => void;
+  isGuest?: boolean;
+  onTriggerGuestModal?: () => void;
 }
 
+/** Same limit as the backend's contact name (sanitizedString(1, 100)). */
+const NAME_MAX_LENGTH = 100;
+
 const NOT_AN_ADDRESS = "This QR code doesn't contain a Pi wallet address.";
+
+/** Stops the camera scanner if it is running (stop() throws when it isn't). */
+function stopScanner(scanner: Html5Qrcode | null) {
+  try {
+    if (scanner?.isScanning) scanner.stop().catch(() => {});
+  } catch { /* not running */ }
+}
+
+/**
+ * True when the app runs inside a Pi host page (Pi Browser / App Studio iframe), the only
+ * place Pi SDK native calls get an answer. A plain browser tab would wait 2 minutes for a
+ * reply that never comes, so the native scanner is skipped there.
+ */
+function inPiHost(): boolean {
+  try { return window.self !== window.top; } catch { return true; }
+}
 
 /**
  * The Pi wallet address in a scanned QR text, or null. Accepts a plain "G…" address
@@ -27,14 +56,34 @@ export function extractPiAddress(raw: string): string | null {
   return found.size === 1 ? [...found][0] : null;
 }
 
-export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
+export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpened, isGuest, onTriggerGuestModal }: QRScannerScreenProps) {
   const [status, setStatus] = useState<"scanning" | "error" | "success">("scanning");
   const [error, setError] = useState("");
+  // The full scanned text (shown on screen) and the Pi address found in it.
+  const [scannedText, setScannedText] = useState("");
   const [scannedValue, setScannedValue] = useState("");
+  const [isOpening, setIsOpening] = useState(false);
+  // The Pi Wallet couldn't be opened: show the address to copy instead.
+  const [openFailed, setOpenFailed] = useState(false);
+  // "Save this contact" pop-up for an address that isn't a saved contact yet.
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const containerId = "qr-reader-container";
   const startedRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Latest callbacks, so the history effect below runs once (App passes new functions each render).
+  const onBackRef = useRef(onBack);
+  onBackRef.current = onBack;
+  // Set once the Pi Wallet is open: the popstate that removes our history entry then runs it.
+  const leaveActionRef = useRef<(() => void) | null>(null);
+
+  const showScanned = (text: string, address: string) => {
+    setScannedText(text.trim());
+    setScannedValue(address);
+    setStatus("success");
+  };
 
   const handleUploadQR = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,9 +91,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
     e.target.value = ""; // so picking the same image again still triggers a scan
 
     // Stop camera first if running
-    if (scannerRef.current) {
-      scannerRef.current.stop().catch(() => {});
-    }
+    stopScanner(scannerRef.current);
 
     const uploadScanner = new Html5Qrcode("qr-upload-hidden");
     uploadScanner
@@ -55,8 +102,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
           return;
         }
-        setScannedValue(address);
-        setStatus("success");
+        showScanned(decoded, address);
       })
       .catch(() => {
         setError("Could not read QR code from the image. Please try another image.");
@@ -71,33 +117,73 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
     if (startedRef.current) return;
     startedRef.current = true;
 
+    let unmounted = false;
+    let startPromise: Promise<unknown> | null = null;
     const scanner = new Html5Qrcode(containerId);
     scannerRef.current = scanner;
 
-    scanner
-      .start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decoded: string) => {
-          const address = extractPiAddress(decoded);
-          if (!address) {
-            // Keep scanning; one toast (same id) however many frames see the code.
-            toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
-            return;
-          }
-          setScannedValue(address);
-          setStatus("success");
-          scanner.stop().catch(() => {});
-        },
-        () => { /* ignore frame errors */ }
-      )
-      .catch((err: unknown) => {
-        setError(String(err));
-        setStatus("error");
-      });
+    // In-page camera scanner (html5-qrcode): the fallback when Pi's native scanner isn't available.
+    const startWebScanner = () => {
+      if (unmounted) return;
+      startPromise = scanner
+        .start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decoded: string) => {
+            const address = extractPiAddress(decoded);
+            if (!address) {
+              // Keep scanning; one toast (same id) however many frames see the code.
+              toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
+              return;
+            }
+            showScanned(decoded, address);
+            stopScanner(scanner);
+          },
+          () => { /* ignore frame errors */ }
+        )
+        .catch((err: unknown) => {
+          if (unmounted) return;
+          setError(String(err));
+          setStatus("error");
+        });
+    };
+
+    // Pi Browser: try Pi's native QR scanner first. Any failure (camera permission denied,
+    // older Pi Browser, desktop) falls back to the in-page scanner.
+    const tryNativeScanner = async (): Promise<boolean> => {
+      if (!inPiHost()) return false;
+      try {
+        await ensurePiInitialized();
+        if (typeof window.Pi?.scanQrCode !== "function") return false;
+        const text = await window.Pi.scanQrCode({ facingMode: "environment" });
+        if (unmounted) return true;
+        if (text === null) {
+          // The user closed Pi's scanner.
+          handleBack();
+          return true;
+        }
+        const address = extractPiAddress(text);
+        if (!address) {
+          toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
+          return false; // let them try again with the in-page scanner
+        }
+        showScanned(text, address);
+        return true;
+      } catch (err) {
+        console.warn("[QR] Pi native scanner unavailable, using the in-page camera:", err);
+        return false;
+      }
+    };
+
+    tryNativeScanner().then((handled) => {
+      if (!handled) startWebScanner();
+    });
 
     return () => {
-      scanner.stop().catch(() => {});
+      unmounted = true;
+      // start() may still be opening the camera: stop it once it has.
+      if (startPromise) startPromise.then(() => stopScanner(scanner));
+      else stopScanner(scanner);
     };
   }, []);
 
@@ -123,19 +209,90 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
   useEffect(() => {
     window.history.pushState({ screen: "qrScanner" }, "");
     const handlePopState = () => {
-      onBack();
+      const leave = leaveActionRef.current;
+      if (leave) leave();
+      else onBackRef.current();
     };
     window.addEventListener("popstate", handlePopState);
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [onBack]);
+  }, []);
 
-  const handleBack = () => {
+  function handleBack() {
     if (window.history.state?.screen === "qrScanner") {
       window.history.back();
     } else {
-      onBack();
+      onBackRef.current();
+    }
+  }
+
+  // Leave the scanner after the wallet opened, removing our history entry first.
+  const leaveAfterOpening = (contactName: string) => {
+    if (window.history.state?.screen === "qrScanner") {
+      leaveActionRef.current = () => onWalletOpened(contactName);
+      window.history.back();
+    } else {
+      onWalletOpened(contactName);
+    }
+  };
+
+  /** Opens the scanned pay link in the Pi Wallet for a saved contact. */
+  const openWalletFor = async (contactName: string) => {
+    setIsOpening(true);
+    const opened = await openPiWalletLink(piWalletLinkForScan(scannedText, scannedValue));
+    setIsOpening(false);
+    if (opened) leaveAfterOpening(contactName);
+    else setOpenFailed(true);
+  };
+
+  const findContact = () => {
+    const key = cleanWalletInput(scannedValue);
+    return contacts.find((c) => cleanWalletInput(c.piWalletAddress ?? "") === key);
+  };
+
+  const handlePayThisAddress = () => {
+    if (isOpening) return;
+    if (isGuest) { onTriggerGuestModal?.(); return; }
+    const contact = findContact();
+    if (contact) {
+      void openWalletFor(contact.name);
+    } else {
+      setNewName("");
+      setShowSaveDialog(true);
+    }
+  };
+
+  const handleSaveAndPay = async () => {
+    if (isSaving) return;
+    if (isGuest) { onTriggerGuestModal?.(); return; }
+    const name = newName.trim().replace(/\s+/g, " ");
+    if (!name) {
+      toast.error("Please enter a name for this contact.");
+      return;
+    }
+    if (contacts.some((c) => normalizeContactName(c.name) === normalizeContactName(name))) {
+      toast.error(`The name "${name}" is already taken. You must enter another name.`);
+      return;
+    }
+    setIsSaving(true);
+    let saved = false;
+    try {
+      saved = await onSaveContact(name, scannedValue);
+    } finally {
+      setIsSaving(false);
+    }
+    if (!saved) return; // onSaveContact already showed why
+    setShowSaveDialog(false);
+    await openWalletFor(name);
+  };
+
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(scannedValue);
+      toast.success("Wallet address copied");
+    } catch {
+      toast.error("Couldn't copy. Please select the address and copy it.");
     }
   };
 
@@ -158,19 +315,103 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
           style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}>
           <CheckCircle className="w-10 h-10 text-white" />
         </div>
-        <div className="text-center">
+        <div className="text-center w-full">
           <p className="text-white font-bold text-xl mb-2">QR Scanned!</p>
           <p className="text-gray-400 text-sm mb-2">Wallet Address:</p>
-          <p className="text-gray-200 font-mono text-xs bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3 break-all">
-            {scannedValue}
+          <p className="font-mono text-xs rounded-xl px-4 py-3"
+            style={{ color: "#e5e7eb", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)", wordBreak: "break-all", textAlign: "left" }}>
+            {scannedText || scannedValue}
           </p>
         </div>
-        <button onClick={() => onScanned(scannedValue)}
-          className="w-full py-4 rounded-2xl font-bold text-white text-base"
-          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}>
-          Pay this Address
+
+        {openFailed ? (
+          <div className="w-full rounded-2xl p-4 text-center"
+            style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <p className="text-white text-sm mb-1" style={{ fontWeight: 600 }}>Couldn't open the Pi Wallet</p>
+            <p className="text-gray-400 text-xs mb-3">Open Pi Wallet → Send and paste the address:</p>
+            <p className="font-mono text-xs mb-3" style={{ color: "#e5e7eb", wordBreak: "break-all" }}>{scannedValue}</p>
+            <button
+              onClick={handleCopyAddress}
+              className="w-full flex items-center justify-center gap-2 rounded-xl text-white text-sm"
+              style={{ minHeight: "44px", fontWeight: 600, background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+            >
+              <Copy className="w-4 h-4" />
+              Copy Address
+            </button>
+          </div>
+        ) : (
+          <button onClick={handlePayThisAddress} disabled={isOpening}
+            className="w-full py-4 rounded-2xl font-bold text-white text-base"
+            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)", opacity: isOpening ? 0.7 : 1 }}>
+            {isOpening ? "Opening Pi Wallet…" : "Pay this Address"}
+          </button>
+        )}
+        <button onClick={handleBack} className="text-gray-400 text-sm underline" style={{ minHeight: "44px", padding: "0 16px" }}>
+          {openFailed ? "Done" : "Cancel"}
         </button>
-        <button onClick={handleBack} className="text-gray-400 text-sm underline">Cancel</button>
+
+        {showSaveDialog && (
+          <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center px-6"
+            style={{ zIndex: 300, background: "rgba(0,0,0,0.5)" }}
+            onClick={() => { if (!isSaving) setShowSaveDialog(false); }}>
+            <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
+            <form
+              className="relative w-full bg-white dark:bg-card rounded-2xl p-6"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="save-contact-title"
+              onClick={(e) => e.stopPropagation()}
+              onSubmit={(e) => { e.preventDefault(); void handleSaveAndPay(); }}
+              style={{ maxWidth: "360px", animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)" }}
+            >
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <UserPlus className="w-7 h-7 text-white" />
+              </div>
+              <h3 id="save-contact-title" className="font-bold text-gray-900 dark:text-foreground text-lg mb-1 text-center">Save this contact</h3>
+              <p className="text-sm text-gray-500 dark:text-muted-foreground mb-4 text-center">
+                Save the pioneer first, so the payment goes to their ledger.
+              </p>
+              <label htmlFor="qr-contact-name" className="block text-sm font-medium text-gray-900 dark:text-foreground mb-1">Name</label>
+              <input
+                id="qr-contact-name"
+                type="text"
+                autoFocus
+                required
+                maxLength={NAME_MAX_LENGTH}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value.replace(/\b\w/g, (c) => c.toUpperCase()))}
+                placeholder="Full Name"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all mb-3"
+              />
+              <label htmlFor="qr-contact-wallet" className="block text-sm font-medium text-gray-900 dark:text-foreground mb-1">Wallet Address</label>
+              <input
+                id="qr-contact-wallet"
+                type="text"
+                readOnly
+                value={scannedValue}
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-muted-foreground font-mono text-xs"
+                style={{ textOverflow: "ellipsis", marginBottom: "20px" }}
+              />
+              <button
+                type="submit"
+                disabled={isSaving || !newName.trim()}
+                className="w-full py-3 rounded-full text-white font-bold mb-3"
+                style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)", opacity: isSaving || !newName.trim() ? 0.6 : 1 }}
+              >
+                {isSaving ? "Saving…" : "Save & Pay"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSaveDialog(false)}
+                disabled={isSaving}
+                className="w-full py-3 rounded-full text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border text-sm"
+                style={{ fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     );
   }
