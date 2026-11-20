@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { randomUUID } from "crypto";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { serializeUser } from "../lib/serializers";
 
@@ -18,11 +19,20 @@ export async function getOrCreateUser(
   try {
     const { walletAddress } = req.params;
 
-    const user = await prisma.user.upsert({
-      where: { piWalletAddress: walletAddress },
-      update: {},
-      create: { piWalletAddress: walletAddress },
-    });
+    // upsert with an empty update runs as SELECT-then-INSERT, so two first logins at the
+    // same moment can both try the INSERT. The loser gets P2002: read the row the winner made.
+    const user = await prisma.user
+      .upsert({
+        where: { piWalletAddress: walletAddress },
+        update: {},
+        create: { piWalletAddress: walletAddress },
+      })
+      .catch((err: unknown) => {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+          return prisma.user.findUniqueOrThrow({ where: { piWalletAddress: walletAddress } });
+        }
+        throw err;
+      });
 
     const token = randomUUID();
     const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
