@@ -61,6 +61,28 @@ async function isNameTaken(
   );
 }
 
+/**
+ * True when the user already has a contact with this wallet address. New
+ * addresses arrive normalized (no whitespace, upper case: contact.schema.ts);
+ * older rows may not be, so they are normalized in the comparison (AUD-30).
+ */
+async function isWalletTaken(userId: string, wallet: string): Promise<boolean> {
+  const rows = await prisma.$queryRaw<{ id: string }[]>`
+    SELECT id FROM "Contact"
+    WHERE "userId" = ${userId}
+      AND upper(regexp_replace("piWalletAddress", '[[:space:]]', '', 'g')) = ${wallet}
+    LIMIT 1
+  `;
+  return rows.length > 0;
+}
+
+function sendDuplicateWallet(res: Response): void {
+  res.status(409).json({
+    error: "DUPLICATE_CONTACT",
+    message: "A contact with this wallet address already exists",
+  });
+}
+
 function sendNameTaken(res: Response): void {
   res.status(409).json({
     error: "CONTACT_NAME_TAKEN",
@@ -132,6 +154,10 @@ export async function createContact(
       sendNameTaken(res);
       return;
     }
+    if (await isWalletTaken(userId, piWalletAddress)) {
+      sendDuplicateWallet(res);
+      return;
+    }
 
     const contact = await prisma.contact.create({
       data: { name, category, piWalletAddress, userId },
@@ -149,10 +175,7 @@ export async function createContact(
       err instanceof Prisma.PrismaClientKnownRequestError &&
       err.code === "P2002"
     ) {
-      res.status(409).json({
-        error: "DUPLICATE_CONTACT",
-        message: "A contact with this wallet address already exists",
-      });
+      sendDuplicateWallet(res);
       return;
     }
     next(err);
