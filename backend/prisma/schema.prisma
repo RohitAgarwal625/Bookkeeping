@@ -40,6 +40,10 @@ model Session {
   @@index([userId])
 }
 
+// Database CHECK constraints (Prisma can't express CHECK) live in the hand-written
+// migration *_add_check_constraints: Contact.category IN ('individual','business');
+// Transaction.amount > 0, type, source and status limited to the values listed below.
+// Adding a new type/source/status/category value needs a new migration that updates them.
 model Contact {
   id              String        @id @default(cuid())
   name            String
