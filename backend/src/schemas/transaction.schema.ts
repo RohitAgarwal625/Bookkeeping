@@ -15,6 +15,13 @@ const atMost7Decimals = (n: number) => Math.abs(n * 1e7 - Math.round(n * 1e7)) <
  */
 const EARLIEST_ENTRY_DATE = Date.parse("2018-01-01T00:00:00Z");
 const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+/** A Pi transaction hash: 64 hex characters, stored lowercase. */
+const txHashField = () =>
+  z
+    .string()
+    .regex(/^[0-9a-fA-F]{64}$/, "Must be a 64-character transaction hash")
+    .transform((s) => s.toLowerCase());
+
 const entryTimestamp = () =>
   z
     .string()
@@ -37,6 +44,8 @@ export const createTransactionSchema = z.object({
     // UTC offsets accepted (stored as that instant); 2018-01-01 .. now + 1 year (AUD-36).
     timestamp: entryTimestamp().optional(),
     idempotencyKey: z.string().uuid(),
+    // Optional: the Pi transaction hash typed on the Manual Transaction screen (stored lowercase).
+    txHash: txHashField().optional(),
   }),
 });
 
@@ -53,6 +62,10 @@ export const importTransactionsSchema = z.object({
       .array(
         z.object({
           chainPaymentId: z.string().regex(/^\d{1,30}$/, "Must be a Horizon payment id"),
+          // Optional: the payment's full Pi transaction hash (Horizon transaction_hash).
+          // Confirms a match with a manual entry that has a hash, and is stored
+          // (lowercase) on the new row, or on a linked manual row that has none.
+          txHash: txHashField().optional(),
           description: sanitizedString(1, 500),
           amount: z.number().positive().min(0.0000001).max(1_000_000).refine(atMost7Decimals, "At most 7 decimal places"),
           type: z.enum(["credit", "debit"]),

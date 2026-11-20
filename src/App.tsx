@@ -251,6 +251,7 @@ function AppContent() {
       amount: chainTx.amount,
       type: chainTx.type,
       timestamp: chainTx.chainTimestamp as string,
+      txHash: chainTx.chainTxHash,
     }]);
     const saved = res.transactions[0];
     if (saved) {
@@ -457,6 +458,7 @@ function AppContent() {
                   amount: tx.amount,
                   type: tx.type,
                   timestamp: tx.chainTimestamp as string,
+                  txHash: tx.chainTxHash,
                 }))
             );
           }}
@@ -505,6 +507,7 @@ function AppContent() {
                     type: newTransaction.type,
                     contactId,
                     timestamp,
+                    txHash: newTransaction.txHash ?? undefined,
                   });
                   shownTransaction = { ...saved, isNew: true };
                 } catch (e) {

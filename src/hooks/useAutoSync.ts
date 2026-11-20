@@ -104,6 +104,7 @@ export function useAutoSync({ enabled, userId, userWalletAddress, contacts, impo
               amount: tx.amount,
               type: tx.type,
               timestamp: tx.chainTimestamp as string,
+              txHash: tx.chainTxHash,
             }));
           if (entries.length > 0) {
             const res = await latest.current.importScannedTransactions(contact.id, entries);

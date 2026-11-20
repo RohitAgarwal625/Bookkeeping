@@ -9,6 +9,10 @@ export interface Transaction {
   chainPaymentId?: string | null;
   /** Automatic-scan entries only: the payment's ISO created_at on the Pi blockchain. */
   chainTimestamp?: string;
+  /** Automatic-scan entries only: the payment's full Pi transaction hash (Horizon transaction_hash). */
+  chainTxHash?: string;
+  /** Pi transaction hash (64 hex, lowercase on saved rows); typed on Manual Transaction or set by the Automatic scan. */
+  txHash?: string | null;
   /** Saved rows only: the contact this entry belongs to. */
   contactId?: string | null;
 }
@@ -191,6 +195,8 @@ export interface CreateTransactionInput {
   idempotencyKey: string;
   /** ISO 8601 UTC time of the entry; the server uses the current time when it's missing. */
   timestamp?: string;
+  /** Optional Pi transaction hash (64 hex characters); the server stores it lowercase. */
+  txHash?: string;
 }
 
 /** One Automatic-scan entry sent to POST /api/transactions/import. */
@@ -201,6 +207,8 @@ export interface ImportTransactionEntry {
   type: "credit" | "debit";
   /** ISO datetime of the payment on the Pi blockchain; saved as the entry's date. */
   timestamp: string;
+  /** Optional full tx hash (64 hex); a manual entry with a hash links only to the payment with that hash. */
+  txHash?: string;
 }
 
 /** POST /api/transactions/import: rows created now; already-saved payments are skipped. */

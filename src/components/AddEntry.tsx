@@ -85,6 +85,10 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
       toast.error("Please enter the transaction hash");
       return;
     }
+    if (!/^[0-9a-fA-F]{64}$/.test(txHash.trim())) {
+      toast.error("The transaction hash must be 64 characters (0-9, a-f)");
+      return;
+    }
     // The picked date and time are local time; the API stores UTC.
     const pickedTime = date ? new Date(`${date}T${time || "00:00"}`) : null;
     if (pickedTime && isNaN(pickedTime.getTime())) {
@@ -111,6 +115,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
       amount: parseFloat(amount),
       type: transactionType,
       timestamp: formattedTimestamp,
+      txHash: txHash.trim().toLowerCase(),
       isNew: true,
     };
 

@@ -76,6 +76,8 @@ export interface ImportTransactionsInput {
     type: TransactionType;
     /** ISO datetime of the payment on the Pi blockchain (not in the future); saved as the entry's timestamp. */
     timestamp: string;
+    /** Optional full tx hash (64 hex); a manual entry with a hash links only to the payment with that hash. */
+    txHash?: string;
   }[];
 }
 
@@ -132,4 +134,6 @@ export interface CreateTransactionInput {
   contactId?: string;
   timestamp?: string;
   idempotencyKey: string;
+  /** Optional Pi transaction hash (64 hex characters); stored lowercase. */
+  txHash?: string;
 }

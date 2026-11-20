@@ -17,7 +17,7 @@ export async function createTransaction(
 ): Promise<void> {
   try {
     const userId = req.user!.id;
-    const { description, amount, type, contactId, timestamp, idempotencyKey } =
+    const { description, amount, type, contactId, timestamp, idempotencyKey, txHash } =
       req.body as {
         description: string;
         amount: number;
@@ -25,6 +25,7 @@ export async function createTransaction(
         contactId?: string;
         timestamp?: string;
         idempotencyKey: string;
+        txHash?: string;
       };
 
     // Idempotency: if this key already exists, return the existing record.
@@ -70,6 +71,8 @@ export async function createTransaction(
         idempotencyKey,
         userId,
         contactId: contactId ?? null,
+        // Lowercased by the schema.
+        txHash: txHash ?? null,
         ...(timestamp ? { timestamp: new Date(timestamp) } : {}),
       },
     });
@@ -185,6 +188,7 @@ type ImportEntry = {
   amount: number;
   type: "credit" | "debit";
   timestamp: string;
+  txHash?: string;
 };
 
 /** The body of POST /api/transactions/import, run inside one DB transaction. */
@@ -234,8 +238,9 @@ async function importInTransaction(
   // the manual row is linked to it instead (chainPaymentId set, so later scans skip
   // it through the unique (userId, chainPaymentId) index). A match is the same
   // contact and type, exactly the same amount, not deleted, not yet linked, and
-  // within MANUAL_MATCH_WINDOW_MS. Closest pairs are matched first; each manual
-  // row and each payment is used at most once.
+  // within MANUAL_MATCH_WINDOW_MS. A manual row with a txHash matches only the
+  // payment with that same hash (a different hash never links). Closest pairs are
+  // matched first; each manual row and each payment is used at most once.
   const linkedIds = new Set<string>();
   if (fresh.size > 0) {
     const times = [...fresh.values()].map((e) => Date.parse(e.timestamp));
@@ -252,7 +257,7 @@ async function importInTransaction(
           lte: new Date(Math.max(...times) + MANUAL_MATCH_WINDOW_MS),
         },
       },
-      select: { id: true, amount: true, type: true, timestamp: true },
+      select: { id: true, amount: true, type: true, timestamp: true, txHash: true },
     });
     const pairs: { entry: ImportEntry; rowId: string; dist: number }[] = [];
     for (const entry of fresh.values()) {
@@ -261,7 +266,12 @@ async function importInTransaction(
       for (const row of candidates) {
         if (row.type !== entry.type || !row.amount.equals(amount)) continue;
         const dist = Math.abs(row.timestamp.getTime() - t);
-        if (dist <= MANUAL_MATCH_WINDOW_MS) pairs.push({ entry, rowId: row.id, dist });
+        if (dist > MANUAL_MATCH_WINDOW_MS) continue;
+        // The tx hash has the final word: a manual row that carries a hash matches
+        // only the payment with that same hash (case-insensitive). Rows without one
+        // rely on contact, type, amount and time.
+        if (row.txHash && row.txHash.toLowerCase() !== entry.txHash?.toLowerCase()) continue;
+        pairs.push({ entry, rowId: row.id, dist });
       }
     }
     // Closest pairs first.
@@ -271,12 +281,18 @@ async function importInTransaction(
       a.rowId.localeCompare(b.rowId)
     );
     const usedRows = new Set<string>();
-    const links: { rowId: string; chainPaymentId: string }[] = [];
+    const links: { rowId: string; chainPaymentId: string; txHash?: string; rowHasHash: boolean }[] = [];
+    const rowHasHash = new Map(candidates.map((r) => [r.id, !!r.txHash]));
     for (const p of pairs) {
       if (usedRows.has(p.rowId) || linkedIds.has(p.entry.chainPaymentId)) continue;
       usedRows.add(p.rowId);
       linkedIds.add(p.entry.chainPaymentId);
-      links.push({ rowId: p.rowId, chainPaymentId: p.entry.chainPaymentId });
+      links.push({
+        rowId: p.rowId,
+        chainPaymentId: p.entry.chainPaymentId,
+        txHash: p.entry.txHash,
+        rowHasHash: rowHasHash.get(p.rowId) ?? false,
+      });
     }
     // Fixed lock order (row id) so concurrent imports can't deadlock on each other.
     links.sort((a, b) => a.rowId.localeCompare(b.rowId));
@@ -286,7 +302,12 @@ async function importInTransaction(
       // there by the unique index if the other import linked this same payment).
       const { count } = await tx.transaction.updateMany({
         where: { id: l.rowId, userId, chainPaymentId: null, deletedAt: null },
-        data: { chainPaymentId: l.chainPaymentId },
+        // A manual row without a hash takes the payment's hash; an existing hash is
+        // never overwritten (it already equals the payment's, or the pair wasn't matched).
+        data: {
+          chainPaymentId: l.chainPaymentId,
+          ...(!l.rowHasHash && l.txHash ? { txHash: l.txHash } : {}),
+        },
       });
       if (count === 0) linkedIds.delete(l.chainPaymentId);
     }
@@ -312,6 +333,7 @@ async function importInTransaction(
             source: "manual",
             status: "completed",
             chainPaymentId: e.chainPaymentId,
+            txHash: e.txHash ?? null,
             timestamp: new Date(e.timestamp),
             idempotencyKey: randomUUID(),
             userId,

@@ -104,4 +104,111 @@ export default async function run({ api, db }) {
   const eRows = await rowsFor(e.user.id, shop);
   check("concurrent imports -> 1 row, the manual one, linked", eRows.length === 1 && eRows[0].id === me.id && eRows[0].chainPaymentId === "32401",
     JSON.stringify(eRows.map((r) => [r.id, r.chainPaymentId])));
+
+  // 6. The tx hash has the final word. The hash is set in the DB here (section 7
+  // covers setting it through POST /api/transactions).
+  const f = await api.login("fix_32_faye");
+  const F = f.sessionToken;
+  const HASH_A = "a".repeat(64);
+  const HASH_B = "b".repeat(64);
+  const withHash = async (contactId, hash, opts) => {
+    const t = await manual(F, contactId, opts);
+    await db.transaction.update({ where: { id: t.id }, data: { txHash: hash } });
+    return t;
+  };
+  const same = await contact(F, "Same");
+  const mSame = await withHash(same, HASH_A, { amount: 6, type: "credit", timestamp: "2026-08-15T10:00:00Z" });
+  const sameRes = await importScan(F, same, [entry("32501", { amount: 6, timestamp: "2026-08-15T11:00:00Z", txHash: HASH_A.toUpperCase() })]);
+  check("same hash (any case) -> linked, skipped 1",
+    sameRes.status === 200 && sameRes.body.added === 0 && sameRes.body.skipped === 1, JSON.stringify(sameRes.body));
+  check("same hash -> manual row carries the chainPaymentId",
+    (await db.transaction.findUnique({ where: { id: mSame.id } }))?.chainPaymentId === "32501");
+
+  const diff = await contact(F, "Diff");
+  const mDiff = await withHash(diff, HASH_A, { amount: 6, type: "credit", timestamp: "2026-08-15T10:00:00Z" });
+  const diffRes = await importScan(F, diff, [entry("32502", { amount: 6, timestamp: "2026-08-15T11:00:00Z", txHash: HASH_B })]);
+  check("different hash -> not linked, new row inserted (added 1)",
+    diffRes.status === 200 && diffRes.body.added === 1 && diffRes.body.skipped === 0, JSON.stringify(diffRes.body));
+  check("different hash -> manual row stays unlinked, 2 rows",
+    (await db.transaction.findUnique({ where: { id: mDiff.id } }))?.chainPaymentId === null &&
+      (await rowsFor(f.user.id, diff)).length === 2);
+
+  const noPayHash = await contact(F, "NoPayHash");
+  const mNoPay = await withHash(noPayHash, HASH_A, { amount: 6, type: "credit", timestamp: "2026-08-15T10:00:00Z" });
+  const noPayRes = await importScan(F, noPayHash, [entry("32503", { amount: 6, timestamp: "2026-08-15T11:00:00Z" })]);
+  check("manual row has a hash, import has none -> not linked, inserted",
+    noPayRes.body.added === 1 && (await db.transaction.findUnique({ where: { id: mNoPay.id } }))?.chainPaymentId === null,
+    JSON.stringify(noPayRes.body));
+
+  const none = await contact(F, "NoHash");
+  const mNone = await manual(F, none, { amount: 6, type: "credit", timestamp: "2026-08-15T10:00:00Z" });
+  const noneRes = await importScan(F, none, [entry("32504", { amount: 6, timestamp: "2026-08-15T11:00:00Z", txHash: HASH_B })]);
+  check("manual row without a hash -> linked on the other rules as before",
+    noneRes.body.added === 0 && noneRes.body.skipped === 1 &&
+      (await db.transaction.findUnique({ where: { id: mNone.id } }))?.chainPaymentId === "32504",
+    JSON.stringify(noneRes.body));
+
+  // Hash is shape-checked; a malformed one is refused (400).
+  const bad = await importScan(F, none, [entry("32505", { txHash: "xyz" })]);
+  check("malformed txHash -> 400", bad.status === 400, JSON.stringify(bad.body));
+
+  // 7. The hash is saved: on manual create (lowercase), on inserted import rows,
+  // and on a linked manual row that had none.
+  const g = await api.login("fix_32_gus");
+  const G = g.sessionToken;
+  const HASH_C = "C0FFEE".repeat(10) + "ABCD"; // 64 hex, mixed case
+  const kiran = await contact(G, "Kiran");
+  const create = (body) =>
+    api.call("POST", "/api/transactions", {
+      token: G,
+      body: { description: "Typed hash", amount: 1, type: "credit", contactId: kiran, idempotencyKey: randomUUID(), ...body },
+    });
+  const okHash = await create({ txHash: HASH_C });
+  check("create with a valid hash -> 201, hash returned lowercase",
+    okHash.status === 201 && okHash.body.transaction?.txHash === HASH_C.toLowerCase(), JSON.stringify(okHash.body));
+  check("create with a valid hash -> stored lowercase",
+    (await db.transaction.findUnique({ where: { id: okHash.body.transaction?.id ?? "" } }))?.txHash === HASH_C.toLowerCase());
+  for (const [label, h] of [["too short", "a".repeat(63)], ["too long", "a".repeat(65)], ["non-hex", "g".repeat(64)], ["0x prefix", "0x" + "a".repeat(62)], ["number", 123]]) {
+    const res = await create({ txHash: h });
+    check(`create with an invalid hash (${label}) -> 400`, res.status === 400 && res.body.error === "VALIDATION_ERROR", JSON.stringify(res.body));
+  }
+  const noHash = await create({});
+  check("create without a hash still works (txHash null)",
+    noHash.status === 201 && noHash.body.transaction?.txHash === null, JSON.stringify(noHash.body));
+
+  const HASH_D = "D".repeat(64);
+  const ins = await importScan(G, kiran, [entry("32601", { amount: 9, timestamp: "2026-08-15T11:00:00Z", txHash: HASH_D })]);
+  const insRow = await db.transaction.findFirst({ where: { userId: g.user.id, chainPaymentId: "32601" } });
+  check("import insert stores the payment's hash (lowercase)",
+    ins.body.added === 1 && insRow?.txHash === HASH_D.toLowerCase() && ins.body.transactions?.[0]?.txHash === HASH_D.toLowerCase(),
+    JSON.stringify([ins.body, insRow?.txHash]));
+  const insNoHash = await importScan(G, kiran, [entry("32602", { amount: 9.5, timestamp: "2026-08-15T11:00:00Z" })]);
+  check("import insert without a hash -> txHash null",
+    insNoHash.body.added === 1 && (await db.transaction.findFirst({ where: { userId: g.user.id, chainPaymentId: "32602" } }))?.txHash === null);
+
+  const lal = await contact(G, "Lal");
+  const mLal = await manual(G, lal, { amount: 8, type: "debit", timestamp: "2026-08-15T10:00:00Z" });
+  const HASH_E = "E".repeat(64);
+  const linkRes = await importScan(G, lal, [entry("32603", { amount: 8, type: "debit", timestamp: "2026-08-15T11:00:00Z", txHash: HASH_E })]);
+  const lalRow = await db.transaction.findUnique({ where: { id: mLal.id } });
+  check("linking fills the manual row's missing hash",
+    linkRes.body.skipped === 1 && lalRow?.chainPaymentId === "32603" && lalRow?.txHash === HASH_E.toLowerCase(),
+    JSON.stringify([linkRes.body, lalRow?.txHash]));
+
+  const HASH_MO = "AB".repeat(32);
+  const mo = await contact(G, "Mo");
+  const mMo = (await create({ contactId: mo, amount: 8, type: "debit", timestamp: "2026-08-15T10:00:00Z", txHash: HASH_MO })).body.transaction;
+  const moRes = await importScan(G, mo, [entry("32604", { amount: 8, type: "debit", timestamp: "2026-08-15T11:00:00Z", txHash: HASH_MO.toLowerCase() })]);
+  const moRow = await db.transaction.findUnique({ where: { id: mMo.id } });
+  check("typed hash (via API) + same chain hash -> linked, hash kept",
+    moRes.body.skipped === 1 && moRow?.chainPaymentId === "32604" && moRow?.txHash === HASH_MO.toLowerCase(),
+    JSON.stringify([moRes.body, moRow]));
+
+  const lin = await contact(G, "Lin");
+  const HASH_LIN = "CD".repeat(32);
+  const mLin = (await create({ contactId: lin, amount: 8, type: "debit", timestamp: "2026-08-15T10:00:00Z", txHash: HASH_LIN })).body.transaction;
+  await importScan(G, lin, [entry("32605", { amount: 8, type: "debit", timestamp: "2026-08-15T11:00:00Z", txHash: "EF".repeat(32) })]);
+  const linRow = await db.transaction.findUnique({ where: { id: mLin.id } });
+  check("different chain hash -> manual row's hash not overwritten, not linked",
+    linRow?.txHash === HASH_LIN.toLowerCase() && linRow?.chainPaymentId === null, JSON.stringify(linRow));
 }
