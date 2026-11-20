@@ -128,13 +128,7 @@ export async function importTransactions(
     const userId = req.user!.id;
     const { contactId, entries } = req.body as {
       contactId: string;
-      entries: {
-        chainPaymentId: string;
-        description: string;
-        amount: number;
-        type: "credit" | "debit";
-        timestamp: string;
-      }[];
+      entries: ImportEntry[];
     };
 
     const contact = await prisma.contact.findFirst({
@@ -147,56 +141,25 @@ export async function importTransactions(
       return;
     }
 
-    // Payments saved before under a contact that was since deleted (contactId
-    // SET NULL) belong to no ledger: move them into this contact instead of
-    // skipping them, so a re-added contact gets its history back (AUD-33).
-    // Entries the user deleted (deletedAt set) stay deleted and are skipped.
-    const orphans = await prisma.transaction.findMany({
-      where: {
-        userId,
-        contactId: null,
-        deletedAt: null,
-        chainPaymentId: { in: entries.map((e) => e.chainPaymentId) },
-      },
-      select: { id: true },
-    });
-    let relinked: Awaited<ReturnType<typeof prisma.transaction.findMany>> = [];
-    if (orphans.length > 0) {
-      const ids = orphans.map((o) => o.id);
-      await prisma.transaction.updateMany({
-        where: { id: { in: ids }, userId, contactId: null },
-        data: { contactId },
-      });
-      relinked = await prisma.transaction.findMany({
-        where: { id: { in: ids }, userId, contactId },
-      });
+    // Retry the whole import when a concurrent import of the same payments wins a
+    // race (P2002 on (userId, chainPaymentId), or a P2034 write conflict/deadlock):
+    // the next attempt sees the other import's rows and skips them.
+    let result: Awaited<ReturnType<typeof importInTransaction>> | undefined;
+    for (let attempt = 1; ; attempt++) {
+      try {
+        result = await prisma.$transaction((tx) => importInTransaction(tx, userId, contactId, entries));
+        break;
+      } catch (err) {
+        const retryable =
+          err instanceof Prisma.PrismaClientKnownRequestError &&
+          (err.code === "P2002" || err.code === "P2034");
+        if (!retryable || attempt >= 3) throw err;
+      }
     }
 
-    // Insert in one fixed order (payment id, newest first, as the app sends them) so
-    // concurrent imports of overlapping ids lock rows in the same order and can't deadlock (AUD-66).
-    const ordered = [...entries].sort((a, b) => {
-      const x = BigInt(a.chainPaymentId);
-      const y = BigInt(b.chainPaymentId);
-      return x === y ? 0 : x > y ? -1 : 1;
-    });
-    const created = await prisma.transaction.createManyAndReturn({
-      data: ordered.map((e) => ({
-        description: e.description,
-        amount: new Prisma.Decimal(e.amount),
-        type: e.type,
-        source: "manual",
-        status: "completed",
-        chainPaymentId: e.chainPaymentId,
-        timestamp: new Date(e.timestamp),
-        idempotencyKey: randomUUID(),
-        userId,
-        contactId,
-      })),
-      skipDuplicates: true,
-    });
-
     // Re-linked rows count as added: they are new in this contact's ledger.
-    const added = [...relinked, ...created];
+    // Manual rows linked to a chain payment count as skipped ("already in your ledger").
+    const added = [...result.relinked, ...result.created];
     res.status(200).json({
       transactions: added.map(serializeTransaction),
       added: added.length,
@@ -205,6 +168,158 @@ export async function importTransactions(
   } catch (err) {
     next(err);
   }
+}
+
+/**
+ * A manual entry matches a chain payment when it is within this many ms of the
+ * payment's chain timestamp. Add Entry stores the picked date at local midnight
+ * when no time is picked (so the real payment is up to 24h later), or "now" when
+ * no date is picked (an entry logged the same day as the payment). ±24h covers
+ * both in any time zone without reaching back into other days' payments.
+ */
+const MANUAL_MATCH_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+type ImportEntry = {
+  chainPaymentId: string;
+  description: string;
+  amount: number;
+  type: "credit" | "debit";
+  timestamp: string;
+};
+
+/** The body of POST /api/transactions/import, run inside one DB transaction. */
+async function importInTransaction(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  contactId: string,
+  entries: ImportEntry[]
+) {
+  const ids = entries.map((e) => e.chainPaymentId);
+
+  // Payments saved before under a contact that was since deleted (contactId
+  // SET NULL) belong to no ledger: move them into this contact instead of
+  // skipping them, so a re-added contact gets its history back (AUD-33).
+  // Entries the user deleted (deletedAt set) stay deleted and are skipped.
+  const orphans = await tx.transaction.findMany({
+    where: { userId, contactId: null, deletedAt: null, chainPaymentId: { in: ids } },
+    select: { id: true },
+  });
+  let relinked: Awaited<ReturnType<typeof tx.transaction.findMany>> = [];
+  if (orphans.length > 0) {
+    const orphanIds = orphans.map((o) => o.id);
+    await tx.transaction.updateMany({
+      where: { id: { in: orphanIds }, userId, contactId: null },
+      data: { contactId },
+    });
+    relinked = await tx.transaction.findMany({
+      where: { id: { in: orphanIds }, userId, contactId },
+    });
+  }
+
+  // Payments already saved (any contact, even soft-deleted) are skipped as before.
+  const known = new Set(
+    (
+      await tx.transaction.findMany({
+        where: { userId, chainPaymentId: { in: ids } },
+        select: { chainPaymentId: true },
+      })
+    ).map((r) => r.chainPaymentId)
+  );
+  const fresh = new Map<string, ImportEntry>();
+  for (const e of entries) {
+    if (!known.has(e.chainPaymentId) && !fresh.has(e.chainPaymentId)) fresh.set(e.chainPaymentId, e);
+  }
+
+  // A payment the user already entered by hand (Add Entry) is not added again:
+  // the manual row is linked to it instead (chainPaymentId set, so later scans skip
+  // it through the unique (userId, chainPaymentId) index). A match is the same
+  // contact and type, exactly the same amount, not deleted, not yet linked, and
+  // within MANUAL_MATCH_WINDOW_MS. Closest pairs are matched first; each manual
+  // row and each payment is used at most once.
+  const linkedIds = new Set<string>();
+  if (fresh.size > 0) {
+    const times = [...fresh.values()].map((e) => Date.parse(e.timestamp));
+    const candidates = await tx.transaction.findMany({
+      where: {
+        userId,
+        contactId,
+        source: "manual",
+        status: "completed",
+        chainPaymentId: null,
+        deletedAt: null,
+        timestamp: {
+          gte: new Date(Math.min(...times) - MANUAL_MATCH_WINDOW_MS),
+          lte: new Date(Math.max(...times) + MANUAL_MATCH_WINDOW_MS),
+        },
+      },
+      select: { id: true, amount: true, type: true, timestamp: true },
+    });
+    const pairs: { entry: ImportEntry; rowId: string; dist: number }[] = [];
+    for (const entry of fresh.values()) {
+      const t = Date.parse(entry.timestamp);
+      const amount = new Prisma.Decimal(entry.amount);
+      for (const row of candidates) {
+        if (row.type !== entry.type || !row.amount.equals(amount)) continue;
+        const dist = Math.abs(row.timestamp.getTime() - t);
+        if (dist <= MANUAL_MATCH_WINDOW_MS) pairs.push({ entry, rowId: row.id, dist });
+      }
+    }
+    // Closest pairs first.
+    pairs.sort((a, b) =>
+      a.dist - b.dist ||
+      a.entry.chainPaymentId.localeCompare(b.entry.chainPaymentId) ||
+      a.rowId.localeCompare(b.rowId)
+    );
+    const usedRows = new Set<string>();
+    const links: { rowId: string; chainPaymentId: string }[] = [];
+    for (const p of pairs) {
+      if (usedRows.has(p.rowId) || linkedIds.has(p.entry.chainPaymentId)) continue;
+      usedRows.add(p.rowId);
+      linkedIds.add(p.entry.chainPaymentId);
+      links.push({ rowId: p.rowId, chainPaymentId: p.entry.chainPaymentId });
+    }
+    // Fixed lock order (row id) so concurrent imports can't deadlock on each other.
+    links.sort((a, b) => a.rowId.localeCompare(b.rowId));
+    for (const l of links) {
+      // chainPaymentId: null in the filter: if a concurrent import linked this row
+      // first, nothing is updated and the payment is inserted below (or skipped
+      // there by the unique index if the other import linked this same payment).
+      const { count } = await tx.transaction.updateMany({
+        where: { id: l.rowId, userId, chainPaymentId: null, deletedAt: null },
+        data: { chainPaymentId: l.chainPaymentId },
+      });
+      if (count === 0) linkedIds.delete(l.chainPaymentId);
+    }
+  }
+
+  // Insert in one fixed order (payment id, newest first, as the app sends them) so
+  // concurrent imports of overlapping ids lock rows in the same order and can't deadlock (AUD-66).
+  const ordered = entries
+    .filter((e) => !linkedIds.has(e.chainPaymentId))
+    .sort((a, b) => {
+      const x = BigInt(a.chainPaymentId);
+      const y = BigInt(b.chainPaymentId);
+      return x === y ? 0 : x > y ? -1 : 1;
+    });
+  const created =
+    ordered.length === 0
+      ? []
+      : await tx.transaction.createManyAndReturn({
+          data: ordered.map((e) => ({
+            description: e.description,
+            amount: new Prisma.Decimal(e.amount),
+            type: e.type,
+            source: "manual",
+            status: "completed",
+            chainPaymentId: e.chainPaymentId,
+            timestamp: new Date(e.timestamp),
+            idempotencyKey: randomUUID(),
+            userId,
+            contactId,
+          })),
+          skipDuplicates: true,
+        });
+  return { relinked, created };
 }
 
 /**
