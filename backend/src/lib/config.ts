@@ -12,6 +12,16 @@ function required(name: string, fallback?: string): string {
 
 const isProd = (process.env.NODE_ENV ?? "development") === "production";
 
+/** PI_NETWORK: testnet (default) or mainnet, case and spaces ignored; anything else stops the boot. */
+function piNetworkFromEnv(): "mainnet" | "testnet" {
+  const net = (process.env.PI_NETWORK ?? "").trim().toLowerCase() || "testnet";
+  if (net !== "mainnet" && net !== "testnet") {
+    throw new Error(`PI_NETWORK must be "testnet" or "mainnet", got "${process.env.PI_NETWORK}"`);
+  }
+  return net;
+}
+const piNetwork = piNetworkFromEnv();
+
 /**
  * TRUST_PROXY: number of reverse-proxy hops in front of the app, so req.ip (and the IP rate limits)
  * use the client address from X-Forwarded-For. Default 1 in production (Railway's edge proxy), 0 locally.
@@ -41,5 +51,5 @@ export const config = {
   piApiKey: process.env.PI_NETWORK_API_KEY ?? process.env.PI_API_KEY ?? "",
   piPlatformApiUrl: process.env.PI_PLATFORM_API_URL ?? "https://api.minepi.com",
   // Pi blockchain the Horizon proxy reads from. Testnet only for now; PI_NETWORK=mainnet switches it.
-  piNetwork: process.env.PI_NETWORK === "mainnet" ? "mainnet" : "testnet",
+  piNetwork,
 };
