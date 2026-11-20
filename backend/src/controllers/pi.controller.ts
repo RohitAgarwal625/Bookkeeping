@@ -46,9 +46,9 @@ async function recordCompletedPayment(
       return;
     }
 
-    // Idempotent upsert of transaction record
-    const existing = await prisma.transaction.findUnique({
-      where: { idempotencyKey: payment.identifier },
+    // Idempotent upsert of the payer's own pi_network row for this payment.
+    const existing = await prisma.transaction.findFirst({
+      where: { userId: resolvedUserId, source: "pi_network", piPaymentId: payment.identifier },
     });
 
     if (existing) {
@@ -64,6 +64,19 @@ async function recordCompletedPayment(
       return;
     }
 
+    // idempotencyKey is unique across all rows. If another row (e.g. another
+    // user's manual entry) already uses the payment id as its key, leave that
+    // row alone and store this payment under a namespaced key.
+    const keyTaken = await prisma.transaction.findUnique({
+      where: { idempotencyKey: payment.identifier },
+    });
+    if (keyTaken) {
+      logger.error(
+        { paymentId: payment.identifier, otherTxId: keyTaken.id },
+        "Payment id collides with another transaction's idempotencyKey; using a namespaced key"
+      );
+    }
+
     await prisma.transaction.create({
       data: {
         description: `${PREMIUM_PRODUCT.productName} (Pi Network Payment)`,
@@ -72,7 +85,7 @@ async function recordCompletedPayment(
         source: "pi_network",
         txHash: txid,
         piPaymentId: payment.identifier,
-        idempotencyKey: payment.identifier,
+        idempotencyKey: keyTaken ? `pi_payment:${payment.identifier}` : payment.identifier,
         status: "completed",
         userId: resolvedUserId,
       },
