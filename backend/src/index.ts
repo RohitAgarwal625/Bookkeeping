@@ -16,6 +16,9 @@ import piRoutes from "./routes/pi";
 
 const app = express();
 
+// Behind Railway's proxy: take the client IP from X-Forwarded-For (TRUST_PROXY hops) for the IP rate limits.
+if (config.trustProxy > 0) app.set("trust proxy", config.trustProxy);
+
 // --- Security & parsing middleware ---
 app.use(
   helmet({
