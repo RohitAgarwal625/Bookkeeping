@@ -212,7 +212,8 @@ export async function listTransactions(
       prisma.transaction.count({ where }),
       prisma.transaction.findMany({
         where,
-        orderBy: { timestamp: "desc" },
+        // id breaks timestamp ties so paging never repeats or skips a row (AUD-35).
+        orderBy: [{ timestamp: "desc" }, { id: "desc" }],
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -308,7 +309,8 @@ export async function getContactLedger(
       prisma.transaction.count({ where }),
       prisma.transaction.findMany({
         where,
-        orderBy: { timestamp: "desc" },
+        // id breaks timestamp ties so paging never repeats or skips a row (AUD-35).
+        orderBy: [{ timestamp: "desc" }, { id: "desc" }],
         skip: (page - 1) * limit,
         take: limit,
       }),
