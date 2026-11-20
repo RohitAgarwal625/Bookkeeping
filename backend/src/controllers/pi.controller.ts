@@ -253,6 +253,11 @@ export async function getPaymentStatusHandler(
   try {
     const paymentId = req.params.id;
     const payment = await piClient.getPayment(paymentId);
+    // Only the payer may read a payment (login stores the Pi uid in piWalletAddress).
+    if (payment.user_uid !== req.user!.piWalletAddress) {
+      res.status(404).json({ error: "PAYMENT_NOT_FOUND", message: "Payment not found" });
+      return;
+    }
     res.status(200).json({ payment: publicPayment(payment) });
   } catch (err: unknown) {
     if (err instanceof PiApiError) {
