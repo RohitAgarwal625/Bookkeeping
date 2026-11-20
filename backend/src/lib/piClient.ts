@@ -167,6 +167,13 @@ async function piRequest<T>(
   return json as T;
 }
 
+/** Refuse a payment the user or Pi cancelled (no Pi /approve or /complete call). */
+function assertNotCancelled(payment: PiPaymentResponse): void {
+  if (payment.status?.cancelled || payment.status?.user_cancelled) {
+    throw new PiApiError(409, "PAYMENT_CANCELLED", "Payment was cancelled");
+  }
+}
+
 /**
  * Validate that the payment matches the expected product specs.
  */
@@ -219,6 +226,7 @@ export const piClient = {
     // 1. Fetch current payment details and validate
     const payment = await this.getPayment(paymentId);
     validateProductPayment(payment);
+    assertNotCancelled(payment);
 
     // If already approved, return payment
     if (payment.status?.developer_approved) {
@@ -249,6 +257,7 @@ export const piClient = {
     // 1. Fetch and validate payment
     const payment = await this.getPayment(paymentId);
     validateProductPayment(payment);
+    assertNotCancelled(payment);
 
     // If already completed, return payment
     if (payment.status?.developer_completed) {
