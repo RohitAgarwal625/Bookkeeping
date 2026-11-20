@@ -19,6 +19,7 @@ export async function startBackend({ port, databaseUrl, piApiUrl }) {
       CORS_ORIGIN: TEST_ORIGIN,
       PI_NETWORK_API_KEY: TEST_PI_API_KEY,
       PI_PLATFORM_API_URL: piApiUrl,
+      PI_HORIZON_URL: piApiUrl, // the fake Pi server also answers Horizon's /accounts/:address/payments
       LOG_LEVEL: "error",
     },
     stdio: ["ignore", "ignore", "pipe"],

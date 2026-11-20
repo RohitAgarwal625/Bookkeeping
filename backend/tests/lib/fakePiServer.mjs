@@ -2,6 +2,7 @@
 //   GET  /v2/payments/:id
 //   POST /v2/payments/:id/approve
 //   POST /v2/payments/:id/complete   { txid }
+//   GET  /accounts/:address/payments (fake Horizon for PI_HORIZON_URL; see the handler)
 // Requires `Authorization: Key <apiKey>`, like the real API.
 import http from "node:http";
 
@@ -52,6 +53,16 @@ export function startFakePi({ port, apiKey }) {
         res.writeHead(status, { "Content-Type": "application/json" });
         res.end(JSON.stringify(obj));
       };
+      // Fake Horizon (PI_HORIZON_URL): GET /accounts/:address/payments. The address prefix picks the answer:
+      // GNOTFOUND -> 404, GBAD -> 400, GDOWN -> 500, anything else -> 200 with one record.
+      const h = req.url.match(/^\/accounts\/([^/?]+)\/payments(?:\?|$)/);
+      if (h) {
+        const addr = decodeURIComponent(h[1]);
+        if (addr.startsWith("GNOTFOUND")) return send(404, { status: 404, title: "Resource Missing" });
+        if (addr.startsWith("GBAD")) return send(400, { status: 400, title: "Bad Request" });
+        if (addr.startsWith("GDOWN")) return send(500, { status: 500, title: "Internal Server Error" });
+        return send(200, { _embedded: { records: [{ id: "1", paging_token: "1", type: "payment" }] } });
+      }
       const failId = req.url.match(/^\/v2\/payments\/([^/]+)/)?.[1];
       const mode = failId ? failures.get(decodeURIComponent(failId)) : undefined;
       if (mode === "hang") return hung.push(res);

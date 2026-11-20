@@ -53,4 +53,8 @@ export const config = {
   piApiTimeoutMs: Number(process.env.PI_API_TIMEOUT_MS) > 0 ? Number(process.env.PI_API_TIMEOUT_MS) : 10_000,
   // Pi blockchain the Horizon proxy reads from. Testnet only for now; PI_NETWORK=mainnet switches it.
   piNetwork,
+  // Horizon base URL for that network. Override only for tests (the API test suite points it at a fake).
+  piHorizonUrl:
+    process.env.PI_HORIZON_URL ||
+    `https://api.${piNetwork}.minepi.com`,
 };

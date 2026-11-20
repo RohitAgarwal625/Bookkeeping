@@ -336,27 +336,32 @@ export async function getBlockchainPaymentsHandler(
   try {
     const address = req.params.address?.trim();
     if (!address) {
-      res.status(400).json({ error: "Pi wallet address is required", records: [] });
+      res.status(400).json({ error: "VALIDATION_ERROR", message: "Pi wallet address is required" });
       return;
     }
 
-    const limit = Math.min(Math.max(parseInt((req.query.limit as string) || "50", 10), 1), 200);
-    const order = req.query.order === "asc" ? "asc" : "desc";
-
-    const cursor = typeof req.query.cursor === "string" ? req.query.cursor : "";
+    // limit (1-200) and order (asc|desc) are validated by blockchainPaymentsSchema.
+    const query = req.query as { limit?: number; order?: "asc" | "desc"; cursor?: string };
+    const limit = query.limit ?? 50;
+    const order = query.order ?? "desc";
+    const cursor = query.cursor ?? "";
 
     // Only the configured network (config.piNetwork, testnet by default).
     const network = config.piNetwork;
-    const url = `https://api.${network}.minepi.com/accounts/${encodeURIComponent(address)}/payments?limit=${limit}&order=${order}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+    const url = `${config.piHorizonUrl}/accounts/${encodeURIComponent(address)}/payments?limit=${limit}&order=${order}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
     const horizonRes: globalThis.Response | null = await fetch(url).catch(() => null);
 
     if (!horizonRes || !horizonRes.ok) {
-      const status = horizonRes ? horizonRes.status : 502;
-      res.status(status).json({
-        error: "No account or transactions found on Pi blockchain",
-        network: "none",
-        records: [],
-      });
+      // 404: no account on this network. 400: Horizon rejected the address (our query
+      // params are already validated). Anything else, or no answer: Horizon failed.
+      const upstream = horizonRes?.status ?? 0;
+      const [status, error, message] =
+        upstream === 404
+          ? [404, "ACCOUNT_NOT_FOUND", `No account found for this address on Pi ${network}`]
+          : upstream === 400
+            ? [400, "INVALID_ADDRESS", "Pi blockchain rejected this wallet address"]
+            : [502, "HORIZON_ERROR", "Pi blockchain could not be reached. Please try again."];
+      res.status(status).json({ error, message, network, records: [] });
       return;
     }
 

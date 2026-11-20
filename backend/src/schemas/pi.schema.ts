@@ -37,8 +37,8 @@ export const paymentIdSchema = z.object({
 export const blockchainPaymentsSchema = z.object({
   params: z.object({ address: walletAddress }),
   query: z.object({
-    limit: z.string().max(10).optional(),
-    order: z.string().max(10).optional(),
+    limit: z.coerce.number().int().min(1).max(200).optional(),
+    order: z.enum(["asc", "desc"]).optional(),
     // Horizon paging_token of the last record already read (numeric string).
     cursor: z.string().regex(/^\d{1,30}$/).optional(),
   }),

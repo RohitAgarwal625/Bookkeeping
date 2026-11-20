@@ -72,6 +72,6 @@ export default async function run({ api, db, pi }) {
 ## What is not covered
 
 - Real Pi servers (testnet/mainnet), `Pi.authenticate` and App Studio login: use the Pi Sandbox for these.
-- The Horizon blockchain proxy's upstream calls (only its input validation is tested).
+- Real Horizon: the proxy's upstream calls go to a fake Horizon route on the fake Pi server (`PI_HORIZON_URL`).
 - The prod-only reconciliation cron job.
 - The frontend.
