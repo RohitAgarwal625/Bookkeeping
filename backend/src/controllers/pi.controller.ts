@@ -18,6 +18,16 @@ import {
  * API (server-to-server), not from the client. Backend login stores the
  * App Studio uid in User.piWalletAddress, so that is the column to match.
  */
+/**
+ * The Pi payment as returned to the browser, without the payer's Pi uid (user_uid).
+ * The uid is the login id (PROGRESS §9 #2), so it must not reach other callers.
+ */
+function publicPayment(payment: PiPaymentResponse): Omit<PiPaymentResponse, "user_uid"> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { user_uid, ...rest } = payment;
+  return rest;
+}
+
 async function recordCompletedPayment(
   payment: PiPaymentResponse,
   txid: string
@@ -103,7 +113,7 @@ export async function approvePaymentHandler(
 
     res.status(200).json({
       success: true,
-      payment,
+      payment: publicPayment(payment),
     });
   } catch (err: unknown) {
     if (err instanceof PiApiError) {
@@ -158,7 +168,7 @@ export async function completePaymentHandler(
 
     res.status(200).json({
       success: true,
-      payment,
+      payment: publicPayment(payment),
     });
   } catch (err: unknown) {
     if (err instanceof PiApiError) {
@@ -215,7 +225,7 @@ export async function incompletePaymentHandler(
 
     res.status(200).json({
       success: true,
-      payment,
+      payment: publicPayment(payment),
     });
   } catch (err: unknown) {
     if (err instanceof PiApiError) {
@@ -242,7 +252,7 @@ export async function getPaymentStatusHandler(
   try {
     const paymentId = req.params.id;
     const payment = await piClient.getPayment(paymentId);
-    res.status(200).json({ payment });
+    res.status(200).json({ payment: publicPayment(payment) });
   } catch (err: unknown) {
     if (err instanceof PiApiError) {
       res.status(err.status).json({
