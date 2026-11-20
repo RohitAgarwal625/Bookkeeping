@@ -38,6 +38,13 @@ app.use(
     autoLogging: {
       ignore: (req) => req.url === "/api/health",
     },
+    // The Pi uid in /api/users/<uid> is the login id (PROGRESS §9 #2): mask it like a token.
+    serializers: {
+      req: (req: { url?: string }) => {
+        if (req.url) req.url = req.url.replace(/^\/api\/users\/(?!(?:me|logout)(?:[/?]|$))[^/?]+/, "/api/users/:uid");
+        return req;
+      },
+    },
   })
 );
 
