@@ -89,8 +89,9 @@ async function findContactWithTotals(userId: string, id: string): Promise<Contac
     SELECT
       c.id, c.name, c.category, c."piWalletAddress", c."userId",
       c."createdAt", c."updatedAt",
-      COALESCE(SUM(CASE WHEN t.type = 'credit' THEN t.amount ELSE 0 END), 0)::float AS "totalCredit",
-      COALESCE(SUM(CASE WHEN t.type = 'debit'  THEN t.amount ELSE 0 END), 0)::float AS "totalDebit",
+      -- Only completed rows count in totals, like /summary (AUD-37); lastSeen uses every row.
+      COALESCE(SUM(CASE WHEN t.type = 'credit' AND t.status = 'completed' THEN t.amount ELSE 0 END), 0)::float AS "totalCredit",
+      COALESCE(SUM(CASE WHEN t.type = 'debit'  AND t.status = 'completed' THEN t.amount ELSE 0 END), 0)::float AS "totalDebit",
       MAX(t.timestamp) AS "lastSeen"
     FROM "Contact" c
     LEFT JOIN "Transaction" t
@@ -134,8 +135,9 @@ export async function listContacts(
       SELECT
         c.id, c.name, c.category, c."piWalletAddress", c."userId",
         c."createdAt", c."updatedAt",
-        COALESCE(SUM(CASE WHEN t.type = 'credit' THEN t.amount ELSE 0 END), 0)::float AS "totalCredit",
-        COALESCE(SUM(CASE WHEN t.type = 'debit'  THEN t.amount ELSE 0 END), 0)::float AS "totalDebit",
+        -- Only completed rows count in totals, like /summary (AUD-37); lastSeen uses every row.
+        COALESCE(SUM(CASE WHEN t.type = 'credit' AND t.status = 'completed' THEN t.amount ELSE 0 END), 0)::float AS "totalCredit",
+        COALESCE(SUM(CASE WHEN t.type = 'debit'  AND t.status = 'completed' THEN t.amount ELSE 0 END), 0)::float AS "totalDebit",
         MAX(t.timestamp) AS "lastSeen"
       FROM "Contact" c
       LEFT JOIN "Transaction" t
