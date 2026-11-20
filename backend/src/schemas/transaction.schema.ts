@@ -2,6 +2,13 @@ import { z } from "zod";
 import { sanitizedString } from "./common";
 
 /**
+ * Pi has 7 decimal places: a real 8th decimal is refused instead of being
+ * silently rounded by the Decimal(18,7) column (AUD-48). Float noise such as
+ * 0.1 + 0.2 = 0.30000000000000004 still passes (and is stored as 0.3).
+ */
+const atMost7Decimals = (n: number) => Math.abs(n * 1e7 - Math.round(n * 1e7)) < 0.01;
+
+/**
  * Create transaction.
  * idempotencyKey is REQUIRED (resolves G-018) — prevents duplicate
  * transactions from double-clicks / network retries.
@@ -10,7 +17,7 @@ import { sanitizedString } from "./common";
 export const createTransactionSchema = z.object({
   body: z.object({
     description: sanitizedString(1, 500),
-    amount: z.number().positive().min(0.0000001).max(1_000_000),
+    amount: z.number().positive().min(0.0000001).max(1_000_000).refine(atMost7Decimals, "At most 7 decimal places"),
     type: z.enum(["credit", "debit"]),
     contactId: z.string().min(1).optional(),
     timestamp: z.string().datetime().optional(),
@@ -32,7 +39,7 @@ export const importTransactionsSchema = z.object({
         z.object({
           chainPaymentId: z.string().regex(/^\d{1,30}$/, "Must be a Horizon payment id"),
           description: sanitizedString(1, 500),
-          amount: z.number().positive().min(0.0000001).max(1_000_000),
+          amount: z.number().positive().min(0.0000001).max(1_000_000).refine(atMost7Decimals, "At most 7 decimal places"),
           type: z.enum(["credit", "debit"]),
           // The payment's created_at on the Pi blockchain; stored as the entry's date.
           // Not in the future (5 minutes of leeway for clock skew between Horizon and us).

@@ -30,5 +30,6 @@ export default async function run({ api, db }) {
   check("summary credit 0.0000001 + 999999.9999999 reads 1000000", sum.totalCredit === 1000000, String(sum.totalCredit));
 
   const eight = await post(D, 1.12345678);
-  check("8 decimal places are rounded to 7 in the DB", (await stored(eight)) === "1.1234568");
+  // A real 8th decimal is refused instead of silently rounded (AUD-48).
+  check("8 decimal places -> 400", eight.status === 400, String(eight.status));
 }
