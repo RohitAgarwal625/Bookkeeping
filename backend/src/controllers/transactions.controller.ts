@@ -424,10 +424,15 @@ export async function deleteTransaction(
       return;
     }
 
-    await prisma.transaction.update({
-      where: { id },
+    // Atomic: of two concurrent deletes only one matches deletedAt: null; the other gets 404 (AUD-67).
+    const { count } = await prisma.transaction.updateMany({
+      where: { id, userId, deletedAt: null, source: { not: "pi_network" } },
       data: { deletedAt: new Date() },
     });
+    if (count === 0) {
+      res.status(404).json({ error: "NOT_FOUND", message: "Transaction not found" });
+      return;
+    }
 
     res.status(204).send();
   } catch (err) {
