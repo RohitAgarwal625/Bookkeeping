@@ -51,7 +51,7 @@ backend/
     │   ├── validate.ts    validate(zodSchema) parses {body,query,params} and REPLACES them with parsed values
     │   ├── rateLimiter.ts readLimiter 100/min, writeLimiter 20/min (key = user id ?? IP), authLimiter 200/min/IP
     │   └── errorHandler.ts Prisma error → HTTP mapping + notFound
-    ├── schemas/         Zod: common (sanitizedString via xss, walletAddress), user, contact, transaction, pi
+    ├── schemas/         Zod: common (sanitizedString: strips tags, keeps plain `<`/`>`/`&`, length checked after cleaning; walletAddress), user, contact, transaction, pi
     ├── routes/          health, users, contacts, transactions, pi (thin: limiter → auth → validate → controller)
     ├── controllers/     users, contacts, transactions, pi (all logic + Prisma calls live here; no service layer)
     └── jobs/

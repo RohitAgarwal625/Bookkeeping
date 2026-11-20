@@ -1,13 +1,29 @@
 import { z } from "zod";
-import xss from "xss";
 
-/** Strip all HTML to prevent stored XSS (resolves G-005). */
+/** Remove tag-like sequences (`<b>`, `</script>`, `<img ...>`, `<!-- -->`) until none are left. */
+function stripTags(val: string): string {
+  const tag = /<\/?[a-zA-Z!][^>]*>/g;
+  let prev: string;
+  do {
+    prev = val;
+    val = val.replace(tag, "");
+  } while (val !== prev);
+  return val;
+}
+
+/**
+ * Free text from the user (names, notes). Strips HTML tags as a stored-XSS guard
+ * (resolves G-005) but keeps plain `<`, `>` and `&` as typed: the frontend renders
+ * text through React, which escapes on output. Length is checked on the cleaned
+ * value, so blank or tag-only input is rejected. (NUL characters are rejected
+ * for every field by the validate() middleware.)
+ */
 export const sanitizedString = (min: number, max: number) =>
   z
     .string()
-    .min(min)
     .max(max)
-    .transform((val) => xss(val, { whiteList: {}, stripIgnoreTag: true }).trim());
+    .transform((val) => stripTags(val).trim())
+    .pipe(z.string().min(min).max(max));
 
 /**
  * Wallet address validation.

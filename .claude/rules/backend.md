@@ -14,7 +14,7 @@ Pi routes (`routes/pi.ts`, schemas in `schemas/pi.schema.ts`) use per-route `ses
 
 ## Validation
 - Zod schemas live in `backend/src/schemas/<entity>.schema.ts`, shaped `{ body?, query?, params? }`.
-- User-supplied free text uses `sanitizedString(min, max)` from `schemas/common.ts` (strips HTML; stored-XSS guard).
+- User-supplied free text uses `sanitizedString(min, max)` from `schemas/common.ts` (strips HTML tags but keeps plain `<`, `>`, `&`; rejects blank-after-cleaning; stored-XSS guard, React escapes on output).
 - Query numbers use `z.coerce.number()`. Pagination is `page` ≥ 1 and `limit` ≤ 100.
 
 ## Controllers
