@@ -40,8 +40,8 @@ router.get(
 // Authenticated: update profile.
 router.put(
   "/:walletAddress",
-  writeLimiter,
   sessionAuth,
+  writeLimiter,
   validate(updateUserSchema),
   updateUser
 );
