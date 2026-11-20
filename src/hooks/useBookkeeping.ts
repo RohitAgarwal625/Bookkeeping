@@ -62,6 +62,9 @@ export function useBookkeeping() {
   }, []);
 
   const logout = useCallback(() => {
+    // Best-effort: end the session on the server. request() reads the token before
+    // its first await, so clearing it on the next line doesn't affect this call.
+    if (auth.getToken()) usersApi.logout().catch(() => {});
     auth.clearAll();
     setUser(null);
     setContacts([]);

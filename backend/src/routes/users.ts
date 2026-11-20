@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getMe, getOrCreateUser, updateMyWallet, updateUser } from "../controllers/users.controller";
+import { getMe, getOrCreateUser, logout, updateMyWallet, updateUser } from "../controllers/users.controller";
 import { sessionAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { getUserSchema, updateUserSchema, updateWalletSchema } from "../schemas/user.schema";
@@ -20,6 +20,9 @@ router.put(
 // Authenticated: the signed-in user (restores the session after a page reload).
 // Must stay above GET /:walletAddress, or "me" would be taken as a wallet address.
 router.get("/me", sessionAuth, readLimiter, getMe);
+
+// Authenticated: sign out (deletes the current session only).
+router.post("/logout", sessionAuth, writeLimiter, logout);
 
 // Express also runs GET handlers for HEAD. A HEAD must not create a user or a session.
 router.head("/:walletAddress", (_req, res) => {

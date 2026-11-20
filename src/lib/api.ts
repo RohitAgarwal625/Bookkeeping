@@ -119,6 +119,8 @@ export const usersApi = {
     request<AuthResponse>(`/api/users/${encodeURIComponent(walletAddress)}`),
   /** The signed-in user (from the stored session token); used to restore a session on reload. */
   me: () => request<{ user: User }>(`/api/users/me`),
+  /** End the current session on the server (the token stops working). */
+  logout: () => request<void>(`/api/users/logout`, { method: "POST" }),
   updateProfile: (walletAddress: string, displayName: string) =>
     request<{ user: User }>(
       `/api/users/${encodeURIComponent(walletAddress)}`,

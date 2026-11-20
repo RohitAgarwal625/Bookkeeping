@@ -10,6 +10,8 @@ declare global {
   namespace Express {
     interface Request {
       user?: User;
+      /** Id of the Session row the request authenticated with (used by logout). */
+      sessionId?: string;
     }
   }
 }
@@ -61,6 +63,7 @@ export async function sessionAuth(
     }
 
     req.user = session.user;
+    req.sessionId = session.id;
     next();
   } catch (err) {
     next(err);

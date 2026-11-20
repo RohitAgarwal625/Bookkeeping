@@ -128,3 +128,21 @@ export async function getMe(
     next(err);
   }
 }
+
+/**
+ * POST /api/users/logout
+ * End the current session: delete the Session row this request authenticated with.
+ * Other sessions of the same user (other devices) keep working.
+ */
+export async function logout(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await prisma.session.deleteMany({ where: { id: req.sessionId!, userId: req.user!.id } });
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
