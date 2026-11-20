@@ -31,5 +31,5 @@ Pi routes (`routes/pi.ts`, schemas in `schemas/pi.schema.ts`) use per-route `ses
 ## Config & ops
 - New env vars: add to `lib/config.ts` (with a safe dev fallback or `required()`), to `backend/.env.example`, and to the table in `SETUP.md`.
 - Log with `logger` (pino), not `console.log`.
-- Schema changes need a migration (see the `prisma-migration` skill). Railway runs `prisma migrate deploy` on start.
+- Schema changes need a migration (see the `prisma-migration` skill). Railway runs `prisma migrate deploy` in its start command (`backend/railway.json`, once per deploy; no preDeployCommand).
 - `npm run build` (inside `backend/`) must pass `tsc` with `strict: true` before you consider work done.

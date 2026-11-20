@@ -32,7 +32,7 @@ Plan also references a deeper converged design at `design/backend-architecture/f
 backend/
 ├── package.json         scripts: dev (ts-node-dev), build (prisma generate + tsc), start (migrate deploy + node dist)
 ├── tsconfig.json        strict, ES2022, CommonJS, rootDir src → outDir dist
-├── railway.json         NIXPACKS; healthcheck /api/health; migrate deploy runs in preDeploy AND start (redundant ×3)
+├── railway.json         NIXPACKS; healthcheck /api/health; startCommand `npx prisma migrate deploy && exec node dist/index.js` (migrate once per deploy, node gets SIGTERM; no preDeployCommand)
 ├── .env.example         DATABASE_URL, PORT, NODE_ENV, CORS_ORIGIN, LOG_LEVEL, PI_NETWORK_API_KEY, PI_PLATFORM_API_URL, JWT_SECRET
 ├── prisma/
 │   ├── schema.prisma

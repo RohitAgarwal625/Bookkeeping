@@ -5,8 +5,7 @@
     "buildCommand": "npm install --include=dev && npm run build"
   },
   "deploy": {
-    "preDeployCommand": "npx prisma migrate deploy",
-    "startCommand": "npx prisma migrate deploy && npm run start",
+    "startCommand": "npx prisma migrate deploy && exec node dist/index.js",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
