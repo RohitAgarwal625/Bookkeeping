@@ -16,12 +16,16 @@ interface AddCustomerProps {
   existingNames?: string[];
   /** The user's contacts' wallet addresses and names; a new contact can't reuse an address. */
   existingWallets?: { name: string; piWalletAddress: string }[];
+  /** Starts the wallet field with this address (e.g. one just scanned on Pay). */
+  defaultWallet?: string;
+  /** Text of the success screen's button (default "Open Contacts"). */
+  doneLabel?: string;
 }
 
-export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individual", existingNames = [], existingWallets = [] }: AddCustomerProps) {
+export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individual", existingNames = [], existingWallets = [], defaultWallet = "", doneLabel = "Open Contacts" }: AddCustomerProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [piWallet, setPiWallet] = useState("");
+  const [piWallet, setPiWallet] = useState(defaultWallet);
   const [isWalletFocused, setIsWalletFocused] = useState(false);
   const [category, setCategory] = useState<"individual" | "business">(defaultCategory);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -159,7 +163,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
               minWidth: "160px",
             }}
           >
-            <span>Open Contacts</span>
+            <span>{doneLabel}</span>
             <Users className="w-5 h-5" />
           </button>
         </div>

@@ -102,6 +102,9 @@ function AppContent() {
   const [isPremium, setIsPremium] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string>("");
+  // Address from Pay's "Add Contact" (not a saved contact yet): prefills AddCustomer, then
+  // saving goes back to Pay with it. Empty when AddCustomer was opened from anywhere else.
+  const [addContactWallet, setAddContactWallet] = useState<string>("");
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
 
   // Query premium status on mount and when auth changes
@@ -195,8 +198,9 @@ function AppContent() {
     setCurrentScreen("dashboard");
   };
 
-  const handleNavigateToAddCustomer = (category: "individual" | "business") => {
+  const handleNavigateToAddCustomer = (category: "individual" | "business", walletAddress = "") => {
     if (isGuest) { setShowGuestModal(true); return; }
+    setAddContactWallet(walletAddress);
     setSelectedCategory(category);
     setCurrentScreen("addCustomer");
   };
@@ -344,6 +348,7 @@ function AppContent() {
     ];
     const mapped = screen === "home" ? "dashboard" : screen;
     if (validScreens.includes(mapped as Screen)) {
+      if (mapped === "addCustomer") setAddContactWallet(""); // only Pay's "Add Contact" prefills it
       setCurrentScreen(mapped as Screen);
     }
   };
@@ -508,7 +513,7 @@ function AppContent() {
           contacts={contacts}
           prefilledAddress={scannedWalletAddress}
           onAddressUsed={() => setScannedWalletAddress("")}
-          onAddPioneer={() => { handleNavigateToAddCustomer("individual"); }}
+          onAddPioneer={(walletAddress) => { handleNavigateToAddCustomer("individual", walletAddress); }}
           onNavigateToLedger={handleNavigateToCustomerLedger}
           onPaymentConfirmed={handlePaymentConfirmed}
           userWalletAddress={bk.user?.walletPublicKey ?? ""}
@@ -651,10 +656,21 @@ function AppContent() {
     return (
       <>
         <AddCustomer
-          onBack={handleBackToDashboard}
+          onBack={() => { setAddContactWallet(""); handleBackToDashboard(); }}
           onSave={handleSaveCustomer}
-          onDone={() => setCurrentScreen("contacts")}
+          onDone={() => {
+            if (addContactWallet) {
+              // Came from Pay: go back to it with the new contact's address, so Pay is enabled.
+              setScannedWalletAddress(addContactWallet);
+              setAddContactWallet("");
+              setCurrentScreen("pay");
+            } else {
+              setCurrentScreen("contacts");
+            }
+          }}
           defaultCategory={selectedCategory}
+          defaultWallet={addContactWallet}
+          doneLabel={addContactWallet ? "Continue to Pay" : undefined}
           existingNames={contacts.map((c) => c.name)}
           existingWallets={contacts}
         />

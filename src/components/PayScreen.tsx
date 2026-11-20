@@ -14,7 +14,8 @@ interface PayScreenProps {
   contacts?: Contact[];
   prefilledAddress?: string;
   onAddressUsed?: () => void;
-  onAddPioneer?: () => void;
+  /** "Add Contact" for an address that isn't saved yet; gets the entered/scanned address. */
+  onAddPioneer?: (walletAddress: string) => void;
   onNavigateToLedger?: (customerName: string, newTransactions?: Transaction[]) => void;
   /** Saves a payment found on the blockchain to the contact's ledger. Throws if it can't. */
   onPaymentConfirmed?: (customerName: string, contactId: string, chainTx: Transaction) => Promise<void>;
@@ -524,7 +525,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 The wallet address you entered is not saved in your Contact List. Kindly tap on the button given below to add it to your Contacts.
               </p>
               <button
-                onClick={onAddPioneer}
+                onClick={() => onAddPioneer?.(publicKey.trim())}
                 className="w-full py-3 px-4 rounded-xl text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                 style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 4px 16px rgba(111,60,151,0.35)" }}
               >
