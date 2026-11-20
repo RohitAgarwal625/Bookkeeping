@@ -8,10 +8,15 @@ interface AddEntryProps {
   onBack: () => void;
   /** contactId is the picked contact; timestamp (ISO, UTC) is set only when the user picked a date. */
   onSuccess?: (contactName: string, newTransaction?: Transaction, contactId?: string, timestamp?: string) => void;
+  /**
+   * Saves the entry before the success screen shows. Returns the row to show in
+   * the ledger, or null to stay on the form (the caller has shown the error).
+   */
+  onSave?: (newTransaction: Transaction, contactId: string, timestamp?: string) => Promise<Transaction | null>;
   contacts?: Contact[];
 }
 
-export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
+export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps) {
   const savedCustomers = contacts ?? [];
   const [selectedCustomer, setSelectedCustomer] = useState<Contact | null>(null);
   const [customerQuery, setCustomerQuery] = useState("");
@@ -23,6 +28,7 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
   const [txHash, setTxHash] = useState("");
   const [note, setNote] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const nameInputRef = useRef<HTMLDivElement>(null);
   // Save contact name and transaction before form is cleared
@@ -72,7 +78,8 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
     window.open("https://wallet.pinet.com", "_blank");
   };
 
-  const handleSaveEntry = () => {
+  const handleSaveEntry = async () => {
+    if (isSaving) return;
     if (!amount || parseFloat(amount) <= 0) {
       toast.error("Please enter a valid amount");
       return;
@@ -129,11 +136,25 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
       note,
     });
 
+    const timestampIso = pickedTime ? pickedTime.toISOString() : undefined;
+    let shownTx: Transaction = newTx;
+    if (onSave) {
+      setIsSaving(true);
+      try {
+        const saved = await onSave(newTx, selectedCustomer.id, timestampIso);
+        // Not saved (e.g. this hash is already recorded): keep the form as it is.
+        if (!saved) return;
+        shownTx = saved;
+      } finally {
+        setIsSaving(false);
+      }
+    }
+
     // Save the contact name and transaction before clearing the form
     savedContactName.current = selectedCustomer.name;
     savedContactId.current = selectedCustomer.id;
-    savedTransaction.current = newTx;
-    savedTimestamp.current = pickedTime ? pickedTime.toISOString() : undefined;
+    savedTransaction.current = shownTx;
+    savedTimestamp.current = timestampIso;
 
     // Show full-screen success overlay
     setShowSuccess(true);
@@ -428,10 +449,11 @@ export function AddEntry({ onBack, onSuccess, contacts }: AddEntryProps) {
           {/* 9. Save Button */}
           <button
             onClick={handleSaveEntry}
+            disabled={isSaving}
             className="w-full py-3.5 px-6 rounded-xl text-white shadow-md hover:shadow-lg transition-all active:scale-98"
-            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)", opacity: isSaving ? 0.7 : 1 }}
           >
-            Add
+            {isSaving ? "Saving..." : "Add"}
           </button>
         </div>
       </div>

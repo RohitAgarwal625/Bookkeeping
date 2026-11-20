@@ -61,21 +61,59 @@ export async function createTransaction(
       }
     }
 
-    const tx = await prisma.transaction.create({
-      data: {
-        description,
-        amount: new Prisma.Decimal(amount),
-        type,
-        source: "manual",
-        status: "completed",
-        idempotencyKey,
-        userId,
-        contactId: contactId ?? null,
-        // Lowercased by the schema.
-        txHash: txHash ?? null,
-        ...(timestamp ? { timestamp: new Date(timestamp) } : {}),
-      },
+    // A tx hash is recorded once per user (any source, not deleted). The check and
+    // the insert run under a per-(user, hash) advisory lock, which imports take
+    // too, so two concurrent saves of the same hash can't both get in.
+    const outcome = await prisma.$transaction(async (db) => {
+      if (txHash) await lockTxHashes(db, userId, [txHash]);
+      // Re-check the key under the lock: a concurrent replay of this same request
+      // that committed first is a replay (200), not a duplicate hash (409).
+      if (txHash) {
+        const replay = await db.transaction.findUnique({ where: { idempotencyKey } });
+        if (replay) return { kind: "replay" as const, row: replay };
+        const dup = await db.transaction.findFirst({
+          where: { userId, deletedAt: null, txHash: { equals: txHash, mode: "insensitive" } },
+          select: { id: true },
+        });
+        if (dup) return { kind: "duplicate" as const };
+      }
+      const row = await db.transaction.create({
+        data: {
+          description,
+          amount: new Prisma.Decimal(amount),
+          type,
+          source: "manual",
+          status: "completed",
+          idempotencyKey,
+          userId,
+          contactId: contactId ?? null,
+          // Lowercased by the schema.
+          txHash: txHash ?? null,
+          ...(timestamp ? { timestamp: new Date(timestamp) } : {}),
+        },
+      });
+      return { kind: "created" as const, row };
     });
+
+    if (outcome.kind === "duplicate") {
+      res.status(409).json({
+        error: "TX_ALREADY_RECORDED",
+        message: "This transaction is already recorded",
+      });
+      return;
+    }
+    if (outcome.kind === "replay") {
+      if (outcome.row.userId !== userId) {
+        res.status(409).json({
+          error: "DUPLICATE_TRANSACTION",
+          message: "Idempotency key already used",
+        });
+        return;
+      }
+      res.status(200).json({ transaction: serializeTransaction(outcome.row), idempotent: true });
+      return;
+    }
+    const tx = outcome.row;
 
     res.status(201).json({ transaction: serializeTransaction(tx) });
   } catch (err) {
@@ -182,6 +220,18 @@ export async function importTransactions(
  */
 const MANUAL_MATCH_WINDOW_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * Transaction-scoped advisory locks, one per (user, tx hash), taken in sorted
+ * order so two callers can't deadlock. Serializes "is this hash recorded yet?"
+ * checks between manual creates and imports of the same hash.
+ */
+async function lockTxHashes(db: Prisma.TransactionClient, userId: string, hashes: string[]): Promise<void> {
+  const keys = [...new Set(hashes.map((h) => `${userId}:${h.toLowerCase()}`))].sort();
+  for (const key of keys) {
+    await db.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${key}))`;
+  }
+}
+
 type ImportEntry = {
   chainPaymentId: string;
   description: string;
@@ -199,6 +249,10 @@ async function importInTransaction(
   entries: ImportEntry[]
 ) {
   const ids = entries.map((e) => e.chainPaymentId);
+  const hashes = entries.flatMap((e) => (e.txHash ? [e.txHash.toLowerCase()] : []));
+  // Same lock as createTransaction, so a manual save of one of these hashes waits
+  // for this import (and the import sees a manual save that committed first).
+  if (hashes.length > 0) await lockTxHashes(tx, userId, hashes);
 
   // Payments saved before under a contact that was since deleted (contactId
   // SET NULL) belong to no ledger: move them into this contact instead of
@@ -238,12 +292,14 @@ async function importInTransaction(
   // the manual row is linked to it instead (chainPaymentId set, so later scans skip
   // it through the unique (userId, chainPaymentId) index). A match is the same
   // contact and type, exactly the same amount, not deleted, not yet linked, and
-  // within MANUAL_MATCH_WINDOW_MS. A manual row with a txHash matches only the
-  // payment with that same hash (a different hash never links). Closest pairs are
-  // matched first; each manual row and each payment is used at most once.
+  // either within MANUAL_MATCH_WINDOW_MS (manual row without a txHash) or the same
+  // tx hash as the payment at any date (manual row with a txHash; a different hash
+  // never links). Hash matches, then closest pairs, are matched first; each manual
+  // row and each payment is used at most once.
   const linkedIds = new Set<string>();
   if (fresh.size > 0) {
     const times = [...fresh.values()].map((e) => Date.parse(e.timestamp));
+    const freshHashes = [...fresh.values()].flatMap((e) => (e.txHash ? [e.txHash.toLowerCase()] : []));
     const candidates = await tx.transaction.findMany({
       where: {
         userId,
@@ -252,30 +308,41 @@ async function importInTransaction(
         status: "completed",
         chainPaymentId: null,
         deletedAt: null,
-        timestamp: {
-          gte: new Date(Math.min(...times) - MANUAL_MATCH_WINDOW_MS),
-          lte: new Date(Math.max(...times) + MANUAL_MATCH_WINDOW_MS),
-        },
+        OR: [
+          {
+            timestamp: {
+              gte: new Date(Math.min(...times) - MANUAL_MATCH_WINDOW_MS),
+              lte: new Date(Math.max(...times) + MANUAL_MATCH_WINDOW_MS),
+            },
+          },
+          // A row with the same hash matches at any date (e.g. a mistyped date).
+          ...(freshHashes.length > 0 ? [{ txHash: { in: freshHashes } }] : []),
+        ],
       },
       select: { id: true, amount: true, type: true, timestamp: true, txHash: true },
     });
-    const pairs: { entry: ImportEntry; rowId: string; dist: number }[] = [];
+    const pairs: { entry: ImportEntry; rowId: string; dist: number; byHash: boolean }[] = [];
     for (const entry of fresh.values()) {
       const t = Date.parse(entry.timestamp);
       const amount = new Prisma.Decimal(entry.amount);
       for (const row of candidates) {
         if (row.type !== entry.type || !row.amount.equals(amount)) continue;
         const dist = Math.abs(row.timestamp.getTime() - t);
-        if (dist > MANUAL_MATCH_WINDOW_MS) continue;
         // The tx hash has the final word: a manual row that carries a hash matches
-        // only the payment with that same hash (case-insensitive). Rows without one
-        // rely on contact, type, amount and time.
-        if (row.txHash && row.txHash.toLowerCase() !== entry.txHash?.toLowerCase()) continue;
-        pairs.push({ entry, rowId: row.id, dist });
+        // only the payment with that same hash (case-insensitive), at any date.
+        // Rows without one rely on contact, type, amount and the ±24h window.
+        if (row.txHash) {
+          if (row.txHash.toLowerCase() === entry.txHash?.toLowerCase()) {
+            pairs.push({ entry, rowId: row.id, dist, byHash: true });
+          }
+        } else if (dist <= MANUAL_MATCH_WINDOW_MS) {
+          pairs.push({ entry, rowId: row.id, dist, byHash: false });
+        }
       }
     }
-    // Closest pairs first.
+    // Hash matches first, then closest pairs.
     pairs.sort((a, b) =>
+      Number(b.byHash) - Number(a.byHash) ||
       a.dist - b.dist ||
       a.entry.chainPaymentId.localeCompare(b.entry.chainPaymentId) ||
       a.rowId.localeCompare(b.rowId)

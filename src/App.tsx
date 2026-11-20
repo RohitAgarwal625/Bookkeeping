@@ -493,30 +493,36 @@ function AppContent() {
       <>
         <AddEntry
           onBack={handleBackToDashboard}
-          onSuccess={async (contactName, newTransaction, contactId, timestamp) => {
-            let savedContactId: string | undefined = undefined;
-            let shownTransaction = newTransaction;
-            if (bk.isAuthenticated && newTransaction) {
-              if (contactId) {
-                savedContactId = contactId;
-                try {
-                  // Show the saved row (server id), so the ledger doesn't list it twice.
-                  const saved = await bk.addTransaction({
-                    description: newTransaction.description,
-                    amount: newTransaction.amount,
-                    type: newTransaction.type,
-                    contactId,
-                    timestamp,
-                    txHash: newTransaction.txHash ?? undefined,
-                  });
-                  shownTransaction = { ...saved, isNew: true };
-                } catch (e) {
-                  console.error("Failed to save entry to database:", e);
-                  toast.error("Couldn't save the entry to your ledger. Please try again.");
-                }
+          onSave={async (newTransaction, contactId, timestamp) => {
+            if (!bk.isAuthenticated) return newTransaction;
+            try {
+              // Show the saved row (server id), so the ledger doesn't list it twice.
+              const saved = await bk.addTransaction({
+                description: newTransaction.description,
+                amount: newTransaction.amount,
+                type: newTransaction.type,
+                contactId,
+                timestamp,
+                txHash: newTransaction.txHash ?? undefined,
+              });
+              return { ...saved, isNew: true };
+            } catch (e) {
+              // Same hash already in the ledger: stay on the form, no local copy.
+              if (e instanceof ApiError && e.code === "TX_ALREADY_RECORDED") {
+                toast.error("This transaction is already recorded");
+                return null;
               }
+              console.error("Failed to save entry to database:", e);
+              toast.error("Couldn't save the entry to your ledger. Please try again.");
+              return newTransaction;
             }
-            handleNavigateToCustomerLedger(contactName, savedContactId, shownTransaction ? [shownTransaction] : undefined);
+          }}
+          onSuccess={(contactName, newTransaction, contactId) => {
+            handleNavigateToCustomerLedger(
+              contactName,
+              bk.isAuthenticated ? contactId : undefined,
+              newTransaction ? [newTransaction] : undefined
+            );
           }}
           contacts={contacts}
         />

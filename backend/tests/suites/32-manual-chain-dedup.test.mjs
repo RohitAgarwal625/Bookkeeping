@@ -195,6 +195,7 @@ export default async function run({ api, db }) {
     linkRes.body.skipped === 1 && lalRow?.chainPaymentId === "32603" && lalRow?.txHash === HASH_E.toLowerCase(),
     JSON.stringify([linkRes.body, lalRow?.txHash]));
 
+  // Fresh hashes below: HASH_D / HASH_E are already recorded above (409 on create).
   const HASH_MO = "AB".repeat(32);
   const mo = await contact(G, "Mo");
   const mMo = (await create({ contactId: mo, amount: 8, type: "debit", timestamp: "2026-08-15T10:00:00Z", txHash: HASH_MO })).body.transaction;
@@ -211,4 +212,104 @@ export default async function run({ api, db }) {
   const linRow = await db.transaction.findUnique({ where: { id: mLin.id } });
   check("different chain hash -> manual row's hash not overwritten, not linked",
     linRow?.txHash === HASH_LIN.toLowerCase() && linRow?.chainPaymentId === null, JSON.stringify(linRow));
+
+  // 8. A tx hash is recorded once per user (409 TX_ALREADY_RECORDED), and an import
+  // with the same hash links a manual row at any date.
+  const h = await api.login("fix_32_hana");
+  const H = h.sessionToken;
+  const omar = await contact(H, "Omar");
+  const createH = (body) =>
+    api.call("POST", "/api/transactions", {
+      token: H,
+      body: { description: "Typed", amount: 2, type: "debit", contactId: omar, idempotencyKey: randomUUID(), ...body },
+    });
+  const countH = () => db.transaction.count({ where: { userId: h.user.id } });
+  const HASH_F = "f".repeat(64);
+  const firstF = await createH({ txHash: HASH_F });
+  check("first create with a hash -> 201", firstF.status === 201, JSON.stringify(firstF.body));
+  let before = await countH();
+  const dupF = await createH({ txHash: HASH_F.toUpperCase(), amount: 3 });
+  check("same hash again (any case) -> 409 TX_ALREADY_RECORDED",
+    dupF.status === 409 && dupF.body.error === "TX_ALREADY_RECORDED" && dupF.body.message === "This transaction is already recorded",
+    JSON.stringify(dupF.body));
+  check("409 -> no row added", (await countH()) === before);
+
+  const keyG = randomUUID();
+  const HASH_G = "1".repeat(64);
+  const g1 = await createH({ txHash: HASH_G, idempotencyKey: keyG });
+  const g2 = await createH({ txHash: HASH_G, idempotencyKey: keyG });
+  check("same idempotencyKey replay -> 200, original row, not 409",
+    g1.status === 201 && g2.status === 200 && g2.body.idempotent === true && g2.body.transaction?.id === g1.body.transaction?.id,
+    JSON.stringify([g1.status, g2.status, g2.body]));
+
+  const keyP = randomUUID();
+  const HASH_P = "2".repeat(64);
+  const [p1, p2] = await Promise.all([
+    createH({ txHash: HASH_P, idempotencyKey: keyP }),
+    createH({ txHash: HASH_P, idempotencyKey: keyP }),
+  ]);
+  check("concurrent replays of one key -> one 201 + one 200 replay, 1 row",
+    [p1.status, p2.status].sort().join() === "200,201" && p1.body.transaction?.id === p2.body.transaction?.id &&
+      (await db.transaction.count({ where: { userId: h.user.id, txHash: HASH_P } })) === 1,
+    JSON.stringify([p1.status, p2.status]));
+
+  const HASH_Q = "3".repeat(64);
+  const [q1, q2] = await Promise.all([createH({ txHash: HASH_Q }), createH({ txHash: HASH_Q })]);
+  check("concurrent creates of one hash (different keys) -> one 201 + one 409, 1 row",
+    [q1.status, q2.status].sort().join() === "201,409" &&
+      (await db.transaction.count({ where: { userId: h.user.id, txHash: HASH_Q } })) === 1,
+    JSON.stringify([q1.status, q2.status]));
+
+  // Hash already on an imported row.
+  const HASH_I = "4".repeat(64);
+  await importScan(H, omar, [entry("32701", { amount: 11, timestamp: "2026-08-15T11:00:00Z", txHash: HASH_I })]);
+  before = await countH();
+  const dupI = await createH({ txHash: HASH_I });
+  check("hash already on an imported row -> 409, no row added",
+    dupI.status === 409 && dupI.body.error === "TX_ALREADY_RECORDED" && (await countH()) === before, JSON.stringify(dupI.body));
+
+  // Soft-deleted row with the hash does not block.
+  const HASH_S = "5".repeat(64);
+  const s1 = await createH({ txHash: HASH_S });
+  await api.call("DELETE", `/api/transactions/${s1.body.transaction.id}`, { token: H });
+  const s2 = await createH({ txHash: HASH_S });
+  check("same hash on a soft-deleted row -> allowed (201)", s2.status === 201, JSON.stringify(s2.body));
+
+  // Another user's same hash does not block.
+  const i = await api.login("fix_32_ivan");
+  const ivContact = await contact(i.sessionToken, "Pia");
+  const other = await api.call("POST", "/api/transactions", {
+    token: i.sessionToken,
+    body: { description: "Other user", amount: 2, type: "debit", contactId: ivContact, idempotencyKey: randomUUID(), txHash: HASH_F },
+  });
+  check("another user's same hash -> allowed (201)", other.status === 201, JSON.stringify(other.body));
+
+  // Import with the same hash links a manual row dated 60 days earlier.
+  const far = await contact(H, "Far");
+  const HASH_W = "6".repeat(64);
+  const mFar = (await createH({ contactId: far, amount: 12, type: "credit", timestamp: "2026-06-16T10:00:00Z", txHash: HASH_W })).body.transaction;
+  const farRes = await importScan(H, far, [entry("32702", { amount: 12, timestamp: "2026-08-15T10:00:00Z", txHash: HASH_W })]);
+  const farRow = await db.transaction.findUnique({ where: { id: mFar.id } });
+  check("same hash, manual row 60 days earlier -> linked (skipped 1, no new row)",
+    farRes.body.added === 0 && farRes.body.skipped === 1 && farRow?.chainPaymentId === "32702" &&
+      (await rowsFor(h.user.id, far)).length === 1,
+    JSON.stringify([farRes.body, farRow?.chainPaymentId]));
+
+  // Hash-less manual row 60 days away -> not linked.
+  const far2 = await contact(H, "Far2");
+  const mFar2 = (await createH({ contactId: far2, amount: 12, type: "credit", timestamp: "2026-06-16T10:00:00Z" })).body.transaction;
+  const far2Res = await importScan(H, far2, [entry("32703", { amount: 12, timestamp: "2026-08-15T10:00:00Z", txHash: "7".repeat(64) })]);
+  check("hash-less manual row 60 days away -> not linked, inserted",
+    far2Res.body.added === 1 && (await db.transaction.findUnique({ where: { id: mFar2.id } }))?.chainPaymentId === null,
+    JSON.stringify(far2Res.body));
+
+  // A same-hash row far away wins over a closer hash-less row; the hash-less row stays free.
+  const pick = await contact(H, "Pick");
+  const HASH_X = "8".repeat(64);
+  const mNear = (await createH({ contactId: pick, amount: 13, type: "credit", timestamp: "2026-08-15T09:00:00Z" })).body.transaction;
+  const mHash = (await createH({ contactId: pick, amount: 13, type: "credit", timestamp: "2026-06-01T09:00:00Z", txHash: HASH_X })).body.transaction;
+  await importScan(H, pick, [entry("32704", { amount: 13, timestamp: "2026-08-15T10:00:00Z", txHash: HASH_X })]);
+  check("hash match preferred over a closer hash-less row",
+    (await db.transaction.findUnique({ where: { id: mHash.id } }))?.chainPaymentId === "32704" &&
+      (await db.transaction.findUnique({ where: { id: mNear.id } }))?.chainPaymentId === null);
 }
