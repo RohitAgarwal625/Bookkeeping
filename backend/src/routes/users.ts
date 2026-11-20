@@ -21,6 +21,11 @@ router.put(
 // Must stay above GET /:walletAddress, or "me" would be taken as a wallet address.
 router.get("/me", sessionAuth, readLimiter, getMe);
 
+// Express also runs GET handlers for HEAD. A HEAD must not create a user or a session.
+router.head("/:walletAddress", (_req, res) => {
+  res.set("Allow", "GET").status(405).end();
+});
+
 // Unauthenticated: login / upsert user.
 router.get(
   "/:walletAddress",

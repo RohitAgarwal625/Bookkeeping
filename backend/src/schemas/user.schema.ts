@@ -1,9 +1,18 @@
 import { z } from "zod";
 import { sanitizedString, stellarPublicKey, walletAddress } from "./common";
 
+/**
+ * Login id (the Pi uid, see PROGRESS §9 #2). Stricter than `walletAddress`: no whitespace,
+ * control characters or markup, so " x" can't become a look-alike account of "x".
+ */
+const loginId = walletAddress.regex(
+  /^[^\s\u0000-\u001f\u007f<>"'`]+$/,
+  "Must not contain spaces, control characters or < > \" ' `"
+);
+
 export const getUserSchema = z.object({
   params: z.object({
-    walletAddress,
+    walletAddress: loginId,
   }),
 });
 
