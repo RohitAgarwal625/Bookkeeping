@@ -68,6 +68,26 @@ export function errorHandler(
     return;
   }
 
+  // Client errors raised before the controllers (body-parser, param decoding)
+  // carry a 4xx status. Answer with that status and a fixed message; never echo
+  // the parser text or log the raw body (err.body).
+  const status = (err as { status?: unknown; statusCode?: unknown } | null)?.status ??
+    (err as { statusCode?: unknown } | null)?.statusCode;
+  if (typeof status === "number" && status >= 400 && status < 500) {
+    const type = (err as { type?: unknown }).type;
+    const [code, message] =
+      type === "entity.parse.failed"
+        ? ["INVALID_JSON", "Request body is not valid JSON"]
+        : type === "entity.too.large"
+          ? ["PAYLOAD_TOO_LARGE", "Request body is too large"]
+          : type === "charset.unsupported" || type === "encoding.unsupported"
+            ? ["UNSUPPORTED_MEDIA_TYPE", "Unsupported request body encoding"]
+            : ["BAD_REQUEST", "Bad request"];
+    logger.warn({ status, type, path: req.path }, "Client request error");
+    res.status(status).json({ error: code, message });
+    return;
+  }
+
   // Details stay in the server log only; the client gets a fixed message.
   logger.error({ err }, "Unhandled error");
   res.status(500).json({
