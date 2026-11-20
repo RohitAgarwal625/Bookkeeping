@@ -65,11 +65,11 @@ export class PiApiError extends Error {
 function getPiApiKey(): string {
   const key = config.piApiKey;
   if (!key || key.trim() === "") {
-    throw new PiApiError(
-      400,
-      "PI_NETWORK_API_KEY_MISSING",
-      "PI_NETWORK_API_KEY environment variable is not configured on the backend. Please obtain your Server API Key from the Pi Developer Portal (develop.pi in the Pi Browser) and configure PI_NETWORK_API_KEY in backend/.env"
+    // Server misconfiguration: the setup hint goes to the log only, not to the client.
+    logger.error(
+      "PI_NETWORK_API_KEY is not configured on the backend. Get the Server API Key from the Pi Developer Portal (develop.pi in the Pi Browser) and set PI_NETWORK_API_KEY"
     );
+    throw new PiApiError(503, "PI_NOT_CONFIGURED", "Payments are not available right now");
   }
   return key.trim();
 }
