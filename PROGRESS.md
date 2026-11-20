@@ -102,7 +102,7 @@ Response conventions: single → `{ user | contact | transaction }`; lists → `
 | DELETE | `/api/contacts/:id` | write | **Hard** delete; txns keep row with contactId=null |
 
 ### Transactions (`router.use(sessionAuth)`; `/summary` and `/contact/:id` registered before `/:id`)
-| GET | `/api/transactions/summary` | read | totals + balance + count (completed, non-deleted only) |
+| GET | `/api/transactions/summary` | read | totals + balance + count (completed, non-deleted only); balance is the exact SQL difference |
 |---|---|---|---|
 | GET | `/api/transactions/contact/:contactId?page&limit(50)` | read | Contact ledger, paginated |
 | GET | `/api/transactions?type&contactId&from&to&page&limit(20, max 100)` | read | Filtered, paginated, newest first |

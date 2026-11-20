@@ -280,11 +280,13 @@ export async function getSummary(
     const userId = req.user!.id;
 
     const rows = await prisma.$queryRaw<
-      { totalCredit: number; totalDebit: number; transactionCount: number }[]
+      { totalCredit: number; totalDebit: number; balance: number; transactionCount: number }[]
     >`
       SELECT
         COALESCE(SUM(CASE WHEN type = 'credit' THEN amount ELSE 0 END), 0)::float AS "totalCredit",
         COALESCE(SUM(CASE WHEN type = 'debit'  THEN amount ELSE 0 END), 0)::float AS "totalDebit",
+        -- Exact numeric difference, rounded to float once (AUD-49).
+        COALESCE(SUM(CASE WHEN type = 'credit' THEN amount WHEN type = 'debit' THEN -amount ELSE 0 END), 0)::float AS "balance",
         COUNT(*)::int AS "transactionCount"
       FROM "Transaction"
       WHERE "userId" = ${userId}
@@ -295,12 +297,13 @@ export async function getSummary(
     const row = rows[0] ?? {
       totalCredit: 0,
       totalDebit: 0,
+      balance: 0,
       transactionCount: 0,
     };
     res.status(200).json({
       totalCredit: Number(row.totalCredit) || 0,
       totalDebit: Number(row.totalDebit) || 0,
-      balance: (Number(row.totalCredit) || 0) - (Number(row.totalDebit) || 0),
+      balance: Number(row.balance) || 0,
       transactionCount: Number(row.transactionCount) || 0,
     });
   } catch (err) {
