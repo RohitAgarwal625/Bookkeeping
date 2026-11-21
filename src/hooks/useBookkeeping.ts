@@ -152,7 +152,13 @@ export function useBookkeeping() {
         ...input,
         idempotencyKey: input.idempotencyKey ?? newIdempotencyKey(),
       });
-      await Promise.all([refreshContacts(), refreshSummary()]);
+      // The row is saved at this point: a failed refresh must not look like a
+      // failed save (the caller would then add a local duplicate).
+      try {
+        await Promise.all([refreshContacts(), refreshSummary()]);
+      } catch (err) {
+        console.error("Refresh after saving a transaction failed", err);
+      }
       return res.transaction;
     },
     [refreshContacts, refreshSummary]
