@@ -338,9 +338,9 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   if (screen === "processing") {
     return (
       <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 32px" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", padding: "24px 32px" }}>
           {/* Pulsing coin with expanding ripple rings */}
-          <div className="relative w-40 h-40 flex items-center justify-center mb-12">
+          <div className="relative w-40 h-40 flex items-center justify-center">
             {[0, 0.7, 1.4].map((delay) => (
               <span
                 key={delay}
@@ -362,44 +362,15 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             </div>
           </div>
 
+          {/* Title + message (one group, so the free space is split evenly between the groups) */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "24rem" }}>
           <p className="text-gray-900 dark:text-white font-bold text-xl mb-2">Waiting for your payment</p>
-          <p className="text-gray-400 text-sm text-center mb-7">
+          <p className="text-gray-400 text-sm text-center">
             {walletOpened
               ? `Enter ${amount} π in your Pi Wallet and send it to ${paidRecipientName}. It is added to both ledgers once it appears on the Pi blockchain.`
               : `Send ${amount} π to ${paidRecipientName} from your Pi Wallet. It is added to both ledgers once it appears on the Pi blockchain.`}
           </p>
-          {payTarget.current && (
-            // Manual path, always shown: the Pi Wallet may not open (or open blank) on some phones.
-            <div className="w-full mb-6 rounded-xl border-2 border-gray-200 dark:border-border bg-gray-50 dark:bg-card" style={{ maxWidth: "24rem", padding: "12px" }}>
-              <p className="text-gray-500 dark:text-muted-foreground text-xs text-center mb-3">
-                {walletOpened ? "Wallet didn't open? " : ""}Open Pi Wallet → Send, paste the address and amount.
-              </p>
-              <p className="text-gray-700 dark:text-foreground text-xs font-mono text-center mb-3" style={{ wordBreak: "break-all" }}>
-                {payTarget.current.contactAddress}
-              </p>
-              <div style={{ display: "flex", gap: "8px" }}>
-                {[
-                  { label: "Copy address", value: payTarget.current.contactAddress, done: "Address copied" },
-                  { label: `Copy ${payTarget.current.amountText} π`, value: payTarget.current.amountText, done: "Amount copied" },
-                ].map((c) => (
-                  <button
-                    key={c.label}
-                    onClick={() => {
-                      navigator.clipboard.writeText(c.value).then(
-                        () => toast(c.done),
-                        () => toast("Couldn't copy. Select the text and copy it yourself.")
-                      );
-                    }}
-                    className="flex-1 rounded-xl border-2 border-gray-200 dark:border-border text-gray-700 dark:text-foreground text-sm font-bold"
-                    style={{ minHeight: "44px" }}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
+          </div>
           {/* Bouncing dots */}
           <div className="flex items-center gap-2">
             {[0, 0.16, 0.32].map((delay) => (
@@ -415,7 +386,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             ))}
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "24rem", marginTop: "36px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "24rem" }}>
             <button
               onClick={() => void checkForPayment("check", true)}
               disabled={isChecking}
