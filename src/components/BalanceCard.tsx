@@ -112,7 +112,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest }:
                   </button>
                   {pioneerTooltip === "individual" && (
                     <div
-                      className="w-full text-xs text-[#592C16] bg-stone-50 dark:bg-stone-900/30 px-3 py-2 rounded-xl text-center"
+                      className="w-full text-xs text-[#592C16] bg-[#F5E0D6] dark:bg-stone-900/30 px-3 py-2 rounded-xl text-center"
                       style={{ border: "1.5px solid #592C16" }}
                     >
                       Choose this option to add a pioneer who has a personal account with the Pi Network.
