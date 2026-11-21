@@ -335,76 +335,114 @@ async function importInTransaction(
 
   // A payment the user already entered by hand (Add Entry) is not added again:
   // the manual row is linked to it instead (chainPaymentId set, so later scans skip
-  // it through the unique (userId, chainPaymentId) index). A match is the same
-  // contact and type, exactly the same amount, not deleted, not yet linked, and
-  // either within MANUAL_MATCH_WINDOW_MS (manual row without a txHash) or the same
-  // tx hash as the payment at any date (manual row with a txHash; a different hash
-  // never links). Hash matches, then closest pairs, are matched first; each manual
-  // row and each payment is used at most once.
+  // it through the unique (userId, chainPaymentId) index). Each manual row and each
+  // payment is used at most once.
+  //
+  // 1. The tx hash is the final word: an unlinked, not-deleted manual row with the
+  //    same hash as a payment (case-insensitive; ANY contact of the user, any type,
+  //    amount or date) is that payment. It is linked and corrected from the chain:
+  //    amount, type and contact (this import's contact, checked above) take the
+  //    payment's values; the user's timestamp and description are kept. The hash
+  //    locks taken above cover these rows (same keys as createTransaction).
+  //    With several payments under one hash (multi-payment Stellar transaction)
+  //    the row takes the one matching contact+type+amount exactly, else the same
+  //    contact, else the closest timestamp; the others go on to step 2 / insert.
+  // 2. Manual rows WITHOUT a hash: same contact and type, exactly the same amount,
+  //    within MANUAL_MATCH_WINDOW_MS; closest pairs first. A row with a hash never
+  //    links here (its payment, if any, has that hash and was handled in step 1).
   const linkedIds = new Set<string>();
   if (fresh.size > 0) {
-    const times = [...fresh.values()].map((e) => Date.parse(e.timestamp));
-    const freshHashes = [...fresh.values()].flatMap((e) => (e.txHash ? [e.txHash.toLowerCase()] : []));
-    const candidates = await tx.transaction.findMany({
-      where: {
-        userId,
-        contactId,
-        source: "manual",
-        status: "completed",
-        chainPaymentId: null,
-        deletedAt: null,
-        OR: [
-          {
-            timestamp: {
-              gte: new Date(Math.min(...times) - MANUAL_MATCH_WINDOW_MS),
-              lte: new Date(Math.max(...times) + MANUAL_MATCH_WINDOW_MS),
-            },
+    const freshHashes = [...new Set([...fresh.values()].flatMap((e) => (e.txHash ? [e.txHash.toLowerCase()] : [])))];
+    if (freshHashes.length > 0) {
+      const hashRows = await tx.transaction.findMany({
+        where: {
+          userId,
+          source: "manual",
+          status: "completed",
+          chainPaymentId: null,
+          deletedAt: null,
+          txHash: { in: freshHashes, mode: "insensitive" },
+        },
+        select: { id: true, amount: true, type: true, timestamp: true, txHash: true, contactId: true },
+        orderBy: { id: "asc" },
+      });
+      // Fixed order (row id) so concurrent imports can't deadlock on each other.
+      for (const row of hashRows) {
+        const h = row.txHash!.toLowerCase();
+        let best: { entry: ImportEntry; rank: number; dist: number } | undefined;
+        for (const entry of fresh.values()) {
+          if (linkedIds.has(entry.chainPaymentId) || entry.txHash?.toLowerCase() !== h) continue;
+          const sameContact = row.contactId === contactId;
+          const exact = sameContact && row.type === entry.type && row.amount.equals(new Prisma.Decimal(entry.amount));
+          const rank = exact ? 0 : sameContact ? 1 : 2;
+          const dist = Math.abs(row.timestamp.getTime() - Date.parse(entry.timestamp));
+          if (
+            !best ||
+            rank < best.rank ||
+            (rank === best.rank && (dist < best.dist ||
+              (dist === best.dist && entry.chainPaymentId.localeCompare(best.entry.chainPaymentId) < 0)))
+          ) {
+            best = { entry, rank, dist };
+          }
+        }
+        if (!best) continue;
+        const { count } = await tx.transaction.updateMany({
+          where: { id: row.id, userId, chainPaymentId: null, deletedAt: null },
+          data: {
+            chainPaymentId: best.entry.chainPaymentId,
+            amount: new Prisma.Decimal(best.entry.amount),
+            type: best.entry.type,
+            contactId,
           },
-          // A row with the same hash matches at any date (e.g. a mistyped date).
-          ...(freshHashes.length > 0 ? [{ txHash: { in: freshHashes } }] : []),
-        ],
-      },
-      select: { id: true, amount: true, type: true, timestamp: true, txHash: true },
-    });
-    const pairs: { entry: ImportEntry; rowId: string; dist: number; byHash: boolean }[] = [];
-    for (const entry of fresh.values()) {
+        });
+        if (count > 0) linkedIds.add(best.entry.chainPaymentId);
+      }
+    }
+
+    const rest = [...fresh.values()].filter((e) => !linkedIds.has(e.chainPaymentId));
+    const times = rest.map((e) => Date.parse(e.timestamp));
+    const candidates =
+      rest.length === 0
+        ? []
+        : await tx.transaction.findMany({
+            where: {
+              userId,
+              contactId,
+              source: "manual",
+              status: "completed",
+              chainPaymentId: null,
+              deletedAt: null,
+              txHash: null,
+              timestamp: {
+                gte: new Date(Math.min(...times) - MANUAL_MATCH_WINDOW_MS),
+                lte: new Date(Math.max(...times) + MANUAL_MATCH_WINDOW_MS),
+              },
+            },
+            select: { id: true, amount: true, type: true, timestamp: true },
+          });
+    const pairs: { entry: ImportEntry; rowId: string; dist: number }[] = [];
+    for (const entry of rest) {
       const t = Date.parse(entry.timestamp);
       const amount = new Prisma.Decimal(entry.amount);
       for (const row of candidates) {
         if (row.type !== entry.type || !row.amount.equals(amount)) continue;
         const dist = Math.abs(row.timestamp.getTime() - t);
-        // The tx hash has the final word: a manual row that carries a hash matches
-        // only the payment with that same hash (case-insensitive), at any date.
-        // Rows without one rely on contact, type, amount and the ±24h window.
-        if (row.txHash) {
-          if (row.txHash.toLowerCase() === entry.txHash?.toLowerCase()) {
-            pairs.push({ entry, rowId: row.id, dist, byHash: true });
-          }
-        } else if (dist <= MANUAL_MATCH_WINDOW_MS) {
-          pairs.push({ entry, rowId: row.id, dist, byHash: false });
-        }
+        if (dist <= MANUAL_MATCH_WINDOW_MS) pairs.push({ entry, rowId: row.id, dist });
       }
     }
-    // Hash matches first, then closest pairs.
+    // Closest pairs first.
     pairs.sort((a, b) =>
-      Number(b.byHash) - Number(a.byHash) ||
       a.dist - b.dist ||
       a.entry.chainPaymentId.localeCompare(b.entry.chainPaymentId) ||
       a.rowId.localeCompare(b.rowId)
     );
     const usedRows = new Set<string>();
-    const links: { rowId: string; chainPaymentId: string; txHash?: string; rowHasHash: boolean }[] = [];
-    const rowHasHash = new Map(candidates.map((r) => [r.id, !!r.txHash]));
+    const links: { rowId: string; chainPaymentId: string; txHash?: string }[] = [];
     for (const p of pairs) {
       if (usedRows.has(p.rowId) || linkedIds.has(p.entry.chainPaymentId)) continue;
       usedRows.add(p.rowId);
       linkedIds.add(p.entry.chainPaymentId);
-      links.push({
-        rowId: p.rowId,
-        chainPaymentId: p.entry.chainPaymentId,
-        txHash: p.entry.txHash,
-        rowHasHash: rowHasHash.get(p.rowId) ?? false,
-      });
+      links.push({ rowId: p.rowId, chainPaymentId: p.entry.chainPaymentId, txHash: p.entry.txHash });
     }
     // Fixed lock order (row id) so concurrent imports can't deadlock on each other.
     links.sort((a, b) => a.rowId.localeCompare(b.rowId));
@@ -414,12 +452,8 @@ async function importInTransaction(
       // there by the unique index if the other import linked this same payment).
       const { count } = await tx.transaction.updateMany({
         where: { id: l.rowId, userId, chainPaymentId: null, deletedAt: null },
-        // A manual row without a hash takes the payment's hash; an existing hash is
-        // never overwritten (it already equals the payment's, or the pair wasn't matched).
-        data: {
-          chainPaymentId: l.chainPaymentId,
-          ...(!l.rowHasHash && l.txHash ? { txHash: l.txHash } : {}),
-        },
+        // The hash-less manual row takes the payment's hash, if it has one.
+        data: { chainPaymentId: l.chainPaymentId, ...(l.txHash ? { txHash: l.txHash } : {}) },
       });
       if (count === 0) linkedIds.delete(l.chainPaymentId);
     }

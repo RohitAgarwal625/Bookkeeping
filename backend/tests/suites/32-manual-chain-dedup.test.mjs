@@ -380,4 +380,137 @@ export default async function run({ api, db }) {
   const mres = await importScan(K, cm, many);
   check("100-entry import (200 lock keys in one statement) -> 200, 100 added",
     mres.status === 200 && mres.body.added === 100, JSON.stringify([mres.status, mres.body.added, mres.body.error]));
+
+  // ---- 2A: the hash is the final word. A manual row with the payment's hash is
+  // linked whatever its contact/type/amount/date, and corrected from the chain
+  // (amount, type, contact); its description and timestamp are kept.
+  const createWith = (token, body) =>
+    api.call("POST", "/api/transactions", {
+      token,
+      body: { description: "Typed", amount: 1, type: "credit", idempotencyKey: randomUUID(), ...body },
+    });
+  const totalsOf = async (token, id) => {
+    const list = (await api.call("GET", "/api/contacts", { token })).body.data ?? [];
+    const c = list.find((x) => x.id === id);
+    return c ? [c.totalCredit, c.totalDebit] : null;
+  };
+  const ledgerOf = async (token, id) => (await api.call("GET", `/api/transactions/contact/${id}`, { token })).body.data ?? [];
+
+  const u = await api.login("fix_32_2a_uma");
+  const U = u.sessionToken;
+  const H1 = "a1".repeat(32), H2 = "a2".repeat(32), H3 = "a3".repeat(32);
+
+  // Wrong amount -> linked, amount corrected, 1 row; note/description/timestamp kept.
+  const amt = await contact(U, "Amt");
+  const mAmt = (await createWith(U, { contactId: amt, amount: 5, type: "credit", timestamp: "2026-08-01T00:00:00Z", description: "Typed five", txHash: H1 })).body.transaction;
+  await api.call("PATCH", `/api/transactions/${mAmt.id}`, { token: U, body: { description: "my note" } });
+  const amtRes = await importScan(U, amt, [entry("34001", { amount: 7.1234567, timestamp: "2026-08-03T10:00:00Z", txHash: H1 })]);
+  const amtRow = await db.transaction.findUnique({ where: { id: mAmt.id } });
+  check("2A same hash, wrong amount -> linked (added 0, skipped 1), 1 row",
+    amtRes.status === 200 && amtRes.body.added === 0 && amtRes.body.skipped === 1 && (await rowsFor(u.user.id, amt)).length === 1,
+    JSON.stringify(amtRes.body));
+  check("2A wrong amount -> amount corrected from the chain (exact Decimal)",
+    amtRow?.chainPaymentId === "34001" && amtRow?.amount.toString() === "7.1234567", JSON.stringify(amtRow));
+  check("2A correction keeps the note (description) and timestamp",
+    amtRow?.description === "my note" && amtRow?.timestamp.toISOString() === "2026-08-01T00:00:00.000Z",
+    JSON.stringify([amtRow?.description, amtRow?.timestamp]));
+  check("2A contact totals reflect the corrected amount", JSON.stringify(await totalsOf(U, amt)) === JSON.stringify([7.1234567, 0]),
+    JSON.stringify(await totalsOf(U, amt)));
+
+  // Wrong type -> corrected.
+  const typ = await contact(U, "Typ");
+  const mTyp = (await createWith(U, { contactId: typ, amount: 4, type: "debit", timestamp: "2026-08-01T10:00:00Z", txHash: H2 })).body.transaction;
+  const typRes = await importScan(U, typ, [entry("34002", { amount: 4, type: "credit", timestamp: "2026-08-01T10:00:00Z", txHash: H2 })]);
+  const typRow = await db.transaction.findUnique({ where: { id: mTyp.id } });
+  check("2A same hash, wrong type -> linked, type corrected",
+    typRes.body.skipped === 1 && typRow?.chainPaymentId === "34002" && typRow?.type === "credit" && (await rowsFor(u.user.id, typ)).length === 1,
+    JSON.stringify([typRes.body, typRow?.type]));
+  check("2A wrong type -> contact totals moved to credit", JSON.stringify(await totalsOf(U, typ)) === JSON.stringify([4, 0]));
+
+  // Manual row under contact B, chain entry under contact A -> linked and moved to A.
+  const cA = await contact(U, "CtA");
+  const cB = await contact(U, "CtB");
+  await createWith(U, { contactId: cB, amount: 2, type: "credit", timestamp: "2026-08-02T10:00:00Z" }); // stays with B
+  const mB = (await createWith(U, { contactId: cB, amount: 9, type: "debit", timestamp: "2026-08-02T10:00:00Z", description: "Paid B", txHash: H3 })).body.transaction;
+  const moveRes = await importScan(U, cA, [entry("34003", { amount: 9.5, type: "debit", timestamp: "2026-08-02T12:00:00Z", txHash: H3 })]);
+  const moved = await db.transaction.findUnique({ where: { id: mB.id } });
+  check("2A other contact, same hash -> linked and moved to the import's contact",
+    moveRes.body.added === 0 && moveRes.body.skipped === 1 && moved?.contactId === cA && moved?.chainPaymentId === "34003" &&
+      moved?.amount.toString() === "9.5" && moved?.description === "Paid B",
+    JSON.stringify([moveRes.body, moved]));
+  const ledA = await ledgerOf(U, cA), ledB = await ledgerOf(U, cB);
+  check("2A ledgers: A has the moved row only, B keeps its other row",
+    ledA.length === 1 && ledA[0].id === mB.id && ledB.length === 1 && ledB[0].id !== mB.id,
+    JSON.stringify([ledA.map((r) => r.id), ledB.map((r) => r.id)]));
+  check("2A totals: A debit 9.5, B only its own credit",
+    JSON.stringify(await totalsOf(U, cA)) === JSON.stringify([0, 9.5]) && JSON.stringify(await totalsOf(U, cB)) === JSON.stringify([2, 0]),
+    JSON.stringify([await totalsOf(U, cA), await totalsOf(U, cB)]));
+
+  // Multi-payment transaction: several entries share the hash.
+  const v = await api.login("fix_32_2a_vik");
+  const V = v.sessionToken;
+  const H4 = "b4".repeat(32), H5 = "b5".repeat(32), H6 = "b6".repeat(32), H7 = "b7".repeat(32), H8 = "b8".repeat(32);
+  const multi = await contact(V, "Multi");
+  const mMulti = (await createWith(V, { contactId: multi, amount: 3, type: "credit", timestamp: "2026-08-01T00:00:00Z", txHash: H4 })).body.transaction;
+  const multiRes = await importScan(V, multi, [
+    entry("34102", { amount: 2, timestamp: "2026-08-01T00:00:00Z", txHash: H4 }), // closer, but not exact
+    entry("34101", { amount: 3, timestamp: "2026-08-09T00:00:00Z", txHash: H4 }), // exact match
+  ]);
+  const multiRow = await db.transaction.findUnique({ where: { id: mMulti.id } });
+  const multiRows = await rowsFor(v.user.id, multi);
+  check("2A multi-entry hash -> manual linked to the exact-match entry, the other inserted",
+    multiRes.body.added === 1 && multiRes.body.skipped === 1 && multiRow?.chainPaymentId === "34101" && multiRow?.amount.toString() === "3" &&
+      multiRows.length === 2 && multiRows.some((r) => r.chainPaymentId === "34102" && r.txHash === H4),
+    JSON.stringify([multiRes.body, multiRows.map((r) => [r.chainPaymentId, r.amount.toString()])]));
+
+  const close = await contact(V, "Close");
+  const mClose = (await createWith(V, { contactId: close, amount: 10, type: "credit", timestamp: "2026-08-05T00:00:00Z", txHash: H5 })).body.transaction;
+  await importScan(V, close, [
+    entry("34103", { amount: 1, timestamp: "2026-08-20T00:00:00Z", txHash: H5 }),
+    entry("34104", { amount: 2, timestamp: "2026-08-05T01:00:00Z", txHash: H5 }),
+  ]);
+  const closeRow = await db.transaction.findUnique({ where: { id: mClose.id } });
+  check("2A multi-entry, no exact match -> closest timestamp wins, amount corrected",
+    closeRow?.chainPaymentId === "34104" && closeRow?.amount.toString() === "2" && (await rowsFor(v.user.id, close)).length === 2,
+    JSON.stringify(closeRow));
+
+  // A row under another contact with two same-hash entries: no exact/same-contact
+  // rank applies, so the closest timestamp wins and the row moves.
+  const other1 = await contact(V, "OtherOne");
+  const imp1 = await contact(V, "ImpOne");
+  const mOther = (await createWith(V, { contactId: other1, amount: 6, type: "debit", timestamp: "2026-08-06T00:00:00Z", txHash: H8 })).body.transaction;
+  const otherRes = await importScan(V, imp1, [
+    entry("34107", { amount: 6, type: "debit", timestamp: "2026-08-30T00:00:00Z", txHash: H8 }),
+    entry("34108", { amount: 1, type: "debit", timestamp: "2026-08-06T02:00:00Z", txHash: H8 }),
+  ]);
+  const otherRow = await db.transaction.findUnique({ where: { id: mOther.id } });
+  check("2A row under another contact, two same-hash entries -> closest one, moved",
+    otherRes.body.added === 1 && otherRow?.chainPaymentId === "34108" && otherRow?.contactId === imp1, JSON.stringify([otherRes.body, otherRow]));
+
+  // A different hash still never links (any contact).
+  const dh = await contact(V, "DiffHash");
+  const mDh = (await createWith(V, { contactId: dh, amount: 5, type: "credit", timestamp: "2026-08-01T10:00:00Z", txHash: H6 })).body.transaction;
+  const dhRes = await importScan(V, dh, [entry("34105", { amount: 5, timestamp: "2026-08-01T10:00:00Z", txHash: H7 })]);
+  check("2A different hash -> not linked, inserted",
+    dhRes.body.added === 1 && (await db.transaction.findUnique({ where: { id: mDh.id } }))?.chainPaymentId === null,
+    JSON.stringify(dhRes.body));
+
+  // Hash-less rule unchanged: a hash-less manual row under another contact is not linked.
+  const hl1 = await contact(V, "HashLessOne");
+  const hl2 = await contact(V, "HashLessTwo");
+  const mHl = (await createWith(V, { contactId: hl1, amount: 8, type: "credit", timestamp: "2026-08-01T10:00:00Z" })).body.transaction;
+  const hlRes = await importScan(V, hl2, [entry("34106", { amount: 8, timestamp: "2026-08-01T10:00:00Z", txHash: "c1".repeat(32) })]);
+  check("2A hash-less manual row under another contact -> not linked, inserted",
+    hlRes.body.added === 1 && (await db.transaction.findUnique({ where: { id: mHl.id } }))?.chainPaymentId === null,
+    JSON.stringify(hlRes.body));
+
+  // A soft-deleted manual row with the hash is not linked or corrected.
+  const del2 = await contact(V, "Del2A");
+  const H9 = "b9".repeat(32);
+  const mDel = (await createWith(V, { contactId: del2, amount: 5, type: "credit", timestamp: "2026-08-01T10:00:00Z", txHash: H9 })).body.transaction;
+  await api.call("DELETE", `/api/transactions/${mDel.id}`, { token: V });
+  const delRes = await importScan(V, del2, [entry("34109", { amount: 6, timestamp: "2026-08-01T10:00:00Z", txHash: H9 })]);
+  const delRow = await db.transaction.findUnique({ where: { id: mDel.id } });
+  check("2A soft-deleted row with the hash -> untouched, payment inserted",
+    delRes.body.added === 1 && delRow?.chainPaymentId === null && delRow?.amount.toString() === "5", JSON.stringify(delRes.body));
 }
