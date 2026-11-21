@@ -74,7 +74,7 @@ const server = app.listen(config.port, () => {
   );
   // Deletes expired sessions every 5 minutes, in every environment (AUD-50).
   startSessionCleanupJob();
-  // Confirms pending in-app payments from Horizon and expires old ones, every 60 s.
+  // Confirms pending in-app payments from Horizon (every 5 s for the first 5 min, then every 60 s) and expires old ones.
   startPaymentIntentJob();
 });
 

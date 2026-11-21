@@ -51,7 +51,8 @@ tests/
     ├── 30-auditfix-dates-totals.test.mjs audit fixes AUD-36/37: entry date range (2018 to 1 year ahead), contact totals count only completed rows
     ├── 31-auditfix-job.test.mjs        audit fixes AUD-50/54/55: session clean-up job, Railway start command
     ├── 32-manual-chain-dedup.test.mjs  import links an existing manual entry for the same payment instead of adding a duplicate
-    └── 33-in-app-payments.test.mjs     in-app payments: memberId, unique wallet, intents, Horizon confirm, History, contact back-fill, 60 s job
+    ├── 33-in-app-payments.test.mjs     in-app payments: memberId, unique wallet, intents, Horizon confirm, History, contact back-fill, 60 s job
+    └── 34-payment-check-timing.test.mjs in-app payment job timing: 5 s checks for the first 5 min, then 60 s; expiry + back-fill every 60 s
 ```
 
 ## Writing a suite
