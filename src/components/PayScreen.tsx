@@ -36,6 +36,8 @@ const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 /** Pi has 7 decimal places; the server rejects more. */
 const AMOUNT_PATTERN = /^\d+(\.\d{1,7})?$/;
+/** A Pi amount as plain text with up to 7 decimals (no exponent, no trailing zeros). */
+const formatPi = (n: number) => n.toFixed(7).replace(/\.?0+$/, "");
 
 export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger, onPaymentConfirmed, userWalletAddress, onOpenSettings }: PayScreenProps) {
   const contactList = contacts || [];
@@ -211,7 +213,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
       payTarget.current = null;
       clearPendingWalletPayment();
       setPaidRecipientName(target.contactName);
-      setAmount(target.amountText);
+      // The amount actually sent on the chain (may differ from the typed one: it is typed again in the Pi Wallet).
+      setAmount(intent.amount != null ? formatPi(intent.amount) : target.amountText);
       setPaidTxHash(shortHash(intent.txHash));
       setScreen("success");
       void Promise.resolve(onPaymentConfirmed?.(target.contactName, target.contactId)).catch((err) =>

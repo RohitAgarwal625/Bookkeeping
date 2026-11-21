@@ -59,8 +59,9 @@ function compareRecords(a: HorizonPaymentRecord, b: HorizonPaymentRecord): numbe
 /**
  * Horizon payments that would confirm this intent, earliest first: a native-Pi `payment`
  * op from senderAddress to receiverAddress, successful, created at or after
- * createdAt - 2 min (and not after expiresAt), with exactly the intent's amount when it
- * has one (any amount when it doesn't: Pay via QR).
+ * createdAt - 2 min (and not after expiresAt), whatever its amount. The amount typed in
+ * the app is NOT matched: the Pi Wallet link can't carry it, so the user types it again in
+ * the wallet and may send a different amount. The chain's amount is the confirmed one.
  */
 async function findCandidates(intent: PaymentIntent): Promise<HorizonPaymentRecord[]> {
   const from = intent.createdAt.getTime() - LOOKBACK_MS;
@@ -84,7 +85,6 @@ async function findCandidates(intent: PaymentIntent): Promise<HorizonPaymentReco
       if (normalizeAddress(r.to ?? "") !== intent.receiverAddress) continue;
       const amount = parseAmount(r.amount);
       if (!amount) continue;
-      if (intent.amount && !amount.equals(intent.amount)) continue;
       if (r.transaction_hash && !/^[0-9a-fA-F]{64}$/.test(r.transaction_hash)) continue;
       found.push(r);
     }
@@ -216,7 +216,7 @@ async function confirmWith(intentId: string, rec: HorizonPaymentRecord): Promise
         confirmedAt: paidAt,
         chainPaymentId: rec.id,
         txHash: txHash ?? null,
-        // Pay via QR has no amount until now: the chain's amount is the confirmed one.
+        // The chain's amount is the confirmed one (replaces the typed amount; QR has none).
         amount,
         senderTransactionId,
         receiverTransactionId,

@@ -159,13 +159,12 @@ export default async function run({ api, db, pi }) {
 
   let c = await checkNow(alice, intent.id);
   check("no payment on chain -> stays pending", c.status === 200 && c.body?.intent?.status === "pending", JSON.stringify(c.body));
-  pay(alice, bob, "1.4000000");
   pay(alice, bob, "1.5000000", { created_at: iso(Date.parse(intent.createdAt) - 10 * 60_000) });
   pay(alice, carol, "1.5000000");
   pay(alice, bob, "1.5000000", { asset_type: "credit_alphanum4" });
   pay(bob, alice, "1.5000000"); // other direction (on bob's account)
   c = await checkNow(alice, intent.id);
-  check("wrong amount / earlier payment / other receiver / other asset -> stays pending", c.body?.intent?.status === "pending", JSON.stringify(c.body));
+  check("earlier payment / other receiver / other asset -> stays pending", c.body?.intent?.status === "pending", JSON.stringify(c.body));
 
   const txh = hash();
   const good = pay(alice, bob, "1.5000000", { transaction_hash: txh });
@@ -240,6 +239,33 @@ export default async function run({ api, db, pi }) {
     linked.length === 1 && linked[0].id === manual.body?.transaction?.id && linked[0].chainPaymentId === good2.id, JSON.stringify(linked));
   const bobRow2 = await db.transaction.findFirst({ where: { userId: bob.id, chainPaymentId: good2.id } });
   check("receiver who has the sender as contact gets the credit row at confirm", bobRow2?.type === "credit" && bobRow2.contactId === readded.body.contact.id);
+
+  // ---------- typed amount is not matched: the chain's amount is the confirmed one (frank -> grace) ----------
+  const frank = await user("frank");
+  const grace = await user("grace");
+  for (const u of [frank, grace]) await setWallet(u);
+  const frankGrace = (await addContact(frank, "Grace", grace.address)).body.contact;
+  const graceFrank = (await addContact(grace, "Frank", frank.address)).body.contact;
+  const typed = (await createIntent(frank, { receiverAddress: grace.address, amount: 10, contactId: frankGrace.id })).body.intent;
+  check("intent keeps the typed amount while pending", typed?.amount === 10 && typed.status === "pending", JSON.stringify(typed));
+  pay(frank, grace, "10.0000000", { created_at: iso(Date.parse(typed.createdAt) - 10 * 60_000) });
+  c = await checkNow(frank, typed.id);
+  check("payment made before the intent (even with the typed amount) doesn't count", c.body?.intent?.status === "pending", JSON.stringify(c.body));
+  const p5 = pay(frank, grace, "5.0000000", { created_at: iso(Date.now() + 1000) });
+  pay(frank, grace, "6.0000000", { created_at: iso(Date.now() + 5000) });
+  c = await checkNow(frank, typed.id);
+  check("typed 10, sent 5 then 6 -> confirmed with the earliest payment's amount 5",
+    c.body?.intent?.status === "confirmed" && c.body.intent.amount === 5 && c.body.intent.confirmedAt === new Date(p5.created_at).toISOString(),
+    JSON.stringify(c.body));
+  check("confirmed intent stores the earliest op id", (await db.paymentIntent.findUnique({ where: { id: typed.id } }))?.chainPaymentId === p5.id);
+  const fRow = await db.transaction.findFirst({ where: { userId: frank.id, chainPaymentId: p5.id } });
+  const gRow = await db.transaction.findFirst({ where: { userId: grace.id, chainPaymentId: p5.id } });
+  check("sender debit row uses the on-chain amount 5", fRow?.type === "debit" && fRow.amount.toString() === "5" && fRow.contactId === frankGrace.id, JSON.stringify(fRow));
+  check("receiver credit row uses the on-chain amount 5", gRow?.type === "credit" && gRow.amount.toString() === "5" && gRow.contactId === graceFrank.id, JSON.stringify(gRow));
+  h = await history(frank);
+  check("sender History shows the on-chain amount 5", h.body?.data?.length === 1 && h.body.data[0].amount === 5, JSON.stringify(h.body));
+  h = await history(grace);
+  check("receiver History shows the on-chain amount 5", h.body?.data?.length === 1 && h.body.data[0].amount === 5 && h.body.data[0].counterparty.name === "Frank", JSON.stringify(h.body));
 
   // ---------- QR (no amount): carol -> bob; carol has no contact for bob ----------
   const qr = (await createIntent(carol, { receiverAddress: bob.address })).body?.intent;
