@@ -540,6 +540,7 @@ function AppContent() {
           onPaymentConfirmed={handlePaymentConfirmed}
           userWalletAddress={bk.user?.walletPublicKey ?? ""}
           onOpenSettings={() => handleNavigate("settings")}
+          onShowHistory={() => handleNavigate("merchantDashboard")}
         />
         <Toaster position="bottom-center" />
       </>

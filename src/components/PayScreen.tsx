@@ -25,7 +25,12 @@ interface PayScreenProps {
   /** The user's own Pi wallet address (Settings → Profile); the server needs it to find the payment on the blockchain. */
   userWalletAddress?: string;
   onOpenSettings?: () => void;
+  /** After the "Done !" screen has shown briefly: open Dashboard → History. */
+  onShowHistory?: () => void;
 }
+
+/** How long "Done !" stays before Pay moves on to Dashboard History. */
+const DONE_REDIRECT_MS = 2500;
 
 type ScreenState = "form" | "processing" | "success";
 
@@ -39,7 +44,7 @@ const AMOUNT_PATTERN = /^\d+(\.\d{1,7})?$/;
 /** A Pi amount as plain text with up to 7 decimals (no exponent, no trailing zeros). */
 const formatPi = (n: number) => n.toFixed(7).replace(/\.?0+$/, "");
 
-export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger, onPaymentConfirmed, userWalletAddress, onOpenSettings }: PayScreenProps) {
+export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger, onPaymentConfirmed, userWalletAddress, onOpenSettings, onShowHistory }: PayScreenProps) {
   const contactList = contacts || [];
   const intents = usePaymentIntents();
 
@@ -272,6 +277,16 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   };
 
   // Always call the latest checkForPayment (it reads the latest props, e.g. onPaymentConfirmed).
+  // A confirmed payment: show "Done !" briefly, then go to Dashboard History, where it now appears.
+  // Tapping Open Ledger / Home / a new payment first leaves this screen, which cancels the timer.
+  const showHistoryRef = useRef(onShowHistory);
+  showHistoryRef.current = onShowHistory;
+  useEffect(() => {
+    if (screen !== "success" || !showHistoryRef.current) return;
+    const id = window.setTimeout(() => showHistoryRef.current?.(), DONE_REDIRECT_MS);
+    return () => window.clearTimeout(id);
+  }, [screen]);
+
   const checkRef = useRef(checkForPayment);
   checkRef.current = checkForPayment;
 
