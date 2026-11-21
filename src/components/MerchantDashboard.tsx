@@ -359,12 +359,7 @@ export function MerchantDashboard({
                           ) : (
                             <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{merchant.merchantName}</p>
                           )}
-                          <p className="text-xs text-gray-500 dark:text-muted-foreground">
-                            <span style={{ fontWeight: 600, color: merchant.direction === "received" ? (isDark ? "#4ade80" : "#16a34a") : (isDark ? "#f87171" : "#dc2626") }}>
-                              {merchant.direction === "received" ? "Received" : "Paid"}
-                            </span>
-                            {" · "}{merchant.date}
-                          </p>
+                          <p className="text-xs text-gray-500 dark:text-muted-foreground">{merchant.date}</p>
                         </div>
                       </div>
                       <span className={`text-sm font-medium flex-shrink-0 ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
