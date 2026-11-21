@@ -82,7 +82,7 @@ interface MerchantRecord {
   unidentified?: boolean;
 }
 
-const UNIDENTIFIED = "Unidentified wallet address";
+const UNIDENTIFIED = "Unidentified Pi Wallet Address";
 
 /** "GABCD…WXYZ" for a long wallet address. */
 function shortAddress(address: string): string {
@@ -166,6 +166,8 @@ export function MerchantDashboard({
   const [selectedMerchant, setSelectedMerchant] = useState<MerchantRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<"individual" | "business">("individual");
   const [activeView, setActiveView] = useState<"history" | "analytics">("history");
+  // History card whose "Unidentified Pi Wallet Address" info text is shown (toggled by its (i) button).
+  const [unidentifiedInfo, setUnidentifiedInfo] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [editingWalletId, setEditingWalletId] = useState<string | null>(null);
   const [walletDraftMap, setWalletDraftMap] = useState<Record<string, string>>({});
@@ -340,7 +342,23 @@ export function MerchantDashboard({
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{merchant.merchantName}</p>
+                          {merchant.unidentified ? (
+                            <div className="flex items-center gap-1 min-w-0">
+                              <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{merchant.merchantName}</p>
+                              <button
+                                type="button"
+                                aria-label="What is an unidentified Pi Wallet Address?"
+                                aria-expanded={unidentifiedInfo === merchant.id}
+                                onClick={() => setUnidentifiedInfo(unidentifiedInfo === merchant.id ? null : merchant.id)}
+                                className="flex items-center justify-center flex-shrink-0"
+                                style={{ minWidth: "32px", minHeight: "32px", margin: "-6px 0" }}
+                              >
+                                <Info className="w-4 h-4 text-[#A47CF3]" />
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{merchant.merchantName}</p>
+                          )}
                           <p className="text-xs text-gray-500 dark:text-muted-foreground">
                             <span style={{ fontWeight: 600, color: merchant.direction === "received" ? (isDark ? "#4ade80" : "#16a34a") : (isDark ? "#f87171" : "#dc2626") }}>
                               {merchant.direction === "received" ? "Received" : "Paid"}
@@ -392,21 +410,29 @@ export function MerchantDashboard({
                       </div>
                     </div>
                     {merchant.unidentified && onAddToContact && (
-                      <button
-                        type="button"
-                        onClick={() => onAddToContact(merchant.piWalletAddress)}
-                        className="mt-3 w-full flex items-center justify-center gap-2 text-white text-sm"
+                      // Same box as the Pay screen's "not saved in your Contact List" message.
+                      <div
+                        className="mt-3 px-4 py-3.5 rounded-2xl"
                         style={{
-                          minHeight: "44px",
-                          borderRadius: "12px",
-                          fontWeight: 600,
-                          background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-                          boxShadow: "0 4px 16px rgba(111,60,151,0.35)",
+                          background: isDark ? "rgba(69,26,3,0.2)" : "#fffbeb",
+                          border: `1px solid ${isDark ? "rgba(146,64,14,0.4)" : "#fde68a"}`,
                         }}
                       >
-                        <UserPlus className="w-4 h-4" />
-                        Add to contact
-                      </button>
+                        {unidentifiedInfo === merchant.id && (
+                          <p className="text-xs mb-3" style={{ lineHeight: 1.625, color: isDark ? "#fbbf24" : "#b45309" }}>
+                            You have received Pi from an unknown user of this app. The wallet address seen here is not saved in your Contact List. If you know/identify this user, then assign a full name to it &amp; add it to your Contact List. Kindly tap on the button given below to add it to your Contacts.
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => onAddToContact(merchant.piWalletAddress)}
+                          className="w-full py-3 px-4 rounded-xl text-white text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                          style={{ fontWeight: 600, background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 4px 16px rgba(111,60,151,0.35)" }}
+                        >
+                          <span>Add Contact</span>
+                          <UserPlus className="w-4 h-4" />
+                        </button>
+                      </div>
                     )}
                     <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
                       <span className="text-xs text-[#A47CF3] dark:text-[#A47CF3] font-medium">View Details</span>
