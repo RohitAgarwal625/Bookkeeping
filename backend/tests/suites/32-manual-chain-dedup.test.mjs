@@ -312,4 +312,72 @@ export default async function run({ api, db }) {
   check("hash match preferred over a closer hash-less row",
     (await db.transaction.findUnique({ where: { id: mHash.id } }))?.chainPaymentId === "32704" &&
       (await db.transaction.findUnique({ where: { id: mNear.id } }))?.chainPaymentId === null);
+
+  // ---- Concurrency: one-statement sorted advisory locks (create vs import, import vs import).
+  const createAs = (token, body) =>
+    api.call("POST", "/api/transactions", {
+      token,
+      body: { description: "Manual", amount: 1, type: "credit", idempotencyKey: randomUUID(), ...body },
+    });
+
+  // Concurrent manual create and import of the same hash -> exactly one row/link, no 500.
+  const j = await api.login("fix_32_june");
+  const J = j.sessionToken;
+  for (let n = 0; n < 4; n++) {
+    const cj = await contact(J, `Race${n}`);
+    const HASH = `c${n}`.padEnd(64, "a");
+    const [cr, im] = await Promise.all([
+      createAs(J, { contactId: cj, amount: 21, type: "credit", timestamp: "2026-08-15T10:00:00Z", txHash: HASH }),
+      importScan(J, cj, [entry(`3280${n}`, { amount: 21, timestamp: "2026-08-15T10:00:00Z", txHash: HASH })]),
+    ]);
+    const rowsJ = await db.transaction.findMany({ where: { userId: j.user.id, txHash: HASH, deletedAt: null } });
+    const createdFirst = cr.status === 201; // import then sees the manual row and links it
+    check(`create vs import of one hash (#${n}) -> no 500, exactly 1 row carrying the payment id`,
+      cr.status !== 500 && im.status === 200 && [201, 409].includes(cr.status) && rowsJ.length === 1 &&
+        rowsJ[0].chainPaymentId === `3280${n}` &&
+        (createdFirst ? im.body.added === 0 && rowsJ[0].source === "manual" : im.body.added === 1 && cr.body.error === "TX_ALREADY_RECORDED"),
+      JSON.stringify([cr.status, im.status, im.body.added, rowsJ.length]));
+  }
+
+  // Two overlapping concurrent imports of the same 50 entries (10 with manual rows to link).
+  const k = await api.login("fix_32_kiran");
+  const K = k.sessionToken;
+  const ck = await contact(K, "Overlap");
+  const ts = (i) => new Date(Date.UTC(2026, 7, 1, 0, 0, 0) + i * 3 * 3600_000).toISOString();
+  const manualIds = [];
+  for (let i = 0; i < 10; i++) {
+    manualIds.push((await createAs(K, { contactId: ck, amount: 100 + i, type: "debit", timestamp: ts(i) })).body.transaction.id);
+  }
+  const big = Array.from({ length: 50 }, (_, i) =>
+    entry(`329${String(i).padStart(2, "0")}`, {
+      // No tx hashes: the payment-id locks alone must serialize these imports.
+      amount: 100 + i, type: "debit", timestamp: ts(i),
+    }));
+  // Different order and a partial overlap on the second request.
+  const [o1, o2, o3] = await Promise.all([
+    importScan(K, ck, big),
+    importScan(K, ck, [...big].reverse()),
+    importScan(K, ck, big.slice(20, 45)),
+  ]);
+  const rowsK = await db.transaction.findMany({ where: { userId: k.user.id, contactId: ck, deletedAt: null } });
+  const pids = rowsK.map((r) => r.chainPaymentId);
+  check("overlapping imports -> all 200 (no 500)", [o1, o2, o3].every((r) => r.status === 200),
+    JSON.stringify([o1.status, o2.status, o3.status, o1.body.error, o2.body.error, o3.body.error]));
+  check("overlapping imports -> 50 rows, each payment id once, no duplicates",
+    rowsK.length === 50 && new Set(pids).size === 50 && pids.every(Boolean), JSON.stringify([rowsK.length, new Set(pids).size]));
+  const linkedK = await db.transaction.findMany({ where: { id: { in: manualIds } } });
+  check("overlapping imports -> the 10 manual rows are linked, not duplicated",
+    linkedK.every((r, _, all) => r.chainPaymentId !== null) && linkedK.length === 10);
+  check("overlapping imports -> counts add up: 40 added in total, each response added+skipped = its size",
+    o1.body.added + o2.body.added + o3.body.added === 40 &&
+      o1.body.added + o1.body.skipped === 50 && o2.body.added + o2.body.skipped === 50 && o3.body.added + o3.body.skipped === 25,
+    JSON.stringify([o1.body.added, o2.body.added, o3.body.added]));
+
+  // Many keys in one lock statement: 100 entries with hashes = 200 lock keys.
+  const many = Array.from({ length: 100 }, (_, i) =>
+    entry(`3300${String(i).padStart(3, "0")}`, { amount: 1 + i, timestamp: ts(i), txHash: `e${String(i).padStart(3, "0")}`.padEnd(64, "c") }));
+  const cm = await contact(K, "Many");
+  const mres = await importScan(K, cm, many);
+  check("100-entry import (200 lock keys in one statement) -> 200, 100 added",
+    mres.status === 200 && mres.body.added === 100, JSON.stringify([mres.status, mres.body.added, mres.body.error]));
 }

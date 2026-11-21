@@ -65,7 +65,7 @@ export async function createTransaction(
     // the insert run under a per-(user, hash) advisory lock, which imports take
     // too, so two concurrent saves of the same hash can't both get in.
     const outcome = await prisma.$transaction(async (db) => {
-      if (txHash) await lockKeys(db, [`${userId}:${txHash.toLowerCase()}`]);
+      if (txHash) await lockKeys(db, [hashLockKey(userId, txHash)]);
       // Re-check the key under the lock: a concurrent replay of this same request
       // that committed first is a replay (200), not a duplicate hash (409).
       if (txHash) {
@@ -195,10 +195,7 @@ export async function importTransactions(
         );
         break;
       } catch (err) {
-        const retryable =
-          err instanceof Prisma.PrismaClientKnownRequestError &&
-          (err.code === "P2002" || err.code === "P2034" || err.code === "P2028");
-        if (!retryable || attempt >= 3) throw err;
+        if (!isRetryableImportError(err) || attempt >= 3) throw err;
       }
     }
 
@@ -225,11 +222,38 @@ export async function importTransactions(
 const MANUAL_MATCH_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 /**
+ * Errors after which a whole import is retried. Prisma 5.22 does NOT map a
+ * Postgres deadlock (40P01) to P2034: in a raw query it is P2010 with
+ * meta.code "40P01", in a model query a PrismaClientUnknownRequestError whose
+ * message contains "40P01" (checked against Postgres). P2034 covers write
+ * conflicts (40001), P2028 an interactive-transaction timeout, P2002 a
+ * concurrent insert of the same (userId, chainPaymentId).
+ */
+function isRetryableImportError(err: unknown): boolean {
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === "P2002" || err.code === "P2034" || err.code === "P2028") return true;
+    const pgCode = (err.meta as { code?: unknown } | undefined)?.code;
+    return err.code === "P2010" && (pgCode === "40P01" || pgCode === "40001");
+  }
+  return err instanceof Prisma.PrismaClientUnknownRequestError && /\b40P01\b/.test(err.message);
+}
+
+/**
  * Interactive-transaction limits for the transactions that take advisory locks:
  * they can wait behind another request holding the same locks (e.g. an
  * overlapping 100-entry import), so allow more than Prisma's 5s default.
  */
 const LOCKED_TX_OPTIONS = { timeout: 15_000, maxWait: 5_000 };
+
+/** Advisory-lock key for "is this tx hash recorded yet?" (shared by create and import). */
+function hashLockKey(userId: string, hash: string): string {
+  return `hash:${userId}:${hash.toLowerCase()}`;
+}
+
+/** Advisory-lock key for one Horizon payment id (imports only). */
+function paymentLockKey(userId: string, chainPaymentId: string): string {
+  return `pid:${userId}:${chainPaymentId}`;
+}
 
 /**
  * Takes transaction-scoped advisory locks for all keys in ONE statement. Locks
@@ -265,10 +289,15 @@ async function importInTransaction(
   entries: ImportEntry[]
 ) {
   const ids = entries.map((e) => e.chainPaymentId);
-  const hashes = entries.flatMap((e) => (e.txHash ? [e.txHash.toLowerCase()] : []));
-  // Same lock as createTransaction, so a manual save of one of these hashes waits
-  // for this import (and the import sees a manual save that committed first).
-  await lockKeys(tx, hashes.map((h) => `${userId}:${h}`));
+  // Lock every payment id and tx hash before any read or write. The hash keys are
+  // the same as createTransaction's, so a manual save of one of these hashes waits
+  // for this import (and the import sees a manual save that committed first). The
+  // payment-id keys make overlapping imports serialize here, at the start, instead
+  // of deadlocking on each other's row/index locks later.
+  await lockKeys(tx, [
+    ...ids.map((id) => paymentLockKey(userId, id)),
+    ...entries.flatMap((e) => (e.txHash ? [hashLockKey(userId, e.txHash)] : [])),
+  ]);
 
   // Payments saved before under a contact that was since deleted (contactId
   // SET NULL) belong to no ledger: move them into this contact instead of
