@@ -209,10 +209,8 @@ function AppContent() {
   };
 
   // Background Pi payment sync (sent = debit, received = credit); see hooks/useAutoSync.ts.
-  // Switched off for now (2026-11-21); set AUTO_SYNC_ON = true to turn it back on.
-  const AUTO_SYNC_ON = false;
   useAutoSync({
-    enabled: AUTO_SYNC_ON && bk.isAuthenticated && !isGuest,
+    enabled: bk.isAuthenticated && !isGuest,
     userId: bk.user?.id,
     userWalletAddress: bk.user?.walletPublicKey,
     contacts: bk.contacts,
