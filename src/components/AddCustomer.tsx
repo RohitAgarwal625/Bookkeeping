@@ -295,7 +295,10 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
                   ? `${piWallet.slice(0, 5)}.....${piWallet.slice(-5)}`
                   : piWallet}
                 onChange={(e) => handleWalletChange(e.target.value.replace(/[\r\n]/g, ""))}
-                onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }}
+                onKeyDown={(e) => {
+                  // Keyboard "Enter": close the keyboard (unselect the field) so Validate is reachable.
+                  if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); }
+                }}
                 onFocus={() => setIsWalletFocused(true)}
                 onBlur={() => setIsWalletFocused(false)}
                 placeholder="Pi Wallet Address"
@@ -326,14 +329,25 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
               {isSaving ? "Saving..." : "Save"}
             </button>
           ) : (
-            <button
-              onClick={handleValidate}
-              disabled={!allFieldsFilled || isValidating}
-              className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+            // Inactive while the Public Key field is focused. A disabled button may not receive the tap
+            // (and iOS keeps the keyboard open), so the wrapper catches it and unselects the field instead;
+            // the button is then active and one tap validates.
+            <div
+              onPointerDown={(e) => {
+                if (!isWalletFocused) return;
+                e.preventDefault();
+                document.getElementById("piWallet")?.blur();
+              }}
             >
-              {isValidating ? "Validating..." : "Validate"}
-            </button>
+              <button
+                onClick={handleValidate}
+                disabled={!allFieldsFilled || isValidating || isWalletFocused}
+                className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)", pointerEvents: isWalletFocused ? "none" : undefined }}
+              >
+                {isValidating ? "Validating..." : "Validate"}
+              </button>
+            </div>
           )}
         </div>
 
