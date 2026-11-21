@@ -174,7 +174,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
   return (
     <div className="size-full flex flex-col bg-background">
       {/* Header */}
-      <header className="bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
+      <header className="bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border" style={{ position: "sticky", top: 0, zIndex: 20 }}>
         <button
           onClick={onBack}
           className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-secondary transition-colors"
