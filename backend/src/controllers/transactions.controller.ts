@@ -65,7 +65,7 @@ export async function createTransaction(
     // the insert run under a per-(user, hash) advisory lock, which imports take
     // too, so two concurrent saves of the same hash can't both get in.
     const outcome = await prisma.$transaction(async (db) => {
-      if (txHash) await lockTxHashes(db, userId, [txHash]);
+      if (txHash) await lockKeys(db, [`${userId}:${txHash.toLowerCase()}`]);
       // Re-check the key under the lock: a concurrent replay of this same request
       // that committed first is a replay (200), not a duplicate hash (409).
       if (txHash) {
@@ -93,7 +93,7 @@ export async function createTransaction(
         },
       });
       return { kind: "created" as const, row };
-    });
+    }, LOCKED_TX_OPTIONS);
 
     if (outcome.kind === "duplicate") {
       res.status(409).json({
@@ -183,17 +183,21 @@ export async function importTransactions(
     }
 
     // Retry the whole import when a concurrent import of the same payments wins a
-    // race (P2002 on (userId, chainPaymentId), or a P2034 write conflict/deadlock):
+    // race (P2002 on (userId, chainPaymentId), or a P2034 write conflict/deadlock),
+    // or times out (P2028, e.g. waiting behind a long overlapping import's locks):
     // the next attempt sees the other import's rows and skips them.
     let result: Awaited<ReturnType<typeof importInTransaction>> | undefined;
     for (let attempt = 1; ; attempt++) {
       try {
-        result = await prisma.$transaction((tx) => importInTransaction(tx, userId, contactId, entries));
+        result = await prisma.$transaction(
+          (tx) => importInTransaction(tx, userId, contactId, entries),
+          LOCKED_TX_OPTIONS
+        );
         break;
       } catch (err) {
         const retryable =
           err instanceof Prisma.PrismaClientKnownRequestError &&
-          (err.code === "P2002" || err.code === "P2034");
+          (err.code === "P2002" || err.code === "P2034" || err.code === "P2028");
         if (!retryable || attempt >= 3) throw err;
       }
     }
@@ -221,15 +225,27 @@ export async function importTransactions(
 const MANUAL_MATCH_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 /**
- * Transaction-scoped advisory locks, one per (user, tx hash), taken in sorted
- * order so two callers can't deadlock. Serializes "is this hash recorded yet?"
- * checks between manual creates and imports of the same hash.
+ * Interactive-transaction limits for the transactions that take advisory locks:
+ * they can wait behind another request holding the same locks (e.g. an
+ * overlapping 100-entry import), so allow more than Prisma's 5s default.
  */
-async function lockTxHashes(db: Prisma.TransactionClient, userId: string, hashes: string[]): Promise<void> {
-  const keys = [...new Set(hashes.map((h) => `${userId}:${h.toLowerCase()}`))].sort();
-  for (const key of keys) {
-    await db.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${key}))`;
-  }
+const LOCKED_TX_OPTIONS = { timeout: 15_000, maxWait: 5_000 };
+
+/**
+ * Takes transaction-scoped advisory locks for all keys in ONE statement. Locks
+ * are acquired in ascending order of the lock id (hashtext), not the key text:
+ * two keys can share a hash, and only ordering by the id itself rules out
+ * lock-order deadlocks. The sorted subquery (OFFSET 0 keeps it from being
+ * flattened) is scanned in order, and the outer ORDER BY repeats the order so
+ * the volatile lock calls run on sorted rows either way.
+ */
+async function lockKeys(db: Prisma.TransactionClient, keys: string[]): Promise<void> {
+  const unique = [...new Set(keys)];
+  if (unique.length === 0) return;
+  await db.$executeRaw`
+    SELECT pg_advisory_xact_lock(s.h)
+    FROM (SELECT DISTINCT hashtext(k) AS h FROM unnest(${unique}::text[]) AS k ORDER BY h OFFSET 0) AS s
+    ORDER BY s.h`;
 }
 
 type ImportEntry = {
@@ -252,7 +268,7 @@ async function importInTransaction(
   const hashes = entries.flatMap((e) => (e.txHash ? [e.txHash.toLowerCase()] : []));
   // Same lock as createTransaction, so a manual save of one of these hashes waits
   // for this import (and the import sees a manual save that committed first).
-  if (hashes.length > 0) await lockTxHashes(tx, userId, hashes);
+  await lockKeys(tx, hashes.map((h) => `${userId}:${h}`));
 
   // Payments saved before under a contact that was since deleted (contactId
   // SET NULL) belong to no ledger: move them into this contact instead of
