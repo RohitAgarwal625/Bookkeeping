@@ -73,7 +73,7 @@ export function Dashboard({
   const contactNames = new Map(contacts.map((c) => [c.id, c.name]));
   const recentEntries = recentTransactions
     .filter((t) => t.contactId && contactNames.has(t.contactId))
-    .slice(0, 20)
+    .slice(0, 5)
     .map((t) => ({
       id: t.id,
       contactId: t.contactId as string,
