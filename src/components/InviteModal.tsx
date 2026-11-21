@@ -66,7 +66,7 @@ export function InviteModal({ name, onClose }: InviteModalProps) {
         </h3>
         <p className="text-sm text-center" style={{ marginBottom: "20px", color: isDark ? "#9CA3AF" : "#6B7280", lineHeight: 1.5 }}>
           {who} hasn't joined Bookkeeping with this wallet address, so the payment can't be recorded for both of you.
-          Invite them: once they sign in and add this address in Settings → Profile, you can pay them here.
+          Invite them: once they sign in and add his address in Settings → Profile, you can pay them here.
         </p>
         <button
           type="button"
