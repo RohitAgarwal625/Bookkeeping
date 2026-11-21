@@ -1,4 +1,4 @@
-import { ArrowLeft, BookOpen, Check, X, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, BookOpen, Check, X, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Contact, getInitials } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -140,13 +140,27 @@ export function ContactDetails({
               <label className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
                 Pi Wallet Address
               </label>
-              {editingField !== "wallet" && canEditWallet && (
-                <button
-                  onClick={() => { setDraftWallet(displayWallet); setEditingField("wallet"); }}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
-                >
-                  <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
-                </button>
+              {editingField !== "wallet" && (
+                <div className="flex items-center gap-2">
+                  {canEditWallet && (
+                    <button
+                      onClick={() => { setDraftWallet(displayWallet); setEditingField("wallet"); }}
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
+                    </button>
+                  )}
+                  {/* Show / hide the full address (like a password reveal) */}
+                  <button
+                    onClick={() => setIsDisplayWalletExpanded((v) => !v)}
+                    aria-label={isDisplayWalletExpanded ? "Hide full wallet address" : "Show full wallet address"}
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  >
+                    {isDisplayWalletExpanded
+                      ? <EyeOff className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
+                      : <Eye className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />}
+                  </button>
+                </div>
               )}
             </div>
 
@@ -181,10 +195,16 @@ export function ContactDetails({
             ) : (
               <div
                 onClick={() => setIsDisplayWalletExpanded((v) => !v)}
-                className="cursor-pointer select-none mt-1"
+                className="cursor-pointer mt-1 min-w-0"
+                style={{ userSelect: "none", WebkitUserSelect: "none" }}
                 title="Click to toggle full wallet address"
               >
-                <p className="text-gray-900 dark:text-foreground font-medium text-base font-mono break-all leading-snug">
+                <p
+                  className="text-gray-900 dark:text-foreground font-medium text-base font-mono"
+                  style={isDisplayWalletExpanded
+                    ? { wordBreak: "break-all", overflowWrap: "anywhere", lineHeight: 1.375 }
+                    : { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.375 }}
+                >
                   {isDisplayWalletExpanded || displayWallet.length <= 10
                     ? displayWallet
                     : `${displayWallet.slice(0, 5)}.....${displayWallet.slice(-5)}`}
