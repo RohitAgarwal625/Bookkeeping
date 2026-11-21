@@ -4,11 +4,13 @@ import { prisma } from "../lib/prisma";
 import { logger } from "../lib/logger";
 import { serializeHistoryItem, serializePaymentIntent } from "../lib/serializers";
 import {
+  cancelAfterCheck,
   checkIntent,
   INTENT_TTL_MS,
   intentPairLockKey,
   normalizeAddress,
 } from "../lib/paymentIntents";
+import { HorizonError } from "../lib/horizon";
 import { lockKeys } from "./transactions.controller";
 
 /** The sender's own intent, or null (other users' intents look like missing ones: 404). */
@@ -35,7 +37,8 @@ async function checkSafely(intent: PaymentIntent): Promise<PaymentIntent> {
  * Records that the signed-in user is about to pay receiverAddress (before the Pi Wallet
  * opens). The receiver is resolved here from User.walletPublicKey; an address no app user
  * has is refused (409 RECEIVER_NOT_ON_APP, the app shows the invite). An older pending
- * intent from this sender to the same receiver is cancelled (one pending per pair).
+ * intent from this sender to the same receiver is checked on the chain first: confirmed
+ * if paid, cancelled if not, left pending if Horizon can't be reached.
  */
 export async function createIntent(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -77,12 +80,32 @@ export async function createIntent(req: Request, res: Response, next: NextFuncti
       return;
     }
 
+    // Older pending intents to this receiver are checked on the chain BEFORE the new one
+    // exists: a paid one is confirmed and claims its payment op (so the new intent can't
+    // take it), an unpaid one is cancelled below. One we couldn't check (Horizon down)
+    // stays pending, the job can still confirm it later.
+    const older = await prisma.paymentIntent.findMany({
+      where: { senderId: userId, receiverId: receiver.id, status: "pending" },
+      orderBy: { createdAt: "asc" },
+    });
+    const unpaidIds: string[] = [];
+    for (const old of older) {
+      try {
+        const checked = await checkIntent(old);
+        if (checked.status === "pending") unpaidIds.push(old.id);
+      } catch (err) {
+        logger.warn({ err, intentId: old.id }, "Payment intent check before replacing it failed; left pending");
+      }
+    }
+
     const intent = await prisma.$transaction(async (tx) => {
       await lockKeys(tx, [intentPairLockKey(userId, receiver.id)]);
-      await tx.paymentIntent.updateMany({
-        where: { senderId: userId, receiverId: receiver.id, status: "pending" },
-        data: { status: "cancelled" },
-      });
+      if (unpaidIds.length > 0) {
+        await tx.paymentIntent.updateMany({
+          where: { id: { in: unpaidIds }, status: "pending" },
+          data: { status: "cancelled" },
+        });
+      }
       const now = new Date();
       return tx.paymentIntent.create({
         data: {
@@ -144,21 +167,19 @@ export async function checkIntentNow(req: Request, res: Response, next: NextFunc
   }
 }
 
-/** POST /api/payments/intents/:id/cancel — pending only (409 INTENT_NOT_PENDING otherwise). */
+/**
+ * POST /api/payments/intents/:id/cancel — pending only (409 INTENT_NOT_PENDING otherwise).
+ * Checks the chain first: a payment already on Horizon confirms the intent (200, status
+ * "confirmed") instead; Horizon unreachable → 503 CHAIN_UNAVAILABLE, intent unchanged.
+ */
 export async function cancelIntent(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user!.id;
-    const { id } = req.params;
-    const { count } = await prisma.paymentIntent.updateMany({
-      where: { id, senderId: userId, status: "pending" },
-      data: { status: "cancelled" },
-    });
-    const intent = await findOwnIntent(userId, id);
+    const intent = await findOwnIntent(req.user!.id, req.params.id);
     if (!intent) {
       sendIntentNotFound(res);
       return;
     }
-    if (count === 0) {
+    if (intent.status !== "pending") {
       res.status(409).json({
         error: "INTENT_NOT_PENDING",
         message: `This payment is already ${intent.status}`,
@@ -166,7 +187,16 @@ export async function cancelIntent(req: Request, res: Response, next: NextFuncti
       });
       return;
     }
-    res.status(200).json({ intent: serializePaymentIntent(intent) });
+    let result: PaymentIntent;
+    try {
+      result = await cancelAfterCheck(intent);
+    } catch (err) {
+      if (!(err instanceof HorizonError)) throw err;
+      logger.warn({ err, intentId: intent.id }, "Payment intent check before cancel failed; not cancelled");
+      res.status(503).json({ error: "CHAIN_UNAVAILABLE", message: "Couldn't check the Pi blockchain. Try again." });
+      return;
+    }
+    res.status(200).json({ intent: serializePaymentIntent(result) });
   } catch (err) {
     next(err);
   }

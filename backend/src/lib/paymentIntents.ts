@@ -261,6 +261,24 @@ export async function checkIntent(intent: PaymentIntent): Promise<PaymentIntent>
 }
 
 /**
+ * Cancels a pending intent only after checking the chain: runs checkIntent first (same
+ * matching), so an intent whose payment is already on Horizon is confirmed (ledger rows
+ * and all) instead of cancelled; past expiresAt with no match it expires. Only a still
+ * pending intent is then cancelled. Horizon errors are thrown with the intent unchanged
+ * (never cancel what we couldn't check). Non-pending intents are returned unchanged.
+ */
+export async function cancelAfterCheck(intent: PaymentIntent): Promise<PaymentIntent> {
+  if (intent.status !== "pending") return intent;
+  const checked = await checkIntent(intent);
+  if (checked.status !== "pending") return checked;
+  await prisma.paymentIntent.updateMany({
+    where: { id: intent.id, status: "pending" },
+    data: { status: "cancelled" },
+  });
+  return prisma.paymentIntent.findUniqueOrThrow({ where: { id: intent.id } });
+}
+
+/**
  * After a user saves a contact: writes the ledger rows of the confirmed in-app payments
  * between the user and that contact's address that are not in the user's ledger yet
  * (received ones the user had no contact for, sent ones without a contact), and moves

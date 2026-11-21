@@ -315,6 +315,63 @@ export default async function run({ api, db, pi }) {
   c = await checkNow(dave, d3.id);
   check("past expiresAt with no payment in time -> expired", c.body?.intent?.status === "expired", JSON.stringify(c.body));
 
+  // ---------- cancel / replace check the chain first (hank -> ivy) ----------
+  const hank = await user("hank");
+  const ivy = await user("ivy");
+  for (const u of [hank, ivy]) await setWallet(u);
+  const hankIvy = (await addContact(hank, "Ivy", ivy.address)).body.contact;
+  const cancelI = (u, id) => call("POST", `/api/payments/intents/${encodeURIComponent(id)}/cancel`, { token: u.token });
+
+  const k1 = (await createIntent(hank, { receiverAddress: ivy.address, amount: 2, contactId: hankIvy.id })).body.intent;
+  const kp1 = pay(hank, ivy, "2.5000000", { created_at: iso(Date.now() + 1000) });
+  let kc = await cancelI(hank, k1.id);
+  check("cancel after paying -> 200 confirmed (not cancelled) with the payment",
+    kc.status === 200 && kc.body?.intent?.status === "confirmed" && kc.body.intent.amount === 2.5, JSON.stringify(kc.body));
+  check("cancel-confirmed intent stores the op id and writes the sender row",
+    (await db.paymentIntent.findUnique({ where: { id: k1.id } }))?.chainPaymentId === kp1.id &&
+      (await db.transaction.count({ where: { userId: hank.id, chainPaymentId: kp1.id, contactId: hankIvy.id } })) === 1);
+  h = await history(hank);
+  check("cancel-confirmed payment shows in History", h.body?.data?.length === 1 && h.body.data[0].id === k1.id && h.body.data[0].amount === 2.5, JSON.stringify(h.body));
+
+  const k2 = (await createIntent(hank, { receiverAddress: ivy.address, amount: 1 })).body.intent;
+  kc = await cancelI(hank, k2.id);
+  check("cancel with no payment on chain -> cancelled", kc.status === 200 && kc.body?.intent?.status === "cancelled", JSON.stringify(kc.body));
+
+  const k3 = (await createIntent(hank, { receiverAddress: ivy.address, amount: 1 })).body.intent;
+  await db.paymentIntent.update({ where: { id: k3.id }, data: { senderAddress: "GDOWN" + hank.address.slice(5) } });
+  kc = await cancelI(hank, k3.id);
+  check("cancel while Horizon is down -> 503 CHAIN_UNAVAILABLE",
+    kc.status === 503 && kc.body?.error === "CHAIN_UNAVAILABLE" && kc.body?.message === "Couldn't check the Pi blockchain. Try again.", JSON.stringify(kc.body));
+  check("cancel while Horizon is down leaves the intent pending", (await db.paymentIntent.findUnique({ where: { id: k3.id } }))?.status === "pending");
+  // New Pay tap while that one can't be checked: the old one stays pending, the new one is created.
+  const k4 = await createIntent(hank, { receiverAddress: ivy.address, amount: 1 });
+  check("new intent while the old one can't be checked -> 201, old left pending",
+    k4.status === 201 && (await db.paymentIntent.findUnique({ where: { id: k3.id } }))?.status === "pending", JSON.stringify(k4.body));
+  await db.paymentIntent.update({ where: { id: k3.id }, data: { status: "cancelled" } }); // tidy
+  check("cancel the new unpaid one -> cancelled", (await cancelI(hank, k4.body.intent.id)).body?.intent?.status === "cancelled");
+
+  // New Pay tap while the old one is pending and already paid: old takes payment 1, new needs payment 2.
+  const k5 = (await createIntent(hank, { receiverAddress: ivy.address, amount: 3 })).body.intent;
+  const kp5 = pay(hank, ivy, "3.0000000", { created_at: iso(Date.now() + 1000) });
+  const k6 = (await createIntent(hank, { receiverAddress: ivy.address, amount: 4 })).body.intent;
+  const k5db = await db.paymentIntent.findUnique({ where: { id: k5.id } });
+  check("new intent: the old paid one is confirmed with payment 1 (not cancelled)",
+    k5db?.status === "confirmed" && k5db.chainPaymentId === kp5.id && k5db.amount.toString() === "3", JSON.stringify(k5db));
+  c = await checkNow(hank, k6.id);
+  check("new intent can't claim payment 1 -> stays pending", c.body?.intent?.status === "pending", JSON.stringify(c.body));
+  const kp6 = pay(hank, ivy, "4.0000000", { created_at: iso(Date.now() + 3000) });
+  c = await checkNow(hank, k6.id);
+  check("new intent confirms with payment 2",
+    c.body?.intent?.status === "confirmed" && c.body.intent.amount === 4 &&
+      (await db.paymentIntent.findUnique({ where: { id: k6.id } }))?.chainPaymentId === kp6.id, JSON.stringify(c.body));
+
+  // New Pay tap while the old one is pending and unpaid: the old one is cancelled.
+  const k7 = (await createIntent(hank, { receiverAddress: ivy.address, amount: 1 })).body.intent;
+  const k8 = (await createIntent(hank, { receiverAddress: ivy.address, amount: 1 })).body.intent;
+  check("new intent: the old unpaid one is cancelled",
+    (await getIntent(hank, k7.id)).body?.intent?.status === "cancelled" && (await getIntent(hank, k8.id)).body?.intent?.status === "pending");
+  await cancelI(hank, k8.id);
+
   // ---------- the 60 s job: confirms pending, expires old ----------
   const erin = await user("erin");
   await setWallet(erin);

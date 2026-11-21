@@ -307,6 +307,11 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
       const { intent } = await intents.cancel(target.intentId);
       if (intent.status === "confirmed") { finishIntent(target, intent); return; }
     } catch (err) {
+      // The server checks the chain before cancelling; if it couldn't, nothing was cancelled.
+      if (err instanceof ApiError && err.code === "CHAIN_UNAVAILABLE") {
+        toast.error("Couldn't check the Pi blockchain, so the payment wasn't cancelled. Try again.");
+        return;
+      }
       // Not pending any more (e.g. confirmed a moment ago): show what it became.
       if (err instanceof ApiError && err.status !== 0 && err.status !== 404) {
         try {
