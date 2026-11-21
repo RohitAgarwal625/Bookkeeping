@@ -90,6 +90,8 @@ interface PiSDK {
   scanQrCode?(config?: { facingMode?: "user" | "environment" }): Promise<string | null>;
   /** Asks the Pi Browser for a native permission; null when the host doesn't support asking. */
   requestPermission?(permission: "camera"): Promise<boolean | null>;
+  /** Opens the Pi Browser's native share sheet with a title and message. May be missing in older Pi Browsers. */
+  openShareDialog?(title: string, message: string): void;
 }
 
 declare global {

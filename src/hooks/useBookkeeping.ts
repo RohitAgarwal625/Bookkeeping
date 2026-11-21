@@ -8,6 +8,7 @@ import {
   ApiError,
   auth,
   contactsApi,
+  paymentsApi,
   transactionsApi,
   usersApi,
 } from "../lib/api";
@@ -17,6 +18,7 @@ import type {
   CreateTransactionInput,
   ImportTransactionEntry,
   ImportTransactionsResponse,
+  PaymentHistoryItem,
   Transaction,
   TransactionSummary,
   UpdateContactInput,
@@ -126,10 +128,12 @@ export function useBookkeeping() {
   const addContact = useCallback(
     async (input: CreateContactInput): Promise<Contact> => {
       const res = await contactsApi.create(input);
-      await refreshContacts();
+      // A new contact can bring in-app payments received from that address into
+      // its ledger (server side), so the totals can change too.
+      await Promise.all([refreshContacts(), refreshSummary()]);
       return res.contact;
     },
-    [refreshContacts]
+    [refreshContacts, refreshSummary]
   );
 
   /** Save a contact's changes (PUT /api/contacts/:id), then reload the list. Throws on failure. */
@@ -303,4 +307,82 @@ export function useTransactionsInRange(
     };
   }, [enabled, from, to, refreshKey]);
   return rows;
+}
+
+/**
+ * In-app payment intents (Pay via contacts / Pay via QR). Thin wrappers over
+ * paymentsApi so screens don't call the API client directly. All of them throw
+ * ApiError (e.g. code RECEIVER_NOT_ON_APP, SENDER_WALLET_MISSING, SELF_PAYMENT).
+ */
+export const paymentIntents = {
+  create: paymentsApi.createIntent,
+  get: paymentsApi.getIntent,
+  check: paymentsApi.checkIntent,
+  cancel: paymentsApi.cancelIntent,
+};
+
+export function usePaymentIntents() {
+  return paymentIntents;
+}
+
+/**
+ * Dashboard History: confirmed in-app payments (sent and received), newest first.
+ * Reloads when `enabled` turns on and whenever `refreshKey` changes (e.g. contacts,
+ * so a contact added from History shows its name).
+ */
+export function usePaymentHistory(enabled: boolean, refreshKey?: unknown) {
+  const PAGE_SIZE = 20;
+  const [items, setItems] = useState<PaymentHistoryItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    if (!enabled) {
+      setItems([]);
+      setHasNext(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
+    (async () => {
+      try {
+        const res = await paymentsApi.history(1, PAGE_SIZE);
+        if (cancelled) return;
+        setItems(res.data);
+        setPage(1);
+        setHasNext(res.pagination.hasNext);
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, refreshKey]);
+
+  const loadMore = useCallback(async () => {
+    if (!enabled || loadingMore || !hasNext) return;
+    setLoadingMore(true);
+    try {
+      const res = await paymentsApi.history(page + 1, PAGE_SIZE);
+      setItems((prev) => {
+        const ids = new Set(prev.map((i) => i.id));
+        return [...prev, ...res.data.filter((i) => !ids.has(i.id))];
+      });
+      setPage(page + 1);
+      setHasNext(res.pagination.hasNext);
+    } catch {
+      // Keep what is shown; the button stays so the user can try again.
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [enabled, loadingMore, hasNext, page]);
+
+  return { items, loading, error, hasNext, loadingMore, loadMore };
 }

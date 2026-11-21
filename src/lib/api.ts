@@ -10,9 +10,12 @@ import type {
   Contact,
   CreateContactInput,
   CreateTransactionInput,
+  CreatePaymentIntentInput,
   ImportTransactionEntry,
   ImportTransactionsResponse,
   Paginated,
+  PaymentHistoryPage,
+  PaymentIntent,
   Transaction,
   TransactionSummary,
   UpdateContactInput,
@@ -202,6 +205,26 @@ export const transactionsApi = {
       `/api/transactions/contact/${contactId}?page=${page}&limit=${limit}`
     ),
   summary: () => request<TransactionSummary>(`/api/transactions/summary`),
+};
+
+// --- In-app payments (Pay via contacts / Pay via QR, confirmed by the server on the blockchain) ---
+export const paymentsApi = {
+  /** 409 RECEIVER_NOT_ON_APP when no user has that wallet address; 400 SENDER_WALLET_MISSING / SELF_PAYMENT. */
+  createIntent: (input: CreatePaymentIntentInput) =>
+    request<{ intent: PaymentIntent }>(`/api/payments/intents`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  getIntent: (id: string) =>
+    request<{ intent: PaymentIntent }>(`/api/payments/intents/${encodeURIComponent(id)}`),
+  /** Runs the blockchain check now ("I've paid, check now"). Rate-limited. */
+  checkIntent: (id: string) =>
+    request<{ intent: PaymentIntent }>(`/api/payments/intents/${encodeURIComponent(id)}/check`, { method: "POST" }),
+  cancelIntent: (id: string) =>
+    request<{ intent: PaymentIntent }>(`/api/payments/intents/${encodeURIComponent(id)}/cancel`, { method: "POST" }),
+  /** Confirmed in-app payments, sent and received, newest first. */
+  history: (page = 1, limit = 20) =>
+    request<PaymentHistoryPage>(`/api/payments/history?page=${page}&limit=${limit}`),
 };
 
 export const healthApi = {

@@ -15,23 +15,33 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Info,
+  UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 import { ReportsAnalytics } from "./ReportsAnalytics";
-import { Contact, Transaction, getInitials } from "../types";
+import { Contact, PaymentHistoryItem, Transaction, getInitials } from "../types";
 import { formatPiAmount } from "../lib/piAmount";
 import { useDarkMode } from "../contexts/DarkModeContext";
 
 interface MerchantDashboardProps {
   userName: string;
   piBalance: string;
-  onNavigateToAddCustomer: (category: "individual" | "business") => void;
+  onNavigateToAddCustomer: (category: "individual" | "business", walletAddress?: string) => void;
   onNavigateToAddEntry: () => void;
   onNavigateToCustomerLedger: (customerName: string) => void;
   onNavigate: (screen: string) => void;
   isGuest?: boolean;
-  /** Newest saved entries across all contacts (signed-in users), shown in History. */
+  /** Not shown in History any more (History lists only confirmed in-app payments). */
   recentTransactions?: Transaction[];
+  /** Confirmed in-app payments (Pay via contacts / Pay via QR), sent and received, newest first. */
+  paymentHistory?: PaymentHistoryItem[];
+  paymentHistoryLoading?: boolean;
+  paymentHistoryError?: boolean;
+  paymentHistoryHasNext?: boolean;
+  paymentHistoryLoadingMore?: boolean;
+  onLoadMoreHistory?: () => void;
+  /** "Add to contact" for an unidentified wallet address: opens Add Contact with it prefilled. */
+  onAddToContact?: (walletAddress: string) => void;
   /** Used to show each entry's contact name, category and wallet address. */
   contacts?: Contact[];
 }
@@ -66,6 +76,17 @@ interface MerchantRecord {
   totalCredit: number;
   totalDebit: number;
   pastTransactions: PastTransaction[];
+  /** In-app payments: "sent" shows as Paid, "received" as Received. */
+  direction?: "sent" | "received";
+  /** The other side isn't a saved contact (name shown as "Unidentified wallet address"). */
+  unidentified?: boolean;
+}
+
+const UNIDENTIFIED = "Unidentified wallet address";
+
+/** "GABCD…WXYZ" for a long wallet address. */
+function shortAddress(address: string): string {
+  return address.length > 12 ? `${address.slice(0, 5)}…${address.slice(-5)}` : address;
 }
 
 const mockMerchants: MerchantRecord[] = [];
@@ -133,8 +154,14 @@ export function MerchantDashboard({
   onNavigateToCustomerLedger,
   onNavigate,
   isGuest,
-  recentTransactions = [],
   contacts = [],
+  paymentHistory = [],
+  paymentHistoryLoading = false,
+  paymentHistoryError = false,
+  paymentHistoryHasNext = false,
+  paymentHistoryLoadingMore = false,
+  onLoadMoreHistory,
+  onAddToContact,
 }: MerchantDashboardProps) {
   const [selectedMerchant, setSelectedMerchant] = useState<MerchantRecord | null>(null);
   const [activeCategory, setActiveCategory] = useState<"individual" | "business">("individual");
@@ -147,29 +174,33 @@ export function MerchantDashboard({
 
   const { isDarkMode: isDark } = useDarkMode();
 
-  // Saved entries (manual, Pay and Auto Sync), newest first. Saved entries are always completed.
+  // Only confirmed in-app payments (Pay via contacts / Pay via QR), sent and received, newest
+  // first. Manual entries, Automatic scans and Auto Sync are in Recent Transactions / Open Ledger.
+  // Business isn't onboarded, so every payment is listed under Individual.
   const contactById = new Map(contacts.map((c) => [c.id, c]));
-  const historyRecords: MerchantRecord[] = isGuest ? [] : recentTransactions.flatMap((t) => {
-    const c = t.contactId ? contactById.get(t.contactId) : undefined;
-    if (!c) return [];
-    return [{
-      id: t.id,
-      merchantName: c.name,
-      category: c.category,
-      date: formatHistoryDate(t.timestamp),
-      amount: t.amount,
-      type: t.type,
+  const historyRecords: MerchantRecord[] = isGuest ? [] : paymentHistory.map((p) => {
+    const saved = p.counterparty.contactId ? contactById.get(p.counterparty.contactId) : undefined;
+    const name = p.counterparty.name ?? saved?.name ?? null;
+    return {
+      id: p.id,
+      merchantName: name ?? UNIDENTIFIED,
+      category: "individual" as const,
+      date: formatHistoryDate(p.confirmedAt),
+      amount: p.amount,
+      type: p.direction === "received" ? "credit" as const : "debit" as const,
       status: "completed" as const,
-      piWalletAddress: c.piWalletAddress ?? "",
-      description: t.description,
-      txHash: t.chainPaymentId ?? "",
+      piWalletAddress: p.counterparty.walletAddress,
+      description: p.direction === "received" ? "Received in the app" : "Paid in the app",
+      txHash: p.txHash ?? "",
       totalCredit: 0,
       totalDebit: 0,
       pastTransactions: [],
-    }];
+      direction: p.direction,
+      unidentified: name === null,
+    };
   });
-  const individualMerchants = historyRecords.filter((m) => m.category === "individual");
-  const businessMerchants = historyRecords.filter((m) => m.category === "business");
+  const individualMerchants = historyRecords;
+  const businessMerchants: MerchantRecord[] = [];
 
   const handleCopyWallet = (id: string, address: string) => {
     navigator.clipboard.writeText(address).catch(() => { });
@@ -280,8 +311,15 @@ export function MerchantDashboard({
                       <span className="block font-medium">No Transaction to show !</span>
                       <span className="block mt-0.5">Connect Pi Wallet to view your transaction history.</span>
                     </>
+                  ) : paymentHistoryLoading ? (
+                    "Loading your payments…"
+                  ) : paymentHistoryError ? (
+                    "Couldn't load your payment history. Check your connection and open this tab again."
                   ) : (
-                    "No transactions yet"
+                    <>
+                      <span className="block font-medium">No payments yet</span>
+                      <span className="block" style={{ marginTop: "2px" }}>Payments you make or receive with Pay show up here.</span>
+                    </>
                   )}
                 </p>
               </div>
@@ -295,11 +333,20 @@ export function MerchantDashboard({
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3 flex-1">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-sm font-semibold">{getInitials(merchant.merchantName)}</span>
+                          {merchant.unidentified ? (
+                            <Wallet className="w-4 h-4 text-white" />
+                          ) : (
+                            <span className="text-white text-sm" style={{ fontWeight: 600 }}>{getInitials(merchant.merchantName)}</span>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{merchant.merchantName}</p>
-                          <p className="text-xs text-gray-500 dark:text-muted-foreground">{merchant.date}</p>
+                          <p className="text-xs text-gray-500 dark:text-muted-foreground">
+                            <span style={{ fontWeight: 600, color: merchant.direction === "received" ? (isDark ? "#4ade80" : "#16a34a") : (isDark ? "#f87171" : "#dc2626") }}>
+                              {merchant.direction === "received" ? "Received" : "Paid"}
+                            </span>
+                            {" · "}{merchant.date}
+                          </p>
                         </div>
                       </div>
                       <span className={`text-sm font-medium flex-shrink-0 ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
@@ -338,17 +385,53 @@ export function MerchantDashboard({
                         <span className="text-xs text-gray-500 dark:text-muted-foreground w-10 flex-shrink-0">Date:</span>
                         <span className="text-xs text-gray-700 dark:text-gray-300">{merchant.date}</span>
                       </div>
-                      {/* Note */}
+                      {/* Wallet address of the other side */}
                       <div className="flex items-start gap-2">
-                        <span className="text-xs text-gray-500 dark:text-muted-foreground w-10 flex-shrink-0 whitespace-nowrap">Note:</span>
-                        <span className="text-xs text-gray-600 dark:text-muted-foreground">{merchant.description}</span>
+                        <span className="text-xs text-gray-500 dark:text-muted-foreground w-10 flex-shrink-0 whitespace-nowrap">Wallet:</span>
+                        <span className="text-xs text-gray-600 dark:text-muted-foreground font-mono">{shortAddress(merchant.piWalletAddress)}</span>
                       </div>
                     </div>
+                    {merchant.unidentified && onAddToContact && (
+                      <button
+                        type="button"
+                        onClick={() => onAddToContact(merchant.piWalletAddress)}
+                        className="mt-3 w-full flex items-center justify-center gap-2 text-white text-sm"
+                        style={{
+                          minHeight: "44px",
+                          borderRadius: "12px",
+                          fontWeight: 600,
+                          background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
+                          boxShadow: "0 4px 16px rgba(111,60,151,0.35)",
+                        }}
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        Add to contact
+                      </button>
+                    )}
                     <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
                       <span className="text-xs text-[#A47CF3] dark:text-[#A47CF3] font-medium">View Details</span>
                     </button>
                   </div>
                 ))}
+                {activeCategory === "individual" && paymentHistoryHasNext && onLoadMoreHistory && (
+                  <button
+                    type="button"
+                    onClick={onLoadMoreHistory}
+                    disabled={paymentHistoryLoadingMore}
+                    className="w-full text-sm"
+                    style={{
+                      minHeight: "44px",
+                      borderRadius: "12px",
+                      fontWeight: 600,
+                      color: "#A47CF3",
+                      border: isDark ? "1px solid #2a2d35" : "1px solid #e5e7eb",
+                      background: "transparent",
+                      opacity: paymentHistoryLoadingMore ? 0.6 : 1,
+                    }}
+                  >
+                    {paymentHistoryLoadingMore ? "Loading…" : "Load more"}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -387,9 +470,13 @@ export function MerchantDashboard({
               {/* Avatar + Amount */}
               <div className="flex flex-col items-center mb-5">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-md mb-2">
-                  <span className="text-white text-base font-bold">
-                    {getInitials(selectedMerchant.merchantName)}
-                  </span>
+                  {selectedMerchant.unidentified ? (
+                    <Wallet className="w-5 h-5 text-white" />
+                  ) : (
+                    <span className="text-white text-base font-bold">
+                      {getInitials(selectedMerchant.merchantName)}
+                    </span>
+                  )}
                 </div>
                 <h4 className="text-gray-900 dark:text-foreground font-bold text-lg">
                   {selectedMerchant.merchantName}

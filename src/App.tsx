@@ -22,7 +22,7 @@ import { PayMethodModal } from "./components/PayMethodModal";
 import { PremiumModal } from "./components/PremiumModal";
 import { BottomNav } from "./components/BottomNav";
 import { Contact, Transaction, normalizeContactName } from "./types";
-import { useBookkeeping } from "./hooks/useBookkeeping";
+import { useBookkeeping, usePaymentHistory } from "./hooks/useBookkeeping";
 import { useAutoSync, useRecentTransactions } from "./hooks/useAutoSync";
 import { ApiError, auth, contactsApi } from "./lib/api";
 import { signInWithPi, type PiSession } from "./lib/piAuth";
@@ -105,6 +105,8 @@ function AppContent() {
   // Address from Pay's "Add Contact" (not a saved contact yet): prefills AddCustomer, then
   // saving goes back to Pay with it. Empty when AddCustomer was opened from anywhere else.
   const [addContactWallet, setAddContactWallet] = useState<string>("");
+  // Add Contact opened from Dashboard History ("Add to contact"): go back there when done, not to Pay.
+  const [addContactFromHistory, setAddContactFromHistory] = useState(false);
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
 
   // Query premium status on mount and when auth changes
@@ -200,6 +202,7 @@ function AppContent() {
 
   const handleNavigateToAddCustomer = (category: "individual" | "business", walletAddress = "") => {
     if (isGuest) { setShowGuestModal(true); return; }
+    setAddContactFromHistory(false);
     setAddContactWallet(walletAddress);
     setSelectedCategory(category);
     setCurrentScreen("addCustomer");
@@ -225,6 +228,12 @@ function AppContent() {
   });
   // Dashboard history: newest saved entries, reloaded whenever the summary changes (add/import/sync).
   const recentTransactions = useRecentTransactions(bk.isAuthenticated && !isGuest, bk.summary, 100);
+  // Dashboard History tab: confirmed in-app payments only, loaded while that screen is open and
+  // reloaded when contacts change (a contact added from History then shows its name).
+  const paymentHistory = usePaymentHistory(
+    currentScreen === "merchantDashboard" && bk.isAuthenticated && !isGuest,
+    bk.contacts
+  );
 
   const handleNavigateToCustomerLedger = (customerName: string, contactId?: string, newTransactions?: Transaction[]) => {
     setSelectedCustomer(customerName);
@@ -244,24 +253,9 @@ function AppContent() {
     setCurrentScreen("customerLedger");
   };
 
-  // A Pi Wallet payment found on the blockchain: save it with its chain id (re-saving is a no-op).
-  const handlePaymentConfirmed = async (customerName: string, contactId: string, chainTx: Transaction) => {
-    if (!bk.isAuthenticated) throw new Error("Please sign in with Pi to save this payment to your ledger.");
-    const res = await bk.importScannedTransactions(contactId, [{
-      chainPaymentId: chainTx.chainPaymentId as string,
-      description: chainTx.description,
-      amount: chainTx.amount,
-      type: chainTx.type,
-      timestamp: chainTx.chainTimestamp as string,
-      txHash: chainTx.chainTxHash,
-    }]);
-    const saved = res.transactions[0];
-    if (saved) {
-      setPendingNewTransactions((prev) => ({
-        ...prev,
-        [customerName]: [{ ...saved, isNew: true }, ...(prev[customerName] || [])],
-      }));
-    }
+  // Pay: the server confirmed the payment on the blockchain and saved the ledger rows; reload the totals.
+  const handlePaymentConfirmed = async () => {
+    await Promise.all([bk.refreshContacts(), bk.refreshSummary()]);
   };
 
   const handleBackToDashboard = () => {
@@ -367,17 +361,12 @@ function AppContent() {
     setCurrentScreen("login");
   };
 
-  /** Pay via QR: the Pi Wallet was opened for a saved contact. Auto Sync adds the payment later. */
+  /** Pay via QR: the Pi Wallet was opened for a saved contact. The server confirms the payment in the background. */
   const handleQRWalletOpened = (contactName: string) => {
-    const hasOwnWallet = Boolean(bk.user?.walletPublicKey);
     setCurrentScreen("dashboard");
     // After the dashboard's <Toaster> has mounted (a toast sent before that is lost).
     window.setTimeout(() => {
-      if (hasOwnWallet) {
-        toast.success(`Pi Wallet opened. The payment will be added to ${contactName}'s ledger automatically.`);
-      } else {
-        toast.success(`Pi Wallet opened. The payment will be added to ${contactName}'s ledger only after you add your wallet address in Settings → Profile.`, { duration: 6000 });
-      }
+      toast.success(`Pi Wallet opened. The payment will be added to ${contactName}'s ledger once it's confirmed on the Pi blockchain.`, { duration: 6000 });
     }, 300);
   };
 
@@ -484,6 +473,7 @@ function AppContent() {
           onWalletOpened={handleQRWalletOpened}
           isGuest={isGuest}
           onTriggerGuestModal={() => setShowGuestModal(true)}
+          onOpenSettings={() => handleNavigate("settings")}
         />
         <Toaster position="bottom-center" />
       </>
@@ -684,10 +674,19 @@ function AppContent() {
     return (
       <>
         <AddCustomer
-          onBack={() => { setAddContactWallet(""); handleBackToDashboard(); }}
+          onBack={() => {
+            setAddContactWallet("");
+            if (addContactFromHistory) { setAddContactFromHistory(false); setCurrentScreen("merchantDashboard"); return; }
+            handleBackToDashboard();
+          }}
           onSave={handleSaveCustomer}
           onDone={() => {
-            if (addContactWallet) {
+            if (addContactFromHistory) {
+              // Came from Dashboard History: back there, where the payment now shows the name.
+              setAddContactFromHistory(false);
+              setAddContactWallet("");
+              setCurrentScreen("merchantDashboard");
+            } else if (addContactWallet) {
               // Came from Pay: go back to it with the new contact's address, so Pay is enabled.
               setScannedWalletAddress(addContactWallet);
               setAddContactWallet("");
@@ -698,7 +697,7 @@ function AppContent() {
           }}
           defaultCategory={selectedCategory}
           defaultWallet={addContactWallet}
-          doneLabel={addContactWallet ? "Continue to Pay" : undefined}
+          doneLabel={addContactFromHistory ? "Back to History" : addContactWallet ? "Continue to Pay" : undefined}
           existingNames={contacts.map((c) => c.name)}
           existingWallets={contacts}
         />
@@ -718,8 +717,18 @@ function AppContent() {
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           onNavigate={handleNavigate}
           isGuest={isGuest}
-          recentTransactions={recentTransactions}
           contacts={contacts}
+          paymentHistory={paymentHistory.items}
+          paymentHistoryLoading={paymentHistory.loading}
+          paymentHistoryError={paymentHistory.error}
+          paymentHistoryHasNext={paymentHistory.hasNext}
+          paymentHistoryLoadingMore={paymentHistory.loadingMore}
+          onLoadMoreHistory={() => void paymentHistory.loadMore()}
+          onAddToContact={(walletAddress) => {
+            if (isGuest) { setShowGuestModal(true); return; }
+            handleNavigateToAddCustomer("individual", walletAddress);
+            setAddContactFromHistory(true);
+          }}
         />
         {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
         <SharedOverlays />

@@ -1,11 +1,14 @@
 import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, CheckCircle, Home, Lock, UserPlus, BookOpen } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { Contact, getInitials, Transaction } from "../types";
+import { Contact, getInitials, PaymentIntent, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { InviteModal } from "./InviteModal";
 import { useDarkMode } from "../contexts/DarkModeContext";
+import { ApiError } from "../lib/api";
+import { usePaymentIntents } from "../hooks/useBookkeeping";
 import {
-  openPiWalletPayRequest, findWalletPayment, shortTxHash,
+  openPiWalletPayRequest, shortHash,
   PendingWalletPayment, loadPendingWalletPayment, savePendingWalletPayment, clearPendingWalletPayment, WALLET_POLL_LIMIT_MS,
 } from "../lib/piWalletPay";
 
@@ -17,9 +20,9 @@ interface PayScreenProps {
   /** "Add Contact" for an address that isn't saved yet; gets the entered/scanned address. */
   onAddPioneer?: (walletAddress: string) => void;
   onNavigateToLedger?: (customerName: string, newTransactions?: Transaction[]) => void;
-  /** Saves a payment found on the blockchain to the contact's ledger. Throws if it can't. */
-  onPaymentConfirmed?: (customerName: string, contactId: string, chainTx: Transaction) => Promise<void>;
-  /** The user's own Pi wallet address (Settings → Profile); needed to find the payment on the blockchain. */
+  /** The server confirmed the payment and saved it to the ledger: refresh contacts and totals. */
+  onPaymentConfirmed?: (customerName: string, contactId: string) => void | Promise<void>;
+  /** The user's own Pi wallet address (Settings → Profile); the server needs it to find the payment on the blockchain. */
   userWalletAddress?: string;
   onOpenSettings?: () => void;
 }
@@ -31,12 +34,15 @@ const POLL_LIMIT_MS = WALLET_POLL_LIMIT_MS;
 
 const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
+/** Pi has 7 decimal places; the server rejects more. */
+const AMOUNT_PATTERN = /^\d+(\.\d{1,7})?$/;
 
 export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, onAddPioneer, onNavigateToLedger, onPaymentConfirmed, userWalletAddress, onOpenSettings }: PayScreenProps) {
   const contactList = contacts || [];
+  const intents = usePaymentIntents();
 
-  // A payment still being waited for (saved before opening the Pi Wallet, which can reload
-  // the app) brings the screen straight back to "Waiting for your payment".
+  // A payment still being waited for (its intent is saved before opening the Pi Wallet, which can
+  // reload the app) brings the screen straight back to "Waiting for your payment".
   // Arriving from a QR scan opens the form for the scanned person instead; the pending payment
   // stays saved (it resumes the next time Pay opens without a scanned address).
   const [restored] = useState<PendingWalletPayment | null>(() => (prefilledAddress ? null : loadPendingWalletPayment()));
@@ -47,10 +53,14 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [screen, setScreen] = useState<ScreenState>(restored ? "processing" : "form");
   const [isPublicKeyFocused, setIsPublicKeyFocused] = useState(false);
-  // Waiting for the Pi Wallet payment to appear on the blockchain
+  // Waiting for the server to find the Pi Wallet payment on the blockchain
   const [walletOpened, setWalletOpened] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [paidTxHash, setPaidTxHash] = useState("");
+  // "This person isn't on the app yet" pop-up (the name of the person being paid).
+  const [inviteName, setInviteName] = useState<string | null>(null);
   const payTarget = useRef<PendingWalletPayment | null>(restored);
   const checking = useRef(false);
 
@@ -68,7 +78,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   const recipientName = matchedContact?.name ?? "";
 
   // Pay requires: an address present + that address belongs to a saved contact + amount > 0
-  const canPay = isVerified && amount !== "" && Number(amount) > 0;
+  const canPay = isVerified && amount !== "" && Number(amount) > 0 && !isStarting;
 
   // ── Prefill from QR scan (drops into Public key, auto-fills Pioneer if saved) ──
   useEffect(() => {
@@ -123,39 +133,70 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     setIsDropdownOpen(false);
   };
 
-  // Pay: open the Pi Wallet with the contact's address filled in (the amount is typed there), then wait
-  // until that payment shows up on the blockchain. Nothing is saved before that.
+  const askForOwnWallet = () => {
+    toast.error("Add your own Pi wallet address in Settings → Profile first, so the app can confirm your payment.", {
+      action: onOpenSettings ? { label: "Settings", onClick: onOpenSettings } : undefined,
+    });
+  };
+
+  // Pay: create the payment intent on the server (it checks the receiver is on the app), then open
+  // the Pi Wallet with the contact's address filled in (the amount is typed there) and wait until
+  // the server finds that payment on the blockchain. Nothing is saved before that.
   const handlePay = async () => {
-    if (!matchedContact) return;
+    if (!matchedContact || isStarting) return;
     if (!userWalletAddress) {
-      toast.error("Add your own Pi wallet address in Settings → Profile first, so the app can confirm your payment.", {
-        action: onOpenSettings ? { label: "Settings", onClick: onOpenSettings } : undefined,
-      });
+      askForOwnWallet();
       return;
     }
-    const amt = parseFloat(amount);
-    if (!(amt > 0)) return;
-    setPaidRecipientName(matchedContact.name);
+    const amountText = amount.trim();
+    if (!AMOUNT_PATTERN.test(amountText) || !(Number(amountText) > 0)) {
+      toast.error("Enter an amount greater than 0 with at most 7 decimal places.");
+      return;
+    }
+    const contact = matchedContact;
+    setIsStarting(true);
+    let intent: PaymentIntent;
+    try {
+      // The typed string, not a float: the server stores it exactly.
+      const res = await intents.create({ receiverAddress: contact.piWalletAddress, amount: amountText, contactId: contact.id });
+      intent = res.intent;
+    } catch (err) {
+      if (err instanceof ApiError && err.code === "RECEIVER_NOT_ON_APP") {
+        setInviteName(contact.name);
+      } else if (err instanceof ApiError && err.code === "SENDER_WALLET_MISSING") {
+        askForOwnWallet();
+      } else if (err instanceof ApiError && err.code === "SELF_PAYMENT") {
+        toast.error("This is your own wallet address. You can't pay yourself.");
+      } else if (err instanceof ApiError && err.status === 0) {
+        toast.error("Couldn't reach the server. Check your connection and try again.");
+      } else {
+        toast.error(err instanceof Error ? err.message : "Couldn't start the payment. Please try again.");
+      }
+      return;
+    } finally {
+      setIsStarting(false);
+    }
+
+    setPaidRecipientName(contact.name);
     setPaidTxHash("");
-    // 2 minutes of slack for a phone clock that runs ahead of the blockchain's.
     const target: PendingWalletPayment = {
-      contactId: matchedContact.id,
-      contactName: matchedContact.name,
-      contactAddress: matchedContact.piWalletAddress,
-      amountText: amount,
-      amount: amt,
-      since: new Date(Date.now() - 120000).toISOString(),
+      intentId: intent.id,
+      contactId: contact.id,
+      contactName: contact.name,
+      contactAddress: contact.piWalletAddress,
+      amountText,
       startedAt: Date.now(),
     };
     payTarget.current = target;
     savePendingWalletPayment(target); // before leaving the app: the Pi Browser may reload it
+    setAmount(amountText);
     setScreen("processing");
 
-    const opened = await openPiWalletPayRequest(matchedContact.piWalletAddress);
+    const opened = await openPiWalletPayRequest(contact.piWalletAddress);
     setWalletOpened(opened);
     if (!opened) {
       try {
-        await navigator.clipboard.writeText(matchedContact.piWalletAddress);
+        await navigator.clipboard.writeText(contact.piWalletAddress);
         toast("Couldn't open the Pi Wallet here. The address is copied: open your Pi Wallet and send the payment.");
       } catch {
         toast("Couldn't open the Pi Wallet here. Open your Pi Wallet and send the payment to the address shown.");
@@ -163,50 +204,67 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     }
   };
 
-  // Look for the payment on the blockchain; save it and show success once found.
-  const checkForPayment = async (manual: boolean) => {
-    const target = payTarget.current;
-    if (!target || checking.current) return;
-    if (!userWalletAddress) {
-      // After a reload the account may still be loading; the check runs once it has loaded.
-      if (manual) toast("Still loading your account. The payment is checked as soon as it's ready.");
-      return;
-    }
-    checking.current = true;
-    setIsChecking(true);
-    try {
-      const tx = await findWalletPayment({
-        userWalletAddress,
-        contactAddress: target.contactAddress,
-        contactName: target.contactName,
-        amount: target.amount,
-        since: new Date(target.since),
-      });
-      if (payTarget.current !== target) return; // cancelled meanwhile
-      if (!tx) {
-        if (manual) toast("Payment not found on the blockchain yet. It can take a few seconds after you confirm it in the Pi Wallet.");
-        return;
-      }
-      try {
-        await onPaymentConfirmed?.(target.contactName, target.contactId, {
-          ...tx,
-          description: tx.description.replace(/^Auto Sync: Pi sent to .*?(?= #|$)/, "Payment via Pi Wallet"),
-        });
-      } catch (err) {
-        toast.error(`Your payment went through, but it couldn't be saved to your ledger: ${err instanceof Error ? err.message : "unknown error"}. Use Automatic Transaction to add it later.`);
-      }
+  /** The intent is finished one way or another: leave the waiting screen. */
+  const finishIntent = (target: PendingWalletPayment, intent: PaymentIntent) => {
+    if (payTarget.current !== target) return; // cancelled meanwhile
+    if (intent.status === "confirmed") {
       payTarget.current = null;
       clearPendingWalletPayment();
       setPaidRecipientName(target.contactName);
       setAmount(target.amountText);
-      setPaidTxHash(shortTxHash(tx));
+      setPaidTxHash(shortHash(intent.txHash));
       setScreen("success");
+      void Promise.resolve(onPaymentConfirmed?.(target.contactName, target.contactId)).catch((err) =>
+        console.error("Refresh after a confirmed payment failed:", err)
+      );
+    } else if (intent.status === "expired") {
+      payTarget.current = null;
+      clearPendingWalletPayment();
+      setScreen("form");
+      toast.error("This payment wasn't found on the Pi blockchain in time and has expired. If you sent it, use Automatic Transaction to add it.", { duration: 7000 });
+    } else if (intent.status === "cancelled") {
+      payTarget.current = null;
+      clearPendingWalletPayment();
+      setScreen("form");
+      toast("This payment was cancelled (a newer payment to the same person replaced it).");
+    }
+  };
+
+  // Ask the server about the payment. `mode`: "poll" reads the intent (the server's background job
+  // checks the blockchain), "check" asks the server to check the blockchain now.
+  const checkForPayment = async (mode: "poll" | "check", manual: boolean) => {
+    const target = payTarget.current;
+    if (!target || checking.current) return;
+    checking.current = true;
+    if (manual) setIsChecking(true);
+    try {
+      const { intent } = mode === "check" ? await intents.check(target.intentId) : await intents.get(target.intentId);
+      if (payTarget.current !== target) return; // cancelled meanwhile
+      if (intent.status === "pending") {
+        if (manual) toast("Payment not found on the Pi blockchain yet. It can take a few seconds after you confirm it in the Pi Wallet.");
+        return;
+      }
+      finishIntent(target, intent);
     } catch (err) {
-      if (manual) toast.error("Couldn't reach the Pi blockchain. Check your connection and try again.");
-      console.error("Payment check failed:", err);
+      if (err instanceof ApiError && err.status === 404) {
+        // Not this account's payment (e.g. signed in as someone else after a reload).
+        if (payTarget.current === target) {
+          payTarget.current = null;
+          clearPendingWalletPayment();
+          setScreen("form");
+          if (manual) toast.error("This payment couldn't be found. Please start it again.");
+        }
+      } else if (err instanceof ApiError && err.status === 429) {
+        if (manual) toast("Checked a moment ago. Please wait a few seconds and try again.");
+      } else if (err instanceof ApiError && err.status === 401) {
+        if (manual) toast.error("Please sign in with Pi again to check this payment.");
+      } else {
+        if (manual) toast.error("Couldn't reach the server. Check your connection and try again.");
+        console.error("Payment check failed:", err);
+      }
     } finally {
       checking.current = false;
-      setIsChecking(false);
+      if (manual) setIsChecking(false);
     }
   };
 
@@ -214,30 +272,52 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   const checkRef = useRef(checkForPayment);
   checkRef.current = checkForPayment;
 
-  // Poll while waiting, and check right away on mount / once the user's wallet address loads
-  // (after a reload) and whenever the user returns from the Pi Wallet.
+  // Poll the intent while waiting; ask for a blockchain check right away on mount and whenever
+  // the user returns from the Pi Wallet.
   useEffect(() => {
     if (screen !== "processing") return;
-    const tick = () => {
+    const withinLimit = () => {
       const target = payTarget.current;
-      if (target && Date.now() - target.startedAt > POLL_LIMIT_MS) return;
-      void checkRef.current(false);
+      return !!target && Date.now() - target.startedAt <= POLL_LIMIT_MS;
     };
-    tick();
-    const id = window.setInterval(tick, POLL_MS);
-    const onVisible = () => { if (document.visibilityState === "visible") tick(); };
+    const poll = () => { if (withinLimit()) void checkRef.current("poll", false); };
+    const checkNow = () => { if (withinLimit()) void checkRef.current("check", false); };
+    checkNow();
+    const id = window.setInterval(poll, POLL_MS);
+    const onVisible = () => { if (document.visibilityState === "visible") checkNow(); };
     document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("pageshow", tick);
-    window.addEventListener("focus", tick);
+    window.addEventListener("pageshow", checkNow);
+    window.addEventListener("focus", checkNow);
     return () => {
       window.clearInterval(id);
       document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("pageshow", tick);
-      window.removeEventListener("focus", tick);
+      window.removeEventListener("pageshow", checkNow);
+      window.removeEventListener("focus", checkNow);
     };
-  }, [screen, userWalletAddress]);
+  }, [screen]);
 
-  const cancelWaiting = () => {
+  const cancelWaiting = async () => {
+    const target = payTarget.current;
+    if (!target || isCancelling) return;
+    setIsCancelling(true);
+    try {
+      const { intent } = await intents.cancel(target.intentId);
+      if (intent.status === "confirmed") { finishIntent(target, intent); return; }
+    } catch (err) {
+      // Not pending any more (e.g. confirmed a moment ago): show what it became.
+      if (err instanceof ApiError && err.status !== 0 && err.status !== 404) {
+        try {
+          const { intent } = await intents.get(target.intentId);
+          if (intent.status === "confirmed") { finishIntent(target, intent); return; }
+        } catch { /* fall through: leave the waiting screen */ }
+      } else if (err instanceof ApiError && err.status === 0) {
+        toast.error("Couldn't reach the server, so the payment wasn't cancelled. Check your connection and try again.");
+        return;
+      }
+    } finally {
+      setIsCancelling(false);
+    }
+    if (payTarget.current !== target) return;
     payTarget.current = null;
     clearPendingWalletPayment();
     setScreen("form");
@@ -282,8 +362,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           <p className="text-gray-900 dark:text-white font-bold text-xl mb-2">Waiting for your payment</p>
           <p className="text-gray-400 text-sm text-center mb-7">
             {walletOpened
-              ? `Enter ${amount} π in your Pi Wallet and send it to ${paidRecipientName}. It is added to your ledger once it appears on the Pi blockchain.`
-              : `Send ${amount} π to ${paidRecipientName} from your Pi Wallet. It is added to your ledger once it appears on the Pi blockchain.`}
+              ? `Enter ${amount} π in your Pi Wallet and send it to ${paidRecipientName}. It is added to both ledgers once it appears on the Pi blockchain.`
+              : `Send ${amount} π to ${paidRecipientName} from your Pi Wallet. It is added to both ledgers once it appears on the Pi blockchain.`}
           </p>
           {payTarget.current && (
             // Manual path, always shown: the Pi Wallet may not open (or open blank) on some phones.
@@ -334,7 +414,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "24rem", marginTop: "36px" }}>
             <button
-              onClick={() => void checkForPayment(true)}
+              onClick={() => void checkForPayment("check", true)}
               disabled={isChecking}
               className="w-full py-4 rounded-2xl font-bold text-base text-white"
               style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(164,124,243,0.4)", opacity: isChecking ? 0.7 : 1 }}
@@ -348,10 +428,12 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               Open Pi Wallet again
             </button>
             <button
-              onClick={cancelWaiting}
-              className="w-full py-3 text-gray-500 dark:text-muted-foreground font-semibold text-sm"
+              onClick={() => void cancelWaiting()}
+              disabled={isCancelling}
+              className="w-full py-3 text-gray-500 dark:text-muted-foreground text-sm"
+              style={{ minHeight: "44px", fontWeight: 600, opacity: isCancelling ? 0.6 : 1 }}
             >
-              Cancel
+              {isCancelling ? "Cancelling…" : "Cancel"}
             </button>
           </div>
         </div>
@@ -696,10 +778,12 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               color: !canPay ? (isDark ? "#9a9aa5" : "#9ca3af") : "#fff",
             }}
           >
-            Pay
+            {isStarting ? "Starting…" : "Pay"}
           </button>
         </div>
       </div>
+
+      {inviteName !== null && <InviteModal name={inviteName} onClose={() => setInviteName(null)} />}
     </div>
   );
 }

@@ -6,6 +6,9 @@ import { cleanWalletInput, isPiPublicKey } from "../lib/piBlockchain";
 import { ensurePiInitialized } from "../lib/piAuth";
 import { openPiWalletLink, piWalletLinkForScan } from "../lib/piWalletPay";
 import { normalizeContactName } from "../types";
+import { ApiError } from "../lib/api";
+import { usePaymentIntents } from "../hooks/useBookkeeping";
+import { InviteModal } from "./InviteModal";
 
 interface QRScannerScreenProps {
   onBack: () => void;
@@ -17,6 +20,8 @@ interface QRScannerScreenProps {
   onWalletOpened: (contactName: string) => void;
   isGuest?: boolean;
   onTriggerGuestModal?: () => void;
+  /** Opens Settings (to add the user's own wallet address, needed to confirm the payment). */
+  onOpenSettings?: () => void;
 }
 
 /** Same limit as the backend's contact name (sanitizedString(1, 100)). */
@@ -56,7 +61,12 @@ export function extractPiAddress(raw: string): string | null {
   return found.size === 1 ? [...found][0] : null;
 }
 
-export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpened, isGuest, onTriggerGuestModal }: QRScannerScreenProps) {
+export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpened, isGuest, onTriggerGuestModal, onOpenSettings }: QRScannerScreenProps) {
+  const intents = usePaymentIntents();
+  // Creating the payment intent (the server checks the scanned person is on the app).
+  const [isStarting, setIsStarting] = useState(false);
+  // "This person isn't on the app yet" pop-up: the contact's name, or "" for an unsaved address.
+  const [inviteName, setInviteName] = useState<string | null>(null);
   const [status, setStatus] = useState<"scanning" | "error" | "success">("scanning");
   const [error, setError] = useState("");
   // The full scanned text (shown on screen) and the Pi address found in it.
@@ -251,10 +261,41 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
     return contacts.find((c) => cleanWalletInput(c.piWalletAddress ?? "") === key);
   };
 
-  const handlePayThisAddress = () => {
-    if (isOpening) return;
+  /**
+   * Creates the payment intent (no amount: it's typed in the Pi Wallet) so the server confirms the
+   * payment in the background. Returns false, after telling the user why, when paying is blocked.
+   */
+  const startIntent = async (contactName: string): Promise<boolean> => {
+    setIsStarting(true);
+    try {
+      await intents.create({ receiverAddress: scannedValue });
+      return true;
+    } catch (err) {
+      if (err instanceof ApiError && err.code === "RECEIVER_NOT_ON_APP") {
+        setInviteName(contactName);
+      } else if (err instanceof ApiError && err.code === "SENDER_WALLET_MISSING") {
+        toast.error("Add your own Pi wallet address in Settings → Profile first, so the app can confirm your payment.", {
+          action: onOpenSettings ? { label: "Settings", onClick: onOpenSettings } : undefined,
+        });
+      } else if (err instanceof ApiError && err.code === "SELF_PAYMENT") {
+        toast.error("This is your own wallet address. You can't pay yourself.");
+      } else if (err instanceof ApiError && err.status === 0) {
+        toast.error("Couldn't reach the server. Check your connection and try again.");
+      } else {
+        toast.error(err instanceof Error ? err.message : "Couldn't start the payment. Please try again.");
+      }
+      return false;
+    } finally {
+      setIsStarting(false);
+    }
+  };
+
+  const handlePayThisAddress = async () => {
+    if (isOpening || isStarting) return;
     if (isGuest) { onTriggerGuestModal?.(); return; }
     const contact = findContact();
+    // Blocked (and the invite pop-up shown) before saving a contact or opening the wallet.
+    if (!(await startIntent(contact?.name ?? ""))) return;
     if (contact) {
       void openWalletFor(contact.name);
     } else {
@@ -340,10 +381,10 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
             </button>
           </div>
         ) : (
-          <button onClick={handlePayThisAddress} disabled={isOpening}
+          <button onClick={() => void handlePayThisAddress()} disabled={isOpening || isStarting}
             className="w-full py-4 rounded-2xl font-bold text-white text-base"
-            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)", opacity: isOpening ? 0.7 : 1 }}>
-            {isOpening ? "Opening Pi Wallet…" : "Pay this Address"}
+            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)", opacity: isOpening || isStarting ? 0.7 : 1 }}>
+            {isStarting ? "Checking…" : isOpening ? "Opening Pi Wallet…" : "Pay this Address"}
           </button>
         )}
         <button onClick={handleBack} className="text-gray-400 text-sm underline" style={{ minHeight: "44px", padding: "0 16px" }}>
@@ -412,6 +453,8 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
             </form>
           </div>
         )}
+
+        {inviteName !== null && <InviteModal name={inviteName} onClose={() => setInviteName(null)} />}
       </div>
     );
   }

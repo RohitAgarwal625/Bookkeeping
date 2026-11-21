@@ -237,3 +237,49 @@ export interface Paginated<T> {
   };
 }
 
+
+// ─── In-app payments (POST /api/payments/intents, GET /api/payments/history) ──
+
+export type PaymentIntentStatus = "pending" | "confirmed" | "expired" | "cancelled";
+
+/** A payment the user started from Pay (contacts) or Pay via QR; the server confirms it on the blockchain. */
+export interface PaymentIntent {
+  id: string;
+  status: PaymentIntentStatus;
+  receiverAddress: string;
+  /** null for Pay via QR (the amount is typed in the Pi Wallet). */
+  amount: number | null;
+  contactId: string | null;
+  createdAt: string;
+  expiresAt: string;
+  confirmedAt: string | null;
+  txHash: string | null;
+}
+
+export interface CreatePaymentIntentInput {
+  receiverAddress: string;
+  /** Sent as the typed string (no float rounding); > 0, at most 7 decimals. */
+  amount?: number | string;
+  contactId?: string;
+}
+
+/** One confirmed in-app payment in Dashboard History (sent or received). */
+export interface PaymentHistoryItem {
+  id: string;
+  direction: "sent" | "received";
+  amount: number;
+  confirmedAt: string;
+  txHash: string | null;
+  counterparty: {
+    walletAddress: string;
+    /** The viewer's contact with that address, if saved. */
+    contactId: string | null;
+    /** That contact's name; null → "Unidentified wallet address". */
+    name: string | null;
+  };
+}
+
+export interface PaymentHistoryPage {
+  data: PaymentHistoryItem[];
+  pagination: { page: number; limit: number; total: number; hasNext: boolean };
+}

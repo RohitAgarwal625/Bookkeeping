@@ -3,13 +3,12 @@
  *
  * Pi apps can't send Pi from one user to another (Pi.createPayment only pays the app),
  * so Pay opens the Pi Wallet's pay-request screen with the contact's address and the
- * amount filled in. The wallet gives no callback, so the app then watches the Pi
- * blockchain (Horizon) for that payment and saves the entry only once it is found.
+ * amount filled in. Before that, the app creates a payment intent on the server
+ * (POST /api/payments/intents); the server watches the Pi blockchain for that payment
+ * and saves the ledger rows (sender and receiver) once it finds it.
  * See design/wallet-address/decision.html §8–9.
  */
 import { ensurePiInitialized } from "./piAuth";
-import { fetchPiBlockchainTransactions } from "./piBlockchain";
-import { Transaction } from "../types";
 
 /**
  * The Pi Wallet's pay-request link: the same https URL the wallet's own "Receive" QR code holds
@@ -70,62 +69,31 @@ export function openPiWalletPayRequest(contactAddress: string): Promise<boolean>
   return openPiWalletLink(piWalletPayRequestUrl(contactAddress));
 }
 
-export interface WalletPaymentQuery {
-  userWalletAddress: string;
-  contactAddress: string;
-  contactName: string;
-  amount: number;
-  /** Only payments made at or after this time count. */
-  since: Date;
-}
-
-/** Finds the user's payment of `amount` to the contact made after `since`, or null. */
-export async function findWalletPayment(q: WalletPaymentQuery): Promise<Transaction | null> {
-  const result = await fetchPiBlockchainTransactions({
-    walletAddress: q.contactAddress,
-    contactName: q.contactName,
-    fromDate: q.since.toISOString().slice(0, 10),
-    userWalletAddress: q.userWalletAddress,
-  });
-  const sinceMs = q.since.getTime();
-  return (
-    result.transactions.find(
-      (tx) =>
-        tx.type === "debit" &&
-        !!tx.chainPaymentId &&
-        !!tx.chainTimestamp &&
-        new Date(tx.chainTimestamp).getTime() >= sinceMs &&
-        Math.abs(tx.amount - q.amount) < 0.00000005
-    ) ?? null
-  );
-}
-
-/** Transaction hash prefix from a scan id (`pi-<12 hash chars>-<op id>`). */
-export function shortTxHash(tx: Transaction): string {
-  const m = /^pi-([0-9a-f]{12})-/i.exec(tx.id);
-  return m ? `${m[1].slice(0, 6)}…${m[1].slice(-4)}` : "";
+/** Short form of a transaction hash: first 6 … last 4 characters. */
+export function shortHash(hash: string | null | undefined): string {
+  if (!hash) return "";
+  return hash.length > 12 ? `${hash.slice(0, 6)}…${hash.slice(-4)}` : hash;
 }
 
 // ── Pending payment that survives a reload ──────────────────────────────
 // Leaving the app for the Pi Wallet can make the Pi Browser reload it, which would lose the
-// "Waiting for your payment" screen. The payment being waited for is kept here until it is
-// found, cancelled, or too old.
+// "Waiting for your payment" screen. The payment intent being waited for is kept here until
+// it is confirmed, cancelled, expired, or too old.
 
 const PENDING_KEY = "bk_pending_wallet_payment";
 /** Auto-checking stops after this long (PayScreen POLL_LIMIT_MS). */
 export const WALLET_POLL_LIMIT_MS = 15 * 60 * 1000;
-/** "I've paid, check now" stays possible this long, for a payment confirmed late. */
-export const PENDING_PAYMENT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+/** "I've paid, check now" stays possible this long, for a payment confirmed late (the intent's expiry). */
+export const PENDING_PAYMENT_MAX_AGE_MS = 60 * 60 * 1000;
 
 export interface PendingWalletPayment {
+  /** The server's payment intent id (GET /api/payments/intents/:id). */
+  intentId: string;
   contactId: string;
   contactName: string;
   contactAddress: string;
   /** The amount as the user typed it (shown on screen and sent to the wallet). */
   amountText: string;
-  amount: number;
-  /** ISO time; only payments made at or after it count. */
-  since: string;
   startedAt: number;
 }
 
@@ -152,10 +120,10 @@ export function loadPendingWalletPayment(): PendingWalletPayment | null {
     if (!raw) return null;
     const p = JSON.parse(raw) as PendingWalletPayment;
     const valid =
-      p && typeof p.contactId === "string" && typeof p.contactName === "string" &&
+      p && typeof p.intentId === "string" && p.intentId !== "" &&
+      typeof p.contactId === "string" && typeof p.contactName === "string" &&
       typeof p.contactAddress === "string" && typeof p.amountText === "string" &&
-      typeof p.amount === "number" && p.amount > 0 && typeof p.startedAt === "number" &&
-      typeof p.since === "string" && !isNaN(new Date(p.since).getTime());
+      typeof p.startedAt === "number";
     if (!valid || Date.now() - p.startedAt > PENDING_PAYMENT_MAX_AGE_MS) {
       localStorage.removeItem(PENDING_KEY);
       return null;

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ApiError } from "../lib/api";
 import { Switch } from "./ui/switch";
 import { useDarkMode } from "../contexts/DarkModeContext";
 import { checkPiAccountExists, cleanWalletInput, isPiPublicKey, PI_NETWORK } from "../lib/piBlockchain";
@@ -172,7 +173,12 @@ export function Settings({
       setIsEditingWallet(false);
       toast.success("Wallet address saved");
     } catch (err) {
-      setWalletError(err instanceof Error ? err.message : "Couldn't save the wallet address. Please try again.");
+      if (err instanceof ApiError && err.code === "WALLET_ALREADY_USED") {
+        // Each wallet address can belong to only one account.
+        setWalletError("This wallet address is already linked to another account.");
+      } else {
+        setWalletError(err instanceof Error ? err.message : "Couldn't save the wallet address. Please try again.");
+      }
     } finally {
       setSavingWallet(false);
     }
