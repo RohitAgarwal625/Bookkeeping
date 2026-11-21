@@ -106,7 +106,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
       const walletKey = customerData.piWallet.toLowerCase();
       const walletOwner = existingWallets.find((c) => (c.piWalletAddress ?? "").trim().toLowerCase() === walletKey);
       if (walletOwner) {
-        toast.error(`The wallet address you entered is already assigned to ${walletOwner.name}`);
+        toast.error(<span>The wallet address you entered is already assigned to <strong style={{ fontWeight: 700, fontStyle: "italic" }}>{walletOwner.name}</strong></span>);
         return;
       }
       // Save first; show the success screen only once the contact is really saved.

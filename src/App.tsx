@@ -273,7 +273,11 @@ function AppContent() {
   };
 
   /** Saves a new contact. Returns true when saved; AddCustomer then shows its success screen. */
-  const handleSaveCustomer = async (customer: { name: string; piWallet: string; category: "individual" | "business" }): Promise<boolean> => {
+  const handleSaveCustomer = async (customer: { name: string; piWallet: string; category: "individual" | "business" }, boldOwnerName = false): Promise<boolean> => {
+    // "Already assigned to <name>": the name is bold + italic only on the Add Contact screen.
+    const assignedTo = (name: string) => boldOwnerName
+      ? <span>The wallet address you entered is already assigned to <strong style={{ fontWeight: 700, fontStyle: "italic" }}>{name}</strong></span>
+      : `The wallet address you entered is already assigned to ${name}`;
     const sameWallet = (list: Contact[]) => {
       const key = customer.piWallet.trim().toLowerCase();
       return list.find((c) => (c.piWalletAddress ?? "").trim().toLowerCase() === key);
@@ -300,7 +304,7 @@ function AppContent() {
             try { owner = sameWallet((await contactsApi.list()).data); } catch { /* use the generic text */ }
           }
           toast.error(owner
-            ? `The wallet address you entered is already assigned to ${owner.name}`
+            ? assignedTo(owner.name)
             : "The wallet address you entered is already assigned to another contact");
           return false;
         }
@@ -309,7 +313,7 @@ function AppContent() {
     }
     const localOwner = sameWallet(localContacts);
     if (localOwner) {
-      toast.error(`The wallet address you entered is already assigned to ${localOwner.name}`);
+      toast.error(assignedTo(localOwner.name));
       return false;
     }
     // Fallback: create contact in local state (guest mode or offline)
@@ -679,7 +683,7 @@ function AppContent() {
             if (addContactFromHistory) { setAddContactFromHistory(false); setCurrentScreen("merchantDashboard"); return; }
             handleBackToDashboard();
           }}
-          onSave={handleSaveCustomer}
+          onSave={(customer) => handleSaveCustomer(customer, true)}
           onDone={() => {
             if (addContactFromHistory) {
               // Came from Dashboard History: back there, where the payment now shows the name.
