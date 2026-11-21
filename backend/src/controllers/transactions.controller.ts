@@ -229,7 +229,7 @@ const MANUAL_MATCH_WINDOW_MS = 24 * 60 * 60 * 1000;
  * conflicts (40001), P2028 an interactive-transaction timeout, P2002 a
  * concurrent insert of the same (userId, chainPaymentId).
  */
-function isRetryableImportError(err: unknown): boolean {
+export function isRetryableImportError(err: unknown): boolean {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002" || err.code === "P2034" || err.code === "P2028") return true;
     const pgCode = (err.meta as { code?: unknown } | undefined)?.code;
@@ -243,15 +243,15 @@ function isRetryableImportError(err: unknown): boolean {
  * they can wait behind another request holding the same locks (e.g. an
  * overlapping 100-entry import), so allow more than Prisma's 5s default.
  */
-const LOCKED_TX_OPTIONS = { timeout: 15_000, maxWait: 5_000 };
+export const LOCKED_TX_OPTIONS = { timeout: 15_000, maxWait: 5_000 };
 
 /** Advisory-lock key for "is this tx hash recorded yet?" (shared by create and import). */
-function hashLockKey(userId: string, hash: string): string {
+export function hashLockKey(userId: string, hash: string): string {
   return `hash:${userId}:${hash.toLowerCase()}`;
 }
 
 /** Advisory-lock key for one Horizon payment id (imports only). */
-function paymentLockKey(userId: string, chainPaymentId: string): string {
+export function paymentLockKey(userId: string, chainPaymentId: string): string {
   return `pid:${userId}:${chainPaymentId}`;
 }
 
@@ -263,7 +263,7 @@ function paymentLockKey(userId: string, chainPaymentId: string): string {
  * flattened) is scanned in order, and the outer ORDER BY repeats the order so
  * the volatile lock calls run on sorted rows either way.
  */
-async function lockKeys(db: Prisma.TransactionClient, keys: string[]): Promise<void> {
+export async function lockKeys(db: Prisma.TransactionClient, keys: string[]): Promise<void> {
   const unique = [...new Set(keys)];
   if (unique.length === 0) return;
   await db.$executeRaw`
@@ -272,17 +272,22 @@ async function lockKeys(db: Prisma.TransactionClient, keys: string[]): Promise<v
     ORDER BY s.h`;
 }
 
-type ImportEntry = {
+export type ImportEntry = {
   chainPaymentId: string;
   description: string;
-  amount: number;
+  // number from the import API; a Decimal/string from the in-app payment confirm.
+  amount: number | string | Prisma.Decimal;
   type: "credit" | "debit";
   timestamp: string;
   txHash?: string;
 };
 
-/** The body of POST /api/transactions/import, run inside one DB transaction. */
-async function importInTransaction(
+/**
+ * The body of POST /api/transactions/import, run inside one DB transaction. Also used by
+ * the in-app payment confirm (payments.controller.ts) to write the sender's and the
+ * receiver's ledger rows through the same dedup/link rules.
+ */
+export async function importInTransaction(
   tx: Prisma.TransactionClient,
   userId: string,
   contactId: string,

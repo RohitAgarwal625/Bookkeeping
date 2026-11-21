@@ -2,7 +2,7 @@
 //   GET  /v2/payments/:id
 //   POST /v2/payments/:id/approve
 //   POST /v2/payments/:id/complete   { txid }
-//   GET  /accounts/:address/payments (fake Horizon for PI_HORIZON_URL; see the handler)
+//   GET  /accounts/:address/payments (fake Horizon for PI_HORIZON_URL; see the handler and addHorizonPayment)
 // Requires `Authorization: Key <apiKey>`, like the real API.
 import http from "node:http";
 
@@ -13,6 +13,31 @@ export function startFakePi({ port, apiKey }) {
   //   "hang" (never answers), "unauthorized" (401), "500json", "500html", "200html"
   const failures = new Map();
   const hung = []; // responses held open by "hang", ended on stop()
+  // Fake Horizon payments per account address (addHorizonPayment). Addresses with records here
+  // are served from this list; all others keep the prefix rules below.
+  const horizonPayments = new Map();
+  let horizonOpId = 900000000000;
+
+  /**
+   * Register a Horizon payment record on `address`'s payments list (in-app payment tests).
+   * Fills id/paging_token/type/asset_type/created_at/transaction_hash defaults; returns the record.
+   */
+  function addHorizonPayment(address, record = {}) {
+    const id = record.id ?? String(++horizonOpId);
+    const rec = {
+      id,
+      paging_token: id,
+      type: "payment",
+      asset_type: "native",
+      transaction_successful: true,
+      created_at: new Date().toISOString().replace(/\.\d{3}Z$/, "Z"),
+      transaction_hash: id.padStart(64, "a").slice(-64),
+      ...record,
+    };
+    if (!horizonPayments.has(address)) horizonPayments.set(address, []);
+    horizonPayments.get(address).push(rec);
+    return rec;
+  }
 
   /** Make every Pi call for this payment id fail in the given way (see `failures`). */
   function setFailure(id, mode) {
@@ -58,6 +83,18 @@ export function startFakePi({ port, apiKey }) {
       const h = req.url.match(/^\/accounts\/([^/?]+)\/payments(?:\?|$)/);
       if (h) {
         const addr = decodeURIComponent(h[1]);
+        if (horizonPayments.has(addr)) {
+          const q = new URL(req.url, "http://x").searchParams;
+          const desc = q.get("order") !== "asc";
+          const limit = Number(q.get("limit") ?? 10);
+          const cursor = q.get("cursor");
+          let list = [...horizonPayments.get(addr)].sort((a, b) => {
+            const x = BigInt(a.paging_token), y = BigInt(b.paging_token);
+            return x === y ? 0 : (x < y) === desc ? 1 : -1;
+          });
+          if (cursor) list = list.filter((r) => (desc ? BigInt(r.paging_token) < BigInt(cursor) : BigInt(r.paging_token) > BigInt(cursor)));
+          return send(200, { _embedded: { records: list.slice(0, limit) } });
+        }
         if (addr.startsWith("GNOTFOUND")) return send(404, { status: 404, title: "Resource Missing" });
         if (addr.startsWith("GBAD")) return send(400, { status: 400, title: "Bad Request" });
         if (addr.startsWith("GDOWN")) return send(500, { status: 500, title: "Internal Server Error" });
@@ -95,6 +132,7 @@ export function startFakePi({ port, apiKey }) {
       resolve({
         url: `http://localhost:${port}`,
         addPayment,
+        addHorizonPayment,
         setFailure,
         payments,
         requests,

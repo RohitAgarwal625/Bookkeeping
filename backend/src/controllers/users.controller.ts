@@ -84,12 +84,20 @@ export async function updateUser(
   }
 }
 
+function sendWalletAlreadyUsed(res: Response): void {
+  res.status(409).json({
+    error: "WALLET_ALREADY_USED",
+    message: "This wallet address is already linked to another account",
+  });
+}
+
 /**
  * PUT /api/users/me/wallet
  * Save (or clear with null) the signed-in user's own public Pi wallet address.
  * Pi doesn't share it with apps, so the user types it in Settings. It's used to keep
  * only payments between the user's wallet and a contact's wallet (Automatic scan).
- * Not unique on purpose: an address only affects its owner's own khata.
+ * Unique: one account per address (in-app payments find the receiver by it). An address
+ * another user has → 409 WALLET_ALREADY_USED.
  */
 export async function updateMyWallet(
   req: Request,
@@ -99,6 +107,14 @@ export async function updateMyWallet(
   try {
     const { walletPublicKey } = req.body as { walletPublicKey: string | null };
 
+    if (walletPublicKey !== null) {
+      const owner = await prisma.user.findUnique({ where: { walletPublicKey }, select: { id: true } });
+      if (owner && owner.id !== req.user!.id) {
+        sendWalletAlreadyUsed(res);
+        return;
+      }
+    }
+
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data: { walletPublicKey },
@@ -106,6 +122,11 @@ export async function updateMyWallet(
 
     res.status(200).json({ user: serializeUser(user) });
   } catch (err) {
+    // Two users saving the same address at the same moment: the unique index stops the second.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      sendWalletAlreadyUsed(res);
+      return;
+    }
     next(err);
   }
 }

@@ -187,7 +187,7 @@ The `vercel.json` is already configured with SPA rewrites.
 | GET | `/api/users/:walletAddress` | Login / upsert user + create session |
 | GET | `/api/users/me` | The signed-in user `{user}` from the Bearer token (restores the session after a reload); 401 if the token is missing, invalid or expired |
 | PUT | `/api/users/:walletAddress` | Update your `displayName` (404 `NOT_FOUND` for any other id) |
-| PUT | `/api/users/me/wallet` | Save (or clear with `null`) the user's own public Pi wallet address (`G…`) |
+| PUT | `/api/users/me/wallet` | Save (or clear with `null`) the user's own public Pi wallet address (`G…`); one account per address (409 `WALLET_ALREADY_USED`) |
 | POST | `/api/users/logout` | Sign out: deletes the current session (204); the token stops working. Other sessions of the user stay valid |
 | GET | `/api/contacts` | List contacts (with totals; only completed entries count) |
 | POST | `/api/contacts` | Create contact (409 `CONTACT_NAME_TAKEN` if another of your contacts has the same name, ignoring case and extra spaces; wallet address stored without whitespace and upper-cased, letters/digits only, 409 `DUPLICATE_CONTACT` if you already have it in any case/spacing) |
@@ -208,6 +208,11 @@ The `vercel.json` is already configured with SPA rewrites.
 | GET | `/api/pi/payment/:id` | Pi payment status from the Pi Platform API (session required). Only the payer can read it; anyone else gets 404 `PAYMENT_NOT_FOUND` |
 | GET | `/api/pi/premium-status` | `isPremium` for the signed-in user |
 | GET | `/api/pi/blockchain/payments/:address` | One page of Pi Horizon payments for an address on `PI_NETWORK`. **No session, by design** (public chain data) |
+| POST | `/api/payments/intents` | In-app payment (Pay via contacts / QR), before the Pi Wallet opens: `{receiverAddress, amount?, contactId?}` → 201 `{intent}`. 400 `SENDER_WALLET_MISSING` (no wallet in Settings), 400 `SELF_PAYMENT`, 409 `RECEIVER_NOT_ON_APP` (no user has that wallet; the app shows the invite), 404 foreign contact. Cancels the sender's older pending intent to the same receiver |
+| GET | `/api/payments/intents/:id` | The sender's intent `{intent}` (others → 404). Pending past `expiresAt` → last check, then `expired` |
+| POST | `/api/payments/intents/:id/check` | Look on Pi Horizon now (10/min per user); confirms only from Horizon data (payment from the sender's to the receiver's wallet, same amount if set, not before createdAt − 2 min, op id unused). On confirm writes the sender's debit and (if they have the sender as a contact) the receiver's credit through the import dedup rules |
+| POST | `/api/payments/intents/:id/cancel` | Cancel a pending intent; not pending → 409 `INTENT_NOT_PENDING` |
+| GET | `/api/payments/history?page&limit` | Dashboard History: confirmed in-app payments sent or received, newest first; counterparty = wallet address + the viewer's contact name (null = unidentified) |
 
 Pi Platform API failures on the payment routes (approve, complete, incomplete-payment, payment/:id): `paymentId` `.`/`..` → 400 `VALIDATION_ERROR`; unknown payment → 404 `PAYMENT_NOT_FOUND`; Pi rejects the server key → 502 `PI_API_UNAVAILABLE` (never 401, which would sign the user out); Pi 5xx or a non-JSON body → 502 `PI_API_ERROR`; no answer within `PI_API_TIMEOUT_MS` → 504 `PI_API_TIMEOUT`; server key not set → 503 `PI_NOT_CONFIGURED`. Upstream text and bodies go to the server log only, never into `details`.
 

@@ -68,3 +68,16 @@ export const authFailureLimiter = rateLimit({
   requestWasSuccessful: (_req, res) => res.statusCode !== 401,
   message: { error: "RATE_LIMITED", message: "Too many requests" },
 });
+
+/**
+ * In-app payment check (POST /api/payments/intents/:id/check) — 10/min per user. Each check
+ * reads Pi Horizon, so "I've paid, check now" taps can't hammer it.
+ */
+export const paymentCheckLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: userKey,
+  message: { error: "RATE_LIMITED", message: "Too many payment checks. Please wait a moment." },
+});

@@ -137,3 +137,46 @@ export interface CreateTransactionInput {
   /** Optional Pi transaction hash (64 hex characters); stored lowercase. */
   txHash?: string;
 }
+
+// ---- In-app payments (Pay via contacts / Pay via QR) and Dashboard History ----
+
+export type PaymentIntentStatus = "pending" | "confirmed" | "expired" | "cancelled";
+
+/** POST /api/payments/intents body. amount omitted for Pay via QR. */
+export interface CreatePaymentIntentInput {
+  receiverAddress: string;
+  amount?: number | string; // > 0, at most 7 decimals
+  contactId?: string;
+}
+
+/** An in-app payment intent (sender's view). Confirmed only from Pi Horizon data, server-side. */
+export interface PaymentIntentDTO {
+  id: string;
+  status: PaymentIntentStatus;
+  receiverAddress: string;
+  amount: number | null; // null for Pay via QR until confirmed (then the on-chain amount)
+  contactId: string | null;
+  createdAt: string;
+  expiresAt: string; // createdAt + 1h
+  confirmedAt: string | null; // the payment's time on the chain
+  txHash: string | null;
+}
+
+/** One row of GET /api/payments/history (confirmed in-app payments, both sides). */
+export interface HistoryItem {
+  id: string; // intent id
+  direction: "sent" | "received";
+  amount: number; // the confirmed on-chain amount
+  confirmedAt: string;
+  txHash: string | null;
+  counterparty: {
+    walletAddress: string; // the other side's address
+    contactId: string | null; // the viewer's contact with that address, if saved
+    name: string | null; // null -> "Unidentified wallet address"
+  };
+}
+
+export interface PaymentHistoryResponse {
+  data: HistoryItem[];
+  pagination: { page: number; limit: number; total: number; hasNext: boolean };
+}

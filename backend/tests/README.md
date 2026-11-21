@@ -50,7 +50,8 @@ tests/
     ├── 29-auditfix-schema.test.mjs     audit fixes AUD-70/71: redundant indexes dropped, CHECK constraints reject bad rows
     ├── 30-auditfix-dates-totals.test.mjs audit fixes AUD-36/37: entry date range (2018 to 1 year ahead), contact totals count only completed rows
     ├── 31-auditfix-job.test.mjs        audit fixes AUD-50/54/55: session clean-up job, Railway start command
-    └── 32-manual-chain-dedup.test.mjs  import links an existing manual entry for the same payment instead of adding a duplicate
+    ├── 32-manual-chain-dedup.test.mjs  import links an existing manual entry for the same payment instead of adding a duplicate
+    └── 33-in-app-payments.test.mjs     in-app payments: memberId, unique wallet, intents, Horizon confirm, History, contact back-fill, 60 s job
 ```
 
 ## Writing a suite
@@ -71,7 +72,7 @@ export default async function run({ api, db, pi }) {
 
 - `api.call(method, path, { token, body, headers })` returns `{ status, body, headers }`.
 - `db` is a Prisma client on the test DB, for checking what was actually stored.
-- `pi.addPayment(id, userUid, { amount, productId })` registers a payment on the fake Pi API. `pi.payments` and `pi.requests` (raw URLs) are available for assertions.
+- `pi.addPayment(id, userUid, { amount, productId })` registers a payment on the fake Pi API. `pi.addHorizonPayment(address, record)` adds a payment record to the fake Horizon list of that account (addresses without records keep the prefix rules). `pi.payments` and `pi.requests` (raw URLs) are available for assertions.
 - Keep each user under 20 writes per minute (`writeLimiter`), or split the work across users.
 
 ## What is not covered

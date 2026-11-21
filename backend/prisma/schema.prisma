@@ -17,15 +17,23 @@ model User {
   piUsername      String?       @unique
   piUid           String?       @unique
   displayName     String        @default("Pioneer User")
+  // Internal member id "BK" + 4-digit sequence (BK0001, ..., BK9999, BK10000). INTERNAL ONLY:
+  // never sent to the frontend. Filled by bk_next_member_id() (sequence "User_memberId_seq",
+  // migration *_in_app_payments, which also backfilled existing users in createdAt order).
+  memberId        String        @unique @default(dbgenerated("bk_next_member_id()"))
   // The user's own public Pi wallet address (G..., 56 chars), entered in Settings.
   // Pi doesn't give it to apps (its /v2/user_wallets is allowlist-only), so the user types it.
   // Not to be confused with piWalletAddress above, which actually holds the Pi uid.
-  walletPublicKey String?
+  // One account per address (unique; many NULLs allowed): a user is "on the app" for
+  // in-app payments when some user has the address here.
+  walletPublicKey String?       @unique
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   contacts        Contact[]
   transactions    Transaction[]
   sessions        Session[]
+  sentIntents     PaymentIntent[] @relation("PaymentIntentSender")
+  receivedIntents PaymentIntent[] @relation("PaymentIntentReceiver")
 
 }
 
@@ -52,6 +60,7 @@ model Contact {
   userId          String
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions    Transaction[]
+  paymentIntents  PaymentIntent[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -84,4 +93,35 @@ model Transaction {
   @@index([userId, timestamp])
   @@index([status, expiresAt])
   @@unique([userId, chainPaymentId])
+}
+
+// An in-app payment (Pay via contacts / Pay via QR) between two app users. Created before
+// the sender opens the Pi Wallet; confirmed only from Horizon data (the payment op from
+// senderAddress to receiverAddress), never from the client. CHECK constraints (migration
+// *_in_app_payments): status in the values below, amount > 0 when set.
+model PaymentIntent {
+  id                    String    @id @default(cuid())
+  senderId              String
+  sender                User      @relation("PaymentIntentSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId            String
+  receiver              User      @relation("PaymentIntentReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  senderAddress         String
+  receiverAddress       String
+  // Null for Pay via QR (the app doesn't know the amount); set to the chain amount on confirm.
+  amount                Decimal?  @db.Decimal(18, 7)
+  // The sender's contact being paid, if any.
+  contactId             String?
+  contact               Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  status                String    @default("pending") // pending|confirmed|expired|cancelled
+  createdAt             DateTime  @default(now())
+  expiresAt             DateTime
+  confirmedAt           DateTime?
+  // Horizon payment operation id of the matched payment; one intent per payment.
+  chainPaymentId        String?   @unique
+  txHash                String?
+  senderTransactionId   String?
+  receiverTransactionId String?
+
+  @@index([senderId, status])
+  @@index([receiverId, status])
 }

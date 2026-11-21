@@ -8,12 +8,14 @@ import { prisma } from "./lib/prisma";
 import { errorHandler, notFound } from "./middleware/errorHandler";
 import { authFailureLimiter } from "./middleware/rateLimiter";
 import { startSessionCleanupJob } from "./jobs/reconciliation";
+import { startPaymentIntentJob } from "./jobs/paymentIntents";
 
 import healthRoutes from "./routes/health";
 import userRoutes from "./routes/users";
 import contactRoutes from "./routes/contacts";
 import transactionRoutes from "./routes/transactions";
 import piRoutes from "./routes/pi";
+import paymentRoutes from "./routes/payments";
 
 const app = express();
 
@@ -59,6 +61,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/pi", piRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // --- 404 + error handling (must be last) ---
 app.use(notFound);
@@ -71,6 +74,8 @@ const server = app.listen(config.port, () => {
   );
   // Deletes expired sessions every 5 minutes, in every environment (AUD-50).
   startSessionCleanupJob();
+  // Confirms pending in-app payments from Horizon and expires old ones, every 60 s.
+  startPaymentIntentJob();
 });
 
 // --- Graceful shutdown (resolves G-014) ---

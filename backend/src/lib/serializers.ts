@@ -1,4 +1,4 @@
-import type { Contact, Transaction, User } from "@prisma/client";
+import type { Contact, PaymentIntent, Transaction, User } from "@prisma/client";
 
 /**
  * Serializers convert Prisma models into API responses.
@@ -55,5 +55,48 @@ export function serializeContact(
     lastSeen: computed?.lastSeen ? computed.lastSeen.toISOString() : null,
     createdAt: contact.createdAt.toISOString(),
     updatedAt: contact.updatedAt.toISOString(),
+  };
+}
+
+/**
+ * In-app payment intent, for its sender only. Never includes the receiver's user id
+ * (or memberId/uid/username): the receiver is shown by wallet address only.
+ */
+export function serializePaymentIntent(intent: PaymentIntent) {
+  return {
+    id: intent.id,
+    status: intent.status as "pending" | "confirmed" | "expired" | "cancelled",
+    receiverAddress: intent.receiverAddress,
+    amount: intent.amount === null ? null : Number(intent.amount.toString()),
+    contactId: intent.contactId,
+    createdAt: intent.createdAt.toISOString(),
+    expiresAt: intent.expiresAt.toISOString(),
+    confirmedAt: intent.confirmedAt ? intent.confirmedAt.toISOString() : null,
+    txHash: intent.txHash,
+  };
+}
+
+/**
+ * One Dashboard History row (a confirmed in-app payment) from the viewer's side. The
+ * counterparty is the other side's wallet address plus the viewer's own contact for it;
+ * name null means the viewer has no such contact ("Unidentified wallet address").
+ */
+export function serializeHistoryItem(
+  intent: PaymentIntent,
+  direction: "sent" | "received",
+  counterpartyAddress: string,
+  contact: { id: string; name: string } | null
+) {
+  return {
+    id: intent.id,
+    direction,
+    amount: intent.amount === null ? 0 : Number(intent.amount.toString()),
+    confirmedAt: (intent.confirmedAt ?? intent.createdAt).toISOString(),
+    txHash: intent.txHash,
+    counterparty: {
+      walletAddress: counterpartyAddress,
+      contactId: contact?.id ?? null,
+      name: contact?.name ?? null,
+    },
   };
 }

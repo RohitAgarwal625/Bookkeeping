@@ -2,6 +2,8 @@ import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { serializeContact } from "../lib/serializers";
+import { logger } from "../lib/logger";
+import { backfillContactPayments } from "../lib/paymentIntents";
 
 /** Row shape returned by the aggregated contacts query. */
 interface ContactRow {
@@ -187,12 +189,26 @@ export async function createContact(
       data: { name, category, piWalletAddress, userId },
     });
 
+    // Confirmed in-app payments with this address that aren't in the ledger yet (received
+    // before the sender was a contact, or left without a contact by a contact delete) go
+    // under the new contact. Best effort: the 60 s payment job retries a failure.
+    let backfilled = false;
+    try {
+      await backfillContactPayments(userId, contact);
+      backfilled = true;
+    } catch (err) {
+      logger.warn({ err, contactId: contact.id }, "In-app payment back-fill on contact create failed");
+    }
+    const row = backfilled ? await findContactWithTotals(userId, contact.id) : null;
+
     res.status(201).json({
-      contact: serializeContact(contact, {
-        totalCredit: 0,
-        totalDebit: 0,
-        lastSeen: null,
-      }),
+      contact: row
+        ? mapRow(row)
+        : serializeContact(contact, {
+            totalCredit: 0,
+            totalDebit: 0,
+            lastSeen: null,
+          }),
     });
   } catch (err) {
     if (
