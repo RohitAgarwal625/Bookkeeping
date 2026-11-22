@@ -375,13 +375,10 @@ function AppContent() {
     setCurrentScreen("login");
   };
 
-  /** Pay via QR: the Pi Wallet was opened for a saved contact. The server confirms the payment in the background. */
-  const handleQRWalletOpened = (contactName: string) => {
-    setCurrentScreen("dashboard");
-    // After the dashboard's <Toaster> has mounted (a toast sent before that is lost).
-    window.setTimeout(() => {
-      toast.success(`Pi Wallet opened. The payment will be added to ${contactName}'s ledger once it's confirmed on the Pi blockchain.`, { duration: 6000 });
-    }, 300);
+  /** Pay via QR: a wallet address was scanned. Open Pay with it prefilled (saved contact or not). */
+  const handleQRScanned = (walletAddress: string) => {
+    setScannedWalletAddress(walletAddress);
+    setCurrentScreen("pay");
   };
 
   // When guest taps Pay via Contacts or Pay via QR — show guest guard instead
@@ -481,13 +478,7 @@ function AppContent() {
       <>
         <QRScannerScreen
           onBack={handleBackToDashboard}
-          contacts={contacts}
-          onSaveContact={(name, walletAddress) =>
-            handleSaveCustomer({ name, piWallet: walletAddress, category: "individual" })}
-          onWalletOpened={handleQRWalletOpened}
-          isGuest={isGuest}
-          onTriggerGuestModal={() => setShowGuestModal(true)}
-          onOpenSettings={() => handleNavigate("settings")}
+          onScanned={handleQRScanned}
         />
         <Toaster position="bottom-center" />
       </>

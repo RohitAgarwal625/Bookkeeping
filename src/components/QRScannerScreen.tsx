@@ -1,31 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, CheckCircle, Copy, Upload, UserPlus } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
-import { cleanWalletInput, isPiPublicKey } from "../lib/piBlockchain";
+import { isPiPublicKey } from "../lib/piBlockchain";
 import { ensurePiInitialized } from "../lib/piAuth";
-import { openPiWalletLink, piWalletLinkForScan } from "../lib/piWalletPay";
-import { normalizeContactName } from "../types";
-import { ApiError } from "../lib/api";
-import { usePaymentIntents } from "../hooks/useBookkeeping";
-import { InviteModal } from "./InviteModal";
 
 interface QRScannerScreenProps {
   onBack: () => void;
-  /** Saved contacts, to find the one whose wallet address was scanned. */
-  contacts: { name: string; piWalletAddress: string }[];
-  /** Saves a new contact (same path as Add Contact). Resolves true when saved. */
-  onSaveContact: (name: string, walletAddress: string) => Promise<boolean>;
-  /** The Pi Wallet was opened to pay this contact; App toasts and leaves the scanner. */
-  onWalletOpened: (contactName: string) => void;
-  isGuest?: boolean;
-  onTriggerGuestModal?: () => void;
-  /** Opens Settings (to add the user's own wallet address, needed to confirm the payment). */
-  onOpenSettings?: () => void;
+  /** A Pi wallet address was scanned; App opens Pay with it prefilled. */
+  onScanned: (walletAddress: string) => void;
 }
-
-/** Same limit as the backend's contact name (sanitizedString(1, 100)). */
-const NAME_MAX_LENGTH = 100;
 
 const NOT_AN_ADDRESS = "This QR code doesn't contain a Pi wallet address.";
 
@@ -61,24 +45,9 @@ export function extractPiAddress(raw: string): string | null {
   return found.size === 1 ? [...found][0] : null;
 }
 
-export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpened, isGuest, onTriggerGuestModal, onOpenSettings }: QRScannerScreenProps) {
-  const intents = usePaymentIntents();
-  // Creating the payment intent (the server checks the scanned person is on the app).
-  const [isStarting, setIsStarting] = useState(false);
-  // "This person isn't on the app yet" pop-up: the contact's name, or "" for an unsaved address.
-  const [inviteName, setInviteName] = useState<string | null>(null);
-  const [status, setStatus] = useState<"scanning" | "error" | "success">("scanning");
+export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
+  const [status, setStatus] = useState<"scanning" | "error">("scanning");
   const [error, setError] = useState("");
-  // The full scanned text (shown on screen) and the Pi address found in it.
-  const [scannedText, setScannedText] = useState("");
-  const [scannedValue, setScannedValue] = useState("");
-  const [isOpening, setIsOpening] = useState(false);
-  // The Pi Wallet couldn't be opened: show the address to copy instead.
-  const [openFailed, setOpenFailed] = useState(false);
-  // "Save this contact" pop-up for an address that isn't a saved contact yet.
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const containerId = "qr-reader-container";
   const startedRef = useRef(false);
@@ -86,13 +55,23 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
   // Latest callbacks, so the history effect below runs once (App passes new functions each render).
   const onBackRef = useRef(onBack);
   onBackRef.current = onBack;
-  // Set once the Pi Wallet is open: the popstate that removes our history entry then runs it.
+  const onScannedRef = useRef(onScanned);
+  onScannedRef.current = onScanned;
+  // Set once an address is scanned: the popstate that removes our history entry then runs it.
   const leaveActionRef = useRef<(() => void) | null>(null);
+  // The web scanner can report the same code on several frames: only the first one counts.
+  const scannedRef = useRef(false);
 
-  const showScanned = (text: string, address: string) => {
-    setScannedText(text.trim());
-    setScannedValue(address);
-    setStatus("success");
+  /** Leaves the scanner for Pay with the scanned address, removing our history entry first. */
+  const showScanned = (address: string) => {
+    if (scannedRef.current) return;
+    scannedRef.current = true;
+    if (window.history.state?.screen === "qrScanner") {
+      leaveActionRef.current = () => onScannedRef.current(address);
+      window.history.back();
+    } else {
+      onScannedRef.current(address);
+    }
   };
 
   const handleUploadQR = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,7 +91,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
           toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
           return;
         }
-        showScanned(decoded, address);
+        showScanned(address);
       })
       .catch(() => {
         setError("Could not read QR code from the image. Please try another image.");
@@ -146,7 +125,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
               toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
               return;
             }
-            showScanned(decoded, address);
+            showScanned(address);
             stopScanner(scanner);
           },
           () => { /* ignore frame errors */ }
@@ -177,7 +156,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
           toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
           return false; // let them try again with the in-page scanner
         }
-        showScanned(text, address);
+        showScanned(address);
         return true;
       } catch (err) {
         console.warn("[QR] Pi native scanner unavailable, using the in-page camera:", err);
@@ -235,228 +214,6 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
     } else {
       onBackRef.current();
     }
-  }
-
-  // Leave the scanner after the wallet opened, removing our history entry first.
-  const leaveAfterOpening = (contactName: string) => {
-    if (window.history.state?.screen === "qrScanner") {
-      leaveActionRef.current = () => onWalletOpened(contactName);
-      window.history.back();
-    } else {
-      onWalletOpened(contactName);
-    }
-  };
-
-  /** Opens the scanned pay link in the Pi Wallet for a saved contact. */
-  const openWalletFor = async (contactName: string) => {
-    setIsOpening(true);
-    const opened = await openPiWalletLink(piWalletLinkForScan(scannedText, scannedValue));
-    setIsOpening(false);
-    if (opened) leaveAfterOpening(contactName);
-    else setOpenFailed(true);
-  };
-
-  const findContact = () => {
-    const key = cleanWalletInput(scannedValue);
-    return contacts.find((c) => cleanWalletInput(c.piWalletAddress ?? "") === key);
-  };
-
-  /**
-   * Creates the payment intent (no amount: it's typed in the Pi Wallet) so the server confirms the
-   * payment in the background. Returns false, after telling the user why, when paying is blocked.
-   */
-  const startIntent = async (contactName: string): Promise<boolean> => {
-    setIsStarting(true);
-    try {
-      await intents.create({ receiverAddress: scannedValue });
-      return true;
-    } catch (err) {
-      if (err instanceof ApiError && err.code === "RECEIVER_NOT_ON_APP") {
-        setInviteName(contactName);
-      } else if (err instanceof ApiError && err.code === "SENDER_WALLET_MISSING") {
-        toast.error("Add your own Pi wallet address in Settings → Profile first, so the app can confirm your payment.", {
-          action: onOpenSettings ? { label: "Settings", onClick: onOpenSettings } : undefined,
-        });
-      } else if (err instanceof ApiError && err.code === "SELF_PAYMENT") {
-        toast.error("This is your own wallet address. You can't pay yourself.");
-      } else if (err instanceof ApiError && err.status === 0) {
-        toast.error("Couldn't reach the server. Check your connection and try again.");
-      } else {
-        toast.error(err instanceof Error ? err.message : "Couldn't start the payment. Please try again.");
-      }
-      return false;
-    } finally {
-      setIsStarting(false);
-    }
-  };
-
-  const handlePayThisAddress = async () => {
-    if (isOpening || isStarting) return;
-    if (isGuest) { onTriggerGuestModal?.(); return; }
-    const contact = findContact();
-    // Blocked (and the invite pop-up shown) before saving a contact or opening the wallet.
-    if (!(await startIntent(contact?.name ?? ""))) return;
-    if (contact) {
-      void openWalletFor(contact.name);
-    } else {
-      setNewName("");
-      setShowSaveDialog(true);
-    }
-  };
-
-  const handleSaveAndPay = async () => {
-    if (isSaving) return;
-    if (isGuest) { onTriggerGuestModal?.(); return; }
-    const name = newName.trim().replace(/\s+/g, " ");
-    if (!name) {
-      toast.error("Please enter a name for this contact.");
-      return;
-    }
-    if (contacts.some((c) => normalizeContactName(c.name) === normalizeContactName(name))) {
-      toast.error(`The name "${name}" is already taken. You must enter another name.`);
-      return;
-    }
-    setIsSaving(true);
-    let saved = false;
-    try {
-      saved = await onSaveContact(name, scannedValue);
-    } finally {
-      setIsSaving(false);
-    }
-    if (!saved) return; // onSaveContact already showed why
-    setShowSaveDialog(false);
-    await openWalletFor(name);
-  };
-
-  const handleCopyAddress = async () => {
-    try {
-      await navigator.clipboard.writeText(scannedValue);
-      toast.success("Wallet address copied");
-    } catch {
-      toast.error("Couldn't copy. Please select the address and copy it.");
-    }
-  };
-
-  if (status === "success") {
-    return (
-      <div className="fixed inset-0 min-h-[100dvh] flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-8 gap-6 z-[100]">
-        {/* Header Back Button */}
-        <header className="absolute top-0 left-0 right-0 z-20 px-6 py-5 flex items-center gap-3">
-          <button
-            onClick={handleBack}
-            className="p-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-colors active:scale-95"
-            aria-label="Go Back"
-          >
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <p className="text-white font-semibold">QR Scanned</p>
-        </header>
-
-        <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-xl"
-          style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
-          <CheckCircle className="w-10 h-10 text-white" />
-        </div>
-        <div className="text-center w-full">
-          <p className="text-white font-bold text-xl mb-2">QR Scanned!</p>
-          <p className="text-gray-400 text-sm mb-2">Wallet Address:</p>
-          <p className="font-mono text-xs rounded-xl px-4 py-3"
-            style={{ color: "#e5e7eb", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)", wordBreak: "break-all", textAlign: "left" }}>
-            {scannedText || scannedValue}
-          </p>
-        </div>
-
-        {openFailed ? (
-          <div className="w-full rounded-2xl p-4 text-center"
-            style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }}>
-            <p className="text-white text-sm mb-1" style={{ fontWeight: 600 }}>Couldn't open the Pi Wallet</p>
-            <p className="text-gray-400 text-xs mb-3">Open Pi Wallet → Send and paste the address:</p>
-            <p className="font-mono text-xs mb-3" style={{ color: "#e5e7eb", wordBreak: "break-all" }}>{scannedValue}</p>
-            <button
-              onClick={handleCopyAddress}
-              className="w-full flex items-center justify-center gap-2 rounded-xl text-white text-sm"
-              style={{ minHeight: "44px", fontWeight: 600, background: "linear-gradient(to right, #592C16, #8A532B)" }}
-            >
-              <Copy className="w-4 h-4" />
-              Copy Address
-            </button>
-          </div>
-        ) : (
-          <button onClick={() => void handlePayThisAddress()} disabled={isOpening || isStarting}
-            className="w-full py-4 rounded-2xl font-bold text-white text-base"
-            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)", opacity: isOpening || isStarting ? 0.7 : 1 }}>
-            {isStarting ? "Checking…" : isOpening ? "Opening Pi Wallet…" : "Pay this Address"}
-          </button>
-        )}
-        <button onClick={handleBack} className="text-gray-400 text-sm underline" style={{ minHeight: "44px", padding: "0 16px" }}>
-          {openFailed ? "Done" : "Cancel"}
-        </button>
-
-        {showSaveDialog && (
-          <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center px-6"
-            style={{ zIndex: 300, background: "rgba(0,0,0,0.5)" }}
-            onClick={() => { if (!isSaving) setShowSaveDialog(false); }}>
-            <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
-            <form
-              className="relative w-full bg-white dark:bg-card rounded-2xl p-6"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="save-contact-title"
-              onClick={(e) => e.stopPropagation()}
-              onSubmit={(e) => { e.preventDefault(); void handleSaveAndPay(); }}
-              style={{ maxWidth: "360px", animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)" }}
-            >
-              <div className="w-14 h-14 rounded-full bg-gradient-to-r from-[#592C16] to-[#8A532B] flex items-center justify-center mx-auto mb-3 shadow-lg">
-                <UserPlus className="w-7 h-7 text-white" />
-              </div>
-              <h3 id="save-contact-title" className="font-bold text-gray-900 dark:text-foreground text-lg mb-1 text-center">Save this contact</h3>
-              <p className="text-sm text-gray-500 dark:text-muted-foreground mb-4 text-center">
-                Save the pioneer first, so the payment goes to their ledger.
-              </p>
-              <label htmlFor="qr-contact-name" className="block text-sm font-medium text-gray-900 dark:text-foreground mb-1">Name</label>
-              <input
-                id="qr-contact-name"
-                type="text"
-                autoFocus
-                required
-                maxLength={NAME_MAX_LENGTH}
-                value={newName}
-                onChange={(e) => setNewName(e.target.value.replace(/\b\w/g, (c) => c.toUpperCase()))}
-                placeholder="Full Name"
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all mb-3"
-              />
-              <label htmlFor="qr-contact-wallet" className="block text-sm font-medium text-gray-900 dark:text-foreground mb-1">Wallet Address</label>
-              <input
-                id="qr-contact-wallet"
-                type="text"
-                readOnly
-                value={scannedValue}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-muted-foreground font-mono text-xs"
-                style={{ textOverflow: "ellipsis", marginBottom: "20px" }}
-              />
-              <button
-                type="submit"
-                disabled={isSaving || !newName.trim()}
-                className="w-full py-3 rounded-full text-white font-bold mb-3"
-                style={{ background: "linear-gradient(to right, #592C16, #8A532B)", opacity: isSaving || !newName.trim() ? 0.6 : 1 }}
-              >
-                {isSaving ? "Saving…" : "Save & Pay"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowSaveDialog(false)}
-                disabled={isSaving}
-                className="w-full py-3 rounded-full text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border text-sm"
-                style={{ fontWeight: 600 }}
-              >
-                Cancel
-              </button>
-            </form>
-          </div>
-        )}
-
-        {inviteName !== null && <InviteModal name={inviteName} onClose={() => setInviteName(null)} />}
-      </div>
-    );
   }
 
   return (
