@@ -5,7 +5,7 @@
  * every contact that has a wallet address on the Pi blockchain (sent = debit, received =
  * credit) and saves new payments with importScannedTransactions. The backend skips
  * payments it already has (chainPaymentId), so a run never duplicates anything.
- * Runs once the session's contacts are loaded, every minute while the app is open, and
+ * Runs once the session's contacts are loaded, every 10 seconds while the app is open, and
  * whenever the app becomes visible again, at most once every AUTO_SYNC_MIN_GAP_MS, one contact at a time. Never toasts.
  *
  * Scan window per contact: from the day before that contact's last successful sync
@@ -18,7 +18,7 @@ import { transactionsApi } from "../lib/api";
 import { cleanWalletInput, fetchPiBlockchainTransactions, isPiPublicKey } from "../lib/piBlockchain";
 import type { Contact, ImportTransactionEntry, ImportTransactionsResponse, Transaction } from "../types";
 
-const AUTO_SYNC_MIN_GAP_MS = 60 * 1000;
+const AUTO_SYNC_MIN_GAP_MS = 10 * 1000;
 const AUTO_SYNC_FIRST_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -73,7 +73,7 @@ export function useAutoSync({ enabled, userId, userWalletAddress, contacts, impo
     const { userId: uid, userWalletAddress: wallet } = latest.current;
     if (!uid || !wallet || running.current) return;
     const now = Date.now();
-    if (!force && now - lastRunAt.current < AUTO_SYNC_MIN_GAP_MS - 5000) return; // 5s slack so the 1-minute timer never skips a beat
+    if (!force && now - lastRunAt.current < AUTO_SYNC_MIN_GAP_MS - 2000) return; // 2s slack so the 10-second timer never skips a beat
     running.current = true;
     lastRunAt.current = now;
     setSyncing(true);
@@ -141,7 +141,7 @@ export function useAutoSync({ enabled, userId, userWalletAddress, contacts, impo
     };
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onVisible);
-    // Every minute while the app is open and on screen.
+    // Every 10 seconds while the app is open and on screen.
     const timer = window.setInterval(onVisible, AUTO_SYNC_MIN_GAP_MS);
     return () => {
       window.clearInterval(timer);
