@@ -3,7 +3,6 @@ import { ArrowLeft, Upload } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
 import { isPiPublicKey } from "../lib/piBlockchain";
-import { ensurePiInitialized } from "../lib/piAuth";
 
 interface QRScannerScreenProps {
   onBack: () => void;
@@ -18,15 +17,6 @@ function stopScanner(scanner: Html5Qrcode | null) {
   try {
     if (scanner?.isScanning) scanner.stop().catch(() => {});
   } catch { /* not running */ }
-}
-
-/**
- * True when the app runs inside a Pi host page (Pi Browser / App Studio iframe), the only
- * place Pi SDK native calls get an answer. A plain browser tab would wait 2 minutes for a
- * reply that never comes, so the native scanner is skipped there.
- */
-function inPiHost(): boolean {
-  try { return window.self !== window.top; } catch { return true; }
 }
 
 /**
@@ -111,7 +101,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
     const scanner = new Html5Qrcode(containerId);
     scannerRef.current = scanner;
 
-    // In-page camera scanner (html5-qrcode): the fallback when Pi's native scanner isn't available.
+    // In-page camera scanner (html5-qrcode), the same screen as main.
     const startWebScanner = () => {
       if (unmounted) return;
       startPromise = scanner
@@ -137,36 +127,7 @@ export function QRScannerScreen({ onBack, onScanned }: QRScannerScreenProps) {
         });
     };
 
-    // Pi Browser: try Pi's native QR scanner first. Any failure (camera permission denied,
-    // older Pi Browser, desktop) falls back to the in-page scanner.
-    const tryNativeScanner = async (): Promise<boolean> => {
-      if (!inPiHost()) return false;
-      try {
-        await ensurePiInitialized();
-        if (typeof window.Pi?.scanQrCode !== "function") return false;
-        const text = await window.Pi.scanQrCode({ facingMode: "environment" });
-        if (unmounted) return true;
-        if (text === null) {
-          // The user closed Pi's scanner.
-          handleBack();
-          return true;
-        }
-        const address = extractPiAddress(text);
-        if (!address) {
-          toast.error(NOT_AN_ADDRESS, { id: "qr-not-address" });
-          return false; // let them try again with the in-page scanner
-        }
-        showScanned(address);
-        return true;
-      } catch (err) {
-        console.warn("[QR] Pi native scanner unavailable, using the in-page camera:", err);
-        return false;
-      }
-    };
-
-    tryNativeScanner().then((handled) => {
-      if (!handled) startWebScanner();
-    });
+    startWebScanner();
 
     return () => {
       unmounted = true;
