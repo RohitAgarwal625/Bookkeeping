@@ -33,6 +33,8 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
   // Pi-wallet validation flow state
   const [isValidated, setIsValidated] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
+  // True after a validation that failed (shows the cross); cleared on edit.
+  const [isInvalid, setIsInvalid] = useState(false);
   // Bumped on every check and every edit, so a slow check for old text is ignored.
   const validationRun = useRef(0);
   const [showInvalidPopup, setShowInvalidPopup] = useState(false);
@@ -60,6 +62,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
   const handleWalletChange = (val: string) => {
     setPiWallet(val.toUpperCase());
     if (isValidated) setIsValidated(false);
+    if (isInvalid) setIsInvalid(false);
     validationRun.current += 1;
     if (isValidating) setIsValidating(false);
   };
@@ -70,7 +73,9 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
   const handleValidate = async () => {
     if (isValidating) return;
     const address = cleanWalletInput(piWallet);
+    setIsInvalid(false);
     if (!isPiPublicKey(address)) {
+      setIsInvalid(true);
       setShowInvalidPopup(true);
       return;
     }
@@ -83,8 +88,10 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
       setPiWallet(address); // save exactly the address that was checked
       setIsValidated(true);
     } else if (result === "missing") {
+      setIsInvalid(true);
       setShowInvalidPopup(true);
     } else if (result === "otherNetwork") {
+      setIsInvalid(true);
       toast.error(`This wallet address exists only on Pi ${PI_OTHER_NETWORK}. This app uses Pi ${PI_NETWORK}: please enter the pioneer's ${PI_NETWORK} wallet address.`);
     } else {
       toast.error("Couldn't reach the Pi blockchain to check this address. Please try again.");
@@ -305,16 +312,22 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
                 rows={isWalletFocused && piWallet.length > 20 ? Math.min(4, Math.max(1, Math.ceil(piWallet.length / 20))) : 1}
                 className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all resize-none break-all leading-snug overflow-hidden text-base font-medium uppercase placeholder:normal-case"
               />
-              {/* Validation tick */}
-              <div
-                className={`absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isValidated
-                  ? "bg-[#592C16] border-[#592C16]"
-                  : "bg-white dark:bg-card border-gray-300 dark:border-border"
-                  }`}
-                title={isValidated ? "Pi Wallet Address validated" : "Not validated yet"}
-              >
-                <Check className={`w-4 h-4 transition-colors duration-300 ${isValidated ? "text-white" : "text-gray-300 dark:text-muted-foreground"}`} strokeWidth={3} />
-              </div>
+              {/* Validation result: tick when validated, cross when validation failed, nothing before */}
+              {isValidated ? (
+                <div
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-[#592C16] border-[#592C16]"
+                  title="Pi Wallet Address validated"
+                >
+                  <Check className="w-4 h-4 transition-colors duration-300 text-white" strokeWidth={3} />
+                </div>
+              ) : isInvalid ? (
+                <div
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white dark:bg-card border-gray-300 dark:border-border"
+                  title="Pi Wallet Address not valid"
+                >
+                  <X className="w-4 h-4 transition-colors duration-300 text-black dark:text-white" strokeWidth={3} />
+                </div>
+              ) : null}
             </div>
           </div>
 
