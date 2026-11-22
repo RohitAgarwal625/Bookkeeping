@@ -350,13 +350,6 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
             </div>
           )}
         </div>
-
-        {/* Footer Note */}
-        <div className="mt-12 max-w-md mx-auto">
-          <p className="text-center text-xs text-gray-500 dark:text-muted-foreground">
-            Customer data is stored securely on-chain or locally depending on your Pi wallet setup.
-          </p>
-        </div>
       </div>
 
       {/* ── Invalid Pi Wallet Address Popup ── */}
