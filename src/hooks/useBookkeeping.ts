@@ -329,9 +329,13 @@ export function usePaymentIntents() {
  * Dashboard History: confirmed in-app payments (sent and received), newest first.
  * Reloads when `enabled` turns on and whenever `refreshKey` changes (e.g. contacts,
  * so a contact added from History shows its name).
+ * Loads every page up front (100 per request, the backend's max) so History shows all
+ * in-app payments; MAX_PAGES only guards against a runaway loop, and if it is ever hit
+ * the "Load more" button picks up from there.
  */
 export function usePaymentHistory(enabled: boolean, refreshKey?: unknown) {
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 100;
+  const MAX_PAGES = 50;
   const [items, setItems] = useState<PaymentHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -350,11 +354,20 @@ export function usePaymentHistory(enabled: boolean, refreshKey?: unknown) {
     setError(false);
     (async () => {
       try {
-        const res = await paymentsApi.history(1, PAGE_SIZE);
-        if (cancelled) return;
-        setItems(res.data);
-        setPage(1);
-        setHasNext(res.pagination.hasNext);
+        let all: PaymentHistoryItem[] = [];
+        let p = 0;
+        let more = true;
+        while (more && p < MAX_PAGES) {
+          const res = await paymentsApi.history(p + 1, PAGE_SIZE);
+          if (cancelled) return;
+          p += 1;
+          const ids = new Set(all.map((i) => i.id));
+          all = [...all, ...res.data.filter((i) => !ids.has(i.id))];
+          more = res.pagination.hasNext;
+        }
+        setItems(all);
+        setPage(p);
+        setHasNext(more);
       } catch {
         if (!cancelled) setError(true);
       } finally {
