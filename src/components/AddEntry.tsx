@@ -176,11 +176,11 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
   // ── Full-screen success overlay ────────────────────────────────────
   if (showSuccess) {
     return (
-      <div style={{ minHeight: "100dvh" }} className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
+      <div style={{ minHeight: "100dvh" }} className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
         <div className="flex flex-col items-center px-8 text-center" style={{ transform: "translateY(-32px)" }}>
           {/* Animated check circle */}
           <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
-            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}>
             <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
           <h2 className="text-gray-900 dark:text-foreground text-2xl font-bold mb-2">
@@ -193,8 +193,8 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
             onClick={() => onSuccess ? onSuccess(savedContactName.current, savedTransaction.current, savedContactId.current, savedTimestamp.current) : onBack()}
             className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base mx-4 flex items-center justify-center gap-2"
             style={{
-              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+              background: "linear-gradient(to right, #592C16, #7B3D1E)",
+              boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
             }}
           >
             <span>Open Ledger</span>
@@ -207,7 +207,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
 
 
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Top Bar */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
         <button
@@ -231,9 +231,9 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
             <label className="block text-gray-700 dark:text-foreground text-sm mb-2">Pioneer</label>
             <div className="relative z-50">
               {selectedCustomer ? (
-                <div className="flex items-center justify-between px-4 py-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 rounded-xl">
+                <div className="flex items-center justify-between px-4 py-3 bg-[#F5EDE6] dark:bg-[#8A532B]/20 border border-[#592C16]/20 dark:border-[#8A532B]/40 rounded-xl">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                       {getInitials(selectedCustomer.name)}
                     </div>
                     <span className="text-gray-900 dark:text-foreground font-medium text-sm">{selectedCustomer.name}</span>
@@ -242,6 +242,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                     )}
                   </div>
                   <button
+                    type="button"
                     onClick={() => { setSelectedCustomer(null); setCustomerQuery(""); }}
                     className="p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors group"
                   >
@@ -256,7 +257,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                     onFocus={() => setIsCustomerDropdownOpen(true)}
                     onChange={(e) => { setCustomerQuery(e.target.value); setIsCustomerDropdownOpen(true); }}
                     placeholder="Search from Contacts"
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all"
+                    className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent caret-black dark:caret-white transition-all"
                   />
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
                   {isCustomerDropdownOpen && customerQuery.trim().length > 0 && filteredCustomers.length > 0 && (
@@ -270,9 +271,9 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                             setIsCustomerDropdownOpen(false);
                             setCustomerQuery("");
                           }}
-                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
+                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#F5EDE6] dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
                         >
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-xs font-bold">
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                             {getInitials(contact.name)}
                           </div>
                           <span className="text-gray-900 dark:text-foreground text-sm font-medium">{contact.name}</span>
@@ -292,7 +293,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
           <button
             onClick={handlePiTransactions}
             className="w-full mb-4 py-3 px-5 rounded-xl text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)" }}
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" }}
           >
             <span className="font-medium text-sm">View Pi Transactions</span>
             <ExternalLink className="w-4 h-4" />
@@ -305,7 +306,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
               <button
                 type="button"
                 onClick={() => setShowInfo((v) => !v)}
-                className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
               >
                 <Info className="w-3.5 h-3.5" />
               </button>
@@ -322,7 +323,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                 value={txHash}
                 onChange={(e) => setTxHash(e.target.value)}
                 placeholder="Example: abc123xyz..."
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all font-mono text-sm"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all font-mono text-sm"
               />
             </div>
           </div>
@@ -338,7 +339,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder="0.0000000"
                 style={{ paddingLeft: "1.25rem", paddingRight: "3rem" }}
-                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+                className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xl font-semibold text-black dark:text-white leading-none select-none">
                 π
@@ -356,7 +357,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                 onClick={() => setTransactionType("debit")}
                 className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "debit"
                   ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md"
-                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Debit
@@ -365,7 +366,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                 onClick={() => setTransactionType("credit")}
                 className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "credit"
                   ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
-                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Credit
@@ -380,7 +381,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
             />
           </div>
 
@@ -396,7 +397,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                     const mm = time ? (time.split(":")[1] || "00") : "00";
                     setTime(hh ? `${hh}:${mm}` : "");
                   }}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all cursor-pointer"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all cursor-pointer"
                 >
                   <option value="" disabled>HH</option>
                   {Array.from({ length: 24 }, (_, i) => {
@@ -414,7 +415,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                     const hh = time ? (time.split(":")[0] || "00") : "00";
                     setTime(mm ? `${hh}:${mm}` : "");
                   }}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent transition-all cursor-pointer"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all cursor-pointer"
                 >
                   <option value="" disabled>MM</option>
                   {Array.from({ length: 60 }, (_, i) => {
@@ -442,7 +443,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
               maxLength={100}
               placeholder="Add a note or description..."
               rows={3}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6F3C97] focus:border-transparent resize-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent resize-none transition-all text-sm"
             />
           </div>
 
@@ -451,7 +452,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
             onClick={handleSaveEntry}
             disabled={isSaving}
             className="w-full py-3.5 px-6 rounded-xl text-white shadow-md hover:shadow-lg transition-all active:scale-98"
-            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)", opacity: isSaving ? 0.7 : 1 }}
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)", opacity: isSaving ? 0.7 : 1 }}
           >
             {isSaving ? "Saving..." : "Add"}
           </button>

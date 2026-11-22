@@ -47,13 +47,13 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest, t
       {/* Action buttons */}
       <div className="grid grid-cols-2 gap-4 mt-4">
         <button onClick={() => setShowPioneerDialog(true)} className="flex flex-col items-center gap-2 py-2 group">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
             <UserPlus className="w-6 h-6 text-white" />
           </div>
           <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Add Contact</span>
         </button>
         <button onClick={() => setShowTransactionDialog(true)} className="flex flex-col items-center gap-2 py-2 group">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
             <Plus className="w-6 h-6 text-white" />
           </div>
           <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">Add Transaction</span>
@@ -103,7 +103,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest, t
                     onClick={() => { closePioneer(); onAddCustomer("individual"); }}
                     className="flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "#592C16" }}>
                       <User className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-base text-gray-700 dark:text-gray-300 font-bold hover:text-gray-900 dark:hover:text-white transition-colors">
@@ -116,12 +116,12 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest, t
                     className="w-5 h-5 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Individual info"
                   >
-                    <Info className="w-3 h-3 text-gray-700 dark:text-muted-foreground" />
+                    <Info className="w-[18px] h-[18px] shrink-0 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   {pioneerTooltip === "individual" && (
                     <div
-                      className="w-full text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-2 rounded-xl text-center"
-                      style={{ border: "1.5px solid #A47CF3" }}
+                      className="w-full text-xs text-[#592C16] bg-[#F5E0D6] dark:bg-stone-900/30 px-3 py-2 rounded-xl text-center"
+                      style={{ border: "1.5px solid #592C16" }}
                     >
                       Choose this option to add a pioneer who has a personal account with the Pi Network.
                     </div>
@@ -145,7 +145,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest, t
                     className="w-5 h-5 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Business info"
                   >
-                    <Info className="w-3 h-3 text-gray-400 dark:text-muted-foreground" />
+                    <Info className="w-[18px] h-[18px] shrink-0 text-gray-400 dark:text-muted-foreground" />
                   </button>
                   <span style={{ padding: "2px 8px", backgroundColor: "#9ca3af", color: "#ffffff", fontSize: "10px" }} className="font-medium rounded-full whitespace-nowrap">
                     Coming Soon
@@ -209,7 +209,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest, t
                     onClick={() => { closeTransaction(); onAddEntry(); }}
                     className="flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <PenLine className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-base text-gray-700 dark:text-gray-300 font-bold">Manual</span>
@@ -220,13 +220,13 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest, t
                     className="w-5 h-5 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Manual info"
                   >
-                    <Info className="w-3 h-3 text-gray-700 dark:text-muted-foreground" />
+                    <Info className="w-[18px] h-[18px] shrink-0 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   <span style={{ padding: "2px 8px", fontSize: "10px" }} className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-full border border-green-200 dark:border-green-800/40 whitespace-nowrap">
                     Free • Lifetime
                   </span>
                   {manualTooltip && (
-                    <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
+                    <div className="w-full bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 rounded-xl px-3 py-2 text-xs text-amber-700 dark:text-amber-400 text-center">
                       Recommended for adding one or a few unrecorded transaction(s) one by one.
                     </div>
                   )}
@@ -241,7 +241,7 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest, t
                     onClick={() => { closeTransaction(); onAutoEntry(); }}
                     className="flex flex-col items-center gap-2 group"
                   >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <Zap className="w-7 h-7 text-white" />
                     </div>
                     <span className="text-base text-gray-700 dark:text-gray-300 font-bold">Automatic</span>
@@ -252,15 +252,15 @@ export function BalanceCard({ onAddCustomer, onAddEntry, onAutoEntry, isGuest, t
                     className="w-5 h-5 rounded-full bg-white dark:bg-card border border-transparent dark:border-border flex items-center justify-center hover:bg-gray-50 dark:hover:bg-secondary transition-colors"
                     aria-label="Automatic info"
                   >
-                    <Info className="w-3 h-3 text-gray-700 dark:text-muted-foreground" />
+                    <Info className="w-[18px] h-[18px] shrink-0 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   <span style={{ padding: "2px 8px", fontSize: "10px" }} className="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-full border border-red-200 dark:border-red-800/40 whitespace-nowrap">
                     Free • Limited
                   </span>
                   {autoTooltip && (
-                    <div className="w-full bg-amber-50 dark:bg-secondary border border-amber-100 dark:border-border rounded-xl px-3 py-2 text-xs text-gray-600 dark:text-muted-foreground text-center">
+                    <div className="w-full bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 rounded-xl px-3 py-2 text-xs text-amber-700 dark:text-amber-400 text-center">
                       {/* <p className="font-semibold text-amber-500 mb-0.5">Automatic</p> */}
-                      Recommended for adding multiple transactions all at once. Free for limited time only.
+                      Recommended for adding multiple transactions all at once. Free for limited number of times only.
                     </div>
                   )}
                 </div>

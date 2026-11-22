@@ -35,7 +35,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
           onClick={() => setShowPioneerDialog(true)}
           className="flex flex-col items-center gap-2 group"
         >
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}>
             <UserPlus className="w-7 h-7 text-white" />
           </div>
           <span className="text-xs text-gray-700 dark:text-gray-300">Add Contact</span>
@@ -46,7 +46,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
           onClick={() => setShowTransactionDialog(true)}
           className="flex flex-col items-center gap-2 group"
         >
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow" style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 4px 14px rgba(89, 44, 22, 0.35)" }}>
             <Plus className="w-7 h-7 text-white" />
           </div>
           <span className="text-xs text-gray-700 dark:text-gray-300">Add Transaction(s)</span>
@@ -75,9 +75,9 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                 {/* Individual */}
                 <button
                   onClick={() => handleSelectPioneer("individual")}
-                  className="w-full py-3 rounded-xl border border-gray-200 dark:border-border hover:bg-purple-50 dark:hover:bg-secondary text-gray-900 dark:text-foreground font-medium transition-colors flex items-center gap-3 px-4"
+                  className="w-full py-3 rounded-xl border border-gray-200 dark:border-border hover:bg-stone-50 dark:hover:bg-secondary text-gray-900 dark:text-foreground font-medium transition-colors flex items-center gap-3 px-4"
                 >
-                  <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#592C16]" />
                   <span className="text-lg font-bold">Individual</span>
                 </button>
                 {/* Business (coming soon) — disabled */}
@@ -85,9 +85,9 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                   disabled
                   className="w-full py-3 rounded-xl border border-gray-100 dark:border-border/50 bg-gray-50 dark:bg-secondary/40 text-gray-400 dark:text-muted-foreground font-medium cursor-not-allowed flex items-center gap-3 px-4"
                 >
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-300/60" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#8A532B]/60" />
                   <span className="text-lg font-bold">Business</span>
-                  <span style={{ fontSize: "10px" }} className="ml-auto font-normal text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/40 whitespace-nowrap">
+                  <span style={{ fontSize: "10px" }} className="ml-auto font-normal text-[#8A532B] dark:text-[#EFC8AC] bg-[#8A532B]/10 dark:bg-[#8A532B]/20 px-2.5 py-0.5 rounded-full border border-[#8A532B]/30 whitespace-nowrap">
                     Coming Soon
                   </span>
                 </button>
@@ -121,9 +121,9 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                 <div className="relative">
                   <button
                     onClick={handleSelectManual}
-                    className="w-full py-3 rounded-xl border border-gray-200 dark:border-border hover:bg-purple-50 dark:hover:bg-secondary text-gray-900 dark:text-foreground font-medium transition-colors flex items-center gap-3 px-4 pr-10"
+                    className="w-full py-3 rounded-xl border border-gray-200 dark:border-border hover:bg-stone-50 dark:hover:bg-secondary text-gray-900 dark:text-foreground font-medium transition-colors flex items-center gap-3 px-4 pr-10"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <PenLine className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-lg font-bold">Manual</span>
@@ -140,8 +140,8 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                     <Info className="w-3.5 h-3.5 text-gray-700 dark:text-muted-foreground" />
                   </button>
                   {manualTooltip && (
-                    <div className="mt-2 mx-0 bg-purple-50 dark:bg-secondary border border-purple-100 dark:border-border rounded-xl p-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
-                      <p className="font-semibold text-[#A47CF3] mb-1">Manual</p>
+                    <div className="mt-2 mx-0 bg-stone-50 dark:bg-secondary border border-stone-200 dark:border-border rounded-xl p-3 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
+                      <p className="font-semibold text-[#592C16] mb-1">Manual</p>
                       Recommended for adding one or a few unrecorded transaction(s) one by one.
                     </div>
                   )}
@@ -153,7 +153,7 @@ export function QuickActions({ onAddCustomer, onAddEntry }: QuickActionsProps) {
                     disabled
                     className="w-full py-3 rounded-xl border border-gray-100 dark:border-border/50 bg-gray-50 dark:bg-secondary/40 text-gray-400 dark:text-muted-foreground font-medium cursor-not-allowed flex items-center gap-3 px-4 pr-10"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                       <Zap className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-lg font-bold">Automatic</span>

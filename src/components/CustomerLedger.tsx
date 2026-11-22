@@ -257,13 +257,13 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
   }, [ledgerReady, newCount]);
 
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
         <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>
-        <h2 className="text-gray-900 dark:text-foreground flex-1 text-center">{customerName}</h2>
+        <h2 className="text-gray-900 dark:text-foreground font-bold flex-1 text-center">{customerName}</h2>
         <BookkeepingLogo compact />
       </header>
 
@@ -272,26 +272,26 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
         {/* Top Summary Card */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-lg dark:shadow-none dark:border dark:border-border p-8 mb-6 relative overflow-hidden">
           {/* Gradient border effect */}
-          <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-br from-[#A47CF3] to-[#F7C548] -z-10 opacity-70" />
+          <div className="absolute inset-0 rounded-2xl p-[2px] -z-10 opacity-70" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }} />
           <div className="absolute inset-[2px] bg-white dark:bg-card rounded-2xl -z-10" />
 
           {/* Credit and Debit Summary */}
           <div className="flex gap-6">
             <div className="flex-1 text-center py-3">
-              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Debit</p>
-              <p className="text-red-600 dark:text-red-400 font-bold">{formatPiAmount(totalDebit)} <span className="text-red-400 dark:text-red-500 text-sm font-semibold">π</span></p>
+              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Debit</p>
+              <p className="text-red-600 dark:text-red-400 font-bold">{formatPiAmount(totalDebit)} <span className="text-red-600 dark:text-red-400 text-sm font-semibold">π</span></p>
             </div>
             <div className="w-px bg-gradient-to-b from-transparent via-gray-200 dark:via-border to-transparent flex-shrink-0" />
             <div className="flex-1 text-center py-3">
-              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Total Credit</p>
-              <p className="text-green-600 dark:text-green-400 font-bold">{formatPiAmount(totalCredit)} <span className="text-green-400 dark:text-green-500 text-sm font-semibold">π</span></p>
+              <p className="text-xs text-gray-500 dark:text-muted-foreground mb-2 uppercase tracking-wider font-medium">Credit</p>
+              <p className="text-green-600 dark:text-green-400 font-bold">{formatPiAmount(totalCredit)} <span className="text-green-600 dark:text-green-400 text-sm font-semibold">π</span></p>
             </div>
           </div>
         </div>
 
         {/* Recent Transactions Section */}
         <div className="mb-6">
-          <h3 className="text-gray-900 dark:text-foreground font-semibold text-base mb-4">All Transactions</h3>
+          <h3 className="text-gray-900 dark:text-foreground font-semibold text-base mb-4">All Transactions ({transactions.length})</h3>
 
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
@@ -301,7 +301,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                     key={i}
                     className="w-2.5 h-2.5 rounded-full"
                     style={{
-                      background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                      background: "linear-gradient(to right, #592C16, #8A532B)",
                       animation: "ledger-bounce 0.8s ease-in-out infinite",
                       animationDelay: `${delay}s`,
                     }}
@@ -312,8 +312,11 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
               <style>{`@keyframes ledger-bounce { 0%,80%,100%{transform:translateY(0);opacity:0.5} 40%{transform:translateY(-8px);opacity:1} }`}</style>
             </div>
           ) : transactions.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-muted-foreground">
-              <p>No entries yet. Add one below.</p>
+            <div className="text-center py-12 px-4">
+              <p className="text-gray-400 dark:text-muted-foreground text-sm">No transactions found !!</p>
+              <p className="text-gray-400 dark:text-muted-foreground text-sm mt-1">
+                Kindly start recording your transactions either manually or automatically via 'Add Transaction' button on the home page
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -327,16 +330,16 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                     style={flashId === transaction.id ? { animation: "ledger-new-flash 1.4s ease-out" } : undefined}
                     className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
                       transaction.isNew
-                        ? "bg-purple-50 dark:bg-card border-2 border-[#A47CF3] dark:border-[#A47CF3] shadow-[0_0_12px_rgba(164,124,243,0.12)]"
-                        : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#A47CF3]/40"
+                        ? "bg-[#F5E0D6] dark:bg-card border-2 border-[#592C16] dark:border-[#8A532B] shadow-[0_0_12px_rgba(89,44,22,0.12)]"
+                        : "bg-white dark:bg-card border border-gray-100 dark:border-border hover:shadow-md dark:hover:border-[#8A532B]/40"
                     }`}
                   >
                     {isEditing ? (
                       <div className="space-y-3">
                         {/* Top row in edit mode: Title/Status and Amount */}
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-semibold text-[#A47CF3] uppercase tracking-wider">
-                            Edit Note
+                          <span className="text-xs font-semibold text-[#B55A38] uppercase tracking-wider">
+                            Note/Memo
                           </span>
                           <p
                             className={`font-bold text-sm sm:text-base flex-shrink-0 ${
@@ -365,7 +368,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                             autoFocus
                             rows={2}
                             placeholder="Edit note (max 100 characters)..."
-                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#A47CF3]/60 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] resize-none"
+                            className="w-full px-3 py-2 text-xs rounded-xl border border-[#592C16] bg-[#F5EDE6] dark:bg-secondary dark:border-[#8A532B]/60 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] resize-none"
                           />
                         </div>
 
@@ -404,7 +407,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                               {transaction.description}
                             </p>
                             {transaction.isNew && (
-                              <span className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3] px-2 py-0.5">
+                              <span className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#592C16] px-2 py-0.5">
                                 New
                               </span>
                             )}
@@ -416,7 +419,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                             <button
                               type="button"
                               onClick={() => handleStartEdit(transaction)}
-                              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-secondary/80 text-gray-500 dark:text-muted-foreground transition-colors"
+                              className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-stone-100 dark:hover:bg-secondary/80 text-gray-500 dark:text-muted-foreground transition-colors"
                               aria-label="Edit Note"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -460,9 +463,9 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
               disabled={currentNew === 0}
               aria-label="Previous new entry"
               className="rounded-full flex items-center justify-center"
-              style={{ width: "44px", height: "44px", background: currentNew === 0 ? "transparent" : "rgba(164,124,243,0.12)", opacity: currentNew === 0 ? 0.35 : 1 }}
+              style={{ width: "44px", height: "44px", background: currentNew === 0 ? "transparent" : "rgba(89,44,22,0.12)", opacity: currentNew === 0 ? 0.35 : 1 }}
             >
-              <ChevronUp className="w-5 h-5 text-[#A47CF3]" />
+              <ChevronUp className="w-5 h-5 text-[#592C16] dark:text-[#8A532B]" />
             </button>
             <button
               onClick={() => goToNew(currentNew + 1)}
@@ -472,16 +475,16 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
               style={{
                 width: "44px",
                 height: "44px",
-                background: currentNew >= newCount - 1 ? "transparent" : "linear-gradient(135deg, #A47CF3, #F7C548)",
+                background: currentNew >= newCount - 1 ? "transparent" : "linear-gradient(to right, #592C16, #8A532B)",
                 opacity: currentNew >= newCount - 1 ? 0.35 : 1,
               }}
             >
-              <ChevronDown className="w-5 h-5" style={{ color: currentNew >= newCount - 1 ? "#A47CF3" : "#fff" }} />
+              <ChevronDown className="w-5 h-5" style={{ color: currentNew >= newCount - 1 ? "#8A532B" : "#fff" }} />
             </button>
           </div>
         </div>
       )}
-      <style>{`@keyframes ledger-new-flash { 0% { box-shadow: 0 0 0 0 rgba(164,124,243,0.7); transform: scale(1.02); } 100% { box-shadow: 0 0 0 14px rgba(164,124,243,0); transform: scale(1); } }`}</style>
+      <style>{`@keyframes ledger-new-flash { 0% { box-shadow: 0 0 0 0 rgba(89,44,22,0.7); transform: scale(1.02); } 100% { box-shadow: 0 0 0 14px rgba(89,44,22,0); transform: scale(1); } }`}</style>
 
       {/* Add Entry Modal */}
       <AddEntryModal

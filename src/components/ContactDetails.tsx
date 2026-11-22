@@ -65,7 +65,7 @@ export function ContactDetails({
   };
 
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
         <button
@@ -82,8 +82,8 @@ export function ContactDetails({
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-32">
           {/* Avatar */}
           <div className="flex justify-center mb-8">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg">
-              <span className="text-white text-2xl font-bold">{getInitials(displayName)}</span>
+            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+              <span className="text-[#592C16] text-2xl font-bold">{getInitials(displayName)}</span>
             </div>
           </div>
 
@@ -98,7 +98,7 @@ export function ContactDetails({
               {editingField !== "name" && (
                 <button
                   onClick={() => { setDraftName(displayName); setEditingField("name"); }}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-stone-100 dark:hover:bg-stone-900/30 transition-colors"
                 >
                   <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
                 </button>
@@ -113,7 +113,7 @@ export function ContactDetails({
                   autoFocus
                   onChange={(e) => setDraftName(capitalizeFirst(e.target.value))}
                   onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
-                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#A47CF3] text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#592C16] dark:border-[#8A532B] text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] transition"
                 />
                 <button
                   onClick={handleSaveName}
@@ -145,7 +145,7 @@ export function ContactDetails({
                   {canEditWallet && (
                     <button
                       onClick={() => { setDraftWallet(displayWallet); setEditingField("wallet"); }}
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-stone-100 dark:hover:bg-stone-900/30 transition-colors"
                     >
                       <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
                     </button>
@@ -154,7 +154,7 @@ export function ContactDetails({
                   <button
                     onClick={() => setIsDisplayWalletExpanded((v) => !v)}
                     aria-label={isDisplayWalletExpanded ? "Hide full wallet address" : "Show full wallet address"}
-                    className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-stone-100 dark:hover:bg-stone-900/30 transition-colors"
                   >
                     {isDisplayWalletExpanded
                       ? <EyeOff className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
@@ -176,7 +176,7 @@ export function ContactDetails({
                   onFocus={() => setIsDraftWalletFocused(true)}
                   onBlur={() => setIsDraftWalletFocused(false)}
                   rows={isDraftWalletFocused && draftWallet.length > 20 ? Math.min(4, Math.max(1, Math.ceil(draftWallet.length / 20))) : 1}
-                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#A47CF3] text-gray-900 dark:text-foreground text-base font-medium font-mono focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition resize-none break-all leading-snug overflow-hidden"
+                  className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-secondary border border-[#592C16] dark:border-[#8A532B] text-gray-900 dark:text-foreground text-base font-medium font-mono focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] transition resize-none break-all leading-snug overflow-hidden"
                 />
                 <button
                   onClick={handleSaveWallet}
@@ -219,7 +219,7 @@ export function ContactDetails({
               Category
             </label>
             <div className="flex items-center gap-2 mt-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${contact.category === "individual" ? "bg-purple-400" : "bg-amber-400"}`} />
+              <span className={`w-2.5 h-2.5 rounded-full ${contact.category === "individual" ? "bg-[#592C16]" : "bg-[#8A532B]"}`} />
               <p className="text-gray-900 dark:text-foreground font-medium">{contact.category === "individual" ? "Individual" : "Business"}</p>
             </div>
           </div>
@@ -236,7 +236,7 @@ export function ContactDetails({
           <button
             onClick={() => onNavigateToLedger(displayName, contact.id)}
             className="w-full py-4 rounded-2xl text-white font-semibold shadow-md hover:shadow-lg transition-shadow flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 6px 24px rgba(111,60,151,0.5), 0 2px 8px rgba(164,124,243,0.3)" }}
+            style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)" }}
           >
             Open Ledger
             <BookOpen className="w-5 h-5" />

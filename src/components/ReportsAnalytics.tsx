@@ -108,7 +108,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
   };
 
   return (
-    <div className={`size-full flex flex-col ${embedded ? "" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`} style={embedded ? undefined : { minHeight: "100dvh" }}>
+    <div className={`size-full flex flex-col ${embedded ? "flex-1" : "bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]"}`} style={embedded ? undefined : { minHeight: "100dvh" }}>
 
       {/* Scrollable Content */}
       <div className={`flex-1 flex flex-col ${embedded ? "pt-0 pb-0" : "px-6 py-6"}`} style={!embedded ? { paddingBottom: "111px" } : undefined}>
@@ -130,7 +130,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                 <button
                   onClick={() => setAnalyticsCategory("individual")}
                   className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "individual"
-                    ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                    ? "bg-white dark:bg-card text-[#592C16] shadow"
                     : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
                     }`}
                 >
@@ -138,12 +138,12 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                 </button>
 
                 {/* Middle toggle switch */}
-                <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#A47CF3]/50 dark:border-[#A47CF3]/40 shadow-sm">
+                <div className="mx-2 flex-shrink-0 p-0.5 rounded-full border-2 border-[#592C16]/40 dark:border-[#8A532B]/40 shadow-sm">
                   <div className="w-10 h-5 rounded-full bg-white dark:bg-white relative flex items-center px-0.5">
                     <div
                       className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
                       style={{
-                        background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                        background: "linear-gradient(to right, #592C16, #8A532B)",
                         transform: analyticsCategory === "business" ? "translateX(20px)" : "translateX(0)",
                       }}
                     />
@@ -153,7 +153,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                 <button
                   onClick={() => setAnalyticsCategory("business")}
                   className={`flex-1 py-2 text-sm font-semibold rounded-full transition-all ${analyticsCategory === "business"
-                    ? "bg-white dark:bg-card text-[#A47CF3] shadow"
+                    ? "bg-white dark:bg-card text-[#8A532B] shadow"
                     : "text-gray-500 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
                     }`}
                 >
@@ -169,62 +169,83 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                   e.preventDefault();
                   (document.activeElement as HTMLElement)?.blur();
                 }}
-                className="relative"
+                className="relative z-50"
               >
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
-                <input
-                  type="text"
-                  placeholder="Search from Contacts"
-                  value={searchQuery}
-                  onChange={(e) => { setSearchQuery(e.target.value); setSelectedContactId(null); setShowSuggestions(true); }}
-                  onFocus={() => setShowSuggestions(true)}
-                  // Delay so a tap on a suggestion lands before the list closes.
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      (e.target as HTMLElement).blur();
-                    }
-                  }}
-                  enterKeyHint="go"
-                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all"
-                  style={searchQuery ? { paddingRight: "44px" } : undefined}
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    aria-label="Clear search"
-                    onClick={() => { setSearchQuery(""); setSelectedContactId(null); }}
-                    className="absolute flex items-center justify-center text-gray-400 dark:text-muted-foreground"
-                    style={{ right: "4px", top: "50%", transform: "translateY(-50%)", width: "40px", height: "40px", zIndex: 10 }}
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-                {showSuggestions && query && !selectedContactId && (
-                  <div
-                    className="absolute left-0 right-0 bg-white dark:bg-card border border-gray-200 dark:border-border rounded-xl shadow-lg overflow-y-auto"
-                    style={{ top: "100%", marginTop: "4px", zIndex: 30, maxHeight: "240px" }}
-                  >
-                    {suggestions.length === 0 ? (
-                      <p className="px-4 py-3 text-sm text-gray-400 dark:text-muted-foreground">No matching contacts</p>
-                    ) : (
-                      suggestions.map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => { setSelectedContactId(c.id); setSearchQuery(c.name); setShowSuggestions(false); }}
-                          className="w-full flex items-center gap-3 px-4 py-2 dark:hover:bg-secondary"
-                          style={{ minHeight: "48px", textAlign: "left" }}
-                        >
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                            <span className="text-white text-xs font-semibold">{getInitials(c.name)}</span>
-                          </div>
-                          <span className="flex-1 min-w-0 text-sm font-medium text-gray-900 dark:text-foreground truncate">{c.name}</span>
-                        </button>
-                      ))
-                    )}
+                {selectedContact ? (
+                  <div className="flex items-center justify-between px-4 py-3 bg-[#F5EDE6] dark:bg-[#8A532B]/20 border border-[#592C16]/20 dark:border-[#8A532B]/40 rounded-xl">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                        {getInitials(selectedContact.name)}
+                      </div>
+                      <span className="text-gray-900 dark:text-foreground font-medium text-sm truncate">{selectedContact.name}</span>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="Clear search"
+                      onClick={() => { setSearchQuery(""); setSelectedContactId(null); }}
+                      className="p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors group"
+                    >
+                      <X className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
+                    </button>
                   </div>
+                ) : (
+                  <>
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
+                    <input
+                      type="text"
+                      placeholder="Search from Contacts"
+                      value={searchQuery}
+                      onChange={(e) => { setSearchQuery(e.target.value); setSelectedContactId(null); setShowSuggestions(true); }}
+                      onFocus={() => setShowSuggestions(true)}
+                      // Delay so a tap on a suggestion lands before the list closes.
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          (e.target as HTMLElement).blur();
+                        }
+                      }}
+                      enterKeyHint="go"
+                      className="w-full pl-12 pr-4 py-3 bg-white dark:bg-card border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent caret-black dark:caret-white transition-all"
+                      style={searchQuery ? { paddingRight: "44px" } : undefined}
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        aria-label="Clear search"
+                        onClick={() => { setSearchQuery(""); setSelectedContactId(null); }}
+                        className="absolute flex items-center justify-center text-gray-400 dark:text-muted-foreground"
+                        style={{ right: "4px", top: "50%", transform: "translateY(-50%)", width: "40px", height: "40px", zIndex: 10 }}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                    {showSuggestions && query && (
+                      <div
+                        className="absolute left-0 right-0 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-2xl overflow-y-auto z-[9999]"
+                        style={{ top: "100%", marginTop: "4px", maxHeight: "240px" }}
+                      >
+                        {suggestions.length === 0 ? (
+                          <p className="px-4 py-3 text-sm text-gray-400 dark:text-muted-foreground">No matching contacts</p>
+                        ) : (
+                          suggestions.map((c) => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => { setSelectedContactId(c.id); setSearchQuery(c.name); setShowSuggestions(false); }}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#F5EDE6] dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
+                              style={{ minHeight: "48px", textAlign: "left" }}
+                            >
+                              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                                {getInitials(c.name)}
+                              </div>
+                              <span className="flex-1 min-w-0 text-sm font-medium text-gray-900 dark:text-foreground truncate">{c.name}</span>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </form>
             </div>
@@ -233,27 +254,30 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
             <div className="flex w-full gap-2 mb-4">
               <button
                 onClick={() => setSelectedFilter("week")}
+                style={selectedFilter === "week" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "week"
-                  ? "bg-[#A47CF3] text-white shadow-md"
-                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  ? "text-white shadow-md border-0"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Weekly
               </button>
               <button
                 onClick={() => setSelectedFilter("month")}
+                style={selectedFilter === "month" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "month"
-                  ? "bg-[#A47CF3] text-white shadow-md"
-                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  ? "text-white shadow-md border-0"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => { setSelectedFilter("custom"); setIsCustomSubmitted(false); }}
+                style={selectedFilter === "custom" ? { background: "linear-gradient(to right, #592C16, #7B3D1E)" } : undefined}
                 className={`flex-1 py-2 rounded-full text-sm font-medium text-center transition-all ${selectedFilter === "custom"
-                  ? "bg-[#A47CF3] text-white shadow-md"
-                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                  ? "text-white shadow-md border-0"
+                  : "bg-white dark:bg-card text-gray-700 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Custom
@@ -270,7 +294,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                       type="date"
                       value={fromDate}
                       onChange={(e) => { setFromDate(e.target.value); setIsCustomSubmitted(false); }}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] transition"
                     />
                   </div>
                   <div className="flex-1 flex flex-col gap-1">
@@ -279,14 +303,14 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                       type="date"
                       value={toDate}
                       onChange={(e) => { setToDate(e.target.value); setIsCustomSubmitted(false); }}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#A47CF3] transition"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-card text-gray-900 dark:text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] transition"
                     />
                   </div>
                 </div>
                 <button
                   onClick={() => setIsCustomSubmitted(true)}
                   className="w-full py-4 rounded-xl text-white font-bold text-base shadow-md transition-all hover:opacity-95 active:scale-[0.99] mt-1"
-                  style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
+                  style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)" }}
                 >
                   Submit
                 </button>
@@ -333,7 +357,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                         <button
                           type="button"
                           onClick={() => setShowCustomerInfo(v => !v)}
-                          className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                          className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
                           aria-label="Customer info"
                         >
                           <Info className="w-3.5 h-3.5" />
@@ -341,7 +365,7 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                       </div>
                     </div>
                     {showCustomerInfo && (
-                      <div className="text-xs text-[#A47CF3] bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-xl border border-purple-100 dark:border-purple-800/30">
+                      <div className="text-xs text-[#592C16] bg-stone-50 dark:bg-stone-900/30 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-800/40">
                         The list ranks Contacts from highest to lowest by the number of transactions.
                       </div>
                     )}
@@ -364,8 +388,8 @@ export function ReportsAnalytics({ onNavigate, embedded = false, isGuest, contac
                         <div key={customer.id}>
                           <div className="flex items-center gap-3">
                             {/* Profile Icon */}
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                              <span className="text-white text-sm font-semibold">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                              <span className="text-[#592C16] text-sm font-bold">
                                 {getInitials(customer.name)}
                               </span>
                             </div>

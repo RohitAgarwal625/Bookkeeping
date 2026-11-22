@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Wallet } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
-import { BookkeepingLogo } from "./components/BookkeepingLogo";
 import { Dashboard } from "./components/Dashboard";
 import { AddCustomer } from "./components/AddCustomer";
 import { CustomerLedger } from "./components/CustomerLedger";
@@ -43,7 +42,7 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
       <div className="relative w-full max-w-[360px]" style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}>
         <div className="bg-white dark:bg-card rounded-2xl p-6 text-center" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)" }}>
           {/* Enlarged wallet icon with Pi icon from Pay button centered inside it */}
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-4 shadow-lg relative">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg relative" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
             <div className="relative flex items-center justify-center w-10 h-10">
               <Wallet className="w-9 h-9 text-white" />
               <div className="absolute inset-0 flex items-center justify-center" style={{ transform: "translate(-4.5px, 2.5px)" }}>
@@ -59,8 +58,8 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
           </p>
           <button
             onClick={onConnect}
-            className="w-full py-3 rounded-full text-white font-bold mb-4"
-            style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
+            className="w-full py-3 rounded-full text-white font-bold mb-4 shadow-lg hover:shadow-xl transition-shadow duration-300"
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
           >
             Connect Pi Wallet
           </button>
@@ -72,6 +71,19 @@ function GuestModal({ onConnect, onDismiss }: { onConnect: () => void; onDismiss
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function LoginLogoTitle() {
+  return (
+    <div className="logo-title-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+      <h1
+        className="text-gray-900 dark:text-foreground text-center"
+        style={{ fontFamily: "'Dancing Script', cursive", fontSize: "2.35rem", fontWeight: 700, lineHeight: 1.1 }}
+      >
+        BOOKKEEPING
+      </h1>
     </div>
   );
 }
@@ -772,7 +784,7 @@ function AppContent() {
         <style>{`@keyframes bk-restore-spin { to { transform: rotate(360deg); } }`}</style>
         <div
           aria-label="Loading"
-          style={{ width: "40px", height: "40px", borderRadius: "9999px", border: "4px solid rgba(164,124,243,0.25)", borderTopColor: "#A47CF3", animation: "bk-restore-spin 0.8s linear infinite" }}
+          style={{ width: "40px", height: "40px", borderRadius: "9999px", border: "4px solid rgba(89,44,22,0.25)", borderTopColor: "#592C16", animation: "bk-restore-spin 0.8s linear infinite" }}
         />
         <p className="text-sm text-gray-500 dark:text-muted-foreground">Loading your app...</p>
       </div>
@@ -830,19 +842,20 @@ function AppContent() {
       `}</style>
       <div style={{ flex: 1, width: "100%", maxWidth: "448px", margin: "0 auto", padding: "0 24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
 
-        {/* Section 1: Logo at top with spacing matching bottom */}
-        <div style={{ paddingTop: "52px", display: "flex", justifyContent: "center", width: "100%" }}>
+        {/* Section 1: Large Logo at top with spacing */}
+        <div style={{ paddingTop: "6vh", display: "flex", justifyContent: "center", width: "100%" }}>
           <img
             src={bookLogo}
             alt="Bookkeeping Logo"
-            style={{ width: "300px", maxWidth: "100%", height: "auto" }}
+            style={{ width: "100%", height: "auto" }}
             className="object-contain drop-shadow-md logo-title-container"
           />
         </div>
 
-        {/* Section 2: Textual Logo 'BOOKKEEPIING' & tagline — vertically centered */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", padding: "20px 0" }}>
-          <h1 className="text-gray-900 dark:text-foreground text-2xl font-bold text-center tracking-wider">BOOKKEEPIING</h1>
+        {/* Section 2: Title + Tagline — vertically centered in remaining space */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
+          <LoginLogoTitle />
+          {/* Tagline */}
           <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <p className="text-black dark:text-gray-400" style={{ fontSize: "1.45rem", fontFamily: "'Dancing Script', cursive", fontWeight: 600 }}>
               <span className="write-container">
@@ -859,35 +872,36 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Section 3: Buttons moved down + Footer links */}
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px", paddingBottom: "28px" }}>
+        {/* Section 3: CTA buttons pushed to bottom */}
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", paddingBottom: "5vh" }}>
           {piSignInError && (
-            <p className="text-red-500 text-xs text-center">{piSignInError}</p>
+            <p className="text-red-500 text-xs text-center" style={{ marginBottom: "16px" }}>{piSignInError}</p>
           )}
-          <button
-            id="btn-pi-sign-in"
-            onClick={() => void handlePiSignIn()}
-            disabled={piSignInLoading}
-            className="w-full py-4 px-6 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-60 flex items-center justify-center gap-3"
-            style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)" }}
-          >
-            {/* Pi symbol */}
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <text x="12" y="13" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="20" fontWeight="bold" fontFamily="serif">π</text>
-            </svg>
-            {piSignInLoading ? "Signing in…" : "Sign in with Pi"}
-          </button>
-          <button
-            id="btn-guest-login"
-            onClick={handleGuestLogin}
-            className="w-full py-4 px-6 rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
-            style={{ background: "linear-gradient(to right, #F7C548, #A47CF3)" }}
-          >
-            Continue as Guest
-          </button>
-
+          <div style={{ display: "flex", flexDirection: "column", gap: "32px", width: "100%" }}>
+            <button
+              id="btn-pi-sign-in"
+              onClick={() => void handlePiSignIn()}
+              disabled={piSignInLoading}
+              className="w-full py-4 px-6 rounded-full text-white font-bold text-lg shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-60 flex items-center justify-center gap-3"
+              style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
+            >
+              {/* Pi symbol */}
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <text x="12" y="13" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="20" fontWeight="bold" fontFamily="serif">π</text>
+              </svg>
+              {piSignInLoading ? "Signing in…" : "Sign in with Pi"}
+            </button>
+            <button
+              id="btn-guest-login"
+              onClick={handleGuestLogin}
+              className="w-full py-4 px-6 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-shadow duration-300 text-white"
+              style={{ background: "linear-gradient(to right, #8A532B, #592C16)" }}
+            >
+              Continue as Guest
+            </button>
+          </div>
           {/* Footer links */}
-          <div style={{ paddingTop: "14px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
+          <div style={{ paddingTop: "28px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
             <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
             <span>•</span>
             <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>

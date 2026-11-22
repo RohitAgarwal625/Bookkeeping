@@ -9,7 +9,7 @@ interface InviteModalProps {
   onClose: () => void;
 }
 
-const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
+const GRADIENT = "linear-gradient(to right, #592C16, #8A532B)";
 
 /** "This person isn't on the app yet": paying them is blocked; invite them instead. */
 export function InviteModal({ name, onClose }: InviteModalProps) {
@@ -79,7 +79,7 @@ export function InviteModal({ name, onClose }: InviteModalProps) {
             fontWeight: 700,
             marginBottom: "12px",
             background: GRADIENT,
-            boxShadow: "0 6px 24px rgba(164,124,243,0.4)",
+            boxShadow: "0 6px 24px rgba(89,44,22,0.35)",
             opacity: sharing ? 0.7 : 1,
           }}
         >

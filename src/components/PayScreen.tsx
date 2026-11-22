@@ -32,7 +32,7 @@ type ScreenState = "form" | "processing" | "success";
 const POLL_MS = 8000;
 const POLL_LIMIT_MS = WALLET_POLL_LIMIT_MS;
 
-const GRADIENT = "linear-gradient(135deg, #A47CF3, #F7C548)";
+const GRADIENT = "linear-gradient(to right, #592C16, #8A532B)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 /** Pi has 7 decimal places; the server rejects more. */
 const AMOUNT_PATTERN = /^\d+(\.\d{1,7})?$/;
@@ -396,7 +396,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               onClick={() => void checkForPayment("check", true)}
               disabled={isChecking}
               className="w-full py-4 rounded-2xl font-bold text-base text-white"
-              style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(164,124,243,0.4)", opacity: isChecking ? 0.7 : 1 }}
+              style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)", opacity: isChecking ? 0.7 : 1 }}
             >
               {isChecking ? "Checking…" : "I've paid, check now"}
             </button>
@@ -439,7 +439,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "32px", padding: "32px", paddingTop: "80px", position: "relative", zIndex: 10 }}>
           {/* Animated success badge */}
           <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
-            style={{ background: GRADIENT, boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+            style={{ background: GRADIENT, boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}>
             <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
 
@@ -502,8 +502,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             }}
             className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 cursor-pointer relative z-30"
             style={{
-              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+              background: "linear-gradient(to right, #592C16, #7B3D1E)",
+              boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
             }}
           >
             Open Ledger
@@ -522,7 +522,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             <button
               onClick={resetForm}
               className="flex-1 py-4 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2"
-              style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(164,124,243,0.4)" }}
+              style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)" }}
             >
               Pay Again
             </button>
@@ -549,7 +549,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           <label className="block text-base font-semibold text-gray-700 dark:text-foreground mb-2">
             Public Key
           </label>
-          <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-border focus-within:border-[#A47CF3] dark:focus-within:border-[#A47CF3] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
+          <div className="flex items-center bg-gray-50 dark:bg-secondary border-2 border-gray-100 dark:border-border focus-within:border-[#592C16] dark:focus-within:border-[#8A532B] rounded-2xl px-4 py-3.5 transition-all shadow-sm">
             <textarea
               value={!isPublicKeyFocused && publicKey.length > 10
                 ? `${publicKey.slice(0, 5)}.....${publicKey.slice(-5)}`
@@ -567,7 +567,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             {/* Verification tick */}
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all duration-300 ${isVerified
-                ? "bg-[#A47CF3] border-[#A47CF3]"
+                ? "bg-[#592C16] border-[#592C16]"
                 : "bg-white dark:bg-card border-gray-300 dark:border-border"
                 }`}
             >
@@ -588,7 +588,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               <button
                 onClick={() => onAddPioneer?.(publicKey.trim())}
                 className="w-full py-3 px-4 rounded-xl text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                style={{ background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)", boxShadow: "0 4px 16px rgba(111,60,151,0.35)" }}
+                style={{ background: "linear-gradient(to right, #592C16, #7B3D1E)", boxShadow: "0 4px 16px rgba(89, 44, 22, 0.35)" }}
               >
                 <span>Add Contact</span>
                 <UserPlus className="w-4 h-4" />
@@ -627,7 +627,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 onBlur={handlePioneerBlur}
                 onChange={(e) => handlePioneerSearchChange(e.target.value)}
                 placeholder="Select from Contacts"
-                className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground outline-none text-base font-medium caret-[#A47CF3]"
+                className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground outline-none text-base font-medium caret-black dark:caret-white"
               />
               <ChevronDown
                 className={`w-4 h-4 text-gray-400 dark:text-muted-foreground flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
@@ -645,10 +645,10 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                   <div
                     key={contact.id}
                     onMouseDown={(e) => { e.preventDefault(); handleSelectPioneer(contact); }}
-                    className={`flex items-center gap-3 px-4 py-3 hover:bg-purple-50 dark:hover:bg-secondary cursor-pointer transition-colors ${i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
+                    className={`flex items-center gap-3 px-4 py-3 hover:bg-[#F5EDE6] dark:hover:bg-secondary cursor-pointer transition-colors ${i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
                       }`}
                   >
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-[#592C16] text-sm font-bold shadow-sm" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                       {getInitials(contact.name)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -702,9 +702,9 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                   onClick={() => setAmount(preset)}
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${isSelected
                     ? "text-white shadow-md border-0"
-                    : "bg-white dark:bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-[#A47CF3] hover:text-[#A47CF3] dark:hover:text-[#A47CF3]"
+                    : "bg-white dark:bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-[#592C16] dark:hover:border-[#8A532B] hover:text-[#592C16] dark:hover:text-[#EFC8AC]"
                     }`}
-                  style={isSelected ? { background: "linear-gradient(to right, #A47CF3, #F7C548)" } : undefined}
+                  style={isSelected ? { background: GRADIENT } : undefined}
                 >
                   {preset} π
                 </button>
@@ -723,7 +723,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             <div className="mb-4 bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 flex items-center justify-between">
               <div className="flex items-center gap-3 min-w-0">
                 {isVerified ? (
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-base font-bold shadow-md flex-shrink-0">
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-[#592C16] text-base font-bold shadow-md flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                     {getInitials(recipientName)}
                   </div>
                 ) : (
@@ -740,7 +740,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               </div>
               <div className="text-right flex-shrink-0 pl-3">
                 <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Amount</p>
-                <p className={`font-black text-lg leading-none ${amount ? "text-[#6F3C97] dark:text-[#A47CF3]" : "text-gray-300 dark:text-muted-foreground"}`}>
+                <p className={`font-black text-lg leading-none ${amount ? "text-[#592C16] dark:text-[#EFC8AC]" : "text-gray-300 dark:text-muted-foreground"}`}>
                   {amount ? `${amount} π` : "— π"}
                 </p>
               </div>
@@ -753,7 +753,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:cursor-not-allowed"
             style={{
               background: !canPay ? (isDark ? "#252830" : "#e5e7eb") : GRADIENT,
-              boxShadow: !canPay ? "none" : "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)",
+              boxShadow: !canPay ? "none" : "0 6px 24px rgba(89, 44, 22, 0.45), 0 2px 8px rgba(138, 83, 43, 0.25)",
               color: !canPay ? (isDark ? "#9a9aa5" : "#9ca3af") : "#fff",
             }}
           >

@@ -236,7 +236,7 @@ export function Settings({
   // ── EDIT PROFILE SUB-SCREEN ──────────────────────────────────────────
   if (activeSubScreen === "editProfile") {
     return (
-      <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+      <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
         <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
           <button
             onClick={() => setActiveSubScreen(null)}
@@ -253,8 +253,8 @@ export function Settings({
         <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center gap-6" style={{ paddingBottom: "111px" }}>
           {/* Profile Avatar */}
           <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg overflow-hidden">
-              <span className="text-white text-2xl font-bold">{isGuest ? "?" : (displayName ? getInitials(displayName) : "?")}</span>
+            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg overflow-hidden" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+              <span className="text-[#592C16] text-2xl font-bold">{isGuest ? "?" : (displayName ? getInitials(displayName) : "?")}</span>
             </div>
           </div>
 
@@ -268,7 +268,7 @@ export function Settings({
                 <button
                   type="button"
                   onClick={() => setShowDisplayNameInfo((v) => !v)}
-                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
                   aria-label="Display Name info"
                 >
                   <Info className="w-3.5 h-3.5" />
@@ -284,7 +284,7 @@ export function Settings({
                       setEditingName(displayName);
                     }
                   }}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-secondary hover:bg-[#F5EDE6] dark:hover:bg-[#592C16]/30 transition-colors"
                   aria-label="Edit Display Name"
                 >
                   <Pencil className="w-3.5 h-3.5 text-gray-500 dark:text-muted-foreground" />
@@ -306,7 +306,7 @@ export function Settings({
                   onChange={(e) => setEditingName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && void handleSaveName()}
                   autoFocus
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#A47CF3] bg-purple-50/50 dark:bg-secondary dark:border-[#8A2BE2]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3]"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#592C16] bg-[#F5EDE6] dark:bg-secondary dark:border-[#8A532B]/50 text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B]"
                 />
                 <button
                   onClick={() => void handleSaveName()}
@@ -348,7 +348,7 @@ export function Settings({
                   autoCorrect="off"
                   spellCheck={false}
                   aria-label="Your Pi wallet address"
-                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-gray-900 dark:text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-gray-900 dark:text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
                 />
                 {walletError && (
                   <p className="text-xs text-red-500 dark:text-red-400 mt-2">{walletError}</p>
@@ -358,7 +358,7 @@ export function Settings({
                     onClick={() => void handleSaveWallet()}
                     disabled={!walletInput.trim() || savingWallet}
                     className="flex-1 h-12 rounded-xl text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+                    style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
                   >
                     {savingWallet ? "Checking..." : "Save"}
                   </button>
@@ -389,7 +389,7 @@ export function Settings({
                 <button
                   onClick={startEditingWallet}
                   className={`w-full mt-3 h-12 rounded-xl font-bold text-sm ${piWalletAddress ? "bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground" : "text-white"}`}
-                  style={piWalletAddress ? undefined : { background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+                  style={piWalletAddress ? undefined : { background: "linear-gradient(to right, #592C16, #8A532B)" }}
                 >
                   {piWalletAddress ? "Change wallet address" : "Add my wallet address"}
                 </button>
@@ -418,8 +418,8 @@ export function Settings({
           </div>
 
           {/* Verified badge */}
-          <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-purple-200 dark:border-purple-800/40">
-            <CheckCircle className="w-4 h-4 text-[#A47CF3]" />
+          <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#F5EDE6] to-stone-50 dark:from-[#592C16]/20 dark:to-[#8A532B]/20 rounded-full border border-[#592C16]/25 dark:border-[#8A532B]/40">
+            <CheckCircle className="w-4 h-4 text-black dark:text-white" />
             <span className="text-sm text-gray-700 dark:text-gray-300">Verified via Pi Wallet</span>
           </div>
         </div>
@@ -431,7 +431,7 @@ export function Settings({
   // ── FAQs SUB-SCREEN ──────────────────────────────────────────────────
   if (activeSubScreen === "faqs") {
     return (
-      <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+      <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
         <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
           <button
             onClick={() => setActiveSubScreen(null)}
@@ -447,9 +447,9 @@ export function Settings({
 
         <div className="flex-1 overflow-y-auto px-6 py-6" style={{ paddingBottom: "111px" }}>
           {/* Intro banner */}
-          <div className="bg-gradient-to-r from-[#A47CF3]/10 to-[#F7C548]/10 dark:from-purple-950/30 dark:to-yellow-950/20 rounded-2xl p-4 mb-6 border border-purple-100 dark:border-purple-800/30">
+          <div className="bg-gradient-to-r from-[#592C16]/10 to-[#8A532B]/10 dark:from-[#592C16]/30 dark:to-[#8A532B]/20 rounded-2xl p-4 mb-6 border border-[#592C16]/15 dark:border-[#8A532B]/30">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
                 <HelpCircle className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -468,7 +468,7 @@ export function Settings({
                 <div
                   key={faq.id}
                   className={`bg-white dark:bg-card rounded-2xl shadow-sm dark:shadow-none dark:border transition-all overflow-hidden ${isOpen
-                    ? "dark:border-[#8A2BE2]/40 shadow-md"
+                    ? "dark:border-[#8A532B]/40 shadow-md"
                     : "dark:border-border"
                     }`}
                 >
@@ -481,9 +481,10 @@ export function Settings({
                     </span>
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${isOpen
-                        ? "bg-gradient-to-br from-[#A47CF3] to-[#F7C548]"
+                        ? ""
                         : "bg-gray-100 dark:bg-secondary"
                         }`}
+                      style={isOpen ? { background: "linear-gradient(to right, #592C16, #8A532B)" } : undefined}
                     >
                       {isOpen ? (
                         <ChevronUp className="w-4 h-4 text-white" />
@@ -516,7 +517,7 @@ export function Settings({
   // ── ABOUT US SUB-SCREEN ──────────────────────────────────────────────
   if (activeSubScreen === "aboutUs") {
     return (
-      <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+      <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
         <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
           <button
             onClick={() => setActiveSubScreen(null)}
@@ -532,7 +533,7 @@ export function Settings({
 
         <div className="flex-1 overflow-y-auto px-6 py-6" style={{ paddingBottom: "111px" }}>
           {/* Hero */}
-          <div className="bg-gradient-to-br from-[#A47CF3] to-[#F7C548] rounded-2xl p-6 mb-6 text-white shadow-lg">
+          <div className="rounded-2xl p-6 mb-6 text-white shadow-lg" style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.35)" }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
                 <span className="text-white text-xl font-bold">π</span>
@@ -550,7 +551,7 @@ export function Settings({
           {/* What We Do */}
           <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5 mb-4">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-[#F5EDE6] dark:bg-[#592C16]/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-sm">⚡</span>
               </div>
               <h3 className="text-gray-900 dark:text-foreground font-semibold">What We Do</h3>
@@ -574,7 +575,7 @@ export function Settings({
           </div>
 
           {/* Pi Network */}
-          <div className="bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/10 rounded-2xl p-5 mb-4 border border-purple-100 dark:border-purple-800/30">
+          <div className="bg-gradient-to-r from-[#F5EDE6] to-stone-50 dark:from-[#592C16]/20 dark:to-[#8A532B]/10 rounded-2xl p-5 mb-4 border border-[#592C16]/15 dark:border-[#8A532B]/30">
             <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed text-center italic">
               "Pi Network is building the world's most inclusive peer-to-peer marketplace, powered by everyday people. We are proud to be part of that journey."
             </p>
@@ -591,11 +592,11 @@ export function Settings({
 
   // ── MAIN SETTINGS SCREEN ─────────────────────────────────────────────
   return (
-    <div className="size-full flex flex-col bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Header */}
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
-        <div className="w-8 flex-shrink-0" />
-        <h1 className="text-base font-bold text-gray-900 dark:text-foreground flex-1 text-center">Settings</h1>
+        <div className="w-10 flex-shrink-0" />
+        <h1 className="text-xl font-bold text-gray-900 dark:text-foreground flex-1 text-center">Settings</h1>
         <div className="flex-shrink-0">
           <BookkeepingLogo compact />
         </div>
@@ -606,8 +607,8 @@ export function Settings({
         {/* Profile Section */}
         <div className="bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-6 mb-6">
           <div className="flex flex-col items-center mb-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center shadow-lg mb-3 overflow-hidden">
-              <span className="text-white text-2xl font-bold">{isGuest ? "?" : getInitials(displayName)}</span>
+            <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg mb-3 overflow-hidden" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+              <span className="text-[#592C16] text-2xl font-bold">{isGuest ? "?" : (displayName ? getInitials(displayName) : "?")}</span>
             </div>
 
             <h3 className="text-gray-900 dark:text-foreground mb-1">{isGuest ? "Guest User" : displayName}</h3>
@@ -630,8 +631,8 @@ export function Settings({
                 <span className="text-xs text-amber-700 dark:text-amber-400">Browsing as Guest — Limited Access</span>
               </div>
             ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-yellow-50 dark:from-purple-950/20 dark:to-yellow-950/20 rounded-full border border-purple-200 dark:border-purple-800/40">
-              <CheckCircle className="w-3.5 h-3.5 text-[#A47CF3]" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#F5EDE6] to-stone-50 dark:from-[#592C16]/20 dark:to-[#8A532B]/20 rounded-full border border-[#592C16]/25 dark:border-[#8A532B]/40">
+              <CheckCircle className="w-3.5 h-3.5 text-black dark:text-white" />
               <span className="text-xs text-gray-700 dark:text-gray-300">Verified via Pi Wallet</span>
             </div>
             )}
@@ -688,7 +689,7 @@ export function Settings({
                 <div
                   className="w-4 h-4 rounded-full shadow-md transition-transform duration-200"
                   style={{
-                    background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                    background: "linear-gradient(to right, #592C16, #8A532B)",
                     transform: isDarkMode ? "translateX(20px)" : "translateX(0)",
                   }}
                 />

@@ -353,7 +353,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
         </header>
 
         <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-xl"
-          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}>
+          style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}>
           <CheckCircle className="w-10 h-10 text-white" />
         </div>
         <div className="text-center w-full">
@@ -374,7 +374,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
             <button
               onClick={handleCopyAddress}
               className="w-full flex items-center justify-center gap-2 rounded-xl text-white text-sm"
-              style={{ minHeight: "44px", fontWeight: 600, background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+              style={{ minHeight: "44px", fontWeight: 600, background: "linear-gradient(to right, #592C16, #8A532B)" }}
             >
               <Copy className="w-4 h-4" />
               Copy Address
@@ -383,7 +383,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
         ) : (
           <button onClick={() => void handlePayThisAddress()} disabled={isOpening || isStarting}
             className="w-full py-4 rounded-2xl font-bold text-white text-base"
-            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.4)", opacity: isOpening || isStarting ? 0.7 : 1 }}>
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)", opacity: isOpening || isStarting ? 0.7 : 1 }}>
             {isStarting ? "Checking…" : isOpening ? "Opening Pi Wallet…" : "Pay this Address"}
           </button>
         )}
@@ -405,7 +405,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
               onSubmit={(e) => { e.preventDefault(); void handleSaveAndPay(); }}
               style={{ maxWidth: "360px", animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both", boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)" }}
             >
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center mx-auto mb-3 shadow-lg">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-r from-[#592C16] to-[#8A532B] flex items-center justify-center mx-auto mb-3 shadow-lg">
                 <UserPlus className="w-7 h-7 text-white" />
               </div>
               <h3 id="save-contact-title" className="font-bold text-gray-900 dark:text-foreground text-lg mb-1 text-center">Save this contact</h3>
@@ -422,7 +422,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
                 value={newName}
                 onChange={(e) => setNewName(e.target.value.replace(/\b\w/g, (c) => c.toUpperCase()))}
                 placeholder="Full Name"
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all mb-3"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all mb-3"
               />
               <label htmlFor="qr-contact-wallet" className="block text-sm font-medium text-gray-900 dark:text-foreground mb-1">Wallet Address</label>
               <input
@@ -437,7 +437,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
                 type="submit"
                 disabled={isSaving || !newName.trim()}
                 className="w-full py-3 rounded-full text-white font-bold mb-3"
-                style={{ background: "linear-gradient(to right, #A47CF3, #F7C548)", opacity: isSaving || !newName.trim() ? 0.6 : 1 }}
+                style={{ background: "linear-gradient(to right, #592C16, #8A532B)", opacity: isSaving || !newName.trim() ? 0.6 : 1 }}
               >
                 {isSaving ? "Saving…" : "Save & Pay"}
               </button>
@@ -522,8 +522,8 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95 whitespace-nowrap"
               style={{
-                background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-                boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+                background: "linear-gradient(to right, #592C16, #8A532B)",
+                boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
               }}
             >
               <span className="whitespace-nowrap">Upload QR Image</span>
@@ -561,7 +561,7 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
               <div style={{ position: 'absolute', bottom: '-5px', right: '-5px', width: '5px', height: '45px', backgroundColor: '#ffffff' }} />
 
               {/* Animated scan line */}
-              <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#A47CF3] to-transparent"
+              <div className="absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#B55A38] to-transparent"
                 style={{ animation: "scanLine 2s ease-in-out infinite", top: "50%" }} />
 
               {/* Centered instruction text */}
@@ -577,8 +577,8 @@ export function QRScannerScreen({ onBack, contacts, onSaveContact, onWalletOpene
               onClick={() => fileInputRef.current?.click()}
               className="pointer-events-auto flex items-center justify-center gap-2 px-6 py-3 rounded-full text-white font-semibold text-sm shadow-lg transition-transform active:scale-95 whitespace-nowrap"
               style={{
-                background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-                boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+                background: "linear-gradient(to right, #592C16, #8A532B)",
+                boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
               }}
             >
               <span className="whitespace-nowrap">Upload QR Image</span>

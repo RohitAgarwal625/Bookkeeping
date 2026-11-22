@@ -4,8 +4,8 @@ export function PiWalletIcon() {
       <svg viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="walletGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#A47CF3', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#F7C548', stopOpacity: 1 }} />
+            <stop offset="0%" style={{ stopColor: '#592C16', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#8A532B', stopOpacity: 1 }} />
           </linearGradient>
         </defs>
         
@@ -20,7 +20,7 @@ export function PiWalletIcon() {
         
         {/* Pi symbol simplified */}
         <circle cx="64" cy="74" r="18" fill="white" opacity="0.9"/>
-        <text x="64" y="82" textAnchor="middle" fill="#A47CF3" fontSize="20" fontWeight="bold">π</text>
+        <text x="64" y="82" textAnchor="middle" fill="#592C16" fontSize="20" fontWeight="bold">π</text>
       </svg>
     </div>
   );

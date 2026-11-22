@@ -134,11 +134,11 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
   // ── Success Overlay ─────────────────────────────────────────────
   if (showSuccessOverlay) {
     return (
-      <div style={{ minHeight: "100dvh" }} className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
+      <div style={{ minHeight: "100dvh" }} className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115] animate-in fade-in duration-300">
         <div className="flex flex-col items-center gap-6 px-8 text-center" style={{ transform: "translateY(-32px)" }}>
           {/* Gradient check circle */}
           <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl mx-auto"
-            style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}>
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}>
             <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
           <div className="space-y-2">
@@ -157,8 +157,8 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
             }}
             className="mt-4 rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2"
             style={{
-              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+              background: "linear-gradient(to right, #592C16, #7B3D1E)",
+              boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
               padding: "14px 48px",
               minWidth: "160px",
             }}
@@ -192,8 +192,8 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
       <div className="flex-1 overflow-y-auto px-6 py-8">
         {/* Illustration */}
         <div className="flex justify-center mb-8">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-100 to-yellow-100 dark:from-purple-950/30 dark:to-yellow-950/30 flex items-center justify-center">
-            <svg className="w-16 h-16 text-[#A47CF3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-32 h-32 rounded-full bg-[#592C16]/10 dark:bg-[#592C16]/20 flex items-center justify-center">
+            <svg className="w-16 h-16 text-[#592C16]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
@@ -212,10 +212,10 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
                 id="category"
                 type="button"
                 onClick={() => setIsCategoryOpen((prev) => !prev)}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all flex items-center justify-between"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all flex items-center justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${category === "individual" ? "bg-purple-400" : "bg-[#9ca3af]"}`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${category === "individual" ? "bg-[#592C16]" : "bg-[#8A532B]"}`} />
                   <span className="font-medium capitalize">
                     {category === "business" ? "Business" : "Individual"}
                   </span>
@@ -238,16 +238,16 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
                         style={isBusiness ? { backgroundColor: "#9ca3af" } : undefined}
                         className={`flex items-center justify-between px-4 py-3 transition-colors ${isBusiness
                           ? "cursor-not-allowed text-white"
-                          : "cursor-pointer hover:bg-purple-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
+                          : "cursor-pointer hover:bg-stone-50 dark:hover:bg-secondary border-b border-gray-50 dark:border-border"
                           }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-purple-400" : "bg-white"}`} />
+                          <span className={`w-2.5 h-2.5 rounded-full ${opt === "individual" ? "bg-[#592C16]" : "bg-[#8A532B]"}`} />
                           <span className={`font-medium capitalize ${isBusiness ? "text-white" : "text-gray-900 dark:text-foreground"}`}>
                             {opt === "business" ? "Business" : "Individual"}
                           </span>
                         </div>
-                        {category === opt && <Check className="w-4 h-4 text-[#A47CF3]" />}
+                        {category === opt && <Check className="w-4 h-4 text-[#592C16]" />}
                       </div>
                     );
                   })}
@@ -267,7 +267,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
               value={firstName}
               onChange={(e) => setFirstName(capitalizeWords(e.target.value))}
               placeholder="Full Name"
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
             />
           </div>
 
@@ -279,7 +279,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
               value={lastName}
               onChange={(e) => setLastName(capitalizeWords(e.target.value))}
               placeholder="Last Name"
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
             />
           </div>
 
@@ -303,17 +303,17 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
                 onBlur={() => setIsWalletFocused(false)}
                 placeholder="Pi Wallet Address"
                 rows={isWalletFocused && piWallet.length > 20 ? Math.min(4, Math.max(1, Math.ceil(piWallet.length / 20))) : 1}
-                className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all resize-none break-all leading-snug overflow-hidden text-base font-medium"
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all resize-none break-all leading-snug overflow-hidden text-base font-medium"
               />
-              {/* Validation tick — matches PayScreen style: grey by default, purple filled when validated */}
+              {/* Validation tick */}
               <div
                 className={`absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isValidated
-                  ? "bg-[#A47CF3] border-[#A47CF3]"
-                  : "bg-white dark:bg-[#1a1a2e] border-gray-300 dark:border-gray-500"
+                  ? "bg-[#592C16] border-[#592C16]"
+                  : "bg-white dark:bg-card border-gray-300 dark:border-border"
                   }`}
                 title={isValidated ? "Pi Wallet Address validated" : "Not validated yet"}
               >
-                <Check className={`w-4 h-4 transition-colors duration-300 ${isValidated ? "text-white" : "text-gray-300 dark:text-gray-500"}`} strokeWidth={3} />
+                <Check className={`w-4 h-4 transition-colors duration-300 ${isValidated ? "text-white" : "text-gray-300 dark:text-muted-foreground"}`} strokeWidth={3} />
               </div>
             </div>
           </div>
@@ -324,7 +324,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
               onClick={() => void handleSave()}
               disabled={isSaving}
               className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+              style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" }}
             >
               {isSaving ? "Saving..." : "Save"}
             </button>
@@ -343,7 +343,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
                 onClick={handleValidate}
                 disabled={!allFieldsFilled || isValidating || isWalletFocused}
                 className="w-full py-4 px-6 mt-8 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)", pointerEvents: isWalletFocused ? "none" : undefined }}
+                style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)", pointerEvents: isWalletFocused ? "none" : undefined }}
               >
                 {isValidating ? "Validating..." : "Validate"}
               </button>
@@ -387,8 +387,8 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
                 onClick={() => setShowInvalidPopup(false)}
                 className="rounded-2xl font-bold text-white text-base tracking-wide flex items-center justify-center gap-2 hover:opacity-95 transition-opacity"
                 style={{
-                  background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-                  boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+                  background: "linear-gradient(to right, #592C16, #7B3D1E)",
+                  boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
                   padding: "14px 48px",
                   minWidth: "160px",
                 }}

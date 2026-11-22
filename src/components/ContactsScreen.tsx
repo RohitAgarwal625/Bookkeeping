@@ -61,8 +61,8 @@ export function ContactsScreen({
       {/* Header — only contains "Contacts" title + separator */}
       <header className="bg-background shadow-sm border-b border-gray-200 dark:border-border px-6 py-4 z-10 relative">
         <div className="flex items-center">
-          <div className="w-8 flex-shrink-0" />
-          <h1 className="flex-1 text-base font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
+          <div className="w-10 flex-shrink-0" />
+          <h1 className="flex-1 text-xl font-bold text-gray-900 dark:text-foreground text-center">Contacts</h1>
           <div className="flex-shrink-0">
             <BookkeepingLogo compact />
           </div>
@@ -84,7 +84,7 @@ export function ContactsScreen({
               }
             }}
             enterKeyHint="go"
-            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary border border-transparent focus:border-gray-300 dark:focus:border-gray-600 text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none caret-[#A47CF3] transition"
+            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-100 dark:bg-secondary border border-transparent focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground text-sm focus:outline-none caret-black dark:caret-white transition"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -125,7 +125,7 @@ export function ContactsScreen({
                 {/* Alphabet section divider */}
                 <div className="px-1 py-1 mb-1 flex items-center gap-2">
                   <span className="text-base font-extrabold text-black dark:text-white">{letter}</span>
-                  <div className="flex-1 h-px bg-purple-100 dark:bg-border" />
+                  <div className="flex-1 h-px bg-[#B55A38]" />
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -137,7 +137,7 @@ export function ContactsScreen({
                         key={contact.id}
                         ref={isNew ? newContactRef : undefined}
                         className={`rounded-2xl shadow-sm overflow-hidden transition-all duration-500 ${isNew
-                          ? "bg-purple-50 dark:bg-[#2A1F3D] ring-2 ring-[#A47CF3]"
+                          ? "bg-[#F5EDE6] dark:bg-[#2A1F3D] ring-2 ring-[#592C16] dark:ring-[#8A532B]"
                           : "bg-white dark:bg-card border border-gray-100 dark:border-border"
                           }`}
                       >
@@ -146,9 +146,9 @@ export function ContactsScreen({
                           <div className="flex items-center gap-3">
                             <div
                               className="w-14 h-14 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm"
-                              style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)" }}
+                              style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}
                             >
-                              <span className="text-white font-bold text-lg">
+                              <span className="text-[#592C16] font-bold text-lg">
                                 {getInitials(contact.name)}
                               </span>
                             </div>
@@ -160,7 +160,7 @@ export function ContactsScreen({
                               </p>
                               {isNew && (
                                 <span
-                                  className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#A47CF3]"
+                                  className="flex-shrink-0 whitespace-nowrap rounded-full text-[10px] font-bold text-white bg-[#592C16]"
                                   style={{ padding: "3px 10px", display: "inline-flex", alignItems: "center" }}
                                 >
                                   New
@@ -168,11 +168,11 @@ export function ContactsScreen({
                               )}
                             </div>
 
-                            <div className="flex-shrink-0 flex flex-col items-end gap-1.5 w-[95px]">
+                            <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
                               {/* Category tag at top right with icon aligned in same vertical line */}
                               <div className="text-sm font-medium w-full flex items-center justify-start">
                                 {contact.category === "individual" ? (
-                                  <span className="text-[#A47CF3] dark:text-[#A47CF3] flex items-center gap-1">
+                                  <span className="text-[#592C16] dark:text-[#EFC8AC] flex items-center gap-1">
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
                                       viewBox="0 0 512 512"
@@ -188,7 +188,7 @@ export function ContactsScreen({
                                     Individual
                                   </span>
                                 ) : (
-                                  <span className="text-[#F7C548] flex items-center gap-1">
+                                  <span className="text-[#8A532B] dark:text-[#EFC8AC] flex items-center gap-1">
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
                                       viewBox="0 0 24 24"
@@ -209,7 +209,7 @@ export function ContactsScreen({
                               <div className="w-full flex justify-end">
                                 <span
                                   onClick={() => onNavigateToContactDetails(contact)}
-                                  className="text-sm text-gray-500 dark:text-muted-foreground hover:text-purple-600 dark:hover:text-purple-400 font-medium inline-block cursor-pointer transition-colors underline underline-offset-2"
+                                  className="text-sm text-gray-500 dark:text-muted-foreground hover:text-[#592C16] dark:hover:text-[#EFC8AC] font-medium inline-block cursor-pointer transition-colors underline underline-offset-2"
                                 >
                                   Details
                                 </span>

@@ -78,7 +78,7 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
                 onClick={() => setType("debit")}
                 className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all ${type === "debit"
                     ? "border-red-500 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400"
-                    : "border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                    : "border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Debit (You Gave)
@@ -88,7 +88,7 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
                 onClick={() => setType("credit")}
                 className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all ${type === "credit"
                     ? "border-green-500 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
-                    : "border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-gray-300 dark:hover:border-[#8A2BE2]/40"
+                    : "border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-gray-300 dark:hover:border-[#8A532B]/40"
                   }`}
               >
                 Credit (You'll Get)
@@ -107,7 +107,7 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00000001"
-                className="w-full py-3 pl-10 pr-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#A47CF3] focus:ring-2 focus:ring-[#A47CF3]/20 outline-none transition-all [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full py-3 pl-10 pr-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#592C16] dark:focus:border-[#8A532B] focus:ring-2 focus:ring-[#592C16]/20 dark:focus:ring-[#8A532B]/20 outline-none transition-all [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
           </div>
@@ -126,15 +126,15 @@ export function AddEntryModal({ isOpen, onClose, onSubmit }: AddEntryModalProps)
               maxLength={100}
               placeholder="Add a note or description..."
               rows={3}
-              className="w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#A47CF3] focus:ring-2 focus:ring-[#A47CF3]/20 outline-none transition-all resize-none text-sm"
+              className="w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-border bg-white dark:bg-secondary text-foreground placeholder:text-muted-foreground focus:border-[#592C16] dark:focus:border-[#8A532B] focus:ring-2 focus:ring-[#592C16]/20 dark:focus:ring-[#8A532B]/20 outline-none transition-all resize-none text-sm"
             />
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 px-6 rounded-xl text-white font-medium transition-all"
-            style={{ background: "linear-gradient(135deg, #A47CF3, #F7C548)", boxShadow: "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" }}
+            className="w-full py-3 px-6 rounded-xl text-white font-medium transition-all shadow-lg hover:shadow-xl duration-300"
+            style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" }}
           >
             Record Transaction
           </button>

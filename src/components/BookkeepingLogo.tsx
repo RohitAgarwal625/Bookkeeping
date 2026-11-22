@@ -1,4 +1,4 @@
-import { BookOpen } from "lucide-react";
+import logo from "../assets/favicon.svg";
 
 interface BookkeepingLogoProps {
   compact?: boolean;
@@ -6,23 +6,20 @@ interface BookkeepingLogoProps {
 }
 
 export function BookkeepingLogo({ compact = false, large = false }: BookkeepingLogoProps) {
-  if (compact) {
-    return (
-      <div className="w-8 h-8 rounded-full bg-white dark:bg-card border-2 border-red-600 dark:border-[#8A2BE2] flex items-center justify-center shadow-sm flex-shrink-0">
-        <BookOpen className="w-4 h-4 text-red-600 dark:text-[#8A2BE2]" />
-      </div>
-    );
-  }
   if (large) {
     return (
-      <div className="w-full aspect-square max-w-[280px] rounded-full bg-white dark:bg-card border-[6px] border-red-600 dark:border-[#8A2BE2] flex items-center justify-center shadow-xl">
-        <BookOpen className="w-[45%] h-[45%] text-red-600 dark:text-[#8A2BE2]" />
-      </div>
+      <img
+        src={logo}
+        alt="Bookkeeping"
+        className="w-full aspect-square max-w-[280px] object-contain drop-shadow-xl"
+      />
     );
   }
   return (
-    <div className="w-20 h-20 rounded-full bg-white dark:bg-card border-4 border-red-600 dark:border-[#8A2BE2] flex items-center justify-center shadow-lg">
-      <BookOpen className="w-10 h-10 text-red-600 dark:text-[#8A2BE2]" />
-    </div>
+    <img
+      src={logo}
+      alt="Bookkeeping"
+      className={compact ? "w-10 h-10 relative left-3 object-contain flex-shrink-0" : "w-20 h-20 object-contain drop-shadow-md"}
+    />
   );
 }

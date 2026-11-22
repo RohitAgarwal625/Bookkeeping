@@ -170,7 +170,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
     return (
       <div
         style={{ minHeight: "100dvh", height: "100dvh" }}
-        className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-8 text-center"
+        className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115] px-8 text-center"
       >
         {/* Bouncing dots */}
         <div className="flex items-center justify-center gap-3 mb-8">
@@ -179,7 +179,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               key={i}
               className="w-4 h-4 rounded-full"
               style={{
-                background: "linear-gradient(135deg,#A47CF3,#F7C548)",
+                background: "linear-gradient(to right, #592C16, #8A532B)",
                 animation: "bounce-dot 0.8s ease-in-out infinite",
                 animationDelay: `${delay}s`,
               }}
@@ -187,7 +187,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           ))}
         </div>
         <p className="text-gray-900 dark:text-foreground font-bold text-2xl mb-2 text-center">Fetching Transactions</p>
-        <p className="text-[#A47CF3] text-base text-center font-semibold mb-2">{selectedContact?.name}</p>
+        <p className="text-[#B55A38] text-base text-center font-semibold mb-2">{selectedContact?.name}</p>
         <p className="text-gray-400 dark:text-muted-foreground text-sm text-center animate-pulse">{msg}</p>
         <style>{`@keyframes bounce-dot { 0%, 80%, 100% { transform: translateY(0); opacity: 0.5; } 40% { transform: translateY(-18px); opacity: 1; } }`}</style>
       </div>
@@ -207,11 +207,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
     return (
       <div
         style={{ minHeight: "100dvh", height: "100dvh", overflowY: "auto" }}
-        className="w-full flex flex-col items-center justify-start bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115] px-5 py-8 text-center"
+        className="w-full flex flex-col items-center justify-start bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115] px-5 py-8 text-center"
       >
         <div
           className="w-20 h-20 rounded-full flex items-center justify-center mb-5 shadow-2xl mx-auto flex-shrink-0"
-          style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)", boxShadow: "0 12px 40px rgba(164,124,243,0.5)" }}
+          style={{ background: "linear-gradient(to right, #592C16, #8A532B)", boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}
         >
           {saveError ? (
             <AlertCircle className="w-10 h-10 text-white" strokeWidth={2.5} />
@@ -227,7 +227,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-5 max-w-sm">
           {added > 0 ? (
             <>
-              <span className="font-bold text-[#6F3C97] dark:text-[#A47CF3] text-3xl">{added}</span>{" "}
+              <span className="font-bold text-[#B55A38] text-3xl">{added}</span>{" "}
               new transaction{added > 1 ? "s" : ""} found with{" "}
               <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> and {added > 1 ? "were" : "was"} added to your ledger successfully.
               {skipped > 0 && ` ${skipped} already in your ledger ${skipped > 1 ? "were" : "was"} not added again.`}
@@ -289,7 +289,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
               <span className={`font-medium ${label === "Transactions Added"
-                  ? "text-[#6F3C97] dark:text-[#A47CF3] font-bold text-xl"
+                  ? "text-[#592C16] dark:text-[#EFC8AC] font-bold text-xl"
                   : "text-gray-900 dark:text-foreground"
                 }`}>{value}</span>
             </div>
@@ -309,8 +309,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             }}
             className="w-full py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2"
             style={{
-              background: "linear-gradient(135deg, #6F3C97 0%, #A47CF3 100%)",
-              boxShadow: "0 6px 24px rgba(111,60,151,0.45)",
+              background: "linear-gradient(to right, #592C16, #7B3D1E)",
+              boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
             }}
           >
             Open Ledger
@@ -346,7 +346,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
     const canFetch = isValid && !!userWalletAddress;
 
     return (
-      <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+      <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
         <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border flex-shrink-0">
           <button onClick={() => setStep("selectContact")} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
@@ -358,7 +358,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           {!userWalletAddress && (
             <div className="bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border rounded-2xl p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-[#A47CF3] flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 text-[#592C16] dark:text-[#EFC8AC] flex-shrink-0" />
                 <p className="text-xs text-gray-600 dark:text-muted-foreground">
                   Add your own Pi wallet address first (Settings → Profile). The scan only adds payments between your wallet and {selectedContact?.name ?? "this contact"}.
                 </p>
@@ -367,7 +367,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 <button
                   onClick={onOpenSettings}
                   className="w-full mt-3 h-12 rounded-xl text-white font-bold text-sm"
-                  style={{ background: "linear-gradient(135deg,#A47CF3,#F7C548)" }}
+                  style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
                 >
                   Open Settings
                 </button>
@@ -381,7 +381,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 <button
                   type="button"
                   onClick={() => setShowInfo((v) => !v)}
-                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#A47CF3] transition-colors"
+                  className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
                   title="Date Range Limit Info"
                   aria-label="Date Range Limit Info"
                 >
@@ -398,19 +398,19 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
 
             <div className="space-y-3">
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold">
-                <CalendarDays className="w-4 h-4 text-[#A47CF3]" /> From Date
+                <CalendarDays className="w-4 h-4 text-[#592C16]" /> From Date
               </label>
               <input
                 type="date"
                 value={fromDate}
                 max={toDate || undefined}
                 onChange={(e) => handleFromDateChange(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
               />
             </div>
             <div className="space-y-3 pt-2">
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-foreground font-semibold">
-                <CalendarDays className="w-4 h-4 text-[#A47CF3]" /> To Date
+                <CalendarDays className="w-4 h-4 text-[#592C16]" /> To Date
               </label>
               <input
                 type="date"
@@ -418,7 +418,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 min={fromDate || undefined}
                 max={getMaxToDate(fromDate) || undefined}
                 onChange={(e) => handleToDateChange(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#A47CF3] focus:border-transparent transition-all"
+                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
               />
               {fromDate && (
                 <p className="text-xs text-gray-400 dark:text-muted-foreground mt-2">
@@ -436,8 +436,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           {selectedContact && (
             <div className="mb-4 bg-white dark:bg-card rounded-2xl shadow-md dark:border dark:border-border p-4 flex items-center justify-between">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center text-white text-base font-bold shadow-md flex-shrink-0">
-                  <span className="text-white font-bold">{getInitials(selectedContact.name)}</span>
+                <div className="w-11 h-11 rounded-full flex items-center justify-center text-base font-bold shadow-md flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                  <span className="text-[#592C16] font-bold">{getInitials(selectedContact.name)}</span>
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Fetching for</p>
@@ -448,7 +448,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               </div>
               <div className="text-right flex-shrink-0 pl-3">
                 <p className="text-xs text-gray-500 dark:text-muted-foreground mb-0.5">Period</p>
-                <p className={`font-semibold text-sm leading-none ${fromDate && toDate ? "text-[#6F3C97] dark:text-[#A47CF3]" : "text-gray-400 dark:text-gray-500"}`}>
+                <p className={`font-semibold text-sm leading-none ${fromDate && toDate ? "text-[#B55A38]" : "text-gray-400 dark:text-gray-500"}`}>
                   {fromDate && toDate ? `${fmtDate(fromDate)} - ${fmtDate(toDate)}` : "Maximum Limit: 1 Year"}
                 </p>
               </div>
@@ -458,11 +458,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           <button
             disabled={!canFetch}
             onClick={handleStartScan}
-            className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg hover:shadow-xl duration-300"
             style={{
-              background: canFetch ? "linear-gradient(135deg,#A47CF3,#F7C548)" : "#e5e7eb",
+              background: canFetch ? "linear-gradient(to right, #592C16, #8A532B)" : "#e5e7eb",
               color: canFetch ? "#fff" : "#9ca3af",
-              boxShadow: canFetch ? "0 6px 24px rgba(164,124,243,0.5), 0 2px 8px rgba(247,197,72,0.3)" : "none"
+              boxShadow: canFetch ? "0 6px 24px rgba(89, 44, 22, 0.4), 0 2px 8px rgba(138, 83, 43, 0.25)" : "none"
             }}
           >
             Fetch
@@ -474,7 +474,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
 
   // Step: selectContact
   return (
-    <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]">
+    <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border">
         <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
@@ -490,7 +490,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search from Contacts"
-            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 caret-[#A47CF3] transition-all"
+            className="w-full pl-12 pr-10 py-3 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent caret-black dark:caret-white transition-all"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -503,17 +503,17 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             <button
               key={contact.id}
               onClick={() => { setSelectedContact(contact); setStep("dateRange"); }}
-              className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A2BE2]/40 transition-all text-left"
+              className="w-full bg-white dark:bg-card rounded-xl shadow-sm dark:border dark:border-border p-4 flex items-center gap-3 hover:shadow-md dark:hover:border-[#8A532B]/40 transition-all text-left"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold">{getInitials(contact.name)}</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                <span className="text-[#592C16] font-bold">{getInitials(contact.name)}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-gray-900 dark:text-foreground font-medium truncate">{contact.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${contact.category === "individual"
-                    ? "bg-purple-100 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400"
-                    : "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"}`}>
+                    ? "bg-[#592C16]/10 text-[#592C16] dark:text-[#EFC8AC] dark:bg-[#592C16]/30 border border-[#592C16]/20"
+                    : "bg-[#8A532B]/10 text-[#8A532B] dark:text-[#EFC8AC] dark:bg-[#8A532B]/30 border border-[#8A532B]/20"}`}>
                     {contact.category === "individual" ? "Individual" : "Business"}
                   </span>
                   {contact.piWalletAddress && (

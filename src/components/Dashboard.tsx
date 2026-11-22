@@ -105,7 +105,7 @@ export function Dashboard({
   ].join(" ");
 
   return (
-    <div className={`size-full flex flex-col ${isGuest ? "bg-background" : "bg-gradient-to-b from-white to-purple-50/30 dark:from-[#0F1115] dark:to-[#0F1115]"} relative`}>
+    <div className={`size-full flex flex-col ${isGuest ? "bg-background" : "bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]"} relative`}>
       {/* Header */}
       <header className={`${isGuest ? "bg-background border-b border-gray-100 dark:border-border" : "bg-white dark:bg-card shadow-sm border-b border-transparent dark:border-border"} px-6 py-4 flex justify-between items-center z-20 relative`}>
         <div>
@@ -117,11 +117,11 @@ export function Dashboard({
         <div className="flex items-center gap-3">
           <button
             onClick={handleBellClick}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors relative"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors relative left-3"
           >
             <Bell className="w-5 h-5 text-gray-700 dark:text-foreground" />
             {!bellRead && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#B55A38] rounded-full animate-pulse" />
             )}
           </button>
           <BookkeepingLogo compact />
@@ -215,8 +215,8 @@ export function Dashboard({
                   className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors ${index < recentEntries.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
                     }`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#A47CF3] to-[#F7C548] flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-sm font-semibold">{getInitials(transaction.customerName)}</span>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                    <span className="text-[#592C16] text-sm font-bold">{getInitials(transaction.customerName)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">

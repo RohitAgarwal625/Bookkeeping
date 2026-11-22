@@ -77,10 +77,10 @@ export function PremiumModal({
         style={{ animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}
       >
         <div
-          className="bg-white dark:bg-card rounded-3xl w-full relative overflow-hidden border border-purple-100 dark:border-border shadow-2xl"
+          className="bg-white dark:bg-card rounded-3xl w-full relative overflow-hidden border border-[#592C16]/10 dark:border-border shadow-2xl"
         >
           {/* Header Banner */}
-          <div className="relative bg-gradient-to-br from-[#8A2BE2] via-[#7B1FA2] to-[#F7C548] p-6 text-white text-center overflow-hidden">
+          <div className="relative bg-gradient-to-r from-[#592C16] to-[#8A532B] p-6 text-white text-center overflow-hidden">
             <div className="absolute top-0 right-0 -mr-6 -mt-6 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 -ml-6 -mb-6 w-28 h-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
 
@@ -134,11 +134,11 @@ export function PremiumModal({
               <div className="space-y-4">
                 <div className="space-y-2.5">
                   <div className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300">
-                    <BarChart3 className="w-4 h-4 text-[#8A2BE2] mt-0.5 shrink-0" />
+                    <BarChart3 className="w-4 h-4 text-[#592C16] dark:text-[#EFC8AC] mt-0.5 shrink-0" />
                     <span><strong>Advanced Financial Analytics:</strong> Visual revenue trends, cash flow velocity, and smart metrics.</span>
                   </div>
                   <div className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300">
-                    <Zap className="w-4 h-4 text-[#F7C548] mt-0.5 shrink-0" />
+                    <Zap className="w-4 h-4 text-[#B55A38] mt-0.5 shrink-0" />
                     <span><strong>Instant Reports & Exports:</strong> Download clean CSV and PDF statement reports in one click.</span>
                   </div>
                   <div className="flex items-start gap-3 text-xs text-gray-600 dark:text-gray-300">
@@ -150,7 +150,7 @@ export function PremiumModal({
                 <div className="pt-2">
                   <button
                     onClick={handlePay}
-                    className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-[#8A2BE2] to-[#7B1FA2] hover:opacity-95 active:scale-[0.99] shadow-lg shadow-purple-500/25 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-[#592C16] to-[#8A532B] hover:opacity-95 active:scale-[0.99] shadow-lg shadow-[#592C16]/25 transition-all flex items-center justify-center gap-2"
                   >
                     <span>Pay {PREMIUM_PRODUCT.amount} π with Pi Browser</span>
                     <Sparkles className="w-4 h-4 text-[#FFD700]" />
@@ -162,7 +162,7 @@ export function PremiumModal({
               </div>
             ) : step === "approving" || step === "signing" || step === "completing" ? (
               <div className="text-center py-6 space-y-4">
-                <div className="w-14 h-14 rounded-full bg-purple-50 dark:bg-purple-950/40 text-[#8A2BE2] flex items-center justify-center mx-auto animate-pulse">
+                <div className="w-14 h-14 rounded-full bg-[#F5EDE6] dark:bg-[#8A532B]/20 text-[#592C16] dark:text-[#EFC8AC] flex items-center justify-center mx-auto animate-pulse">
                   <Loader2 className="w-8 h-8 animate-spin" />
                 </div>
                 <div>
@@ -225,7 +225,7 @@ export function PremiumModal({
                   </button>
                   <button
                     onClick={handleReset}
-                    className="flex-1 py-2.5 rounded-xl bg-[#8A2BE2] text-xs font-semibold text-white hover:opacity-90 transition-opacity"
+                    className="flex-1 py-2.5 rounded-xl bg-[#592C16] dark:bg-[#8A532B] text-xs font-semibold text-white hover:opacity-90 transition-opacity"
                   >
                     Try Again
                   </button>
