@@ -347,7 +347,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
 
     return (
       <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-        <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border flex-shrink-0">
+        <header style={{ position: "sticky", top: 0, zIndex: 20 }} className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border flex-shrink-0">
           <button onClick={() => setStep("selectContact")} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
             <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
           </button>
@@ -475,7 +475,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   // Step: selectContact
   return (
     <div style={{ minHeight: "100dvh", height: "100dvh", display: "flex", flexDirection: "column" }} className="bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border">
+      <header style={{ position: "sticky", top: 0, zIndex: 20 }} className="bg-white dark:bg-card shadow-sm px-6 py-4 flex items-center justify-between border-b border-transparent dark:border-border">
         <button onClick={onBack} className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-foreground" />
         </button>

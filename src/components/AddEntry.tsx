@@ -209,7 +209,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]">
       {/* Top Bar */}
-      <header className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
+      <header style={{ position: "sticky", top: 0, zIndex: 20 }} className="bg-white dark:bg-card shadow-sm px-6 py-4 flex justify-between items-center border-b border-transparent dark:border-border">
         <button
           onClick={onBack}
           className="p-1 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors"
