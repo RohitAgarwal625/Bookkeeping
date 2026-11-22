@@ -17,7 +17,8 @@ import {
   Info,
   UserPlus,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
+import { toast } from "sonner";
 import { ReportsAnalytics } from "./ReportsAnalytics";
 import { Contact, PaymentHistoryItem, Transaction, getInitials } from "../types";
 import { formatPiAmount } from "../lib/piAmount";
@@ -173,6 +174,7 @@ export function MerchantDashboard({
   const [walletDraftMap, setWalletDraftMap] = useState<Record<string, string>>({});
   const [walletOverrides, setWalletOverrides] = useState<Record<string, string>>({});
   const [showTxIdInfo, setShowTxIdInfo] = useState(false);
+  const [txIdExpanded, setTxIdExpanded] = useState(false);
 
   const { isDarkMode: isDark } = useDarkMode();
 
@@ -208,6 +210,28 @@ export function MerchantDashboard({
     navigator.clipboard.writeText(address).catch(() => { });
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  const handleCopyTxId = (txId: string) => {
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = txId;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch { ok = false; }
+      document.body.removeChild(ta);
+      if (ok) toast.success("Transaction ID copied");
+      else toast.error("Couldn't copy the Transaction ID");
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(txId).then(() => toast.success("Transaction ID copied"), fallback);
+    } else {
+      fallback();
+    }
   };
 
   const getWallet = (merchant: MerchantRecord) =>
@@ -429,7 +453,7 @@ export function MerchantDashboard({
                         </button>
                       </div>
                     )}
-                    <button onClick={() => setSelectedMerchant(merchant)} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
+                    <button onClick={() => { setSelectedMerchant(merchant); setTxIdExpanded(false); }} className="mt-3 pt-3 border-t border-gray-100 dark:border-border w-full flex items-center justify-end">
                       <span className="text-xs text-black dark:text-white font-medium">View Details</span>
                     </button>
                   </div>
@@ -581,9 +605,40 @@ export function MerchantDashboard({
                       <Info className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <span className="text-xs text-gray-900 dark:text-foreground font-mono">
-                    {selectedMerchant.status === "pending" || !selectedMerchant.txHash ? "-" : selectedMerchant.txHash.length > 14 ? `${selectedMerchant.txHash.slice(0, 14)}...` : selectedMerchant.txHash}
-                  </span>
+                  {selectedMerchant.status === "pending" || !selectedMerchant.txHash ? (
+                    <span className="text-xs text-gray-900 dark:text-foreground font-mono">-</span>
+                  ) : (
+                    <div className="flex items-center" style={{ minWidth: 0, maxWidth: "210px" }}>
+                      <button
+                        type="button"
+                        onClick={() => setTxIdExpanded((v) => !v)}
+                        aria-expanded={txIdExpanded}
+                        aria-label={txIdExpanded ? "Collapse Transaction ID" : "Show full Transaction ID"}
+                        className="text-xs text-gray-900 dark:text-foreground font-mono"
+                        style={{
+                          minWidth: 0,
+                          minHeight: "44px",
+                          background: "transparent",
+                          textAlign: txIdExpanded ? "center" : "right",
+                          wordBreak: txIdExpanded ? "break-all" : "normal",
+                          textWrap: txIdExpanded ? "balance" : "nowrap",
+                          whiteSpace: txIdExpanded ? "normal" : "nowrap",
+                          lineHeight: 1.5,
+                        } as CSSProperties}
+                      >
+                        {txIdExpanded || selectedMerchant.txHash.length <= 14 ? selectedMerchant.txHash : `${selectedMerchant.txHash.slice(0, 14)}...`}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyTxId(selectedMerchant.txHash)}
+                        aria-label="Copy Transaction ID"
+                        className="flex items-center justify-center flex-shrink-0 text-gray-500 dark:text-muted-foreground hover:text-[#592C16] transition-colors"
+                        style={{ width: "44px", height: "44px", marginRight: "-12px", background: "transparent" }}
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
                 {showTxIdInfo && (
                   <div className="text-xs text-[#592C16] bg-stone-50 dark:bg-stone-900/30 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-800/40">
