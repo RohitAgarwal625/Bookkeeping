@@ -58,7 +58,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
 
   // Reset validation whenever the wallet address changes
   const handleWalletChange = (val: string) => {
-    setPiWallet(val);
+    setPiWallet(val.toUpperCase());
     if (isValidated) setIsValidated(false);
     validationRun.current += 1;
     if (isValidating) setIsValidating(false);
@@ -303,7 +303,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
                 onBlur={() => setIsWalletFocused(false)}
                 placeholder="Pi Wallet Address"
                 rows={isWalletFocused && piWallet.length > 20 ? Math.min(4, Math.max(1, Math.ceil(piWallet.length / 20))) : 1}
-                className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all resize-none break-all leading-snug overflow-hidden text-base font-medium"
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all resize-none break-all leading-snug overflow-hidden text-base font-medium uppercase placeholder:normal-case"
               />
               {/* Validation tick */}
               <div
