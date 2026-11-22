@@ -21,7 +21,7 @@ import { PayMethodModal } from "./components/PayMethodModal";
 import { PremiumModal } from "./components/PremiumModal";
 import { BottomNav } from "./components/BottomNav";
 import { Contact, Transaction, normalizeContactName } from "./types";
-import { useBookkeeping, usePaymentHistory } from "./hooks/useBookkeeping";
+import { useBookkeeping, useLatestPayments, usePaymentHistory } from "./hooks/useBookkeeping";
 import { useAutoSync, useRecentTransactions } from "./hooks/useAutoSync";
 import { ApiError, auth, contactsApi } from "./lib/api";
 import { signInWithPi, type PiSession } from "./lib/piAuth";
@@ -244,6 +244,8 @@ function AppContent() {
     currentScreen === "merchantDashboard" && bk.isAuthenticated && !isGuest,
     bk.contacts
   );
+  // Home bell: newest in-app payments, polled every 15 s while Home is open.
+  const latestPayments = useLatestPayments(currentScreen === "dashboard" && bk.isAuthenticated && !isGuest);
 
   const handleNavigateToCustomerLedger = (customerName: string, contactId?: string, newTransactions?: Transaction[]) => {
     setSelectedCustomer(customerName);
@@ -755,6 +757,8 @@ function AppContent() {
           onNavigateToAutoEntry={handleNavigateToAutoEntry}
           onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
           recentTransactions={recentTransactions}
+          latestPayments={latestPayments}
+          userId={bk.user?.id}
           contacts={contacts}
           onNavigate={handleNavigate}
           isGuest={isGuest}

@@ -399,3 +399,40 @@ export function usePaymentHistory(enabled: boolean, refreshKey?: unknown) {
 
   return { items, loading, error, hasNext, loadingMore, loadMore };
 }
+
+/**
+ * Home bell: the newest few confirmed in-app payments (one small history page), loaded
+ * while `enabled` (Home open, signed in) and re-polled every `pollMs` while the page is
+ * on screen, so a payment the backend confirms shows up without a reload.
+ */
+export function useLatestPayments(enabled: boolean, pollMs = 15000, limit = 5) {
+  const [items, setItems] = useState<PaymentHistoryItem[]>([]);
+  useEffect(() => {
+    if (!enabled) {
+      setItems([]);
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      try {
+        const res = await paymentsApi.history(1, limit);
+        if (!cancelled) setItems(res.data);
+      } catch {
+        // Keep the last list.
+      }
+    };
+    void load();
+    const timer = window.setInterval(() => void load(), pollMs);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [enabled, pollMs, limit]);
+  return items;
+}

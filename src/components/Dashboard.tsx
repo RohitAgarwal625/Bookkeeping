@@ -2,7 +2,7 @@ import { Bell, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { BalanceCard } from "./BalanceCard";
 import { BookkeepingLogo } from "./BookkeepingLogo";
-import { Contact, Transaction, getInitials } from "../types";
+import { Contact, PaymentHistoryItem, Transaction, getInitials } from "../types";
 import { formatPiAmount } from "../lib/piAmount";
 
 interface DashboardProps {
@@ -16,6 +16,10 @@ interface DashboardProps {
   onNavigateToCustomerLedger: (customerName: string, contactId?: string) => void;
   /** Newest saved entries across all contacts (signed-in users). */
   recentTransactions?: Transaction[];
+  /** Newest confirmed in-app payments (Home bell). */
+  latestPayments?: PaymentHistoryItem[];
+  /** Signed-in user's id: keys the bell's "last seen" time in localStorage. */
+  userId?: string;
   /** Used to show each entry's contact name. */
   contacts?: Contact[];
   onNavigate: (screen: string) => void;
@@ -31,7 +35,23 @@ function formatHistoryDate(timestamp: string): string {
   return `${d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}, ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
-const notifications: Array<{ id: string; message: string; time: string; type: "debit" | "credit" }> = [];
+/** "Just now" / "2 min ago" / "3 hr ago", then the full date. */
+function formatNotificationTime(ms: number): string {
+  const diff = Date.now() - ms;
+  if (diff < 60_000) return "Just now";
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} min ago`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} hr ago`;
+  return formatHistoryDate(new Date(ms).toISOString());
+}
+
+function readBellSeen(key: string | null): number {
+  if (!key) return 0;
+  try {
+    return Number(localStorage.getItem(key)) || 0;
+  } catch {
+    return 0;
+  }
+}
 
 export function Dashboard({
   userName,
@@ -43,6 +63,8 @@ export function Dashboard({
   onNavigateToAutoEntry,
   onNavigateToCustomerLedger,
   recentTransactions = [],
+  latestPayments = [],
+  userId,
   contacts = [],
   onNavigate,
   isGuest,
@@ -51,6 +73,11 @@ export function Dashboard({
 }: DashboardProps) {
   const [showBell, setShowBell] = useState(false);
   const [bellRead, setBellRead] = useState(false);
+  const bellSeenKey = userId ? `bk_bell_seen_${userId}` : null;
+  const [bellSeenAt, setBellSeenAt] = useState(() => readBellSeen(bellSeenKey));
+  useEffect(() => {
+    setBellSeenAt(readBellSeen(bellSeenKey));
+  }, [bellSeenKey]);
   const [alertSize, setAlertSize] = useState({ w: 390, h: 180 });
   const alertRef = useRef<HTMLDivElement>(null);
 
@@ -84,9 +111,58 @@ export function Dashboard({
       date: formatHistoryDate(t.timestamp),
     }));
 
+  // Bell: in-app payments (History wording) plus Pi-blockchain ledger rows (Auto Sync / imports).
+  // A confirmed in-app payment also writes a ledger row with the same tx hash and time, so those
+  // rows are skipped. Manual entries (no chainPaymentId) are not notifications.
+  const notifications = (() => {
+    if (isGuest) return [];
+    const pi = (amount: number) => `${formatPiAmount(amount)} π`;
+    const fromHistory = latestPayments.map((p) => {
+      const name = p.counterparty.name ?? (p.counterparty.contactId ? contactNames.get(p.counterparty.contactId) : undefined) ?? "an unsaved wallet";
+      return {
+        id: `pay-${p.id}`,
+        at: new Date(p.confirmedAt).getTime(),
+        type: p.direction === "received" ? "credit" as const : "debit" as const,
+        message: p.direction === "received" ? `You received ${pi(p.amount)} from ${name}` : `You paid ${pi(p.amount)} to ${name}`,
+      };
+    });
+    const hashes = new Set(latestPayments.map((p) => p.txHash?.toLowerCase()).filter(Boolean));
+    const sameMoment = new Set(fromHistory.map((n) => `${n.type}|${n.at}`));
+    const fromChain = recentTransactions
+      .filter((t) => t.chainPaymentId)
+      .map((t) => ({ t, at: new Date(t.timestamp).getTime() }))
+      .filter(({ t, at }) => !(t.txHash && hashes.has(t.txHash.toLowerCase())) && !sameMoment.has(`${t.type}|${at}`))
+      .map(({ t, at }) => {
+        const name = (t.contactId ? contactNames.get(t.contactId) : undefined) ?? "an unsaved wallet";
+        return {
+          id: `tx-${t.id}`,
+          at,
+          type: t.type,
+          message: t.type === "credit" ? `You received ${pi(t.amount)} from ${name}` : `You paid ${pi(t.amount)} to ${name}`,
+        };
+      });
+    return [...fromHistory, ...fromChain]
+      .filter((n) => !isNaN(n.at))
+      .sort((a, b) => b.at - a.at)
+      .slice(0, 2)
+      .map((n) => ({ ...n, time: formatNotificationTime(n.at) }));
+  })();
+  const newestNotificationAt = notifications[0]?.at ?? 0;
+  // Guests keep the old behaviour (dot until the bell is opened once).
+  const showBellDot = isGuest ? !bellRead : newestNotificationAt > bellSeenAt;
+
   const handleBellClick = () => {
     setShowBell((prev) => !prev);
     setBellRead(true);
+    if (!isGuest && bellSeenKey) {
+      const seen = Math.max(Date.now(), newestNotificationAt);
+      setBellSeenAt(seen);
+      try {
+        localStorage.setItem(bellSeenKey, String(seen));
+      } catch {
+        // Storage blocked: the dot just clears for this visit.
+      }
+    }
   };
 
   const alertCornerR = 16;
@@ -117,11 +193,13 @@ export function Dashboard({
         <div className="flex items-center gap-3">
           <button
             onClick={handleBellClick}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors relative left-3"
+            aria-label="Alerts"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition-colors relative left-3 flex items-center justify-center"
+            style={{ minWidth: "44px", minHeight: "44px" }}
           >
             <Bell className="w-5 h-5 text-gray-700 dark:text-foreground" />
-            {!bellRead && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#B55A38] rounded-full animate-pulse" />
+            {showBellDot && (
+              <span className="absolute w-2 h-2 bg-[#B55A38] rounded-full animate-pulse" style={{ top: "10px", right: "10px" }} />
             )}
           </button>
           <BookkeepingLogo compact />
