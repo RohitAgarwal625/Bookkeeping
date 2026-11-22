@@ -9,6 +9,7 @@
  * See design/wallet-address/decision.html §8–9.
  */
 import { ensurePiInitialized } from "./piAuth";
+import { PI_NETWORK } from "./piBlockchain";
 
 /**
  * The Pi Wallet's pay-request link: the same https URL the wallet's own "Receive" QR code holds
@@ -21,7 +22,9 @@ import { ensurePiInitialized } from "./piAuth";
  * https://wallet.pinet.com/.well-known/assetlinks.json), so the phone opens it in the Pi Wallet.
  */
 export function piWalletPayRequestUrl(contactAddress: string): string {
-  return `https://wallet.pinet.com/pay-request?publicKey=${encodeURIComponent(contactAddress.trim())}`;
+  // host_network picks the network the wallet unlocks into (Pi Browser host code reads it:
+  // "testnet" → Pi Testnet, anything else → Mainnet), so the user lands on this app's network.
+  return `https://wallet.pinet.com/pay-request?publicKey=${encodeURIComponent(contactAddress.trim())}&host_network=${PI_NETWORK}`;
 }
 
 /** Pi Browser answers openUrlInSystemBrowser through a native callback that may never come. */
