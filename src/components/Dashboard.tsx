@@ -121,6 +121,7 @@ export function Dashboard({
       const name = p.counterparty.name ?? (p.counterparty.contactId ? contactNames.get(p.counterparty.contactId) : undefined) ?? "an unsaved wallet";
       return {
         id: `pay-${p.id}`,
+        viaApp: true,
         at: new Date(p.confirmedAt).getTime(),
         type: p.direction === "received" ? "credit" as const : "debit" as const,
         message: p.direction === "received" ? `You received ${pi(p.amount)} from ${name}` : `You paid ${pi(p.amount)} to ${name}`,
@@ -136,6 +137,7 @@ export function Dashboard({
         const name = (t.contactId ? contactNames.get(t.contactId) : undefined) ?? "an unsaved wallet";
         return {
           id: `tx-${t.id}`,
+          viaApp: false,
           at,
           type: t.type,
           message: t.type === "credit" ? `You received ${pi(t.amount)} from ${name}` : `You paid ${pi(t.amount)} to ${name}`,
@@ -254,6 +256,9 @@ export function Dashboard({
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-gray-800 dark:text-foreground text-sm leading-snug">{n.message}</p>
                         <p className="text-gray-400 dark:text-muted-foreground mt-0.5" style={{ fontSize: "14px" }}>{n.time}</p>
+                        {n.viaApp && (
+                          <p className="text-gray-400 dark:text-muted-foreground mt-0.5" style={{ fontSize: "14px" }}>(via Bookkeeping)</p>
+                        )}
                       </div>
                     </div>
                   ))}
