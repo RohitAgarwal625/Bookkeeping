@@ -416,7 +416,11 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                           {/* Timestamp & Edit Button */}
                           <div className="flex items-center gap-2 mt-2">
                             <p className="text-xs text-gray-400 dark:text-muted-foreground">
-                              {formatLedgerTimestamp(transaction.timestamp)}
+                              {(() => {
+                                // "2026-11-26 14:30": a little space between the date and the time
+                                const [date, time] = formatLedgerTimestamp(transaction.timestamp).split(" ");
+                                return time ? <>{date}<span style={{ marginLeft: "8px" }}>{time}</span></> : date;
+                              })()}
                               {/* Paid/received with the app's Pay button (same wording as the Home bell); Auto Sync rows stay as they are */}
                               {/^(Paid via app to |Received via app from )/.test(transaction.description) && (
                                 <> · via <span style={{ fontWeight: 700 }}>Bookkeeping</span></>

@@ -226,23 +226,18 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
         </h2>
 
         <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-5 max-w-sm">
-          {added > 0 ? (
+          {count > 0 && !saveError ? (
             <>
-              <span className="font-bold text-[#B55A38] text-3xl">{added}</span>{" "}
-              new transaction{added > 1 ? "s" : ""} found with{" "}
-              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> and {added > 1 ? "were" : "was"} added to your ledger successfully.
-              {skipped > 0 && ` ${skipped} already in your ledger ${skipped > 1 ? "were" : "was"} not added again.`}
+              A total of <span className="font-bold text-[#B55A38] text-3xl">{count}</span>{" "}
+              transaction{count > 1 ? "s" : ""} found in the selected date range with{" "}
+              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span>, out of which{" "}
+              <span className="font-bold text-[#592C16] dark:text-[#EFC8AC] text-3xl">{added}</span>{" "}
+              {added === 1 ? "was" : "were"} added successfully.
             </>
           ) : saveError ? (
             <>
               {count} transaction{count > 1 ? "s" : ""} found with{" "}
               <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span>, but {count > 1 ? "they" : "it"} could not be saved to your ledger. Please try again.
-            </>
-          ) : skipped > 0 ? (
-            <>
-              No new transactions. {skipped > 1 ? `All ${skipped} transactions` : "The transaction"} found with{" "}
-              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> {skipped > 1 ? "are" : "is"} already in your ledger
-              {inApp > 0 ? ` (${inApp} paid via the app).` : "."}
             </>
           ) : (
             <>
@@ -287,18 +282,23 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             { label: "To", value: fmtDate(toDate) },
             ...(count > 0 && !saveError ? [{ label: "Transactions Found", value: String(count) }] : []),
             ...(inApp > 0 ? [{ label: "Paid via App", value: String(inApp) }] : []),
-            ...(skipped > 0 ? [{ label: "Already in Ledger", value: String(skipped) }] : []),
-            { label: "Transactions Added", value: String(added) },
+            { label: "Added", value: String(added) },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
-              <span className={`font-medium ${label === "Transactions Added"
+              <span className={`font-medium ${label === "Added"
                   ? "text-[#592C16] dark:text-[#EFC8AC] font-bold text-xl"
                   : "text-gray-900 dark:text-foreground"
                 }`}>{value}</span>
             </div>
           ))}
         </div>
+
+        {skipped > 0 && !saveError && (
+          <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-4 max-w-sm">
+            {skipped} transaction{skipped > 1 ? "s were" : " was"} skipped to avoid duplication, as {skipped > 1 ? "they were" : "it was"} already recorded in the ledger previously.
+          </p>
+        )}
 
         {/* Action Buttons */}
         <div className="w-full max-w-sm space-y-3 mt-auto pb-4">
