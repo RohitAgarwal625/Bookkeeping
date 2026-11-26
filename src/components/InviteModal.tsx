@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Share2, UserPlus } from "lucide-react";
+import { Share2, Users, Gift } from "lucide-react";
 import { useDarkMode } from "../contexts/DarkModeContext";
 import { shareInvite } from "../lib/invite";
 
@@ -11,8 +11,8 @@ interface InviteModalProps {
 
 const GRADIENT = "linear-gradient(to right, #592C16, #8A532B)";
 
-/** "This person isn't on the app yet": paying them is blocked; invite them instead. */
-export function InviteModal({ name, onClose }: InviteModalProps) {
+/** "Bring them on Bookkeeping": paying someone not on the app is blocked; invite them instead. */
+export function InviteModal({ onClose }: InviteModalProps) {
   const { isDarkMode: isDark } = useDarkMode();
   const [sharing, setSharing] = useState(false);
 
@@ -25,8 +25,6 @@ export function InviteModal({ name, onClose }: InviteModalProps) {
       setSharing(false);
     }
   };
-
-  const who = name?.trim() ? name.trim() : "This person";
 
   return (
     <div
@@ -52,21 +50,29 @@ export function InviteModal({ name, onClose }: InviteModalProps) {
         }}
       >
         <div
-          className="flex items-center justify-center shadow-lg"
+          className="relative flex items-center justify-center shadow-lg"
           style={{ width: "56px", height: "56px", borderRadius: "9999px", background: GRADIENT, margin: "0 auto 12px" }}
+          aria-hidden="true"
         >
-          <UserPlus className="w-7 h-7 text-white" />
+          {/* Refer & earn: people with a gift badge */}
+          <Users className="w-7 h-7 text-white" />
+          <span
+            className="absolute flex items-center justify-center"
+            style={{ right: "-2px", bottom: "-2px", width: "22px", height: "22px", borderRadius: "9999px", background: isDark ? "#1A1D24" : "#ffffff", border: "2px solid #8A532B" }}
+          >
+            <Gift className="w-3 h-3" style={{ color: isDark ? "#C08552" : "#592C16" }} />
+          </span>
         </div>
         <h3
           id="invite-title"
           className="text-center"
           style={{ fontWeight: 700, fontSize: "18px", marginBottom: "6px", color: isDark ? "#F3F4F6" : "#111827" }}
         >
-          This person isn't on the app yet
+          Bring them on Bookkeeping
         </h3>
         <p className="text-sm text-center" style={{ marginBottom: "20px", color: isDark ? "#9CA3AF" : "#6B7280", lineHeight: 1.5 }}>
-          {who} hasn't joined Bookkeeping with this wallet address, so the payment can't be recorded for both of you.
-          Invite them: once they sign in and add his address in Settings → Profile, you can pay them here.
+          The person you want to transact with is not registered on the app yet. In order to record the transaction for both of you, send an invite with your referral code.
+          Both of you get a paid trial package of the app for free once your invite makes the first transaction using the inbuilt pay button.
         </p>
         <button
           type="button"
@@ -83,8 +89,8 @@ export function InviteModal({ name, onClose }: InviteModalProps) {
             opacity: sharing ? 0.7 : 1,
           }}
         >
-          <Share2 className="w-4 h-4" />
           {sharing ? "Opening…" : "Share invite"}
+          <Share2 className="w-4 h-4" />
         </button>
         <button
           type="button"

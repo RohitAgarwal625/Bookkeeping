@@ -383,4 +383,82 @@ export default async function run({ api, db, pi }) {
   check("job run finishes", jr.code === 0, jr.out.slice(0, 500));
   check("job confirms a pending intent from Horizon", (await getIntent(erin, e1.id)).body?.intent?.status === "confirmed");
   check("job expires an intent past expiresAt", (await getIntent(erin, e2.id)).body?.intent?.status === "expired");
+
+  // ---------- transaction failed on the chain -> "failed", shown in the sender's History ----------
+  const fay = await user("fay");
+  const gus = await user("gus");
+  await setWallet(fay);
+  await setWallet(gus);
+  await addContact(gus, "Fay", fay.address);
+  const f1 = (await createIntent(fay, { receiverAddress: gus.address, amount: 2 })).body.intent;
+  // A failed attempt from before this intent must not fail it.
+  pay(fay, gus, "2.0000000", { transaction_successful: false, created_at: iso(Date.parse(f1.createdAt) - 60_000) });
+  c = await checkNow(fay, f1.id);
+  check("failed tx from before the intent -> stays pending", c.body?.intent?.status === "pending", JSON.stringify(c.body));
+  const ftx = hash();
+  const fp = pay(fay, gus, "2.5000000", { transaction_successful: false, transaction_hash: ftx, created_at: iso(Date.now() + 1000) });
+  c = await checkNow(fay, f1.id);
+  check("failed tx on the chain -> intent failed with its hash, amount and chain time",
+    c.body?.intent?.status === "failed" && c.body.intent.txHash === ftx && c.body.intent.amount === 2.5 &&
+      c.body.intent.confirmedAt === new Date(fp.created_at).toISOString(), JSON.stringify(c.body));
+  check("failed payment writes no ledger rows",
+    (await db.transaction.count({ where: { userId: { in: [fay.id, gus.id] }, txHash: ftx } })) === 0);
+  let fh = await history(fay);
+  check("sender's History lists it with status failed",
+    fh.body?.data?.length === 1 && fh.body.data[0].id === f1.id && fh.body.data[0].status === "failed" && fh.body.data[0].txHash === ftx,
+    JSON.stringify(fh.body));
+  check("receiver's History doesn't list a failed payment", (await history(gus)).body?.data?.length === 0);
+  // The user retries in the wallet and it succeeds: the failed intent is confirmed.
+  const okTx = hash();
+  pay(fay, gus, "2.0000000", { transaction_hash: okTx, created_at: iso(Date.now() + 2000) });
+  c = await checkNow(fay, f1.id);
+  check("successful retry after a failure -> confirmed with the successful tx",
+    c.body?.intent?.status === "confirmed" && c.body.intent.txHash === okTx && c.body.intent.amount === 2, JSON.stringify(c.body));
+  fh = await history(fay);
+  check("History now shows it confirmed", fh.body?.data?.[0]?.status === "confirmed", JSON.stringify(fh.body));
+  // A failed intent replaced by a new Pay tap is final (its expiresAt moves to now).
+  const f2 = (await createIntent(fay, { receiverAddress: gus.address, amount: 1 })).body.intent;
+  pay(fay, gus, "1.0000000", { transaction_successful: false, created_at: iso(Date.now() + 3000) });
+  check("second failure -> failed", (await checkNow(fay, f2.id)).body?.intent?.status === "failed");
+  const f3 = (await createIntent(fay, { receiverAddress: gus.address, amount: 1 })).body.intent;
+  const f2db = await db.paymentIntent.findUnique({ where: { id: f2.id } });
+  check("new intent closes the older failed one (still failed, expired window)",
+    f2db?.status === "failed" && f2db.expiresAt.getTime() <= Date.now(), JSON.stringify(f2db));
+  pay(fay, gus, "1.0000000", { created_at: iso(Date.now() + 4000) });
+  c = await checkNow(fay, f3.id);
+  check("the success goes to the new intent, not the closed failed one",
+    c.body?.intent?.status === "confirmed" && (await getIntent(fay, f2.id)).body?.intent?.status === "failed", JSON.stringify(c.body));
+
+  // ---------- a scan saves an in-app payment before it is confirmed (Auto Sync / Fetch race) ----------
+  const sam = await user("sam");
+  const tia = await user("tia");
+  for (const u of [sam, tia]) await setWallet(u);
+  const samTia = (await addContact(sam, "Tia", tia.address)).body.contact;
+  const tiaSam = (await addContact(tia, "Sam", sam.address)).body.contact;
+  const scI = (await createIntent(sam, { receiverAddress: tia.address, amount: 3, contactId: samTia.id })).body.intent;
+  const scTx = hash();
+  const scP = pay(sam, tia, "3.0000000", { transaction_hash: scTx, created_at: iso(Date.now()) });
+  const scan = (u, contactId, type, description) => call("POST", "/api/transactions/import", { token: u.token, body: {
+    contactId, entries: [{ chainPaymentId: scP.id, txHash: scTx, description, amount: 3, type, timestamp: scP.created_at }],
+  } });
+  const s1 = await scan(sam, samTia.id, "debit", "Auto Sync: Pi sent to Tia");
+  const s2 = await scan(tia, tiaSam.id, "credit", "Auto Sync: Pi received from Sam");
+  check("scan before confirm adds the payment, not yet counted as in-app",
+    s1.body?.added === 1 && s1.body.inApp === 0 && s2.body?.added === 1, JSON.stringify([s1.body, s2.body]));
+  c = await checkNow(sam, scI.id);
+  check("intent confirms with the already-scanned payment", c.body?.intent?.status === "confirmed", JSON.stringify(c.body));
+  const samRow = await db.transaction.findFirst({ where: { userId: sam.id, chainPaymentId: scP.id } });
+  const tiaRow = await db.transaction.findFirst({ where: { userId: tia.id, chainPaymentId: scP.id } });
+  check("sender's scanned row is relabelled as paid via the app (not Auto Sync)",
+    samRow?.description === "Paid via app to Tia" && (await db.transaction.count({ where: { userId: sam.id, chainPaymentId: scP.id } })) === 1,
+    JSON.stringify(samRow));
+  check("receiver's scanned row is relabelled as received via the app", tiaRow?.description === "Received via app from Sam", JSON.stringify(tiaRow));
+  const dbScI = await db.paymentIntent.findUnique({ where: { id: scI.id } });
+  check("intent links both scanned rows", dbScI?.senderTransactionId === samRow?.id && dbScI?.receiverTransactionId === tiaRow?.id);
+  const s3 = await scan(sam, samTia.id, "debit", "Auto Sync: Pi sent to Tia");
+  const s4 = await scan(tia, tiaSam.id, "credit", "Auto Sync: Pi received from Sam");
+  check("Fetch counts the paid-via-app payment (inApp 1, already in ledger) on both sides",
+    s3.body?.added === 0 && s3.body.skipped === 1 && s3.body.inApp === 1 && s4.body?.inApp === 1, JSON.stringify([s3.body, s4.body]));
+  const other = await scan(frank, frankGrace.id, "debit", "Auto Sync: Pi sent to Grace");
+  check("inApp counts only the caller's own in-app payments", other.status === 200 && other.body?.inApp === 0, JSON.stringify(other.body));
 }

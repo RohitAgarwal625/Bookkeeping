@@ -1,8 +1,32 @@
-import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info, BookOpen } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search, X, CheckCircle, Info, BookOpen, Loader2, AlertTriangle } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Contact, getInitials, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
+import { lookupPiTransaction, trimPiAmount, PI_NETWORK } from "../lib/piBlockchain";
+
+/** Result of checking the entered transaction ID against the Pi blockchain. */
+type TxVerifyState =
+  | { status: "idle" }
+  | { status: "checking" }
+  | { status: "verified"; message: string }
+  | { status: "partial"; message: string }
+  | { status: "mismatch"; message: string }
+  | { status: "not_found"; message: string }
+  | { status: "error"; message: string };
+
+const TX_HASH_RE = /^[0-9a-fA-F]{64}$/;
+
+/** Local "YYYY-MM-DD" and "HH:MM" for an ISO timestamp. */
+function toLocalDateTime(iso: string): { date: string; time: string } | null {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return {
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  };
+}
 
 interface AddEntryProps {
   onBack: () => void;
@@ -14,9 +38,11 @@ interface AddEntryProps {
    */
   onSave?: (newTransaction: Transaction, contactId: string, timestamp?: string) => Promise<Transaction | null>;
   contacts?: Contact[];
+  /** The user's own Pi wallet address (User.walletPublicKey). Used to verify the entered transaction. */
+  userWalletAddress?: string | null;
 }
 
-export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps) {
+export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddress }: AddEntryProps) {
   const savedCustomers = contacts ?? [];
   const [selectedCustomer, setSelectedCustomer] = useState<Contact | null>(null);
   const [customerQuery, setCustomerQuery] = useState("");
@@ -36,6 +62,106 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
   const savedContactId = useRef<string | undefined>(undefined);
   const savedTransaction = useRef<Transaction | undefined>(undefined);
   const savedTimestamp = useRef<string | undefined>(undefined);
+  const [txVerify, setTxVerify] = useState<TxVerifyState>({ status: "idle" });
+
+  // Verify the transaction ID on the Pi blockchain once a contact is picked and a
+  // full 64-char hash is entered (debounced), then fill amount, type, date/time and memo.
+  useEffect(() => {
+    const hash = txHash.trim();
+    if (!selectedCustomer || !TX_HASH_RE.test(hash)) {
+      setTxVerify({ status: "idle" });
+      return;
+    }
+    const contactKey = (selectedCustomer.piWalletAddress || "").trim().toUpperCase();
+    if (!contactKey) {
+      setTxVerify({ status: "error", message: `${selectedCustomer.name} has no wallet address, so this transaction can't be verified.` });
+      return;
+    }
+    const myKey = (userWalletAddress || "").trim().toUpperCase();
+    const contactName = selectedCustomer.name;
+    const controller = new AbortController();
+    setTxVerify({ status: "checking" });
+
+    const timer = setTimeout(async () => {
+      const res = await lookupPiTransaction(hash, controller.signal);
+      if (controller.signal.aborted) return;
+
+      if (res.status === "not_found") {
+        const message = `Transaction not found on Pi ${PI_NETWORK}. Check the transaction ID.`;
+        setTxVerify({ status: "not_found", message });
+        toast.error(message);
+        return;
+      }
+      if (res.status === "error") {
+        setTxVerify({ status: "error", message: res.message });
+        toast.error(res.message);
+        return;
+      }
+      if (!res.successful) {
+        const message = "This transaction failed on the Pi blockchain.";
+        setTxVerify({ status: "mismatch", message });
+        toast.error(message);
+        return;
+      }
+
+      // contact -> you = credit (received), you -> contact = debit (sent).
+      // Without your own address we can only check the contact's side.
+      let match: { amount: string; type: "credit" | "debit" } | null = null;
+      for (const t of res.transfers) {
+        const from = t.from.toUpperCase();
+        const to = t.to.toUpperCase();
+        if (from === contactKey && (myKey ? to === myKey : to !== contactKey)) {
+          match = { amount: t.amount, type: "credit" };
+          break;
+        }
+        if (to === contactKey && (myKey ? from === myKey : from !== contactKey)) {
+          match = { amount: t.amount, type: "debit" };
+          break;
+        }
+      }
+
+      if (!match) {
+        const involvesContact = res.transfers.some(
+          (t) => t.from.toUpperCase() === contactKey || t.to.toUpperCase() === contactKey
+        );
+        const message = res.transfers.length === 0
+          ? "This transaction has no Pi transfer."
+          : involvesContact
+            ? `This transaction is between ${contactName} and another wallet, not yours.`
+            : `This transaction doesn't involve ${contactName}'s wallet.`;
+        setTxVerify({ status: "mismatch", message });
+        toast.error(message);
+        return;
+      }
+
+      const piAmount = trimPiAmount(match.amount);
+      if (/^\d{0,7}(\.\d{0,7})?$/.test(piAmount)) setAmount(piAmount);
+      setTransactionType(match.type);
+      const local = toLocalDateTime(res.createdAt);
+      if (local) {
+        setDate(local.date);
+        setTime(local.time);
+      }
+      if (res.memo) setNote((prev) => (prev.trim() ? prev : res.memo.slice(0, 100)));
+
+      const direction = match.type === "credit" ? `Received from ${contactName}` : `Sent to ${contactName}`;
+      if (myKey) {
+        setTxVerify({ status: "verified", message: `Verified on Pi ${PI_NETWORK}: ${direction}.` });
+      } else {
+        setTxVerify({
+          status: "partial",
+          message: `${direction} on Pi ${PI_NETWORK}. Add your wallet address in Settings to confirm it's yours.`,
+        });
+      }
+    }, 600);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+    // Keyed on the contact's id/address (not the object) so a contacts refresh doesn't re-check.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txHash, selectedCustomer?.id, selectedCustomer?.piWalletAddress, userWalletAddress]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -92,8 +218,16 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
       toast.error("Please enter the transaction hash");
       return;
     }
-    if (!/^[0-9a-fA-F]{64}$/.test(txHash.trim())) {
+    if (!TX_HASH_RE.test(txHash.trim())) {
       toast.error("The transaction hash must be 64 characters (0-9, a-f)");
+      return;
+    }
+    if (txVerify.status === "checking") {
+      toast.error("Still verifying the transaction on the Pi blockchain...");
+      return;
+    }
+    if (txVerify.status === "mismatch") {
+      toast.error(txVerify.message);
       return;
     }
     // The picked date and time are local time; the API stores UTC.
@@ -326,6 +460,35 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts }: AddEntryProps)
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all font-mono text-sm"
               />
             </div>
+            {txVerify.status === "idle" && txHash.trim() && !selectedCustomer && (
+              <p className="mt-2 text-xs text-gray-500 dark:text-muted-foreground">
+                Pick a Pioneer to verify this transaction.
+              </p>
+            )}
+            {txVerify.status === "checking" && (
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 dark:text-muted-foreground">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Verifying on Pi blockchain...</span>
+              </div>
+            )}
+            {txVerify.status === "verified" && (
+              <div className="mt-2 flex items-start gap-1.5 rounded-lg px-3 py-2 text-xs bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900">
+                <CheckCircle className="w-3.5 h-3.5 mt-px shrink-0" />
+                <span>{txVerify.message}</span>
+              </div>
+            )}
+            {(txVerify.status === "partial" || txVerify.status === "error") && (
+              <div className="mt-2 flex items-start gap-1.5 rounded-lg px-3 py-2 text-xs bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900">
+                <AlertTriangle className="w-3.5 h-3.5 mt-px shrink-0" />
+                <span>{txVerify.message}</span>
+              </div>
+            )}
+            {(txVerify.status === "mismatch" || txVerify.status === "not_found") && (
+              <div className="mt-2 flex items-start gap-1.5 rounded-lg px-3 py-2 text-xs bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900">
+                <AlertTriangle className="w-3.5 h-3.5 mt-px shrink-0" />
+                <span>{txVerify.message}</span>
+              </div>
+            )}
           </div>
 
           {/* 4. Amount Input */}

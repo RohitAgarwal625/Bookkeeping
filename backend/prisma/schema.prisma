@@ -112,7 +112,7 @@ model PaymentIntent {
   // The sender's contact being paid, if any.
   contactId             String?
   contact               Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
-  status                String    @default("pending") // pending|confirmed|expired|cancelled
+  status                String    @default("pending") // pending|confirmed|failed|expired|cancelled (failed = its transaction failed on the chain)
   createdAt             DateTime  @default(now())
   expiresAt             DateTime
   confirmedAt           DateTime?

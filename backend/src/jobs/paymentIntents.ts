@@ -69,8 +69,9 @@ export async function runPaymentIntentJob(): Promise<void> {
   if (jobRunning) return;
   jobRunning = true;
   try {
+    // Pending ones, plus failed ones not past expiresAt (a successful retry still confirms them).
     const pending = await prisma.paymentIntent.findMany({
-      where: { status: "pending" },
+      where: { OR: [{ status: "pending" }, { status: "failed", expiresAt: { gt: new Date() } }] },
       orderBy: { createdAt: "asc" },
       take: 100,
     });
@@ -105,7 +106,8 @@ export async function runPaymentIntentTick(now: number = Date.now()): Promise<Pa
   let slowPass = false;
   try {
     const pending = await prisma.paymentIntent.findMany({
-      where: { status: "pending", expiresAt: { gt: new Date(now) } },
+      // Failed ones too until they expire: a successful retry in the Pi Wallet still confirms them.
+      where: { status: { in: ["pending", "failed"] }, expiresAt: { gt: new Date(now) } },
       orderBy: { createdAt: "asc" },
       take: 1000,
     });

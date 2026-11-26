@@ -197,7 +197,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
   if (step === "summary") {
     const count = scannedTransactions.length; // found on the blockchain
     const added = saveResult?.added ?? 0; // saved to the ledger now
-    const skipped = saveResult?.skipped ?? 0; // already in the ledger from an earlier scan
+    const skipped = saveResult?.skipped ?? 0; // already in the ledger (earlier scan, Auto Sync or paid via the app)
+    const inApp = saveResult?.inApp ?? 0; // of the found ones, payments made via the app (Pay via contacts / QR)
     const networkLabel = scanResult?.network === "testnet"
       ? "Pi Testnet"
       : scanResult?.network === "mainnet"
@@ -240,7 +241,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           ) : skipped > 0 ? (
             <>
               No new transactions. {skipped > 1 ? `All ${skipped} transactions` : "The transaction"} found with{" "}
-              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> {skipped > 1 ? "are" : "is"} already in your ledger.
+              <span className="font-bold text-gray-700 dark:text-foreground">{selectedContact?.name}</span> {skipped > 1 ? "are" : "is"} already in your ledger
+              {inApp > 0 ? ` (${inApp} paid via the app).` : "."}
             </>
           ) : (
             <>
@@ -283,6 +285,8 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             { label: "Network", value: networkLabel },
             { label: "From", value: fmtDate(fromDate) },
             { label: "To", value: fmtDate(toDate) },
+            ...(count > 0 && !saveError ? [{ label: "Transactions Found", value: String(count) }] : []),
+            ...(inApp > 0 ? [{ label: "Paid via App", value: String(inApp) }] : []),
             ...(skipped > 0 ? [{ label: "Already in Ledger", value: String(skipped) }] : []),
             { label: "Transactions Added", value: String(added) },
           ].map(({ label, value }) => (

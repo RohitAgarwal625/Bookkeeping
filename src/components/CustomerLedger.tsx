@@ -415,7 +415,13 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
 
                           {/* Timestamp & Edit Button */}
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-xs text-gray-400 dark:text-muted-foreground">{formatLedgerTimestamp(transaction.timestamp)}</p>
+                            <p className="text-xs text-gray-400 dark:text-muted-foreground">
+                              {formatLedgerTimestamp(transaction.timestamp)}
+                              {/* Paid/received with the app's Pay button (same wording as the Home bell); Auto Sync rows stay as they are */}
+                              {/^(Paid via app to |Received via app from )/.test(transaction.description) && (
+                                <> · via <span style={{ fontWeight: 700 }}>Bookkeeping</span></>
+                              )}
+                            </p>
                             <button
                               type="button"
                               onClick={() => handleStartEdit(transaction)}

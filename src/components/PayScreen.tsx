@@ -1,4 +1,4 @@
-import { ArrowLeft, Search, ChevronRight, ChevronDown, Check, CheckCircle, Home, Lock, UserPlus, BookOpen } from "lucide-react";
+import { ArrowLeft, Search, Check, X, CheckCircle, Home, Lock, UserPlus, BookOpen } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Contact, getInitials, PaymentIntent, Transaction } from "../types";
@@ -225,6 +225,13 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
       clearPendingWalletPayment();
       setScreen("form");
       toast.error("This payment wasn't found on the Pi blockchain in time and has expired. If you sent it, use Automatic Transaction to add it.", { duration: 7000 });
+    } else if (intent.status === "failed") {
+      // The transaction is on the Pi blockchain but failed: no Pi was sent and nothing was added
+      // to the ledger. History shows it as Failed (a successful retry in the wallet still confirms it).
+      payTarget.current = null;
+      clearPendingWalletPayment();
+      setScreen("form");
+      toast.error("Your payment failed on the Pi blockchain, so no Pi was sent. It's shown as Failed in History. Please try again.", { duration: 7000 });
     } else if (intent.status === "cancelled") {
       payTarget.current = null;
       clearPendingWalletPayment();
@@ -617,9 +624,27 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 Select from Contacts
               </span>
             </div>
+          ) : isVerified ? (
+            // Picked contact: same chip as the Add Manual / Analytics contact search
+            <div className="flex items-center justify-between px-4 py-3 bg-[#F5EDE6] dark:bg-[#8A532B]/20 border border-[#592C16]/20 dark:border-[#8A532B]/40 rounded-xl">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                  {getInitials(recipientName)}
+                </div>
+                <span className="text-gray-900 dark:text-foreground font-medium text-sm truncate">{recipientName}</span>
+              </div>
+              <button
+                type="button"
+                aria-label="Clear contact"
+                onClick={() => { setPublicKey(""); setPioneerQuery(""); }}
+                className="p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors group flex-shrink-0"
+              >
+                <X className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
+              </button>
+            </div>
           ) : (
-            <div className={`flex items-center gap-3 bg-gray-50 dark:bg-secondary border-2 rounded-2xl px-4 py-3.5 transition-all shadow-sm border-gray-100 dark:border-border focus-within:border-gray-300 dark:focus-within:border-gray-600`}>
-              <Search className="w-4 h-4 text-gray-400 dark:text-muted-foreground flex-shrink-0" />
+            // Same search field + suggestion dropdown as the Add Manual / Analytics contact search
+            <div className="relative">
               <input
                 type="text"
                 value={pioneerQuery}
@@ -627,39 +652,24 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
                 onBlur={handlePioneerBlur}
                 onChange={(e) => handlePioneerSearchChange(e.target.value)}
                 placeholder="Select from Contacts"
-                className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted-foreground outline-none text-base font-medium caret-black dark:caret-white"
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent caret-black dark:caret-white transition-all"
               />
-              <ChevronDown
-                className={`w-4 h-4 text-gray-400 dark:text-muted-foreground flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-              />
-            </div>
-          )}
-
-          {isDropdownOpen && !(publicKey.trim() && !isVerified) && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-2xl shadow-2xl overflow-hidden z-50 max-h-64 overflow-y-auto">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-muted-foreground px-4 pt-3 pb-1">
-                Saved Contacts
-              </p>
-              {filteredContacts.length > 0 ? (
-                filteredContacts.map((contact, i) => (
-                  <div
-                    key={contact.id}
-                    onMouseDown={(e) => { e.preventDefault(); handleSelectPioneer(contact); }}
-                    className={`flex items-center gap-3 px-4 py-3 hover:bg-[#F5EDE6] dark:hover:bg-secondary cursor-pointer transition-colors ${i < filteredContacts.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
-                      }`}
-                  >
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-[#592C16] text-sm font-bold shadow-sm" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
-                      {getInitials(contact.name)}
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-muted-foreground pointer-events-none z-10" />
+              {isDropdownOpen && pioneerQuery.trim().length > 0 && filteredContacts.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-card border border-gray-100 dark:border-border rounded-xl shadow-2xl max-h-44 overflow-y-auto z-[9999]">
+                  {filteredContacts.map((contact) => (
+                    <div
+                      key={contact.id}
+                      onMouseDown={(e) => { e.preventDefault(); handleSelectPioneer(contact); }}
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#F5EDE6] dark:hover:bg-secondary cursor-pointer transition-colors border-b border-gray-50 dark:border-border last:border-none"
+                    >
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-[#592C16] text-xs font-bold" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                        {getInitials(contact.name)}
+                      </div>
+                      <span className="text-gray-900 dark:text-foreground text-sm font-medium">{contact.name}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-900 dark:text-foreground font-medium truncate">{contact.name}</p>
-                      <p className="text-gray-400 dark:text-muted-foreground text-xs truncate font-mono">{contact.piWalletAddress.length > 10 ? `${contact.piWalletAddress.slice(0, 5)}.....${contact.piWalletAddress.slice(-5)}` : contact.piWalletAddress}</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-300 dark:text-muted-foreground flex-shrink-0" />
-                  </div>
-                ))
-              ) : (
-                <p className="px-4 py-4 text-sm text-gray-400 dark:text-muted-foreground">No matching contacts</p>
+                  ))}
+                </div>
               )}
             </div>
           )}
@@ -686,7 +696,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             />
             <span
               className="font-black text-gray-300 dark:text-muted-foreground ml-2 leading-none select-none"
-              style={{ fontSize: "clamp(2rem, 9vw, 3rem)" }}
+              style={{ fontSize: "clamp(2.25rem, 10.5vw, 3.5rem)" }}
             >
               π
             </span>

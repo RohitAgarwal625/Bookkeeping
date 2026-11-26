@@ -4,9 +4,11 @@ import { Home, Users, LayoutDashboard, Settings } from "lucide-react";
 interface BottomNavProps {
   activeTab: "home" | "contacts" | "pay" | "merchantDashboard" | "settings";
   onNavigate?: (screen: string) => void;
+  /** Ripple + wiggle the Contacts tab (e.g. right after a contact was saved from History). */
+  pulseContacts?: boolean;
 }
 
-export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
+export function BottomNav({ activeTab, onNavigate, pulseContacts = false }: BottomNavProps) {
   const [navSize, setNavSize] = useState({ w: 390, h: 64 });
   const [buttonCX, setButtonCX] = useState(195);
   const navRef = useRef<HTMLDivElement>(null);
@@ -40,13 +42,27 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
   const renderTab = (item: { id: string; label: string; icon: React.ElementType }) => {
     const Icon = item.icon;
     const isActive = activeTab === item.id;
+    const pulse = pulseContacts && item.id === "contacts";
     return (
       <button
         key={item.id}
         onClick={() => onNavigate?.(item.id)}
         className="flex flex-col items-center justify-center gap-1 flex-1 h-full relative"
       >
-        <Icon className={`w-5 h-5 ${isActive ? "text-black dark:text-white" : "text-gray-400 dark:text-muted-foreground"}`} />
+        <span className="relative flex items-center justify-center">
+          {pulse && [0, 0.6].map((delay) => (
+            <span
+              key={delay}
+              aria-hidden="true"
+              className="absolute rounded-full pointer-events-none"
+              style={{ width: "36px", height: "36px", background: "rgba(138,83,43,0.35)", animation: "nav-contact-ripple 1.2s ease-out 3", animationDelay: `${delay}s`, opacity: 0 }}
+            />
+          ))}
+          <Icon
+            className={`w-5 h-5 ${pulse ? "text-[#592C16] dark:text-[#C08552]" : isActive ? "text-black dark:text-white" : "text-gray-400 dark:text-muted-foreground"}`}
+            style={pulse ? { animation: "nav-contact-wiggle 0.6s ease-in-out 4" } : undefined}
+          />
+        </span>
         <span className={`text-xs ${isActive ? "text-black dark:text-white font-medium" : "text-gray-400 dark:text-muted-foreground"}`}>
           {item.label}
         </span>
@@ -76,6 +92,10 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
+      {pulseContacts && (
+        <style>{`@keyframes nav-contact-ripple { 0% { transform: scale(0.4); opacity: 0.9; } 100% { transform: scale(1.8); opacity: 0; } }
+@keyframes nav-contact-wiggle { 0%,100% { transform: rotate(0) scale(1); } 20% { transform: rotate(-14deg) scale(1.15); } 40% { transform: rotate(12deg) scale(1.15); } 60% { transform: rotate(-8deg) scale(1.1); } 80% { transform: rotate(5deg) scale(1.05); } }`}</style>
+      )}
       <div
         ref={navRef}
         className="relative bg-white dark:bg-card shadow-[0_-4px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)]"

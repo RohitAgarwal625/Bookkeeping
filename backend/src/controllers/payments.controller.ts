@@ -84,15 +84,23 @@ export async function createIntent(req: Request, res: Response, next: NextFuncti
     // exists: a paid one is confirmed and claims its payment op (so the new intent can't
     // take it), an unpaid one is cancelled below. One we couldn't check (Horizon down)
     // stays pending, the job can still confirm it later.
+    // A failed one (its transaction failed on the chain) that is still open gets the same
+    // check; if it stays failed it is closed (expiresAt = now): the new intent replaces it.
     const older = await prisma.paymentIntent.findMany({
-      where: { senderId: userId, receiverId: receiver.id, status: "pending" },
+      where: {
+        senderId: userId,
+        receiverId: receiver.id,
+        OR: [{ status: "pending" }, { status: "failed", expiresAt: { gt: new Date() } }],
+      },
       orderBy: { createdAt: "asc" },
     });
     const unpaidIds: string[] = [];
+    const failedIds: string[] = [];
     for (const old of older) {
       try {
         const checked = await checkIntent(old);
         if (checked.status === "pending") unpaidIds.push(old.id);
+        else if (checked.status === "failed") failedIds.push(old.id);
       } catch (err) {
         logger.warn({ err, intentId: old.id }, "Payment intent check before replacing it failed; left pending");
       }
@@ -107,6 +115,12 @@ export async function createIntent(req: Request, res: Response, next: NextFuncti
         });
       }
       const now = new Date();
+      if (failedIds.length > 0) {
+        await tx.paymentIntent.updateMany({
+          where: { id: { in: failedIds }, status: "failed" },
+          data: { expiresAt: now },
+        });
+      }
       return tx.paymentIntent.create({
         data: {
           senderId: userId,
@@ -204,7 +218,9 @@ export async function cancelIntent(req: Request, res: Response, next: NextFuncti
 
 /**
  * GET /api/payments/history?page&limit — confirmed in-app payments the user sent or
- * received, newest first. The other side is shown only by wallet address and the viewer's
+ * received, plus the user's own sent payments whose transaction failed on the chain
+ * (status "failed"; the receiver got nothing, so they aren't listed for the receiver),
+ * newest first. The other side is shown only by wallet address and the viewer's
  * own contact (name/id) for it; never the other user's id, memberId, uid or username.
  */
 export async function listHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -213,8 +229,10 @@ export async function listHistory(req: Request, res: Response, next: NextFunctio
     const { page, limit } = req.query as unknown as { page: number; limit: number };
 
     const where: Prisma.PaymentIntentWhereInput = {
-      status: "confirmed",
-      OR: [{ senderId: userId }, { receiverId: userId }],
+      OR: [
+        { status: "confirmed", OR: [{ senderId: userId }, { receiverId: userId }] },
+        { status: "failed", senderId: userId },
+      ],
     };
     const [total, rows] = await Promise.all([
       prisma.paymentIntent.count({ where }),

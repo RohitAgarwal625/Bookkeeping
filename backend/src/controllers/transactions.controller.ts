@@ -202,10 +202,20 @@ export async function importTransactions(
     // Re-linked rows count as added: they are new in this contact's ledger.
     // Manual rows linked to a chain payment count as skipped ("already in your ledger").
     const added = [...result.relinked, ...result.created];
+    // How many of the scanned payments were made via the app (Pay via contacts / QR): confirmed
+    // intents this user sent or received. They are usually in the ledger already (skipped).
+    const inApp = await prisma.paymentIntent.count({
+      where: {
+        status: "confirmed",
+        chainPaymentId: { in: [...new Set(entries.map((e) => e.chainPaymentId))] },
+        OR: [{ senderId: userId }, { receiverId: userId }],
+      },
+    });
     res.status(200).json({
       transactions: added.map(serializeTransaction),
       added: added.length,
       skipped: entries.length - added.length,
+      inApp,
     });
   } catch (err) {
     next(err);

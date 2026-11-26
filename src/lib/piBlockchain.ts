@@ -353,3 +353,93 @@ export async function fetchPiBlockchainTransactions(
     walletAddress: cleanAddress,
   };
 }
+
+// ─── Single-transaction lookup (Manual entry verification) ───────────────────
+
+export interface PiTransactionTransfer {
+  from: string;
+  to: string;
+  /** Exact Horizon amount string, e.g. "1.2500000" (never parsed to a float here). */
+  amount: string;
+}
+
+export type PiTransactionLookup =
+  | {
+      status: "found";
+      hash: string;
+      successful: boolean;
+      createdAt: string; // ISO 8601 (UTC)
+      memo: string;
+      transfers: PiTransactionTransfer[];
+    }
+  | { status: "not_found" }
+  | { status: "error"; message: string };
+
+/** Fetches a Horizon JSON document with a timeout. status 0 = network/CORS/timeout. */
+async function fetchHorizonJson<T>(
+  url: string,
+  signal?: AbortSignal,
+  timeoutMs = 8000
+): Promise<{ ok: boolean; status: number; data: T | null }> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const onAbort = () => controller.abort();
+  signal?.addEventListener("abort", onAbort);
+  try {
+    const res = await fetch(url, { signal: controller.signal, headers: { Accept: "application/json" } });
+    if (!res.ok) return { ok: false, status: res.status, data: null };
+    return { ok: true, status: res.status, data: (await res.json()) as T };
+  } catch {
+    return { ok: false, status: 0, data: null };
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", onAbort);
+  }
+}
+
+/**
+ * Looks up one transaction by hash on Pi Horizon (PI_NETWORK) and returns its
+ * Pi (native) transfers: payments (from -> to) and create_account (funder -> account).
+ */
+export async function lookupPiTransaction(hash: string, signal?: AbortSignal): Promise<PiTransactionLookup> {
+  const clean = (hash || "").trim().toLowerCase();
+  if (!/^[0-9a-f]{64}$/.test(clean)) return { status: "not_found" };
+
+  const base = `${PI_HORIZON_URL}/transactions/${encodeURIComponent(clean)}`;
+  const [txRes, payRes] = await Promise.all([
+    fetchHorizonJson<{ hash: string; successful?: boolean; created_at: string; memo?: string; memo_type?: string }>(base, signal),
+    fetchHorizonJson<{ _embedded?: { records?: PiHorizonPaymentRecord[] } }>(`${base}/payments?limit=200`, signal),
+  ]);
+
+  if (txRes.status === 404 || payRes.status === 404) return { status: "not_found" };
+  if (!txRes.ok || !payRes.ok || !txRes.data) {
+    return { status: "error", message: "Pi blockchain could not be reached. Please try again." };
+  }
+
+  const transfers: PiTransactionTransfer[] = [];
+  for (const rec of payRes.data?._embedded?.records || []) {
+    if (rec.asset_type && rec.asset_type !== "native") continue;
+    const from = (rec.from || rec.funder || "").trim();
+    const to = (rec.to || rec.account || "").trim();
+    const amount = (rec.amount || rec.starting_balance || "").trim();
+    if (!from || !to || !/^\d+(\.\d+)?$/.test(amount)) continue;
+    transfers.push({ from, to, amount });
+  }
+
+  const tx = txRes.data;
+  return {
+    status: "found",
+    hash: clean,
+    successful: tx.successful !== false,
+    createdAt: tx.created_at,
+    memo: tx.memo_type === "text" && typeof tx.memo === "string" ? tx.memo : "",
+    transfers,
+  };
+}
+
+/** "1.2500000" -> "1.25", "10.0000000" -> "10" (string-only, no float rounding). */
+export function trimPiAmount(amount: string): string {
+  const s = (amount || "").trim();
+  if (!s.includes(".")) return s;
+  return s.replace(/0+$/, "").replace(/\.$/, "");
+}

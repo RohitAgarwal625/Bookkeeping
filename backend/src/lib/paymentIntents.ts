@@ -62,14 +62,25 @@ function compareRecords(a: HorizonPaymentRecord, b: HorizonPaymentRecord): numbe
  * createdAt - 2 min (and not after expiresAt), whatever its amount. The amount typed in
  * the app is NOT matched: the Pi Wallet link can't carry it, so the user types it again in
  * the wallet and may send a different amount. The chain's amount is the confirmed one.
+ * `failed` lists the same kind of payment whose transaction FAILED on the chain (Horizon
+ * `transaction_successful: false`, read with include_failed=true), made at or after
+ * createdAt (no look-back: an earlier attempt's failure must not fail a new intent).
  */
-async function findCandidates(intent: PaymentIntent): Promise<HorizonPaymentRecord[]> {
+async function findCandidates(
+  intent: PaymentIntent
+): Promise<{ ok: HorizonPaymentRecord[]; failed: HorizonPaymentRecord[] }> {
   const from = intent.createdAt.getTime() - LOOKBACK_MS;
   const until = intent.expiresAt.getTime();
   const found: HorizonPaymentRecord[] = [];
+  const failed: HorizonPaymentRecord[] = [];
   let cursor: string | undefined;
   for (let page = 0; page < MAX_PAGES; page++) {
-    const records = await fetchAccountPayments(intent.senderAddress, { order: "desc", limit: 200, cursor });
+    const records = await fetchAccountPayments(intent.senderAddress, {
+      order: "desc",
+      limit: 200,
+      cursor,
+      includeFailed: true,
+    });
     let reachedOlder = false;
     for (const r of records) {
       const t = Date.parse(r.created_at ?? "");
@@ -79,20 +90,34 @@ async function findCandidates(intent: PaymentIntent): Promise<HorizonPaymentReco
         continue;
       }
       if (t > until) continue;
-      if (r.type !== "payment" || r.asset_type !== "native" || r.transaction_successful === false) continue;
+      if (r.type !== "payment" || r.asset_type !== "native") continue;
       if (!r.id || !/^\d{1,30}$/.test(r.id)) continue;
       if (normalizeAddress(r.from ?? "") !== intent.senderAddress) continue;
       if (normalizeAddress(r.to ?? "") !== intent.receiverAddress) continue;
       const amount = parseAmount(r.amount);
       if (!amount) continue;
       if (r.transaction_hash && !/^[0-9a-fA-F]{64}$/.test(r.transaction_hash)) continue;
+      if (r.transaction_successful === false) {
+        if (t >= intent.createdAt.getTime()) failed.push(r);
+        continue;
+      }
       found.push(r);
     }
     if (reachedOlder || records.length < 200) break;
     cursor = records[records.length - 1]?.paging_token;
     if (!cursor) break;
   }
-  return found.sort(compareRecords);
+  return { ok: found.sort(compareRecords), failed: failed.sort(compareRecords) };
+}
+
+/**
+ * True while an intent can still change after a check: pending, or failed and not past
+ * expiresAt (the user may retry in the Pi Wallet after a failed transaction; a successful
+ * retry still confirms it). A failed intent is final once it expires, or once a newer
+ * intent to the same receiver replaces it (createIntent moves its expiresAt to now).
+ */
+export function isOpenIntent(intent: PaymentIntent, now: number = Date.now()): boolean {
+  return intent.status === "pending" || (intent.status === "failed" && intent.expiresAt.getTime() > now);
 }
 
 /** The user's contact with this address (older rows compared normalized), or null. */
@@ -141,7 +166,24 @@ async function writeLedgerRow(
     where: { userId, chainPaymentId: entry.chainPaymentId },
     select: { id: true },
   });
+  if (row) await relabelScanRow(tx, row.id, entry.description);
   return row?.id ?? null;
+}
+
+/** Note the Automatic scan / Auto Sync gives the rows it saves (src/lib/piBlockchain.ts). */
+const SCAN_NOTE_PREFIX = "Auto Sync:";
+
+/**
+ * An in-app payment that a scan (Auto Sync every 10s, or the Automatic fetch) saved before
+ * the intent was confirmed keeps the scan's "Auto Sync: ..." note, so it read as an Auto Sync
+ * entry instead of a payment made via the app. Give such a row the in-app note. Notes the
+ * user wrote (manual rows linked to the payment) are left alone.
+ */
+async function relabelScanRow(tx: Prisma.TransactionClient, rowId: string, description: string): Promise<void> {
+  await tx.transaction.updateMany({
+    where: { id: rowId, description: { startsWith: SCAN_NOTE_PREFIX } },
+    data: { description },
+  });
 }
 
 type ConfirmOutcome = { kind: "done"; intent: PaymentIntent } | { kind: "op_taken" };
@@ -165,8 +207,9 @@ async function confirmWith(intentId: string, rec: HorizonPaymentRecord): Promise
       ...(txHash ? [hashLockKey(current.senderId, txHash), hashLockKey(current.receiverId, txHash)] : []),
     ]);
     // Re-read under the lock: a concurrent check may have confirmed or cancelled it.
+    // A failed intent can still be confirmed (a successful retry in the Pi Wallet).
     const intent = await tx.paymentIntent.findUniqueOrThrow({ where: { id: intentId } });
-    if (intent.status !== "pending") return { kind: "done", intent };
+    if (intent.status !== "pending" && intent.status !== "failed") return { kind: "done", intent };
     const taken = await tx.paymentIntent.findFirst({
       where: { chainPaymentId: rec.id, id: { not: intentId } },
       select: { id: true },
@@ -228,14 +271,17 @@ async function confirmWith(intentId: string, rec: HorizonPaymentRecord): Promise
 }
 
 /**
- * Checks a pending intent against Horizon now. Confirms it with the earliest matching
- * payment whose op id no other intent uses; marks it expired when it is past expiresAt
- * and nothing matched. Non-pending intents are returned unchanged. Horizon errors are
+ * Checks an open intent (isOpenIntent) against Horizon now. Confirms it with the earliest
+ * matching successful payment whose op id no other intent uses. Otherwise a pending intent
+ * with a matching FAILED transaction on the chain becomes "failed" (txHash, amount and
+ * confirmedAt = that transaction's hash, amount and chain time; it can still be confirmed
+ * by a successful retry until expiresAt), and a pending one past expiresAt with nothing
+ * matched becomes "expired". Other intents are returned unchanged. Horizon errors are
  * thrown (the caller decides: /check answers with the still-pending intent, the job logs).
  */
 export async function checkIntent(intent: PaymentIntent): Promise<PaymentIntent> {
-  if (intent.status !== "pending") return intent;
-  const candidates = await findCandidates(intent);
+  if (!isOpenIntent(intent)) return intent;
+  const { ok: candidates, failed } = await findCandidates(intent);
   if (candidates.length > 0) {
     const used = new Set(
       (
@@ -251,7 +297,33 @@ export async function checkIntent(intent: PaymentIntent): Promise<PaymentIntent>
       if (outcome.kind === "done") return outcome.intent;
     }
   }
-  if (intent.expiresAt.getTime() <= Date.now()) {
+  if (intent.status === "pending" && failed.length > 0) {
+    // A failed transaction another intent already shows (e.g. an earlier attempt) isn't this one's.
+    const hashes = failed.map((r) => r.transaction_hash?.toLowerCase()).filter((h): h is string => !!h);
+    const shown = new Set(
+      (
+        await prisma.paymentIntent.findMany({
+          where: { txHash: { in: hashes }, id: { not: intent.id } },
+          select: { txHash: true },
+        })
+      ).map((r) => r.txHash)
+    );
+    const rec = failed.find((r) => !r.transaction_hash || !shown.has(r.transaction_hash.toLowerCase()));
+    if (rec) {
+      await prisma.paymentIntent.updateMany({
+        where: { id: intent.id, status: "pending" },
+        data: {
+          status: "failed",
+          txHash: rec.transaction_hash ? rec.transaction_hash.toLowerCase() : null,
+          // The attempted amount and its time on the chain (History shows and sorts by it).
+          amount: new Prisma.Decimal(rec.amount!),
+          confirmedAt: new Date(rec.created_at!),
+        },
+      });
+      return prisma.paymentIntent.findUniqueOrThrow({ where: { id: intent.id } });
+    }
+  }
+  if (intent.status === "pending" && intent.expiresAt.getTime() <= Date.now()) {
     await prisma.paymentIntent.updateMany({
       where: { id: intent.id, status: "pending" },
       data: { status: "expired" },
@@ -322,6 +394,10 @@ export async function backfillContactPayments(
       select: { id: true, chainPaymentId: true },
     });
     const byOp = new Map(rows.map((r) => [r.chainPaymentId!, r.id]));
+    for (const e of entries) {
+      const rowId = byOp.get(e.chainPaymentId);
+      if (rowId) await relabelScanRow(tx, rowId, e.description);
+    }
     for (const i of intents) {
       const rowId = byOp.get(i.chainPaymentId!);
       if (!rowId) continue;

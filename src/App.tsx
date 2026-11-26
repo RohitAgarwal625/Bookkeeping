@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Wallet } from "lucide-react";
+import { Wallet, LayoutDashboard } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
 import { Dashboard } from "./components/Dashboard";
@@ -119,6 +119,13 @@ function AppContent() {
   const [addContactWallet, setAddContactWallet] = useState<string>("");
   // Add Contact opened from Dashboard History ("Add to contact"): go back there when done, not to Pay.
   const [addContactFromHistory, setAddContactFromHistory] = useState(false);
+  // Ripple/wiggle on the Contacts tab right after a contact was saved from History.
+  const [pulseContactsNav, setPulseContactsNav] = useState(false);
+  useEffect(() => {
+    if (!pulseContactsNav) return;
+    const t = setTimeout(() => setPulseContactsNav(false), 3600);
+    return () => clearTimeout(t);
+  }, [pulseContactsNav]);
   const [pendingNewTransactions, setPendingNewTransactions] = useState<Record<string, Transaction[]>>({});
 
   // Query premium status on mount and when auth changes
@@ -492,6 +499,7 @@ function AppContent() {
       <>
         <AddEntry
           onBack={handleBackToDashboard}
+          userWalletAddress={bk.user?.walletPublicKey ?? ""}
           onSave={async (newTransaction, contactId, timestamp) => {
             if (!bk.isAuthenticated) return newTransaction;
             try {
@@ -603,7 +611,7 @@ function AppContent() {
           onNewContactSeen={() => setNewContactId(null)}
           isGuest={isGuest}
         />
-        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} pulseContacts={pulseContactsNav} />}
         <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
@@ -633,7 +641,7 @@ function AppContent() {
           isPremium={isPremium}
           onOpenPremiumModal={() => setShowPremiumModal(true)}
         />
-        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} pulseContacts={pulseContactsNav} />}
         <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
@@ -644,7 +652,7 @@ function AppContent() {
     return (
       <>
         <ReportsAnalytics onNavigate={handleNavigate} isGuest={isGuest} contacts={contacts} />
-        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} pulseContacts={pulseContactsNav} />}
         <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
@@ -693,6 +701,7 @@ function AppContent() {
               setAddContactFromHistory(false);
               setAddContactWallet("");
               setCurrentScreen("merchantDashboard");
+              setPulseContactsNav(true);
             } else if (addContactWallet) {
               // Came from Pay: go back to it with the new contact's address, so Pay is enabled.
               setScannedWalletAddress(addContactWallet);
@@ -705,6 +714,7 @@ function AppContent() {
           defaultCategory={selectedCategory}
           defaultWallet={addContactWallet}
           doneLabel={addContactFromHistory ? "Back to History" : addContactWallet ? "Continue to Pay" : undefined}
+          doneIcon={addContactFromHistory ? LayoutDashboard : undefined}
           existingNames={contacts.map((c) => c.name)}
           existingWallets={contacts}
         />
@@ -737,7 +747,7 @@ function AppContent() {
             setAddContactFromHistory(true);
           }}
         />
-        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} pulseContacts={pulseContactsNav} />}
         <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
@@ -765,7 +775,7 @@ function AppContent() {
           isPremium={isPremium}
           onOpenPremiumModal={() => setShowPremiumModal(true)}
         />
-        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} />}
+        {showNav && <BottomNav activeTab={activeTab} onNavigate={handleNavigate} pulseContacts={pulseContactsNav} />}
         <SharedOverlays />
         <Toaster position="bottom-center" />
       </>
@@ -884,7 +894,7 @@ function AppContent() {
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <text x="12" y="13" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="20" fontWeight="bold" fontFamily="serif">π</text>
               </svg>
-              {piSignInLoading ? "Signing in…" : "Sign in with Pi"}
+              {piSignInLoading ? "Connecting…" : "Connect via Pi"}
             </button>
             <button
               id="btn-guest-login"

@@ -117,7 +117,8 @@ export function Dashboard({
   const notifications = (() => {
     if (isGuest) return [];
     const pi = (amount: number) => `${formatPiAmount(amount)} π`;
-    const fromHistory = latestPayments.map((p) => {
+    // Failed in-app payments (transaction failed on the chain) are shown in History only.
+    const fromHistory = latestPayments.filter((p) => p.status !== "failed").map((p) => {
       const name = p.counterparty.name ?? (p.counterparty.contactId ? contactNames.get(p.counterparty.contactId) : undefined) ?? "an unsaved wallet";
       return {
         id: `pay-${p.id}`,
@@ -255,10 +256,10 @@ export function Dashboard({
                       </div>
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-gray-800 dark:text-foreground text-sm leading-snug">{n.message}</p>
-                        <p className="text-gray-400 dark:text-muted-foreground mt-0.5" style={{ fontSize: "14px" }}>{n.time}</p>
-                        {n.viaApp && (
-                          <p className="text-gray-400 dark:text-muted-foreground mt-0.5" style={{ fontSize: "14px" }}>(via Bookkeeping)</p>
-                        )}
+                        <p className="text-gray-400 dark:text-muted-foreground mt-0.5" style={{ fontSize: "14px" }}>
+                          {n.time}
+                          {n.viaApp && <> · via <span style={{ fontWeight: 700 }}>Bookkeeping</span></>}
+                        </p>
                       </div>
                     </div>
                   ))}

@@ -216,6 +216,8 @@ export interface ImportTransactionsResponse {
   transactions: Transaction[];
   added: number;
   skipped: number;
+  /** Scanned payments that were made via the app (confirmed in-app payments), saved now or before. */
+  inApp: number;
 }
 
 export interface TransactionSummary {
@@ -240,7 +242,8 @@ export interface Paginated<T> {
 
 // ─── In-app payments (POST /api/payments/intents, GET /api/payments/history) ──
 
-export type PaymentIntentStatus = "pending" | "confirmed" | "expired" | "cancelled";
+/** "failed": the payment's transaction failed on the Pi blockchain (nothing was sent). */
+export type PaymentIntentStatus = "pending" | "confirmed" | "failed" | "expired" | "cancelled";
 
 /** A payment the user started from Pay (contacts) or Pay via QR; the server confirms it on the blockchain. */
 export interface PaymentIntent {
@@ -263,9 +266,11 @@ export interface CreatePaymentIntentInput {
   contactId?: string;
 }
 
-/** One confirmed in-app payment in Dashboard History (sent or received). */
+/** One in-app payment in Dashboard History: confirmed (sent or received), or the user's own failed one. */
 export interface PaymentHistoryItem {
   id: string;
+  /** "failed": its transaction failed on the Pi blockchain (only the sender sees it). */
+  status: "confirmed" | "failed";
   direction: "sent" | "received";
   amount: number;
   confirmedAt: string;

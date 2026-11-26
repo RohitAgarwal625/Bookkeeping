@@ -20,6 +20,7 @@ import {
 import { useState, type CSSProperties } from "react";
 import { toast } from "sonner";
 import { ReportsAnalytics } from "./ReportsAnalytics";
+import { WalletQuestionIcon } from "./WalletQuestionIcon";
 import { Contact, PaymentHistoryItem, Transaction, getInitials } from "../types";
 import { formatPiAmount } from "../lib/piAmount";
 import { useDarkMode } from "../contexts/DarkModeContext";
@@ -192,9 +193,10 @@ export function MerchantDashboard({
       date: formatHistoryDate(p.confirmedAt),
       amount: p.amount,
       type: p.direction === "received" ? "credit" as const : "debit" as const,
-      status: "completed" as const,
+      // "failed": the transaction failed on the Pi blockchain (only the sender's own payments).
+      status: p.status === "failed" ? "failed" as const : "completed" as const,
       piWalletAddress: p.counterparty.walletAddress,
-      description: p.direction === "received" ? "Received in the app" : "Paid in the app",
+      description: p.status === "failed" ? "Payment failed on the Pi blockchain" : p.direction === "received" ? "Received in the app" : "Paid in the app",
       txHash: p.txHash ?? "",
       totalCredit: 0,
       totalDebit: 0,
@@ -256,7 +258,7 @@ export function MerchantDashboard({
   return (
     <div className="size-full flex flex-col bg-gradient-to-b from-white to-[#F5EDE6]/30 dark:from-[#0F1115] dark:to-[#0F1115]" style={{ minHeight: "100dvh" }}>
       {/* Header — History / Analysis toggle replaces the old "Dashboard" title */}
-      <header style={{ background: isDark ? "#0F1115" : "#ffffff" }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 20, background: isDark ? "#0F1115" : "#ffffff" }}>
         <div className="flex">
           <button
             onClick={() => setActiveView("history")}
@@ -357,10 +359,10 @@ export function MerchantDashboard({
                     className="bg-white dark:bg-card rounded-xl shadow-md dark:shadow-none dark:border dark:border-border p-4 hover:shadow-lg dark:hover:border-[#8A532B]/40 transition-all"
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`${merchant.unidentified ? "w-12 h-12" : "w-10 h-10"} rounded-full flex items-center justify-center flex-shrink-0`} style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                           {merchant.unidentified ? (
-                            <Wallet className="w-4 h-4 text-[#592C16]" />
+                            <WalletQuestionIcon />
                           ) : (
                             <span className="text-[#592C16] text-sm font-bold">{getInitials(merchant.merchantName)}</span>
                           )}
@@ -368,7 +370,7 @@ export function MerchantDashboard({
                         <div className="flex-1 min-w-0">
                           {merchant.unidentified ? (
                             <div className="flex items-center gap-1 min-w-0">
-                              <p className="text-gray-900 dark:text-foreground text-sm font-medium truncate">{merchant.merchantName}</p>
+                              <p className="text-gray-900 dark:text-foreground text-sm font-medium min-w-0" style={{ overflowWrap: "anywhere" }}>{merchant.merchantName}</p>
                               <button
                                 type="button"
                                 aria-label="What is an unidentified Pi Wallet Address?"
@@ -386,14 +388,14 @@ export function MerchantDashboard({
                           <p className="text-xs text-gray-500 dark:text-muted-foreground">{merchant.date}</p>
                         </div>
                       </div>
-                      <span className={`text-sm font-medium flex-shrink-0 ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                      <span className={`text-sm font-medium flex-shrink-0 ml-2 ${merchant.type === "credit" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
                         {merchant.type === "credit" ? "+" : "-"}{formatPiAmount(merchant.amount)} π
                       </span>
                     </div>
                     <div className="space-y-1.5">
                       {/* Status */}
                       <div className="flex items-center gap-2">
-                        <div className="w-10 flex-shrink-0 flex items-center">
+                        <div className="w-14 flex-shrink-0 flex items-center">
                           {merchant.status === "completed" ? (
                             <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
                               <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
@@ -419,13 +421,13 @@ export function MerchantDashboard({
                       </div>
                       {/* Date */}
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500 dark:text-muted-foreground w-10 flex-shrink-0">Date:</span>
+                        <span className="text-xs text-gray-500 dark:text-muted-foreground w-14 flex-shrink-0">Date:</span>
                         <span className="text-xs text-gray-700 dark:text-gray-300">{merchant.date}</span>
                       </div>
                       {/* Wallet address of the other side */}
                       <div className="flex items-start gap-2">
-                        <span className="text-xs text-gray-500 dark:text-muted-foreground w-10 flex-shrink-0 whitespace-nowrap">Wallet:</span>
-                        <span className="text-xs text-gray-600 dark:text-muted-foreground font-mono">{shortAddress(merchant.piWalletAddress)}</span>
+                        <span className="text-xs text-gray-500 dark:text-muted-foreground w-14 flex-shrink-0 whitespace-nowrap">Wallet:</span>
+                        <span className="text-xs text-gray-600 dark:text-muted-foreground font-mono min-w-0 truncate">{shortAddress(merchant.piWalletAddress)}</span>
                       </div>
                     </div>
                     {merchant.unidentified && onAddToContact && (
@@ -495,11 +497,6 @@ export function MerchantDashboard({
 
           {/* Sheet */}
           <div className="relative w-full max-w-md bg-white dark:bg-card rounded-t-3xl shadow-2xl max-h-[60vh] overflow-y-auto pb-4">
-            {/* Handle */}
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 bg-gray-200 dark:bg-border rounded-full" />
-            </div>
-
             {/* Modal Header */}
             <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-border">
               <h3 className="text-gray-900 dark:text-foreground font-bold text-lg">Transaction Details</h3>
@@ -514,16 +511,16 @@ export function MerchantDashboard({
             <div className="px-6 pt-4 pb-5">
               {/* Avatar + Amount */}
               <div className="flex flex-col items-center mb-5">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-md mb-2" style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
+                <div className={`${selectedMerchant.unidentified ? "w-16 h-16" : "w-12 h-12"} rounded-full flex items-center justify-center shadow-md mb-2`} style={{ background: "linear-gradient(to right, #F3E2D2, #EFC8AC)" }}>
                   {selectedMerchant.unidentified ? (
-                    <Wallet className="w-5 h-5 text-[#592C16]" />
+                    <WalletQuestionIcon />
                   ) : (
                     <span className="text-[#592C16] text-base font-bold">
                       {getInitials(selectedMerchant.merchantName)}
                     </span>
                   )}
                 </div>
-                <h4 className="text-gray-900 dark:text-foreground font-bold text-lg">
+                <h4 className="text-gray-900 dark:text-foreground font-bold text-lg text-center" style={{ overflowWrap: "anywhere" }}>
                   {selectedMerchant.merchantName}
                 </h4>
                 <div className={`flex items-center gap-1.5 mt-1.5 px-3 py-1 rounded-full ${selectedMerchant.type === "credit"
@@ -618,6 +615,7 @@ export function MerchantDashboard({
                         style={{
                           minWidth: 0,
                           minHeight: "44px",
+                          margin: "-13px 0",
                           background: "transparent",
                           textAlign: txIdExpanded ? "center" : "right",
                           wordBreak: txIdExpanded ? "break-all" : "normal",
@@ -633,7 +631,7 @@ export function MerchantDashboard({
                         onClick={() => handleCopyTxId(selectedMerchant.txHash)}
                         aria-label="Copy Transaction ID"
                         className="flex items-center justify-center flex-shrink-0 text-gray-500 dark:text-muted-foreground hover:text-[#592C16] transition-colors"
-                        style={{ width: "44px", height: "44px", marginRight: "-12px", background: "transparent" }}
+                        style={{ width: "44px", height: "44px", margin: "-13px -12px -13px 0", background: "transparent" }}
                       >
                         <Copy className="w-3.5 h-3.5" />
                       </button>

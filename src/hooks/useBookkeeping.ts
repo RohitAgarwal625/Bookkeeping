@@ -180,16 +180,18 @@ export function useBookkeeping() {
     ): Promise<ImportTransactionsResponse> => {
       const created: Transaction[] = [];
       let skipped = 0;
+      let inApp = 0;
       try {
         for (let i = 0; i < entries.length; i += 100) {
           const res = await transactionsApi.importScanned(contactId, entries.slice(i, i + 100));
           created.push(...res.transactions);
           skipped += res.skipped;
+          inApp += res.inApp ?? 0;
         }
       } finally {
         await Promise.all([refreshContacts(), refreshSummary()]);
       }
-      return { transactions: created, added: created.length, skipped };
+      return { transactions: created, added: created.length, skipped, inApp };
     },
     [refreshContacts, refreshSummary]
   );

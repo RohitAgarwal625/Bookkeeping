@@ -1,5 +1,5 @@
 import { ArrowLeft, ChevronDown, Check, CheckCircle, X, Users } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ElementType } from "react";
 import { toast } from "sonner";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { checkPiAccountExists, cleanWalletInput, isPiPublicKey, PI_NETWORK, PI_OTHER_NETWORK } from "../lib/piBlockchain";
@@ -20,9 +20,11 @@ interface AddCustomerProps {
   defaultWallet?: string;
   /** Text of the success screen's button (default "Open Contacts"). */
   doneLabel?: string;
+  /** Icon after the success screen's button text (default the Contacts icon). */
+  doneIcon?: ElementType;
 }
 
-export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individual", existingNames = [], existingWallets = [], defaultWallet = "", doneLabel = "Open Contacts" }: AddCustomerProps) {
+export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individual", existingNames = [], existingWallets = [], defaultWallet = "", doneLabel = "Open Contacts", doneIcon: DoneIcon = Users }: AddCustomerProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [piWallet, setPiWallet] = useState(defaultWallet);
@@ -171,7 +173,7 @@ export function AddCustomer({ onBack, onSave, onDone, defaultCategory = "individ
             }}
           >
             <span>{doneLabel}</span>
-            <Users className="w-5 h-5" />
+            <DoneIcon className="w-5 h-5" />
           </button>
         </div>
       </div>

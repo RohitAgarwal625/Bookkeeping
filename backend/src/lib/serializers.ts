@@ -65,7 +65,7 @@ export function serializeContact(
 export function serializePaymentIntent(intent: PaymentIntent) {
   return {
     id: intent.id,
-    status: intent.status as "pending" | "confirmed" | "expired" | "cancelled",
+    status: intent.status as "pending" | "confirmed" | "failed" | "expired" | "cancelled",
     receiverAddress: intent.receiverAddress,
     amount: intent.amount === null ? null : Number(intent.amount.toString()),
     contactId: intent.contactId,
@@ -77,7 +77,8 @@ export function serializePaymentIntent(intent: PaymentIntent) {
 }
 
 /**
- * One Dashboard History row (a confirmed in-app payment) from the viewer's side. The
+ * One Dashboard History row (a confirmed in-app payment, or the viewer's own failed one:
+ * status "failed", amount/txHash/confirmedAt of the failed transaction) from the viewer's side. The
  * counterparty is the other side's wallet address plus the viewer's own contact for it;
  * name null means the viewer has no such contact ("Unidentified wallet address").
  */
@@ -89,6 +90,7 @@ export function serializeHistoryItem(
 ) {
   return {
     id: intent.id,
+    status: intent.status === "failed" ? ("failed" as const) : ("confirmed" as const),
     direction,
     amount: intent.amount === null ? 0 : Number(intent.amount.toString()),
     confirmedAt: (intent.confirmedAt ?? intent.createdAt).toISOString(),
