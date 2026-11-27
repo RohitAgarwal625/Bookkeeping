@@ -11,7 +11,7 @@ interface InviteModalProps {
 
 const GRADIENT = "linear-gradient(to right, #592C16, #8A532B)";
 
-/** "Bring them on Bookkeeping": paying someone not on the app is blocked; invite them instead. */
+/** "Bring 'em on bookkeeping.pi": paying someone not on the app is blocked; invite them instead. */
 export function InviteModal({ onClose }: InviteModalProps) {
   const { isDarkMode: isDark } = useDarkMode();
   const [sharing, setSharing] = useState(false);
@@ -68,12 +68,16 @@ export function InviteModal({ onClose }: InviteModalProps) {
           className="text-center"
           style={{ fontWeight: 700, fontSize: "18px", marginBottom: "6px", color: isDark ? "#F3F4F6" : "#111827" }}
         >
-          Bring them on Bookkeeping
+          Bring &rsquo;em on bookkeeping.pi
         </h3>
-        <p className="text-sm text-center" style={{ marginBottom: "20px", color: isDark ? "#9CA3AF" : "#6B7280", lineHeight: 1.5 }}>
-          The person you want to transact with is not registered on the app yet. In order to record the transaction for both of you, send an invite with your referral code.
-          Both of you get a paid trial package of the app for free once your invite makes the first transaction using the inbuilt pay button.
-        </p>
+        <div className="text-sm text-center" style={{ marginBottom: "20px", color: isDark ? "#9CA3AF" : "#6B7280", lineHeight: 1.5 }}>
+          <p style={{ marginBottom: "10px" }}>
+            The person you want to transact with isn&rsquo;t registered on the app yet. In order to record the transaction for both of you, send an invite with your referral code.
+          </p>
+          <p>
+            Both of you get a paid trial package of the app for free once your invitee makes the first transaction using the inbuilt &lsquo;Pay&rsquo; button.
+          </p>
+        </div>
         <button
           type="button"
           onClick={() => void handleShare()}

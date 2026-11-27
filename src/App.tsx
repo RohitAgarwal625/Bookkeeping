@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Wallet, LayoutDashboard } from "lucide-react";
+import { Wallet, History } from "lucide-react";
 import penFeatherIcon from "./assets/penfeathericon.png";
 import bookLogo from "./assets/logo.svg";
 import { Dashboard } from "./components/Dashboard";
@@ -714,7 +714,7 @@ function AppContent() {
           defaultCategory={selectedCategory}
           defaultWallet={addContactWallet}
           doneLabel={addContactFromHistory ? "Back to History" : addContactWallet ? "Continue to Pay" : undefined}
-          doneIcon={addContactFromHistory ? LayoutDashboard : undefined}
+          doneIcon={addContactFromHistory ? History : undefined}
           existingNames={contacts.map((c) => c.name)}
           existingWallets={contacts}
         />
