@@ -66,8 +66,9 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   const [paidTxHash, setPaidTxHash] = useState("");
   // "This person isn't on the app yet" pop-up (the name of the person being paid).
   const [inviteName, setInviteName] = useState<string | null>(null);
-  // Notice shown after tapping Pay: the payment is made outside the app, in the Pi Wallet.
-  const [showPayNotice, setShowPayNotice] = useState(false);
+  // Notice shown once the payment is started (receiver is on the app): it is made outside the
+  // app, in the Pi Wallet; OK opens the wallet.
+  const [payNotice, setPayNotice] = useState<{ contact: Contact; intent: PaymentIntent; amountText: string } | null>(null);
   const payTarget = useRef<PendingWalletPayment | null>(restored);
   const checking = useRef(false);
 
@@ -184,6 +185,12 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
       setIsStarting(false);
     }
 
+    // The receiver is on the app: explain the Pi Wallet redirect first; OK continues below.
+    setPayNotice({ contact, intent, amountText });
+  };
+
+  /** OK on the notice: show the waiting screen and open the Pi Wallet. */
+  const continueToWallet = async (contact: Contact, intent: PaymentIntent, amountText: string) => {
     setPaidRecipientName(contact.name);
     setPaidTxHash("");
     const target: PendingWalletPayment = {
@@ -756,7 +763,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
           <button
             disabled={!canPay}
-            onClick={() => setShowPayNotice(true)}
+            onClick={() => void handlePay()}
             className="w-full py-4 rounded-2xl font-bold text-lg transition-all disabled:cursor-not-allowed"
             style={{
               background: !canPay ? (isDark ? "#252830" : "#e5e7eb") : GRADIENT,
@@ -771,7 +778,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
       {inviteName !== null && <InviteModal name={inviteName} onClose={() => setInviteName(null)} />}
 
-      {showPayNotice && (
+      {payNotice && (
         <div
           className="fixed inset-0 backdrop-blur-sm flex items-center justify-center"
           style={{ zIndex: 400, background: "rgba(0,0,0,0.5)", padding: "0 24px" }}
@@ -792,13 +799,18 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)",
             }}
           >
-            <p id="pay-notice-text" className="text-sm" style={{ marginBottom: "20px", color: isDark ? "#D1D5DB" : "#374151", lineHeight: 1.6 }}>
-              As the Pi Core team (PCT) has not yet permitted direct-to-user (U to U) payment from within the third-party apps, you will be redirected out of this app to make the payment via Pi Wallet. Enter amount manually inside the Pi Wallet to pay. After the payment is completed, press the back button twice on the Pi browser to come back to the app. We will confirm your payment automatically, but you can also help tap on the check button manually to confirm. You will be able to check the status of your payment in the history section of the dashboard.
-            </p>
+            <div id="pay-notice-text" className="text-sm" style={{ marginBottom: "20px", color: isDark ? "#D1D5DB" : "#374151", lineHeight: 1.6 }}>
+              <p style={{ marginBottom: "12px" }}>
+                As the Pi Core team (PCT) has not yet permitted direct-to-user (U to U) payment from within the third-party apps, you will be redirected out of this app to make the payment via Pi Wallet. Enter amount manually inside the Pi Wallet to pay.
+              </p>
+              <p>
+                After the payment is completed, press the back button twice on the Pi browser to come back to the app. We will confirm your payment automatically, but you can also help tap on the check button manually to confirm. You will be able to check the status of your payment in the history section of the dashboard.
+              </p>
+            </div>
             <button
               type="button"
               autoFocus
-              onClick={() => { setShowPayNotice(false); void handlePay(); }}
+              onClick={() => { const n = payNotice; if (!n) return; setPayNotice(null); void continueToWallet(n.contact, n.intent, n.amountText); }}
               className="w-full text-white"
               style={{ minHeight: "48px", borderRadius: "9999px", fontWeight: 700, background: GRADIENT, boxShadow: "0 6px 24px rgba(89,44,22,0.35)" }}
             >
