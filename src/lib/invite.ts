@@ -8,13 +8,12 @@ import { ensurePiInitialized } from "./piAuth";
 /** The app's public link sent in invites. The one place to change it. */
 export const APP_INVITE_URL = "https://bookkeepvrku8726.pinet.com";
 
-export const INVITE_TITLE = "Bring 'em on bookkeeping.pi";
+export const INVITE_TITLE = "Join me on Bookkeeping";
 
-/** Same wording as the invite pop-up, then the app link. */
 export function inviteMessage(): string {
   return (
-    "The person you want to transact with isn't registered on the app yet. In order to record the transaction for both of you, send an invite with your referral code.\n" +
-    "Both of you get a paid trial package of the app for free once your invitee makes the first transaction using the inbuilt 'Pay' button.\n\n" +
+    "I'd like to pay you in Pi with Bookkeeping, the ledger app for Pi pioneers. " +
+    "Open it in the Pi Browser, sign in with Pi and add your wallet address in Settings → Profile: " +
     APP_INVITE_URL
   );
 }

@@ -801,10 +801,16 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           >
             <div id="pay-notice-text" className="text-sm" style={{ marginBottom: "20px", color: isDark ? "#D1D5DB" : "#374151", lineHeight: 1.6 }}>
               <p style={{ marginBottom: "12px" }}>
-                As the Pi Core team (PCT) has not yet permitted direct-to-user (U to U) payment from within the third-party apps, you will be redirected out of this app to make the payment via Pi Wallet. Enter amount manually inside the Pi Wallet to pay.
+                As the Pi Core Team (PCT) hasn&rsquo;t yet permitted direct User 2 User (U2U) payments from within the third-party apps, you will be redirected out of this app to make the payment via Pi Wallet.
+              </p>
+              <p style={{ marginBottom: "12px" }}>
+                Enter <strong>amount</strong> manually inside the Pi wallet to pay. After the payment is completed, press back button twice of the Pi Browser to come back to this app.
+              </p>
+              <p style={{ marginBottom: "12px" }}>
+                We will confirm your payment automatically while you can also tap on the &lsquo;Check&rsquo; button manually to confirm.
               </p>
               <p>
-                After the payment is completed, press the back button twice on the Pi browser to come back to the app. We will confirm your payment automatically, but you can also help tap on the check button manually to confirm. You will be able to check the status of your payment in the history section of the dashboard.
+                You will be able to check the status of your payment in the &lsquo;History&rsquo; section of your Dashboard.
               </p>
             </div>
             <button
