@@ -175,6 +175,12 @@ export interface AuthResponse {
   sessionToken: string;
 }
 
+/** POST /api/auth/pi: session issued after the backend verified the Pi accessToken with Pi (/v2/me). */
+export interface PiLoginResponse extends AuthResponse {
+  expiresAt: string;
+  piUser: { uid: string; username: string };
+}
+
 export interface CreateContactInput {
   name: string;
   piWalletAddress: string;

@@ -21,6 +21,9 @@ export async function startBackend({ port, databaseUrl, piApiUrl }) {
       PI_PLATFORM_API_URL: piApiUrl,
       PI_HORIZON_URL: piApiUrl, // the fake Pi server also answers Horizon's /accounts/:address/payments
       LOG_LEVEL: "error",
+      // The suites log in by uid (GET /api/users/:uid); production refuses it (AUD-01).
+      // Set process.env.ALLOW_UID_LOGIN before startBackend to start a backend without it.
+      ALLOW_UID_LOGIN: process.env.ALLOW_UID_LOGIN ?? "true",
     },
     stdio: ["ignore", "ignore", "pipe"],
   });

@@ -2,13 +2,15 @@
 //   GET  /v2/payments/:id
 //   POST /v2/payments/:id/approve
 //   POST /v2/payments/:id/complete   { txid }
+//   GET  /v2/me                      (user token: `Authorization: Bearer <accessToken>`)
 //   GET  /accounts/:address/payments (fake Horizon for PI_HORIZON_URL; see the handler and addHorizonPayment)
-// Requires `Authorization: Key <apiKey>`, like the real API.
+// Payment routes require `Authorization: Key <apiKey>`, like the real API.
 import http from "node:http";
 
 export function startFakePi({ port, apiKey }) {
   const payments = new Map();
   const requests = []; // raw request URLs, for path/encoding assertions
+  const userTokens = new Map(); // accessToken -> { uid, username }
   // paymentId -> failure mode for /v2/payments/<id>[/approve|/complete]:
   //   "hang" (never answers), "unauthorized" (401), "500json", "500html", "200html"
   const failures = new Map();
@@ -45,6 +47,11 @@ export function startFakePi({ port, apiKey }) {
     else failures.delete(id);
   }
 
+  /** Register a Pi user accessToken that GET /v2/me will accept. */
+  function addUserToken(accessToken, uid, username) {
+    userTokens.set(accessToken, { uid, username });
+  }
+
   /** Register a payment the fake API will return. */
   function addPayment(id, userUid, { amount = 1, productId = "premium_bookkeeping" } = {}) {
     const payment = {
@@ -78,6 +85,18 @@ export function startFakePi({ port, apiKey }) {
         res.writeHead(status, { "Content-Type": "application/json" });
         res.end(JSON.stringify(obj));
       };
+      if (req.url === "/v2/me") {
+        const auth = req.headers.authorization ?? "";
+        const tok = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+        // Special tokens for failure tests: "tok_hang" never answers, "tok_200html" answers 200 with HTML.
+        if (tok === "tok_hang") return hung.push(res);
+        if (tok === "tok_200html") {
+          res.writeHead(200, { "Content-Type": "text/html" });
+          return res.end("<html><body>proxy</body></html>");
+        }
+        const me = tok ? userTokens.get(tok) : undefined;
+        return me ? send(200, { ...me, credentials: { scopes: ["username", "payments"] } }) : send(401, { error: "invalid_token" });
+      }
       // Fake Horizon (PI_HORIZON_URL): GET /accounts/:address/payments. The address prefix picks the answer:
       // GNOTFOUND -> 404, GBAD -> 400, GDOWN -> 500, anything else -> 200 with one record.
       const h = req.url.match(/^\/accounts\/([^/?]+)\/payments(?:\?|$)/);
@@ -132,6 +151,7 @@ export function startFakePi({ port, apiKey }) {
       resolve({
         url: `http://localhost:${port}`,
         addPayment,
+        addUserToken,
         addHorizonPayment,
         setFailure,
         payments,

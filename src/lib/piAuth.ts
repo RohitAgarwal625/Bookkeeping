@@ -2,23 +2,25 @@
  * Pi Network authentication and SDK initialization helpers.
  *
  * STEP 1 – Pi.init then Pi.authenticate (browser) with ["username", "payments"] scopes.
- * STEP 2 – Exchange the Pi accessToken with App Studio to get a verified
- *           sessionToken + trusted uid/username.
+ * STEP 2 – Send the Pi accessToken to the backend (POST /api/auth/pi). The backend
+ *           verifies it with Pi (/v2/me) and returns a session for the verified user.
  *
  * Never trust the uid/username from Pi.authenticate directly.
- * Only the values returned by App Studio are authoritative.
+ * Only the values the backend got from Pi are authoritative.
  */
-import { piPaymentsApi } from "./api";
-
-const APP_STUDIO_LOGIN_URL =
-  "https://backend.appstudio-u7cm9zhmha0ruwv8.piappengine.com/pi/auth/v1/login";
+import { authApi, piPaymentsApi } from "./api";
+import type { PiLoginResponse } from "../types";
 
 export interface PiSession {
+  /** Backend session token (Bearer) for the verified user. */
   sessionToken: string;
+  /** Pi identity as verified by the backend (Pi /v2/me). */
   user: {
     uid: string;
     username: string;
   };
+  /** The backend user row the session belongs to. */
+  backendUser: PiLoginResponse["user"];
 }
 
 let initPromise: Promise<void> | null = null;
@@ -80,19 +82,9 @@ export async function signInWithPi(): Promise<PiSession> {
     onIncompletePaymentFound
   );
 
-  // STEP 2 – Exchange the accessToken with App Studio.
-  // The returned uid/username are the only identity we may trust.
-  const response = await fetch(APP_STUDIO_LOGIN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ accessToken: piAuth.accessToken }),
-  });
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`App Studio login failed (${response.status}): ${text}`);
-  }
-
-  const session: PiSession = await response.json();
-  return session;
+  // STEP 2 – The backend verifies the token with Pi (/v2/me) and opens a session (AUD-01).
+  // This works for any Pi app (Testnet, Mainnet, Sandbox), unlike the App Studio exchange,
+  // which can only verify tokens of its own app.
+  const res = await authApi.piLogin(piAuth.accessToken);
+  return { sessionToken: res.sessionToken, user: res.piUser, backendUser: res.user };
 }

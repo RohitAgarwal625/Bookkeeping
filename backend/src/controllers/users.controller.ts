@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { serializeUser } from "../lib/serializers";
+import { config } from "../lib/config";
 import { ledgerLockKey, normalizeAddress } from "../lib/paymentIntents";
 import { lockKeys, LOCKED_TX_OPTIONS } from "./transactions.controller";
 
@@ -19,6 +20,15 @@ export async function getOrCreateUser(
   next: NextFunction
 ): Promise<void> {
   try {
+    // AUD-01: this login trusts whatever id it is given. It stays only for the API tests
+    // (ALLOW_UID_LOGIN=true); everyone else signs in with a Pi-verified token (POST /api/auth/pi).
+    if (!config.allowUidLogin) {
+      res.status(410).json({
+        error: "UID_LOGIN_DISABLED",
+        message: "This sign-in method was removed. Sign in with Pi instead.",
+      });
+      return;
+    }
     const { walletAddress } = req.params;
 
     // upsert with an empty update runs as SELECT-then-INSERT, so two first logins at the

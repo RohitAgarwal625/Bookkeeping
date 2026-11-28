@@ -153,9 +153,9 @@ function AppContent() {
   /**
    * Pi Network sign-in:
    *   1. Pi.init({ version: "2.0" })
-   *   2. Pi.authenticate(["username"], onIncompletePaymentFound)
-   *   3. POST accessToken → App Studio → receive verified sessionToken + uid + username
-   *   4. Use App Studio uid/username as the user's identity (never the browser-supplied values)
+   *   2. Pi.authenticate(["username", "payments"], onIncompletePaymentFound)
+   *   3. POST accessToken → backend (/api/auth/pi) verifies it with Pi → session + uid + username
+   *   4. Use the backend-verified uid/username as the user's identity (never the browser-supplied values)
    */
   const handlePiSignIn = async () => {
     setPiSignInLoading(true);
@@ -164,11 +164,11 @@ function AppContent() {
       const session = await signInWithPi();
       setPiSession(session);
       auth.setUsername(session.user.username);
-      // Log in to the bookkeeping backend using the App-Studio-verified uid
+      // The backend already verified the Pi token and opened this session (POST /api/auth/pi).
       try {
-        await bk.login(session.user.uid);
+        await bk.startSession(session.sessionToken, session.backendUser);
       } catch {
-        // Backend login is best-effort; the app still works in local mode
+        // Loading the data failed; the session is saved and the data loads on the next refresh.
       }
       setIsGuest(false);
       setCurrentScreen("dashboard");

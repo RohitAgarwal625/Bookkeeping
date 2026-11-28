@@ -16,6 +16,7 @@ import contactRoutes from "./routes/contacts";
 import transactionRoutes from "./routes/transactions";
 import piRoutes from "./routes/pi";
 import paymentRoutes from "./routes/payments";
+import authRoutes from "./routes/auth";
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use("/api/contacts", contactRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/pi", piRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/auth", authRoutes);
 
 // --- 404 + error handling (must be last) ---
 app.use(notFound);

@@ -45,6 +45,9 @@ export const config = {
   // Required in production (fail at boot); locally Prisma also reads backend/.env.
   databaseUrl: isProd ? required("DATABASE_URL") : required("DATABASE_URL", "postgresql://localhost:5432/bookkeeping"),
   isProd,
+  // GET /api/users/:walletAddress (login by uid alone, no proof) is refused unless this is
+  // "true". Only the API test suite sets it; production signs in with POST /api/auth/pi.
+  allowUidLogin: (process.env.ALLOW_UID_LOGIN ?? "").trim().toLowerCase() === "true",
   trustProxy: trustProxyFromEnv(),
   // Pi Network Payments configuration
   piApiKey: process.env.PI_NETWORK_API_KEY ?? process.env.PI_API_KEY ?? "",

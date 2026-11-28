@@ -206,6 +206,60 @@ export function validateProductPayment(payment: PiPaymentResponse): void {
   }
 }
 
+/** Verified Pi user, as returned by GET /v2/me. */
+export interface PiMeResponse {
+  uid: string;
+  username: string;
+}
+
+/**
+ * Verify a user's Pi accessToken (from Pi.authenticate in the browser).
+ * GET https://api.minepi.com/v2/me with `Authorization: Bearer <accessToken>`.
+ * The uid/username in the response are trustworthy (they come from Pi, not the client).
+ * Uses the user's token, not the Server API Key.
+ */
+export async function verifyPiAccessToken(accessToken: string): Promise<PiMeResponse> {
+  let res: Response;
+  try {
+    res = await fetch(`${config.piPlatformApiUrl}/v2/me`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      // AUD-29: a silent Pi API must not hold the sign-in open for minutes.
+      signal: AbortSignal.timeout(config.piApiTimeoutMs),
+    });
+  } catch (err) {
+    if (err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError")) {
+      logger.error({ timeoutMs: config.piApiTimeoutMs }, "Pi Platform API /v2/me timed out");
+      throw new PiApiError(504, "PI_API_TIMEOUT", "Pi did not answer in time, please try again");
+    }
+    logger.error({ err }, "Failed to connect to Pi Platform API (/v2/me)");
+    throw new PiApiError(502, "PI_API_NETWORK_ERROR", "Unable to reach the Pi Platform API server.");
+  }
+
+  if (res.status === 401 || res.status === 403 || res.status === 404) {
+    throw new PiApiError(401, "INVALID_PI_TOKEN", "Pi access token is invalid or expired");
+  }
+  if (!res.ok) {
+    logger.error({ status: res.status }, "Pi Platform API /v2/me returned error");
+    throw new PiApiError(502, "PI_API_ERROR", "Pi Platform API could not verify the user");
+  }
+
+  // AUD-28: a 200 that isn't JSON (proxy or error page) is a Pi API error, not a crash (500).
+  let me: Partial<PiMeResponse>;
+  try {
+    me = ((await res.json()) ?? {}) as Partial<PiMeResponse>;
+  } catch (err) {
+    if (err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError")) {
+      throw new PiApiError(504, "PI_API_TIMEOUT", "Pi did not answer in time, please try again");
+    }
+    logger.error("Pi Platform API /v2/me returned a non-JSON body");
+    throw new PiApiError(502, "PI_API_ERROR", "Pi Platform API could not verify the user");
+  }
+  if (!me.uid || typeof me.uid !== "string") {
+    throw new PiApiError(502, "PI_API_ERROR", "Pi Platform API returned no user id");
+  }
+  return { uid: me.uid, username: String(me.username ?? "") };
+}
+
 /**
  * Pi Platform API client methods
  */

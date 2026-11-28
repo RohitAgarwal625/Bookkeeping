@@ -103,18 +103,20 @@ export function useBookkeeping() {
     setLoading(false);
   }, [refreshContacts, refreshSummary]);
 
-  /** Log in (upsert user + create session + fetch all data). */
-  const login = useCallback(
-    async (walletAddress: string) => {
+  /**
+   * Start using a session the backend opened after verifying the user's Pi token
+   * (POST /api/auth/pi, see signInWithPi), then fetch all data.
+   */
+  const startSession = useCallback(
+    async (sessionToken: string, sessionUser: User) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await usersApi.login(walletAddress);
-        auth.setToken(res.sessionToken);
-        auth.setWallet(walletAddress);
-        setUser(res.user);
+        auth.setToken(sessionToken);
+        auth.setWallet(sessionUser.piWalletAddress);
+        setUser(sessionUser);
         await refreshAll();
-        return res.user;
+        return sessionUser;
       } catch (err) {
         handleError(err);
         throw err;
@@ -255,7 +257,7 @@ export function useBookkeeping() {
     restoringSession,
     sessionReady,
     setError,
-    login,
+    startSession,
     logout,
     refreshAll,
     refreshContacts,

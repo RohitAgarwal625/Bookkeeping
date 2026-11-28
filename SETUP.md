@@ -172,6 +172,7 @@ The `vercel.json` is already configured with SPA rewrites.
 | `PI_NETWORK_API_KEY` | Backend `.env` / Railway | **Secret.** The app's Server API Key (Pi Developer Portal). Required for Pi payment approve/complete (`PI_API_KEY` also accepted) |
 | `PI_PLATFORM_API_URL` | Backend `.env` / Railway | Optional. Pi Platform API base URL, default `https://api.minepi.com` |
 | `PI_API_TIMEOUT_MS` | Backend `.env` / Railway | Optional. Milliseconds before a Pi Platform API call is aborted (504 `PI_API_TIMEOUT`), default `10000` |
+| `ALLOW_UID_LOGIN` | Tests only (`tests/lib/backend.mjs`) | Leave **unset** everywhere else. `true` re-enables the unverified `GET /api/users/:walletAddress` login; without it that route answers 410 `UID_LOGIN_DISABLED` and users sign in with `POST /api/auth/pi` (AUD-01) |
 | `PI_NETWORK` | Backend `.env` / Railway | Optional. `testnet` (default) or `mainnet` (case and spaces ignored; any other value stops the boot): the chain the Horizon proxy reads |
 | `TRUST_PROXY` | Backend `.env` / Railway | Optional. Number of reverse-proxy hops in front of the backend, so per-IP rate limits use the client IP from `X-Forwarded-For`. Default `1` when `NODE_ENV=production` (Railway's edge), `0` otherwise |
 | `PI_HORIZON_URL` | Backend test runner only | Optional. Overrides the Horizon base URL (default `https://api.<PI_NETWORK>.minepi.com`). The API tests point it at the fake Pi server; leave unset in production |
@@ -184,7 +185,8 @@ The `vercel.json` is already configured with SPA rewrites.
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/health` | Health check |
-| GET | `/api/users/:walletAddress` | Login / upsert user + create session |
+| GET | `/api/users/:walletAddress` | Old uid-only login. Disabled: 410 `UID_LOGIN_DISABLED` unless `ALLOW_UID_LOGIN=true` (tests only) |
+| POST | `/api/auth/pi` | **The sign-in.** Pi accessToken verified by the backend via Pi `/v2/me` (504 `PI_API_TIMEOUT`, 502 `PI_API_ERROR`, 401 `INVALID_PI_TOKEN`) → upsert user + session |
 | GET | `/api/users/me` | The signed-in user `{user}` from the Bearer token (restores the session after a reload); 401 if the token is missing, invalid or expired |
 | PUT | `/api/users/:walletAddress` | Update your `displayName` (404 `NOT_FOUND` for any other id) |
 | PUT | `/api/users/me/wallet` | Save (or clear with `null`) the user's own public Pi wallet address (`G…`); one account per address (409 `WALLET_ALREADY_USED`) |
@@ -229,8 +231,8 @@ Database (PostgreSQL) → Railway
 ```
 
 **Auth flow:**
-1. User enters Pi wallet address
-2. `GET /api/users/:walletAddress` → upsert user + create Session row
+1. User taps "Connect via Pi" → `Pi.authenticate` returns an accessToken
+2. `POST /api/auth/pi { accessToken }` → backend verifies with Pi `/v2/me` → upsert user + create Session row
 3. Returns `{ user, sessionToken }`
 4. Frontend stores `sessionToken` in `localStorage`
 5. All requests: `Authorization: Bearer {sessionToken}`

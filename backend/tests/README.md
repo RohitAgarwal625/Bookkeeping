@@ -44,6 +44,7 @@ tests/
     ├── 07-pi-payments.test.mjs         approve/complete/incomplete, payer attribution, path encoding
     ├── 08-premium-status.test.mjs      premium is per user
     ├── 09-rate-limit.test.mjs          per-IP and per-user write limits (uses the write budget; keep after other write-heavy suites)
+    ├── 10-auth-pi.test.mjs             POST /api/auth/pi: Pi token verified via fake /v2/me
     ├── 11-user-wallet.test.mjs         PUT /api/users/me/wallet: own wallet address (format, per-user, clear)
     ├── 12-transactions-import.test.mjs POST /api/transactions/import: scan entries saved once, re-scans skipped
     ├── 20-28-auditfix-*.test.mjs       regression checks for the 2026-11-19 audit fixes (one suite per group; 22 and 24 start extra backends on :3095 / :3089)
@@ -74,7 +75,7 @@ export default async function run({ api, db, pi }) {
 
 - `api.call(method, path, { token, body, headers })` returns `{ status, body, headers }`.
 - `db` is a Prisma client on the test DB, for checking what was actually stored.
-- `pi.addPayment(id, userUid, { amount, productId })` registers a payment on the fake Pi API. `pi.addHorizonPayment(address, record)` adds a payment record to the fake Horizon list of that account (addresses without records keep the prefix rules). `pi.payments` and `pi.requests` (raw URLs) are available for assertions.
+- `pi.addPayment(id, userUid, { amount, productId })` registers a payment on the fake Pi API. `pi.addUserToken(token, uid, username)` registers a user accessToken that the fake `GET /v2/me` accepts. `pi.addHorizonPayment(address, record)` adds a payment record to the fake Horizon list of that account (addresses without records keep the prefix rules). `pi.payments` and `pi.requests` (raw URLs) are available for assertions.
 - Keep each user under 20 writes per minute (`writeLimiter`), or split the work across users.
 
 ## What is not covered

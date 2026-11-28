@@ -6,7 +6,7 @@
  */
 
 import type {
-  AuthResponse,
+  PiLoginResponse,
   Contact,
   CreateContactInput,
   CreateTransactionInput,
@@ -117,9 +117,16 @@ async function request<T>(
 }
 
 // --- Users / Auth ---
+export const authApi = {
+  /** Sign in: the backend verifies the Pi accessToken (Pi /v2/me) and returns a session. */
+  piLogin: (accessToken: string) =>
+    request<PiLoginResponse>(`/api/auth/pi`, {
+      method: "POST",
+      body: JSON.stringify({ accessToken }),
+    }),
+};
+
 export const usersApi = {
-  login: (walletAddress: string) =>
-    request<AuthResponse>(`/api/users/${encodeURIComponent(walletAddress)}`),
   /** The signed-in user (from the stored session token); used to restore a session on reload. */
   me: () => request<{ user: User }>(`/api/users/me`),
   /** End the current session on the server (the token stops working). */

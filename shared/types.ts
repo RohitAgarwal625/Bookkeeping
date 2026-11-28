@@ -65,6 +65,12 @@ export interface AuthResponse {
   expiresAt: string;
 }
 
+/** POST /api/auth/pi: session issued after the backend verified the Pi accessToken with Pi (/v2/me). */
+export interface PiLoginResponse extends AuthResponse {
+  expiresAt: string;
+  piUser: { uid: string; username: string };
+}
+
 /** Dashboard summary. */
 /** POST /api/transactions/import body: Automatic-scan entries for one contact (max 100). */
 export interface ImportTransactionsInput {
