@@ -143,6 +143,8 @@ export function Settings({
   const [walletInput, setWalletInput] = useState("");
   const [walletError, setWalletError] = useState<string | null>(null);
   const [savingWallet, setSavingWallet] = useState(false);
+  const [walletValidated, setWalletValidated] = useState(false);
+  const [showWalletInfo, setShowWalletInfo] = useState(false);
   // "Change wallet address" warns first: a new address wipes the ledger.
   const [showWalletChangeWarning, setShowWalletChangeWarning] = useState(false);
   const networkName = PI_NETWORK === "testnet" ? "Pi Testnet" : "Pi Mainnet";
@@ -160,12 +162,20 @@ export function Settings({
   };
 
   const openWalletEditor = () => {
-    setWalletInput(piWalletAddress);
+    setWalletInput("");
     setWalletError(null);
+    setWalletValidated(false);
     setIsEditingWallet(true);
   };
 
-  const handleSaveWallet = async () => {
+  // Validate → Save → Change. "Validate" checks the address on the Pi blockchain
+  // (same check as Add Pioneer); only a validated address can be saved.
+  const handleValidateWallet = async () => {
+    if (isGuest) {
+      onTriggerGuestModal?.();
+      return;
+    }
+    if (savingWallet) return;
     const address = cleanWalletInput(walletInput);
     if (!isPiPublicKey(address)) {
       setWalletError("This isn't a Pi wallet address. It starts with G and is 56 characters long.");
@@ -174,16 +184,33 @@ export function Settings({
     setSavingWallet(true);
     setWalletError(null);
     try {
-      // Catch typos: the address must have an account on the network the app uses.
-      if ((await checkPiAccountExists(address)) === "missing") {
+      const result = await checkPiAccountExists(address);
+      if (result === "exists") {
+        setWalletInput(address); // save exactly the address that was checked
+        setWalletValidated(true);
+      } else if (result === "missing") {
         setWalletError(`No wallet with this address exists on ${networkName}. Please check it.`);
-        return;
+      } else {
+        setWalletError("Couldn't reach the Pi blockchain to check this address. Please try again.");
       }
+    } finally {
+      setSavingWallet(false);
+    }
+  };
+
+  const handleSaveWallet = async () => {
+    if (!walletValidated || savingWallet) return;
+    const address = cleanWalletInput(walletInput);
+    setSavingWallet(true);
+    setWalletError(null);
+    try {
       // A different address than the saved one wipes the ledger; the user agreed to that
-      // in the warning shown on "Change wallet address".
+      // in the warning shown on "Change".
       const changing = !!piWalletAddress && cleanWalletInput(piWalletAddress).toUpperCase() !== address.toUpperCase();
       await onSaveWalletAddress?.(address, changing);
       setIsEditingWallet(false);
+      setWalletValidated(false);
+      setWalletInput("");
       toast.success("Wallet address saved");
     } catch (err) {
       if (err instanceof ApiError && err.code === "WALLET_ALREADY_USED") {
@@ -196,7 +223,6 @@ export function Settings({
       setSavingWallet(false);
     }
   };
-
 
   const handleSaveName = async () => {
     if (isGuest) {
@@ -345,18 +371,38 @@ export function Settings({
 
           {/* Own wallet address: entered by the user (Pi doesn't give it to apps) */}
           <div className="w-full bg-white dark:bg-card rounded-2xl shadow-md dark:shadow-none dark:border dark:border-border p-5">
-            <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-3 font-medium">
-              Pi Wallet Address
-            </p>
-            {isEditingWallet ? (
+            <div className="flex items-center gap-1.5 mb-3">
+              <p className="text-xs text-gray-500 dark:text-muted-foreground uppercase tracking-wider font-medium">
+                Pi Wallet Address
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowWalletInfo((v) => !v)}
+                className="flex items-center justify-center w-4 h-4 rounded-full text-gray-900 dark:text-foreground hover:text-[#592C16] transition-colors"
+                aria-label="Pi Wallet Address info"
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {showWalletInfo && (
+              <div className="mb-3 w-full bg-gray-100 dark:bg-secondary border border-gray-200 dark:border-border rounded-xl p-3.5 px-4 text-xs text-gray-600 dark:text-muted-foreground leading-relaxed">
+                Your own public key should be entered here which will be used to scan all the transactions linked to your wallet address.
+              </div>
+            )}
+
+            {isEditingWallet || !piWalletAddress ? (
               <div>
                 <input
                   type="text"
                   value={walletInput}
-                  onChange={(e) => { setWalletInput(e.target.value); setWalletError(null); }}
-                  onKeyDown={(e) => e.key === "Enter" && !savingWallet && void handleSaveWallet()}
+                  onChange={(e) => { setWalletInput(e.target.value); setWalletError(null); setWalletValidated(false); }}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter" || savingWallet || !walletInput.trim()) return;
+                    void (walletValidated ? handleSaveWallet() : handleValidateWallet());
+                  }}
                   placeholder="G..."
-                  autoFocus
+                  autoFocus={isEditingWallet}
                   autoCapitalize="characters"
                   autoCorrect="off"
                   spellCheck={false}
@@ -366,22 +412,31 @@ export function Settings({
                 {walletError && (
                   <p className="text-xs text-red-500 dark:text-red-400 mt-2">{walletError}</p>
                 )}
+                {walletValidated && !walletError && (
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1">
+                    <CheckCircle className="w-3.5 h-3.5" /> Wallet address found on {networkName}
+                  </p>
+                )}
                 <div className="flex gap-2 mt-3">
                   <button
-                    onClick={() => void handleSaveWallet()}
+                    onClick={() => void (walletValidated ? handleSaveWallet() : handleValidateWallet())}
                     disabled={!walletInput.trim() || savingWallet}
                     className="flex-1 h-12 rounded-xl text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                     style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
                   >
-                    {savingWallet ? "Checking..." : "Save"}
+                    {savingWallet
+                      ? (walletValidated ? "Saving..." : "Validating...")
+                      : (walletValidated ? "Save" : "Validate")}
                   </button>
-                  <button
-                    onClick={() => { setIsEditingWallet(false); setWalletError(null); }}
-                    disabled={savingWallet}
-                    className="flex-1 h-12 rounded-xl font-bold text-sm text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border disabled:opacity-40"
-                  >
-                    Cancel
-                  </button>
+                  {isEditingWallet && piWalletAddress && (
+                    <button
+                      onClick={() => { setIsEditingWallet(false); setWalletError(null); setWalletValidated(false); setWalletInput(""); }}
+                      disabled={savingWallet}
+                      className="flex-1 h-12 rounded-xl font-bold text-sm text-gray-500 dark:text-muted-foreground border border-gray-200 dark:border-border disabled:opacity-40"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
@@ -390,27 +445,22 @@ export function Settings({
                   <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm font-mono truncate">
                     {truncatedAddress}
                   </p>
-                  {piWalletAddress ? (
-                    <button
-                      onClick={handleCopyAddress}
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
-                    >
-                      <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-                    </button>
-                  ) : null}
+                  <button
+                    onClick={handleCopyAddress}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
+                    aria-label="Copy wallet address"
+                  >
+                    <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+                  </button>
                 </div>
                 <button
                   onClick={startEditingWallet}
-                  className={`w-full mt-3 h-12 rounded-xl font-bold text-sm ${piWalletAddress ? "bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground" : "text-white"}`}
-                  style={piWalletAddress ? undefined : { background: "linear-gradient(to right, #592C16, #8A532B)" }}
+                  className="w-full mt-3 h-12 rounded-xl font-bold text-sm bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground"
                 >
-                  {piWalletAddress ? "Change wallet address" : "Add my wallet address"}
+                  Change
                 </button>
               </>
             )}
-            <p className="text-xs text-gray-400 dark:text-muted-foreground mt-2">
-              Your own public {networkName} wallet address. It's used to find the payments between you and your contacts.
-            </p>
           </div>
 
           {/* Pi Account Info (read-only) */}
