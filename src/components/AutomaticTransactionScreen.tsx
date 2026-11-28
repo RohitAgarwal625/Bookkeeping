@@ -541,7 +541,7 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
                 <p className="text-gray-900 dark:text-foreground font-medium truncate">{contact.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${contact.category === "individual"
-                    ? "bg-[#592C16]/10 text-[#592C16] dark:text-[#EFC8AC] dark:bg-[#592C16]/30 border border-[#592C16]/20"
+                    ? "bg-[#F5E0D6] text-[#592C16] dark:bg-stone-900/30 border-[1.5px] border-[#592C16]"
                     : "bg-[#8A532B]/10 text-[#8A532B] dark:text-[#EFC8AC] dark:bg-[#8A532B]/30 border border-[#8A532B]/20"}`}>
                     {contact.category === "individual" ? "Individual" : "Business"}
                   </span>
