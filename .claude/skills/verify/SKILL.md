@@ -14,7 +14,6 @@ Only the backend has automated tests (`backend/tests/`); for everything else thi
    npm run build
    ```
    (If `npm` isn't found, add this machine's Node bin dir to PATH: Homebrew `/opt/homebrew/opt/node@20/bin` or nvm `$HOME/.nvm/versions/node/v26.13.1/bin`.)
-   On the backend branch, any new Tailwind class must already exist in the precompiled `src/index.css` (`grep -F`).
    Note: `vite build` does not type-check. For a quick type sanity check, run `npx -y -p typescript@5.6.3 tsc --noEmit --jsx react-jsx --skipLibCheck --moduleResolution bundler --module esnext --target es2022 <files>`. Treat its errors as advisory, because the frontend has no tsconfig.
 3. **Backend** (if `backend/` changed):
    ```bash
