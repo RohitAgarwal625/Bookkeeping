@@ -37,6 +37,8 @@ const GRADIENT = "linear-gradient(to right, #592C16, #8A532B)";
 const TERRACOTTA_GRADIENT = "linear-gradient(to right, #B55A38, #D27A55)";
 const TERRACOTTA_RIPPLE = "linear-gradient(to right, #D27A55, #E9A889)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
+// Max 7 digits before and 7 after the decimal point (largest 9999999.9999999).
+const AMOUNT_INPUT_PATTERN = /^\d{0,7}(\.\d{0,7})?$/;
 /** Pi has 7 decimal places; the server rejects more. */
 const AMOUNT_PATTERN = /^\d+(\.\d{1,7})?$/;
 /** A Pi amount as plain text with up to 7 decimals (no exponent, no trailing zeros). */
@@ -691,7 +693,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               value={amount}
               onChange={(e) => {
                 const val = e.target.value;
-                if (val === "" || Number(val) >= 0) setAmount(val);
+                if (val === "" || (Number(val) >= 0 && AMOUNT_INPUT_PATTERN.test(val))) setAmount(val);
               }}
               min="0"
               placeholder="0.0000001"
