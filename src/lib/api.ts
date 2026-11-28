@@ -35,6 +35,8 @@ export class ApiError extends Error {
   status: number;
   code: string;
   details?: { field: string; message: string }[];
+  // Extra field on 409 TX_ALREADY_RECORDED: the existing row's contact name.
+  contactName?: string | null;
   constructor(
     status: number,
     code: string,
@@ -102,15 +104,18 @@ async function request<T>(
       error?: string;
       message?: string;
       details?: { field: string; message: string }[];
+      contactName?: string | null;
     } | null;
     // Auto-logout on auth failure.
     if (res.status === 401) auth.clearAll();
-    throw new ApiError(
+    const apiErr = new ApiError(
       res.status,
       err?.error ?? "ERROR",
       err?.message ?? "Request failed",
       err?.details
     );
+    if (err && "contactName" in err) apiErr.contactName = err.contactName ?? null;
+    throw apiErr;
   }
 
   return body as T;

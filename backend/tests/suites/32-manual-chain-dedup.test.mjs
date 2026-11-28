@@ -230,9 +230,26 @@ export default async function run({ api, db }) {
   let before = await countH();
   const dupF = await createH({ txHash: HASH_F.toUpperCase(), amount: 3 });
   check("same hash again (any case) -> 409 TX_ALREADY_RECORDED",
-    dupF.status === 409 && dupF.body.error === "TX_ALREADY_RECORDED" && dupF.body.message === "This transaction is already recorded",
+    dupF.status === 409 && dupF.body.error === "TX_ALREADY_RECORDED" && dupF.body.contactName === "Omar" &&
+      dupF.body.message === "This transaction is already recorded with Omar in your ledger.",
     JSON.stringify(dupF.body));
   check("409 -> no row added", (await countH()) === before);
+  // Own user: hana is close to the 20/min write limit.
+  const nc = await api.login("fix_32_nocontact");
+  const createNC = (body) =>
+    api.call("POST", "/api/transactions", {
+      token: nc.sessionToken,
+      body: { description: "Typed", amount: 2, type: "debit", idempotencyKey: randomUUID(), ...body },
+    });
+  const HASH_NC = "c".repeat(64);
+  const firstNC = await createNC({ txHash: HASH_NC });
+  const dupNC = await createNC({ txHash: HASH_NC });
+  check("dup of a row with no contact -> 409, contactName null, generic message",
+    firstNC.status === 201 && firstNC.body.transaction.contactId == null && dupNC.status === 409 &&
+      dupNC.body.error === "TX_ALREADY_RECORDED" && dupNC.body.contactName === null &&
+      dupNC.body.message === "This transaction is already recorded in your ledger.",
+    JSON.stringify([firstNC.body, dupNC.body]));
+  before = await countH();
 
   const keyG = randomUUID();
   const HASH_G = "1".repeat(64);

@@ -519,7 +519,11 @@ function AppContent() {
             } catch (e) {
               // Same hash already in the ledger: stay on the form, no local copy.
               if (e instanceof ApiError && e.code === "TX_ALREADY_RECORDED") {
-                toast.error("This transaction is already recorded");
+                toast.error(
+                  e.contactName
+                    ? `This transaction is already recorded with ${e.contactName} in your ledger.`
+                    : "This transaction is already recorded in your ledger."
+                );
                 return null;
               }
               console.error("Failed to save entry to database:", e);

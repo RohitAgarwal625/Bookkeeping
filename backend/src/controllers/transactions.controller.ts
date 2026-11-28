@@ -73,9 +73,13 @@ export async function createTransaction(
         if (replay) return { kind: "replay" as const, row: replay };
         const dup = await db.transaction.findFirst({
           where: { userId, deletedAt: null, txHash: { equals: txHash, mode: "insensitive" } },
-          select: { id: true },
+          select: { id: true, contact: { select: { name: true, userId: true } } },
         });
-        if (dup) return { kind: "duplicate" as const };
+        if (dup) {
+          // Name of the contact the existing row is recorded with (own contacts only).
+          const contactName = dup.contact && dup.contact.userId === userId ? dup.contact.name : null;
+          return { kind: "duplicate" as const, contactName };
+        }
       }
       const row = await db.transaction.create({
         data: {
@@ -96,9 +100,13 @@ export async function createTransaction(
     }, LOCKED_TX_OPTIONS);
 
     if (outcome.kind === "duplicate") {
+      const { contactName } = outcome;
       res.status(409).json({
         error: "TX_ALREADY_RECORDED",
-        message: "This transaction is already recorded",
+        message: contactName
+          ? `This transaction is already recorded with ${contactName} in your ledger.`
+          : "This transaction is already recorded in your ledger.",
+        contactName,
       });
       return;
     }
