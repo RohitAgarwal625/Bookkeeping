@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info, AlertCircle, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { Contact, getInitials, ImportTransactionsResponse, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
 import { fetchPiBlockchainTransactions, PiBlockchainScanResult, PI_NETWORK } from "../lib/piBlockchain";
@@ -255,9 +256,31 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               <p className="font-semibold mb-0.5">Blockchain Notice</p>
               <p>{scanError}</p>
               {selectedContact?.piWalletAddress && (
-                <p className="mt-1 font-mono text-[10px] text-amber-700 dark:text-amber-400 break-all opacity-85">
-                  Address: {selectedContact.piWalletAddress}
-                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const addr = selectedContact.piWalletAddress;
+                    navigator.clipboard?.writeText(addr).then(
+                      () => toast.success("Address copied"),
+                      () => toast.error("Could not copy the address")
+                    );
+                  }}
+                  aria-label="Copy wallet address"
+                  className="mt-1 flex items-start font-mono text-[12px] text-amber-700 dark:text-amber-400 opacity-85 text-left"
+                >
+                  <span className="flex-shrink-0 whitespace-pre">Address: </span>
+                  {(() => {
+                    // Two equal lines; the second starts exactly under the first character of the address.
+                    const addr = selectedContact.piWalletAddress;
+                    const half = Math.ceil(addr.length / 2);
+                    return (
+                      <span className="flex flex-col">
+                        <span>{addr.slice(0, half)}</span>
+                        <span>{addr.slice(half)}</span>
+                      </span>
+                    );
+                  })()}
+                </button>
               )}
             </div>
           </div>
