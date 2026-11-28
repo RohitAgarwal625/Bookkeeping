@@ -35,12 +35,18 @@ function formatHistoryDate(timestamp: string): string {
   return `${d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}, ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
-/** "Just now" / "2 min ago" / "3 hr ago", then the full date. */
+/** "Just now" / "1 min ago" / "2 mins ago" / "1 hr ago" / "3 hrs ago", then the full date. */
 function formatNotificationTime(ms: number): string {
   const diff = Date.now() - ms;
   if (diff < 60_000) return "Just now";
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} min ago`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} hr ago`;
+  if (diff < 3_600_000) {
+    const mins = Math.floor(diff / 60_000);
+    return `${mins} ${mins === 1 ? "min" : "mins"} ago`;
+  }
+  if (diff < 86_400_000) {
+    const hrs = Math.floor(diff / 3_600_000);
+    return `${hrs} ${hrs === 1 ? "hr" : "hrs"} ago`;
+  }
   return formatHistoryDate(new Date(ms).toISOString());
 }
 
