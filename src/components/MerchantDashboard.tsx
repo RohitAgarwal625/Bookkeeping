@@ -336,8 +336,8 @@ export function MerchantDashboard({
                 <p className="text-gray-400 dark:text-muted-foreground text-sm text-center">
                   {isGuest ? (
                     <>
-                      <span className="block font-medium">No Transaction to show !</span>
-                      <span className="block mt-0.5">Connect Pi Wallet to view your transaction history.</span>
+                      <span className="block font-medium">No Transactions to show !</span>
+                      <span className="block mt-4">Connect Pi wallet to view your transaction history.</span>
                     </>
                   ) : paymentHistoryLoading ? (
                     "Loading your payments…"
