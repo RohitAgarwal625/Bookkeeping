@@ -391,7 +391,7 @@ export function Settings({
               </div>
             )}
 
-            {isEditingWallet || !piWalletAddress ? (
+            {isEditingWallet ? (
               <div>
                 <input
                   type="text"
@@ -402,7 +402,7 @@ export function Settings({
                     void (walletValidated ? handleSaveWallet() : handleValidateWallet());
                   }}
                   placeholder="G..."
-                  autoFocus={isEditingWallet}
+                  autoFocus
                   autoCapitalize="characters"
                   autoCorrect="off"
                   spellCheck={false}
@@ -428,7 +428,7 @@ export function Settings({
                       ? (walletValidated ? "Saving..." : "Validating...")
                       : (walletValidated ? "Save" : "Validate")}
                   </button>
-                  {isEditingWallet && piWalletAddress && (
+                  {(
                     <button
                       onClick={() => { setIsEditingWallet(false); setWalletError(null); setWalletValidated(false); setWalletInput(""); }}
                       disabled={savingWallet}
@@ -441,23 +441,26 @@ export function Settings({
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-2">
-                  <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm font-mono truncate">
-                    {truncatedAddress}
-                  </p>
-                  <button
-                    onClick={handleCopyAddress}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
-                    aria-label="Copy wallet address"
-                  >
-                    <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
-                  </button>
-                </div>
+                {piWalletAddress && (
+                  <div className="flex items-center gap-2">
+                    <p className="flex-1 text-gray-700 dark:text-gray-300 text-sm font-mono truncate">
+                      {truncatedAddress}
+                    </p>
+                    <button
+                      onClick={handleCopyAddress}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-lg transition-colors"
+                      aria-label="Copy wallet address"
+                    >
+                      <Copy className="w-4 h-4 text-gray-500 dark:text-muted-foreground" />
+                    </button>
+                  </div>
+                )}
                 <button
                   onClick={startEditingWallet}
-                  className="w-full mt-3 h-12 rounded-xl font-bold text-sm bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground"
+                  className={`w-full h-12 rounded-xl font-bold text-sm ${piWalletAddress ? "mt-3 bg-gray-100 dark:bg-secondary text-gray-900 dark:text-foreground" : "text-white"}`}
+                  style={piWalletAddress ? undefined : { background: "linear-gradient(to right, #592C16, #8A532B)" }}
                 >
-                  Change
+                  {piWalletAddress ? "Change" : "Enter"}
                 </button>
               </>
             )}
