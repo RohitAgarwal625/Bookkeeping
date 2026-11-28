@@ -907,9 +907,9 @@ function AppContent() {
           </div>
           {/* Footer links */}
           <div style={{ paddingTop: "28px" }} className="flex justify-center gap-4 text-gray-500 dark:text-gray-400 text-sm">
-            <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
+            <a href="/terms-of-use.html" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms of Use</a>
             <span>•</span>
-            <a href="#" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
+            <a href="/privacy-policy.html" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy Policy</a>
           </div>
         </div>
       </div>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy – Bookkeeping</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script>
+    // Follow the app's own dark mode setting (same origin, same localStorage key as DarkModeContext).
+    try { if (localStorage.getItem("darkMode") === "true") document.documentElement.classList.add("dark"); } catch (e) {}
+  </script>
+  <style>
+    :root { --bg: #faf7f4; --card: #ffffff; --text: #2b1a10; --muted: #6b5a4e; --accent: #592C16; --line: #eadfd6; }
+    .dark { --bg: #0F1115; --card: #1a1d24; --text: #f3f4f6; --muted: #9ca3af; --accent: #d9a27a; --line: #2a2e37; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 448px; margin: 0 auto; padding: 24px 20px 48px; }
+    header { background: linear-gradient(to right, #592C16, #8A532B); color: #fff; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
+    header h1 { margin: 0; font-size: 24px; }
+    header p { margin: 4px 0 0; opacity: .85; font-size: 14px; }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; }
+    h2 { margin: 0 0 8px; font-size: 17px; color: var(--accent); }
+    p, li { color: var(--text); font-size: 15px; }
+    ul { padding-left: 20px; margin: 8px 0; }
+    .muted { color: var(--muted); font-size: 14px; }
+    a { color: var(--accent); }
+    .back { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="/">← Back to Bookkeeping</a>
+    <header>
+      <h1>Privacy Policy</h1>
+      <p>Effective 28 November 2026</p>
+    </header>
+
+    <section>
+      <h2>Summary</h2>
+      <p>Bookkeeping is a ledger ("khata") app for Pi Network Pioneers. We collect only what the app needs to keep your ledger, we never sell your data, and we do not use advertising or analytics trackers.</p>
+    </section>
+
+    <section>
+      <h2>What we collect</h2>
+      <ul>
+        <li><strong>Pi account identity:</strong> your Pi user ID and username, received from Pi Network when you choose "Connect via Pi". We do not receive your Pi password, passphrase or private keys.</li>
+        <li><strong>Wallet address:</strong> the public Pi wallet address you choose to enter in Settings. It is used to find your payments on the Pi blockchain and to let other app users pay you.</li>
+        <li><strong>Ledger data you enter:</strong> contacts (name, type and their public Pi wallet address) and entries (amount, debit or credit, note, date).</li>
+        <li><strong>Payment records:</strong> for payments made through the app, the Pi payment ID, the blockchain transaction ID, the amount and its status.</li>
+        <li><strong>Session data:</strong> a sign-in token stored in your browser so you stay signed in, and your dark-mode preference.</li>
+      </ul>
+      <p>We do not ask for your email address, phone number or real name.</p>
+    </section>
+
+    <section>
+      <h2>Guest mode</h2>
+      <p>If you continue as a guest, nothing is sent to our servers. Any data you add stays in your browser on your device.</p>
+    </section>
+
+    <section>
+      <h2>How we use it</h2>
+      <ul>
+        <li>To show and keep your ledger, balances and reports.</li>
+        <li>To process and confirm Pi payments you start in the app.</li>
+        <li>To import your past payments from the public Pi blockchain when you use the Automatic scan.</li>
+        <li>To keep the service secure and prevent duplicate or fraudulent entries.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Who we share it with</h2>
+      <ul>
+        <li><strong>Pi Network:</strong> sign-in and payment approval go through the Pi SDK and Pi Platform API, under <a href="https://minepi.com/privacy-policy/">Pi Network's privacy policy</a>.</li>
+        <li><strong>The Pi blockchain:</strong> wallet addresses and payments are public on the blockchain by design. We read that public data. We do not publish your ledger to it.</li>
+        <li><strong>Hosting providers:</strong> our website and servers run on Vercel and Railway, which store and process data only to run the service.</li>
+        <li><strong>Other app users:</strong> when you pay someone in the app, they see the payment and your Pi username in their history.</li>
+      </ul>
+      <p>We do not sell, rent or trade your personal data, and we do not share it for advertising.</p>
+    </section>
+
+    <section>
+      <h2>Retention and deletion</h2>
+      <p>Your data is kept while you use the app. You can delete contacts and entries at any time inside the app. Changing your wallet address in Settings clears your contacts and entries. To delete your whole account and its data, contact us at the address below and we will do it within 30 days.</p>
+    </section>
+
+    <section>
+      <h2>Security</h2>
+      <p>Data is sent over HTTPS and stored in a protected database. Payments are approved and completed only from our server, and the app never handles your wallet's private keys.</p>
+    </section>
+
+    <section>
+      <h2>Children</h2>
+      <p>The app is not meant for children under 13, and we do not knowingly collect their data.</p>
+    </section>
+
+    <section>
+      <h2>Changes</h2>
+      <p>If we change this policy, we will update the date above and show the new version here.</p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>Questions or deletion requests: <strong>[add contact email]</strong></p>
+      <p class="muted">Bookkeeping is an independent app built on Pi Network. It is not run by or affiliated with the Pi Core Team.</p>
+    </section>
+  </main>
+</body>
+</html>
