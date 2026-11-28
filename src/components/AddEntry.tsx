@@ -218,6 +218,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
       toast.error("Please enter the transaction hash");
       return;
     }
+    if (txHash.trim().length !== 64) return;
     if (!TX_HASH_RE.test(txHash.trim())) {
       toast.error("The transaction hash must be 64 characters (0-9, a-f)");
       return;
@@ -456,7 +457,13 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
                 type="text"
                 value={txHash}
                 onChange={(e) => {
-                  const val = e.target.value;
+                  let val = e.target.value;
+                  if (val.length > 64) {
+                    val = val.slice(0, 64);
+                    toast.error("Transaction ID cannot be more than 64 characters.");
+                  }
+                  // Same ID as before (extra characters cut off): keep the verified values.
+                  if (val === txHash) return;
                   setTxHash(val);
                   // Auto-filled fields come only from verification: clear them when the ID changes.
                   setAmount("");
@@ -464,6 +471,12 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
                   setTransactionType("credit");
                   setDate("");
                   setTime("");
+                }}
+                onBlur={() => {
+                  const trimmed = txHash.trim();
+                  if (trimmed && trimmed.length < 64) {
+                    toast.error("Transaction ID cannot be less than 64 characters.");
+                  }
                 }}
                 placeholder="Example: abc123xyz..."
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all font-mono text-sm"
