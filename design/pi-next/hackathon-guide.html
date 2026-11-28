@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pi Next Hackathon – Bookkeeping submission guide</title>
+<style>
+  :root {
+    --bg: #f7f2ed; --surface: #ffffff; --surface-2: #fbf7f3; --text: #2a1a10; --muted: #6e5c50;
+    --line: #e8dcd2; --brand: #592C16; --brand-2: #8A532B; --accent: #c9853f;
+    --ok: #2f7d4f; --ok-bg: #e6f4ec; --warn: #a1620b; --warn-bg: #fdf1dc; --bad: #b23a2e; --bad-bg: #fbe7e4;
+    --shadow: 0 1px 2px rgba(60,30,10,.06), 0 8px 24px rgba(60,30,10,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115; --surface: #171a21; --surface-2: #1d212a; --text: #eef0f3; --muted: #9aa3b0;
+      --line: #2a2f3a; --brand: #d9a27a; --brand-2: #b97a4c; --accent: #e3a96a;
+      --ok: #6fcf97; --ok-bg: #16281f; --warn: #f2c26b; --warn-bg: #2b2414; --bad: #f08a7e; --bad-bg: #2d1917;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--brand); text-underline-offset: 3px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+
+  /* Hero */
+  .hero { background: linear-gradient(120deg, #3d1d0d 0%, #592C16 45%, #8A532B 100%); color: #fff; padding: 56px 0 72px; position: relative; overflow: hidden; }
+  .hero::after { content: "π"; position: absolute; right: -10px; top: -60px; font: 700 320px/1 Georgia, serif; color: rgba(255,255,255,.06); pointer-events: none; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 700; opacity: .8; }
+  .hero h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.1; margin: 10px 0 12px; letter-spacing: -.02em; }
+  .hero p.lead { font-size: 18px; max-width: 640px; opacity: .92; margin: 0; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 32px; }
+  .stat { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 14px; padding: 14px 16px; backdrop-filter: blur(4px); }
+  .stat b { display: block; font-size: 22px; letter-spacing: -.01em; }
+  .stat span { font-size: 13px; opacity: .85; }
+
+  /* Nav */
+  nav.toc { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  nav.toc .wrap { display: flex; gap: 6px; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; }
+  nav.toc a { white-space: nowrap; text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 999px; }
+  nav.toc a:hover { background: var(--surface); color: var(--text); }
+
+  main { padding: 28px 0 64px; margin-top: -40px; }
+  section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 26px 26px 22px; margin-bottom: 18px; box-shadow: var(--shadow); scroll-margin-top: 64px; }
+  h2 { margin: 0 0 4px; font-size: 22px; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
+  h2 .num { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--brand); color: #fff; font-size: 14px; }
+  @media (prefers-color-scheme: dark) { h2 .num { color: #1a0f08; } }
+  .sub { color: var(--muted); margin: 0 0 18px; font-size: 15px; }
+  h3 { font-size: 16px; margin: 20px 0 8px; }
+  p { margin: 0 0 10px; }
+  ul, ol { margin: 6px 0 12px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  code { font: 13.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface-2); border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 14px; }
+
+  /* Callouts */
+  .callout { border-radius: 14px; padding: 14px 16px; margin: 14px 0; border: 1px solid; font-size: 15px; }
+  .callout.key { background: var(--warn-bg); border-color: color-mix(in srgb, var(--warn) 35%, transparent); }
+  .callout.key b:first-child { color: var(--warn); }
+  .callout.ok { background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
+  .callout.bad { background: var(--bad-bg); border-color: color-mix(in srgb, var(--bad) 35%, transparent); }
+
+  /* Steps */
+  .steps { list-style: none; padding: 0; margin: 8px 0 0; counter-reset: s; }
+  .steps li { counter-increment: s; position: relative; padding: 12px 14px 12px 58px; margin: 0 0 10px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; }
+  .steps li::before { content: counter(s); position: absolute; left: 14px; top: 12px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; color: var(--brand); border: 2px solid var(--brand); }
+  .steps li b { display: block; }
+
+  /* Grids */
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .tile { background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .tile h4 { margin: 0 0 6px; font-size: 15px; }
+  .tile p, .tile li { font-size: 14.5px; }
+
+  /* Prizes */
+  .prizes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .prize { border-radius: 14px; padding: 16px; text-align: center; border: 1px solid var(--line); background: var(--surface-2); }
+  .prize b { display: block; font-size: 24px; letter-spacing: -.02em; color: var(--brand); }
+  .prize span { font-size: 13px; color: var(--muted); }
+  .prize.big { grid-column: span 2; background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 14%, var(--surface-2)), var(--surface-2)); }
+  @media (max-width: 520px) { .prize.big { grid-column: span 1; } }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; padding: 10px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+  .tbl table tr:last-child td { border-bottom: 0; }
+
+  /* Badges */
+  .b { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .b.ok { background: var(--ok-bg); color: var(--ok); }
+  .b.warn { background: var(--warn-bg); color: var(--warn); }
+  .b.bad { background: var(--bad-bg); color: var(--bad); }
+
+  /* Timeline */
+  .timeline { position: relative; margin: 10px 0 0; padding-left: 26px; }
+  .timeline::before { content: ""; position: absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(var(--brand), var(--accent)); border-radius: 2px; }
+  .tl { position: relative; margin-bottom: 16px; }
+  .tl::before { content: ""; position: absolute; left: -23px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 3px solid var(--brand); }
+  .tl.deadline::before { background: var(--bad); border-color: var(--bad); }
+  .tl .when { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--brand); }
+  .tl.deadline .when { color: var(--bad); }
+  .tl .what { font-weight: 700; }
+  .tl .how { color: var(--muted); font-size: 14.5px; }
+
+  .links { columns: 2 260px; column-gap: 24px; padding-left: 18px; }
+  .links li { break-inside: avoid; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 0 40px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Pi Network · Pi Next Hackathon 2026</div>
+    <h1>Submitting Bookkeeping to Pi Next</h1>
+    <p class="lead">Everything we found about the hackathon: dates, how to register and submit, the Mainnet listing it requires, and a plan that fits the project handover to the client into the same timeline.</p>
+    <div class="stats">
+      <div class="stat"><b>5 Jan 2027</b><span>Deadline, 11:59 PM PT (6 Jan 07:59 UTC)</span></div>
+      <div class="stat"><b>200,000 USDT</b><span>Prize pool, plus up to 20M Pi for user growth</span></div>
+      <div class="stat"><b>Mainnet only</b><span>Testnet-only apps can't be entered</span></div>
+      <div class="stat"><b>≤ 3 min</b><span>Public demo video</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#overview">Overview</a>
+  <a href="#register">Register</a>
+  <a href="#submit">Submit</a>
+  <a href="#judging">Judging &amp; prizes</a>
+  <a href="#hosting">Hosting</a>
+  <a href="#mainnet">Mainnet listing</a>
+  <a href="#pinet">PiNet</a>
+  <a href="#readiness">Our readiness</a>
+  <a href="#plan">Plan</a>
+  <a href="#open">Open questions</a>
+  <a href="#sources">Sources</a>
+</div></nav>
+
+<main><div class="wrap">
+
+  <section class="card" id="overview">
+    <h2><span class="num">1</span> Overview</h2>
+    <p class="sub">What Pi Next is and the one rule that shapes everything else.</p>
+    <p>Pi Next is Pi Network's hackathon, launched on 19 November 2026 at the end of the first online Ecosystem Summit. The theme is open: any app that meets real needs, as long as it follows the <b>Mainnet Listing Requirements</b>. Existing apps are allowed; Pi says the console helps developers "bring existing applications to Pi".</p>
+    <div class="callout key"><b>Key rule:</b> an entry must be a <b>Mainnet</b> Pi app (or a SoloHost app). The entry form says "Apps on Testnet only aren't shown". The Mainnet listing must be <b>submitted for review</b>. It does not have to be approved before the deadline.</div>
+    <div class="grid2">
+      <div class="tile"><h4>Who can enter</h4><ul><li>Anyone over 18. Pi staff and their families are excluded.</li><li>Any team size.</li><li>Up to 3 apps per team.</li><li>One account per person, or you're disqualified.</li></ul></div>
+      <div class="tile"><h4>Two ways to build</h4><ul><li><b>Pi app</b>, registered and submitted through the Developer Web Console. This is our route.</li><li><b>SoloHost</b> app for Pi Desktop. Not relevant to us.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="card" id="register">
+    <h2><span class="num">2</span> How to register</h2>
+    <p class="sub">Each team member does this on their own. The client should be the team lead.</p>
+    <ol class="steps">
+      <li><b>Get a Pi account and the Pi Browser</b>You need them on your phone to approve the sign-in.</li>
+      <li><b>Open the Developer Web Console on a desktop browser</b><a href="https://developers.minepi.com/hackathon/register">developers.minepi.com/hackathon/register</a>. Signing in from inside the Pi Browser isn't supported yet.</li>
+      <li><b>Sign in with Pi</b>Scan the QR code with your phone camera and approve in the Pi Browser.</li>
+      <li><b>Fill in the form</b>Pi username (taken from your profile, can't be changed), email (filled in from your Pi profile; updates are sent there), region, "How did you hear about Pi Next?", and tick the box accepting the hackathon rules, Developer Terms and Privacy Policy.</li>
+      <li><b>Team lead adds members</b>On the app's entry in the Hackathon tab, add each member by Pi username (email optional). Listing someone doesn't register them: they must register first. Only the team lead sees the entry on their dashboard.</li>
+      <li><b>Optional: midpoint submission</b>An early round for feedback. Details are emailed to people who registered.</li>
+    </ol>
+    <p class="small muted" style="margin-top:10px">Registering doesn't ask for KYC. KYC is needed later, to submit the Mainnet listing.</p>
+  </section>
+
+  <section class="card" id="submit">
+    <h2><span class="num">3</span> What the submission needs</h2>
+    <p class="sub">One team member (the lead) submits in the console before the deadline.</p>
+    <div class="grid2">
+      <div class="tile"><h4>Required content</h4><ul>
+        <li>The app: a <b>Mainnet</b> app from "My apps"</li>
+        <li>Demo video link: public (YouTube is fine), <b>3 minutes or less</b>, showing the final app</li>
+        <li>Team members</li>
+        <li>English name and accurate English description</li>
+        <li>Logo that follows Pi's trademark guidelines</li>
+        <li>Preview images of the interface</li>
+        <li>PiNet integration</li>
+        <li>Privacy policy</li>
+      </ul></div>
+      <div class="tile"><h4>What the demo video should cover</h4><ul>
+        <li>What the app is</li>
+        <li>A walkthrough of its features and interface</li>
+        <li>Who it's for</li>
+        <li>The problem it solves</li>
+        <li>How Pi is part of the experience</li>
+      </ul></div>
+    </div>
+    <h3>The console won't let you submit until all of these are done</h3>
+    <div class="tbl"><table>
+      <tr><th>Check</th><th>What fixes it</th></tr>
+      <tr><td>App not deployed</td><td>A public HTTPS frontend URL (ours is on Vercel)</td></tr>
+      <tr><td>Domain not verified</td><td>Serve the console's key at <code>/validation-key.txt</code></td></tr>
+      <tr><td>Mainnet listing not submitted for review</td><td>Complete the listing page and submit it (section 6)</td></tr>
+      <tr><td>Demo video missing</td><td>Add a public video link of 3 minutes or less</td></tr>
+      <tr><td>App is blocked or delisted</td><td>Follow the listing rules</td></tr>
+    </table></div>
+  </section>
+
+  <section class="card" id="judging">
+    <h2><span class="num">4</span> Judging and prizes</h2>
+    <p class="sub">Six criteria with no published weights, and two kinds of prize.</p>
+    <div class="grid2">
+      <div class="tile"><h4>Judging criteria</h4><ol>
+        <li>Alignment with the Mainnet Listing Guidelines</li>
+        <li>Pi utility and fit with community and ecosystem needs</li>
+        <li>Technical completeness and innovation</li>
+        <li>UI/UX, accessibility and ease of navigation</li>
+        <li>Long-term utility on the Pi Mainnet blockchain</li>
+        <li>Uniqueness and distinctive use cases</li>
+      </ol></div>
+      <div class="tile"><h4>Community Engagement Awards</h4><p>150,000 USDT shared by up to 2 teams. Chosen from a mix of the judges' view, <b>real user engagement, retention and community traction</b>. Getting real Pioneers using the app early matters here.</p><p class="small muted">Pi Foundation has also set aside up to 20M Pi to reward Pioneers who use or invite others to new Pi apps.</p></div>
+    </div>
+    <h3>Prize pool</h3>
+    <div class="prizes">
+      <div class="prize"><b>25,000</b><span>Judges' Pick · 1st</span></div>
+      <div class="prize"><b>15,000</b><span>Judges' Pick · 2nd</span></div>
+      <div class="prize"><b>10,000</b><span>Judges' Pick · 3rd</span></div>
+      <div class="prize big"><b>150,000</b><span>Community Engagement · up to 2 teams</span></div>
+    </div>
+    <p class="small muted" style="margin-top:8px">All amounts in USDT.</p>
+  </section>
+
+  <section class="card" id="hosting">
+    <h2><span class="num">5</span> Is Vercel + Railway hosting allowed?</h2>
+    <p class="sub">Yes.</p>
+    <div class="callout ok"><b>Allowed.</b> The rule is "a Mainnet Pi app… submitted via the Developer Web Console". That means the app is <i>registered and submitted</i> there, not hosted there. The console just asks for a public HTTPS frontend URL, and its docs give Vercel as an example.</div>
+    <ul>
+      <li>The console's AI coding agent is optional; you can build it yourself with the SDK docs.</li>
+      <li>"My apps" in the web console is a browser view of the same Developer Portal apps (the old portal at <code>pi://develop.pinet.com</code> only works inside the Pi Browser). Existing apps carry over; there's nothing to import.</li>
+      <li>Signing in with the Pi SDK only is fine. Any other login (email, Google…) is <b>not allowed</b>. Our app also makes Pi payments, so it needs an app wallet and server API key.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="mainnet">
+    <h2><span class="num">6</span> Mainnet listing</h2>
+    <p class="sub">You can apply directly. A Testnet app isn't required first.</p>
+    <p>An app's network is chosen when you create it and can't be changed later: a Testnet ("Staging") app can't be converted. Only Production (Mainnet) apps can be listed. The app goes <b>Draft → Deployed → Under review → Listed</b>.</p>
+    <ol class="steps">
+      <li><b>Create a Production (Mainnet) app</b>In "My apps", under the <b>client's</b> Pi account (the team lead).</li>
+      <li><b>Set the frontend URL</b><code>https://bookkeeping-v1.vercel.app</code>. The domain must not start with "pi".</li>
+      <li><b>Verify the domain</b>Put the new key in <code>public/validation-key.txt</code> and redeploy. This also gives the app its PiNet address.</li>
+      <li><b>Create the app wallet and server API key</b>Set <code>PI_NETWORK_API_KEY</code> and <code>PI_NETWORK=mainnet</code> on Railway, and <code>VITE_PI_NETWORK=mainnet</code> on Vercel.</li>
+      <li><b>Fill in the listing page</b>Subtitle, description, category, language, 3 screenshots, 1024×1024 logo, privacy policy URL and terms URL.</li>
+      <li><b>KYC</b>The client must at least have applied for Pi KYC in the Pi app before he can submit.</li>
+      <li><b>Submit for review</b>That's enough to enter Pi Next. Being approved isn't required.</li>
+    </ol>
+    <div class="callout key"><b>Review time:</b> Pi publishes none. All it says is "Pi team will review the app", and community reports describe reviews as slow. Aim to submit the listing by <b>mid-December</b>. Entering Pi Next doesn't speed up the review or change the listing. It shows the app under "Pi Next" in the Ecosystem.</div>
+    <h3>Listing rules that apply to us</h3>
+    <ul>
+      <li>Fully working app with a clean, easy interface</li>
+      <li>Pi sign-in only, and every transaction in Pi (no fiat or other tokens)</li>
+      <li>No sending users to outside websites</li>
+      <li>Collect only the data the app needs</li>
+    </ul>
+  </section>
+
+  <section class="card" id="pinet">
+    <h2><span class="num">7</span> PiNet</h2>
+    <p class="sub">A public <code>https://&lt;name&gt;NNNNN.pinet.com</code> address that works in any browser, so people without the Pi Browser can see the app.</p>
+    <p>In the new console the PiNet subdomain is <b>assigned automatically when the domain is verified</b>. It's a console setting, not SDK code. Pi's PiNet requirement is about how the app behaves: an app that forces <code>Pi.authenticate</code> on first visit, or has a landing page that blocks non-Pi browsers, can't use PiNet.</p>
+    <div class="tbl"><table>
+      <tr><th>Check</th><th>Status</th><th>Notes</th></tr>
+      <tr><td>CSP allows framing from <code>*.pinet.com</code>; <code>socialchain.app</code> allowed</td><td><span class="b ok">Done</span></td><td><code>vercel.json</code></td></tr>
+      <tr><td>No forced sign-in on first visit</td><td><span class="b ok">Done</span></td><td>Sign-in starts only on "Connect via Pi" (or quietly when restoring a saved session). "Continue as Guest" works.</td></tr>
+      <tr><td>PiNet subdomain assigned</td><td><span class="b warn">Pending</span></td><td>Comes after the Mainnet app's domain is verified</td></tr>
+      <tr><td>Loads in desktop Chrome via pinet.com</td><td><span class="b warn">Not tested</span></td><td>Open the pinet.com URL without the Pi Browser and check the login screen and guest mode</td></tr>
+    </table></div>
+  </section>
+
+  <section class="card" id="readiness">
+    <h2><span class="num">8</span> Where Bookkeeping stands</h2>
+    <p class="sub">Checked against what the submission and the listing ask for.</p>
+    <div class="tbl"><table>
+      <tr><th>Item</th><th>Status</th><th>Notes</th></tr>
+      <tr><td>Privacy Policy page</td><td><span class="b ok">Done</span></td><td><code>/privacy-policy.html</code>, linked from the login screen. Add a contact email.</td></tr>
+      <tr><td>Terms of Use page</td><td><span class="b ok">Done</span></td><td><code>/terms-of-use.html</code>, linked from the login screen. Add a contact email.</td></tr>
+      <tr><td>Pi-only sign-in, Pi-only payments</td><td><span class="b ok">Done</span></td><td>Meets the listing rules</td></tr>
+      <tr><td>Domain doesn't start with "pi"</td><td><span class="b ok">Done</span></td><td><code>bookkeeping-v1.vercel.app</code></td></tr>
+      <tr><td>Mainnet config switch</td><td><span class="b ok">Ready</span></td><td>Environment variables only; no code change</td></tr>
+      <tr><td>Mainnet app under the client's Pi account</td><td><span class="b warn">To do</span></td><td>New API key and validation key</td></tr>
+      <tr><td>Backend login checks the user's token (AUD-01)</td><td><span class="b ok">Fixed</span></td><td>Sign-in is <code>POST /api/auth/pi</code>, checked with Pi <code>/v2/me</code>. No App Studio, so it works with a new Mainnet app. The uid login answers 410.</td></tr>
+      <tr><td>Backend audit findings</td><td><span class="b ok">Closed</span></td><td>All 72 closed in <code>audits/backend/2026-11-19</code></td></tr>
+      <tr><td>Login fix committed and deployed</td><td><span class="b warn">To do</span></td><td>Deploy Railway and Vercel together. Never set <code>ALLOW_UID_LOGIN</code> on Railway.</td></tr>
+      <tr><td>Sign-in works in the Pi Browser with the Mainnet app</td><td><span class="b warn">To test</span></td><td>After the Mainnet app exists and the deploy is done</td></tr>
+      <tr><td>Logo, 3 screenshots, demo video</td><td><span class="b warn">To do</span></td><td>Logo 1024×1024, following Pi's trademark guidelines</td></tr>
+    </table></div>
+  </section>
+
+  <section class="card" id="plan">
+    <h2><span class="num">9</span> Plan: handover and submission together</h2>
+    <p class="sub">Do the handover first. Moving the accounts keeps every URL the same, so nothing you submit has to be redone.</p>
+
+    <h3>Handover: move accounts instead of rebuilding</h3>
+    <div class="tbl"><table>
+      <tr><th>What</th><th>How</th><th>Effect</th></tr>
+      <tr><td>GitHub</td><td>Repo Settings → Transfer ownership to the client; he adds you as a collaborator</td><td>History moves with it; GitHub redirects the old URL</td></tr>
+      <tr><td>Vercel</td><td>Project Settings → Transfer project to the client's team</td><td>Same URL, environment variables and domains</td></tr>
+      <tr><td>Railway</td><td>Project Settings → Transfer to the client's workspace</td><td>Database and environment variables move with it; same URL</td></tr>
+      <tr><td>Pi app</td><td>Client creates the <b>Mainnet</b> app under his own Pi account (KYC)</td><td>He owns the app and is the hackathon team lead</td></tr>
+    </table></div>
+    <p class="small muted" style="margin-top:8px">The client should sign up for each service with his own email and 2FA, and invite you. That way he never has to send you passwords.</p>
+
+    <h3>Timeline</h3>
+    <div class="timeline">
+      <div class="tl"><div class="when">This week</div><div class="what">Accounts and registration</div><div class="how">Client sets up his Pi account (and applies for KYC), GitHub, Vercel and Railway. Both of you register for Pi Next.</div></div>
+      <div class="tl"><div class="when">Early December</div><div class="what">Ship the fixes</div><div class="how">Commit and deploy the login fix (done in code 28 Nov), add the contact email on the policy pages.</div></div>
+      <div class="tl"><div class="when">Early December</div><div class="what">Transfer GitHub, Vercel and Railway</div><div class="how">URLs stay the same, so nothing needs reconfiguring.</div></div>
+      <div class="tl"><div class="when">By ~10 December</div><div class="what">Mainnet app</div><div class="how">Create it under the client, verify the domain, set up the wallet and API key, switch to Mainnet, test sign-in and payments, check PiNet.</div></div>
+      <div class="tl"><div class="when">By mid-December</div><div class="what">Submit the Mainnet listing for review</div><div class="how">Screenshots, logo, description, privacy and terms URLs. Optional midpoint submission for feedback.</div></div>
+      <div class="tl"><div class="when">Mid-December → early January</div><div class="what">Get real users</div><div class="how">Engagement and retention decide the 150k Community Engagement Awards.</div></div>
+      <div class="tl"><div class="when">By ~1 January</div><div class="what">Demo video and entry</div><div class="how">Record a video of 3 minutes or less. The client adds the team and submits.</div></div>
+      <div class="tl deadline"><div class="when">5 January 2027 · 11:59 PM PT</div><div class="what">Deadline</div><div class="how">6 January, 07:59 UTC.</div></div>
+    </div>
+  </section>
+
+  <section class="card" id="open">
+    <h2><span class="num">10</span> Not covered by the official pages</h2>
+    <p class="sub">Ask in the Pi Next Google Group or check in the console.</p>
+    <ul>
+      <li>Judging dates and when winners are announced</li>
+      <li>Whether KYC is needed to receive the prize, and who on the team gets paid</li>
+      <li>Whether a client + developer team needs anything special (the rules allow any team size)</li>
+      <li>How long the Mainnet listing review usually takes</li>
+    </ul>
+  </section>
+
+  <section class="card" id="sources">
+    <h2><span class="num">11</span> Official links</h2>
+    <p class="sub">Read these directly.</p>
+    <ul class="links">
+      <li><a href="https://minepi.com/pi-next/">Pi Next official page</a></li>
+      <li><a href="https://developers.minepi.com/hackathon/register">Developer Web Console – Hackathon registration</a></li>
+      <li><a href="https://developers.minepi.com/">Developer Web Console (My apps, Docs)</a></li>
+      <li><a href="https://developers.minepi.com/docs/build-first-app/MainnetListing">Mainnet Listing Requirements</a></li>
+      <li><a href="https://developers.minepi.com/docs/build-first-app/Launch">Launching on Mainnet</a></li>
+      <li><a href="https://developers.minepi.com/docs/build-first-app/PiNet">PiNet</a></li>
+      <li><a href="https://developers.minepi.com/docs/build-first-app/urls">App URLs</a></li>
+      <li><a href="https://developers.minepi.com/docs/build-first-app/RegisterApp">Registering an app</a></li>
+      <li><a href="https://developers.minepi.com/agents.md">Console guide for coding agents</a></li>
+      <li><a href="https://minepi.com/pi-trademark-guidelines/">Pi trademark guidelines (logo)</a></li>
+      <li><a href="https://socialchain.app/developer_terms">Pi Developer Terms</a></li>
+      <li><a href="https://groups.google.com/a/picoreteam.org/g/pihackathon2026">Pi Next Google Group</a></li>
+      <li><a href="https://x.com/PiCoreTeam/status/2125015548283290068">Pi Core Team announcement on X</a></li>
+    </ul>
+  </section>
+
+</div></main>
+<footer>Compiled 28 November 2026 from Pi's official pages. Rules can change, so check the official Pi Next page before each step.</footer>
+</body>
+</html>
