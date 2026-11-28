@@ -761,6 +761,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             </div>
           )}
 
+          {!isDropdownOpen && (
           <button
             disabled={!canPay}
             onClick={() => void handlePay()}
@@ -773,6 +774,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           >
             {isStarting ? "Starting…" : "Pay"}
           </button>
+          )}
         </div>
       </div>
 
