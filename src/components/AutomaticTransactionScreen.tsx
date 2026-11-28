@@ -280,14 +280,16 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
             { label: "Network", value: networkLabel },
             { label: "From", value: fmtDate(fromDate) },
             { label: "To", value: fmtDate(toDate) },
-            ...(count > 0 && !saveError ? [{ label: "Transactions Found", value: String(count) }] : []),
-            ...(inApp > 0 ? [{ label: "Paid via App", value: String(inApp) }] : []),
+            { label: "Transactions Found", value: String(count) },
+            { label: "Skipped", value: String(saveError ? 0 : Math.max(0, count - added)) },
             { label: "Added", value: String(added) },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-gray-50 dark:border-border last:border-0">
               <span className="text-gray-500 dark:text-muted-foreground">{label}</span>
               <span className={`font-medium ${label === "Added"
                   ? "text-[#592C16] dark:text-[#EFC8AC] font-bold text-xl"
+                  : label === "Transactions Found"
+                  ? "text-[#B55A38] font-bold text-xl"
                   : "text-gray-900 dark:text-foreground"
                 }`}>{value}</span>
             </div>
