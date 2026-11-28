@@ -253,7 +253,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
 
     const newTx: Transaction = {
       id: Date.now().toString(),
-      description: note.trim() || `Manual ${transactionType === "credit" ? "Credit" : "Debit"} Entry`,
+      description: note.trim() || `Manual Entry: ${transactionType === "credit" ? "Credit" : "Debit"}`,
       amount: parseFloat(amount),
       type: transactionType,
       timestamp: formattedTimestamp,
