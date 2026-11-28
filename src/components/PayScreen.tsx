@@ -7,6 +7,7 @@ import { InviteModal } from "./InviteModal";
 import { useDarkMode } from "../contexts/DarkModeContext";
 import { ApiError } from "../lib/api";
 import { usePaymentIntents } from "../hooks/useBookkeeping";
+import piWalletRefer from "../assets/Piwalletrefer.jpeg";
 import {
   openPiWalletPayRequest, shortHash,
   PendingWalletPayment, loadPendingWalletPayment, savePendingWalletPayment, clearPendingWalletPayment, WALLET_POLL_LIMIT_MS,
@@ -810,6 +811,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               <p style={{ marginBottom: "12px" }}>
                 Enter <strong>amount</strong> manually inside the Pi wallet to pay. After the payment is completed, press back button twice of the Pi Browser to come back to this app.
               </p>
+              <img src={piWalletRefer} alt="Pi Wallet" style={{ display: "block", width: "100%", height: "auto", borderRadius: "8px", marginBottom: "12px" }} />
               <p style={{ marginBottom: "12px" }}>
                 We will confirm your payment automatically while you can also tap on the &lsquo;Check&rsquo; button manually to confirm.
               </p>
