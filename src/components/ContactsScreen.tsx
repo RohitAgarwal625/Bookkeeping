@@ -106,12 +106,12 @@ export function ContactsScreen({
                 isGuest ? (
                   <>
                     <span className="block font-medium">No Contacts to show!</span>
-                    <span className="block mt-0.5">Connect Pi Wallet to add a pioneer.</span>
+                    <span className="block mt-4">Connect Pi Wallet to add a pioneer.</span>
                   </>
                 ) : (
                   <>
                     <span className="block font-medium">No Contacts to show!</span>
-                    <span className="block mt-0.5">Add a pioneer to get started.</span>
+                    <span className="block mt-4">Add a pioneer to get started.</span>
                   </>
                 )
               )}
