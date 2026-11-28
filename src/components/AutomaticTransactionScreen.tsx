@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info, AlertCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, CheckCircle, CalendarDays, Search, X, BookOpen, Info, AlertCircle, RefreshCw, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { Contact, getInitials, ImportTransactionsResponse, Transaction } from "../types";
 import { BookkeepingLogo } from "./BookkeepingLogo";
@@ -395,10 +395,11 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
               {onOpenSettings && (
                 <button
                   onClick={onOpenSettings}
-                  className="w-full mt-3 h-12 rounded-xl text-white font-bold text-sm"
+                  className="w-full mt-3 h-12 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2"
                   style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
                 >
                   Open Settings
+                  <Settings className="w-4 h-4" />
                 </button>
               )}
             </div>
