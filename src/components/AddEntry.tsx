@@ -142,7 +142,7 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
         setDate(local.date);
         setTime(local.time);
       }
-      if (res.memo) setNote((prev) => (prev.trim() ? prev : res.memo.slice(0, 100)));
+      setNote(res.memo ? res.memo.slice(0, 100) : "");
 
       const direction = match.type === "credit" ? `Received from ${contactName}` : `Sent to ${contactName}`;
       if (myKey) {
@@ -455,7 +455,16 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
               <input
                 type="text"
                 value={txHash}
-                onChange={(e) => setTxHash(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setTxHash(val);
+                  // Auto-filled fields come only from verification: clear them when the ID changes.
+                  setAmount("");
+                  setNote("");
+                  setTransactionType("credit");
+                  setDate("");
+                  setTime("");
+                }}
                 placeholder="Example: abc123xyz..."
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all font-mono text-sm"
               />
@@ -501,7 +510,9 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
                 value={amount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder="0.0000000"
-                style={{ paddingLeft: "1.25rem", paddingRight: "3rem" }}
+                readOnly
+                disabled
+                style={{ paddingLeft: "1.25rem", paddingRight: "3rem", opacity: 0.6, cursor: "not-allowed" }}
                 className="w-full py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xl font-semibold text-black dark:text-white leading-none select-none">
@@ -518,6 +529,8 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
             <div className="flex gap-3">
               <button
                 onClick={() => setTransactionType("debit")}
+                disabled
+                style={{ opacity: 0.6, cursor: "not-allowed" }}
                 className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "debit"
                   ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md"
                   : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
@@ -527,6 +540,8 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
               </button>
               <button
                 onClick={() => setTransactionType("credit")}
+                disabled
+                style={{ opacity: 0.6, cursor: "not-allowed" }}
                 className={`flex-1 py-3 px-4 rounded-xl transition-all ${transactionType === "credit"
                   ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
                   : "bg-gray-50 dark:bg-secondary text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-[#8A532B]/40"
@@ -544,6 +559,9 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              readOnly
+              disabled
+              style={{ opacity: 0.6, cursor: "not-allowed" }}
               className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all"
             />
           </div>
@@ -560,6 +578,8 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
                     const mm = time ? (time.split(":")[1] || "00") : "00";
                     setTime(hh ? `${hh}:${mm}` : "");
                   }}
+                  disabled
+                  style={{ opacity: 0.6, cursor: "not-allowed" }}
                   className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all cursor-pointer"
                 >
                   <option value="" disabled>HH</option>
@@ -578,6 +598,8 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
                     const hh = time ? (time.split(":")[0] || "00") : "00";
                     setTime(mm ? `${hh}:${mm}` : "");
                   }}
+                  disabled
+                  style={{ opacity: 0.6, cursor: "not-allowed" }}
                   className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent transition-all cursor-pointer"
                 >
                   <option value="" disabled>MM</option>
@@ -604,6 +626,9 @@ export function AddEntry({ onBack, onSuccess, onSave, contacts, userWalletAddres
               value={note}
               onChange={(e) => setNote(e.target.value.slice(0, 100))}
               maxLength={100}
+              readOnly
+              disabled
+              style={{ opacity: 0.6, cursor: "not-allowed" }}
               placeholder="Add a note or description..."
               rows={3}
               className="w-full px-4 py-3 bg-gray-50 dark:bg-secondary border border-gray-200 dark:border-border text-foreground placeholder:text-muted-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[#592C16] dark:focus:ring-[#8A532B] focus:border-transparent resize-none transition-all text-sm"
