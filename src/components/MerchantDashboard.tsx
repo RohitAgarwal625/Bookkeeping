@@ -196,7 +196,7 @@ export function MerchantDashboard({
       // "failed": the transaction failed on the Pi blockchain (only the sender's own payments).
       status: p.status === "failed" ? "failed" as const : "completed" as const,
       piWalletAddress: p.counterparty.walletAddress,
-      description: p.status === "failed" ? "Payment failed on the Pi blockchain" : p.direction === "received" ? "Received in the app" : "Paid in the app",
+      description: p.status === "failed" ? "Payment failed on the Pi blockchain" : p.direction === "received" ? "Received via dApp" : "Paid via dApp",
       txHash: p.txHash ?? "",
       totalCredit: 0,
       totalDebit: 0,
