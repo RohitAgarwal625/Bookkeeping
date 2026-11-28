@@ -13,7 +13,8 @@ interface DashboardProps {
   onNavigateToAddCustomer: (category: "individual" | "business") => void;
   onNavigateToAddEntry: () => void;
   onNavigateToAutoEntry: () => void;
-  onNavigateToCustomerLedger: (customerName: string, contactId?: string) => void;
+  /** transactionId: the tapped Recent Transactions entry, highlighted in the ledger. */
+  onNavigateToCustomerLedger: (customerName: string, contactId?: string, transactionId?: string) => void;
   /** Newest saved entries across all contacts (signed-in users). */
   recentTransactions?: Transaction[];
   /** Newest confirmed in-app payments (Home bell). */
@@ -301,7 +302,7 @@ export function Dashboard({
               {recentEntries.map((transaction, index) => (
                 <div
                   key={transaction.id}
-                  onClick={() => onNavigateToCustomerLedger(transaction.customerName, transaction.contactId)}
+                  onClick={() => onNavigateToCustomerLedger(transaction.customerName, transaction.contactId, transaction.id)}
                   className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-secondary/50 transition-colors ${index < recentEntries.length - 1 ? "border-b border-gray-50 dark:border-border" : ""
                     }`}
                 >

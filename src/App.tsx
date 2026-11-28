@@ -103,6 +103,8 @@ function AppContent() {
   const [piSignInError, setPiSignInError] = useState<string | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
   const [selectedContactId, setSelectedContactId] = useState<string | undefined>(undefined);
+  // Entry tapped in Home > Recent Transactions: the ledger scrolls to it and highlights it briefly.
+  const [focusTransactionId, setFocusTransactionId] = useState<string | undefined>(undefined);
   const [selectedCategory, setSelectedCategory] = useState<"individual" | "business">("individual");
   // contacts comes from the bk hook when authenticated; otherwise stays empty
   const [localContacts, setLocalContacts] = useState<Contact[]>([]);
@@ -256,6 +258,7 @@ function AppContent() {
 
   const handleNavigateToCustomerLedger = (customerName: string, contactId?: string, newTransactions?: Transaction[]) => {
     setSelectedCustomer(customerName);
+    setFocusTransactionId(undefined);
     // Callers that pass only a name (Pay, Dashboard): find the contact so the ledger loads from the server.
     setSelectedContactId(contactId ?? contacts.find((c) => normalizeContactName(c.name) === normalizeContactName(customerName))?.id);
     if (newTransactions && newTransactions.length > 0) {
@@ -667,6 +670,7 @@ function AppContent() {
           customerName={selectedCustomer}
           contactId={selectedContactId}
           initialNewTransactions={pendingNewTransactions[selectedCustomer]}
+          focusTransactionId={focusTransactionId}
           onAddEntry={bk.isAuthenticated ? (entry) => bk.addTransaction(entry) : undefined}
           onUpdateNote={bk.isAuthenticated ? bk.updateTransactionNote : undefined}
           onBack={() => {
@@ -765,7 +769,10 @@ function AppContent() {
           onNavigateToAddCustomer={handleNavigateToAddCustomer}
           onNavigateToAddEntry={handleNavigateToAddEntry}
           onNavigateToAutoEntry={handleNavigateToAutoEntry}
-          onNavigateToCustomerLedger={handleNavigateToCustomerLedger}
+          onNavigateToCustomerLedger={(customerName, contactId, transactionId) => {
+            handleNavigateToCustomerLedger(customerName, contactId);
+            setFocusTransactionId(transactionId);
+          }}
           recentTransactions={recentTransactions}
           latestPayments={latestPayments}
           userId={bk.user?.id}

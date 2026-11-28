@@ -16,6 +16,8 @@ interface CustomerLedgerProps {
   onAddEntry?: (entry: { amount: number; description: string; type: "credit" | "debit"; contactId: string }) => Promise<Transaction>;
   /** Save an entry's edited note on the server; resolves with the saved row. */
   onUpdateNote?: (id: string, description: string) => Promise<Transaction>;
+  /** Entry to scroll to and highlight for 2 s (tapped in Home > Recent Transactions). */
+  focusTransactionId?: string;
 }
 
 const sameAmount = (a: number, b: number) => Math.abs(a - b) < 1e-9;
@@ -94,7 +96,7 @@ async function fetchWholeLedger(contactId: string): Promise<Transaction[]> {
   }
 }
 
-export function CustomerLedger({ customerName, contactId, onBack, initialNewTransactions, onAddEntry, onUpdateNote }: CustomerLedgerProps) {
+export function CustomerLedger({ customerName, contactId, onBack, initialNewTransactions, onAddEntry, onUpdateNote, focusTransactionId }: CustomerLedgerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingNote, setEditingNote] = useState("");
@@ -107,6 +109,9 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
   const [newIndex, setNewIndex] = useState(0);
   const [flashId, setFlashId] = useState<string | null>(null);
   const jumpedToFirstNew = useRef(false);
+  // Recent Transactions entry: scrolled to once, highlighted while focusId is set.
+  const [focusId, setFocusId] = useState<string | null>(null);
+  const focusedOnce = useRef(false);
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
     if (initialNewTransactions && initialNewTransactions.length > 0) {
       return mergeWithPending([], initialNewTransactions);
@@ -249,6 +254,18 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
   };
 
   useEffect(() => {
+    if (!ledgerReady || !focusTransactionId || focusedOnce.current) return;
+    if (!transactions.some((t) => t.id === focusTransactionId)) return;
+    focusedOnce.current = true;
+    const id = focusTransactionId;
+    window.requestAnimationFrame(() => {
+      rowRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setFocusId(id);
+      window.setTimeout(() => setFocusId((f) => (f === id ? null : f)), 2600);
+    });
+  }, [ledgerReady, focusTransactionId, transactions]);
+
+  useEffect(() => {
     if (!ledgerReady || newCount === 0 || jumpedToFirstNew.current) return;
     jumpedToFirstNew.current = true;
     // Wait a frame so the rows are laid out before scrolling.
@@ -326,8 +343,8 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                 return (
                   <div
                     key={transaction.id}
-                    ref={transaction.isNew ? (el) => { rowRefs.current[transaction.id] = el; } : undefined}
-                    style={flashId === transaction.id ? { animation: "ledger-new-flash 1.4s ease-out" } : undefined}
+                    ref={transaction.isNew || transaction.id === focusTransactionId ? (el) => { rowRefs.current[transaction.id] = el; } : undefined}
+                    style={flashId === transaction.id ? { animation: "ledger-new-flash 1.4s ease-out" } : focusId === transaction.id ? { animation: "ledger-focus 2.6s ease-out" } : undefined}
                     className={`rounded-xl shadow-sm dark:shadow-none p-4 transition-all ${
                       transaction.isNew
                         ? "bg-[#F5E0D6] dark:bg-card border-2 border-[#592C16] dark:border-[#8A532B] shadow-[0_0_12px_rgba(89,44,22,0.12)]"
@@ -494,7 +511,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
           </div>
         </div>
       )}
-      <style>{`@keyframes ledger-new-flash { 0% { box-shadow: 0 0 0 0 rgba(89,44,22,0.7); transform: scale(1.02); } 100% { box-shadow: 0 0 0 14px rgba(89,44,22,0); transform: scale(1); } }`}</style>
+      <style>{`@keyframes ledger-new-flash { 0% { box-shadow: 0 0 0 0 rgba(89,44,22,0.7); transform: scale(1.02); } 100% { box-shadow: 0 0 0 14px rgba(89,44,22,0); transform: scale(1); } } @keyframes ledger-focus { 0%, 75% { box-shadow: 0 0 0 2px #E2725B; background-color: rgba(226,114,91,0.15); } 100% { box-shadow: 0 0 0 2px rgba(226,114,91,0); } }`}</style>
 
       {/* Add Entry Modal */}
       <AddEntryModal
