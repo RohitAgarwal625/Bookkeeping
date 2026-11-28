@@ -296,9 +296,9 @@ export function AutomaticTransactionScreen({ contacts, onBack, onNavigateToLedge
           ))}
         </div>
 
-        {skipped > 0 && !saveError && (
+        {!saveError && (
           <p className="text-gray-500 dark:text-muted-foreground text-sm text-center mb-4 max-w-sm">
-            {skipped} transaction{skipped > 1 ? "s were" : " was"} skipped to avoid duplication, as {skipped > 1 ? "they were" : "it was"} already recorded in the ledger previously.
+            <span className="text-black dark:text-white text-base">{skipped}</span> transaction{skipped === 1 ? " was" : "s were"} skipped to avoid duplication, as {skipped === 1 ? "it was" : "they were"} already recorded in the ledger previously.
           </p>
         )}
 
