@@ -314,7 +314,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
           ) : transactions.length === 0 ? (
             <div className="text-center py-12 px-4">
               <p className="text-gray-400 dark:text-muted-foreground text-sm font-medium">No Transactions found !</p>
-              <p className="text-gray-400 dark:text-muted-foreground text-sm mt-1">
+              <p className="text-gray-400 dark:text-muted-foreground text-sm mt-4">
                 Kindly start recording your transactions either manually or automatically via 'Add Transaction' button on the home page
               </p>
             </div>
