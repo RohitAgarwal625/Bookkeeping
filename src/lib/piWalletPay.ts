@@ -84,8 +84,8 @@ export function shortHash(hash: string | null | undefined): string {
 // it is confirmed, cancelled, expired, or too old.
 
 const PENDING_KEY = "bk_pending_wallet_payment";
-/** Auto-checking stops after this long (PayScreen POLL_LIMIT_MS). */
-export const WALLET_POLL_LIMIT_MS = 15 * 60 * 1000;
+/** Auto-checking stops after this long (PayScreen POLL_LIMIT_MS): the server's intent TTL (1 hour). */
+export const WALLET_POLL_LIMIT_MS = 60 * 60 * 1000;
 /** "I've paid, check now" stays possible this long, for a payment confirmed late (the intent's expiry). */
 export const PENDING_PAYMENT_MAX_AGE_MS = 60 * 60 * 1000;
 

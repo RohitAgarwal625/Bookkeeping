@@ -1,4 +1,4 @@
-import { ArrowLeft, Search, Check, X, CheckCircle, Home, Lock, UserPlus, BookOpen } from "lucide-react";
+import { ArrowLeft, Search, Check, X, CheckCircle, XCircle, Home, Lock, UserPlus, BookOpen } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Contact, getInitials, PaymentIntent, Transaction } from "../types";
@@ -28,15 +28,16 @@ interface PayScreenProps {
   onOpenSettings?: () => void;
 }
 
-type ScreenState = "form" | "processing" | "success";
+type ScreenState = "form" | "success";
+/** Live blockchain status shown on the Done screen ("expired" is shown as Failed). */
+type LiveStatus = "pending" | "confirmed" | "failed" | "expired";
 
 const POLL_MS = 8000;
 const POLL_LIMIT_MS = WALLET_POLL_LIMIT_MS;
 
 const GRADIENT = "linear-gradient(to right, #592C16, #8A532B)";
-// Waiting screen coin + ripples: terracotta and its lighter shades.
+// Done screen badge while the payment is still being checked: terracotta.
 const TERRACOTTA_GRADIENT = "linear-gradient(to right, #B55A38, #D27A55)";
-const TERRACOTTA_RIPPLE = "linear-gradient(to right, #D27A55, #E9A889)";
 const AMOUNT_PRESETS = ["3.14", "10", "50", "100", "500", "1000"];
 // Max 7 digits before and 7 after the decimal point (largest 9999999.9999999).
 const AMOUNT_INPUT_PATTERN = /^\d{0,7}(\.\d{0,7})?$/;
@@ -50,7 +51,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   const intents = usePaymentIntents();
 
   // A payment still being waited for (its intent is saved before opening the Pi Wallet, which can
-  // reload the app) brings the screen straight back to "Waiting for your payment".
+  // reload the app) brings the screen straight back to the Done screen with its live status.
   // Arriving from a QR scan opens the form for the scanned person instead; the pending payment
   // stays saved (it resumes the next time Pay opens without a scanned address).
   const [restored] = useState<PendingWalletPayment | null>(() => (prefilledAddress ? null : loadPendingWalletPayment()));
@@ -59,7 +60,8 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
   const [paidRecipientName, setPaidRecipientName] = useState(restored?.contactName ?? "");
   const [amount, setAmount] = useState(restored?.amountText ?? "");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [screen, setScreen] = useState<ScreenState>(restored ? "processing" : "form");
+  const [screen, setScreen] = useState<ScreenState>(restored ? "success" : "form");
+  const [liveStatus, setLiveStatus] = useState<LiveStatus>("pending");
   const [isPublicKeyFocused, setIsPublicKeyFocused] = useState(false);
   // Waiting for the server to find the Pi Wallet payment on the blockchain
   const [walletOpened, setWalletOpened] = useState(true);
@@ -192,10 +194,11 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     setPayNotice({ contact, intent, amountText });
   };
 
-  /** OK on the notice: show the waiting screen and open the Pi Wallet. */
+  /** OK on the notice: show the Done screen (live status, Pending at first) and open the Pi Wallet. */
   const continueToWallet = async (contact: Contact, intent: PaymentIntent, amountText: string) => {
     setPaidRecipientName(contact.name);
     setPaidTxHash("");
+    setLiveStatus("pending");
     const target: PendingWalletPayment = {
       intentId: intent.id,
       contactId: contact.id,
@@ -207,7 +210,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     payTarget.current = target;
     savePendingWalletPayment(target); // before leaving the app: the Pi Browser may reload it
     setAmount(amountText);
-    setScreen("processing");
+    setScreen("success");
 
     const opened = await openPiWalletPayRequest(contact.piWalletAddress);
     setWalletOpened(opened);
@@ -221,32 +224,33 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     }
   };
 
-  /** The intent is finished one way or another: leave the waiting screen. */
+  /** Show the intent's latest status on the Done screen (cancelled goes back to the form). */
   const finishIntent = (target: PendingWalletPayment, intent: PaymentIntent) => {
-    if (payTarget.current !== target) return; // cancelled meanwhile
+    if (payTarget.current !== target) return; // cancelled (or already confirmed) meanwhile
     if (intent.status === "confirmed") {
+      // payTarget is cleared first, so a later check can't confirm (and refresh) twice.
       payTarget.current = null;
       clearPendingWalletPayment();
       setPaidRecipientName(target.contactName);
       // The amount actually sent on the chain (may differ from the typed one: it is typed again in the Pi Wallet).
       setAmount(intent.amount != null ? formatPi(intent.amount) : target.amountText);
       setPaidTxHash(shortHash(intent.txHash));
+      setLiveStatus("confirmed");
       setScreen("success");
       void Promise.resolve(onPaymentConfirmed?.(target.contactName, target.contactId)).catch((err) =>
         console.error("Refresh after a confirmed payment failed:", err)
       );
     } else if (intent.status === "expired") {
+      // Not found on the Pi blockchain within the hour: shown as Failed, nothing more to wait for.
       payTarget.current = null;
       clearPendingWalletPayment();
-      setScreen("form");
-      toast.error("This payment wasn't found on the Pi blockchain in time and has expired. If you sent it, use Automatic Transaction to add it.", { duration: 7000 });
+      setLiveStatus("expired");
+      setScreen("success");
     } else if (intent.status === "failed") {
       // The transaction is on the Pi blockchain but failed: no Pi was sent and nothing was added
-      // to the ledger. History shows it as Failed (a successful retry in the wallet still confirms it).
-      payTarget.current = null;
-      clearPendingWalletPayment();
-      setScreen("form");
-      toast.error("Your payment failed on the Pi blockchain, so no Pi was sent. It's shown as Failed in History. Please try again.", { duration: 7000 });
+      // to the ledger. Keep waiting: a successful retry in the wallet within the hour still confirms it.
+      setLiveStatus("failed");
+      setScreen("success");
     } else if (intent.status === "cancelled") {
       payTarget.current = null;
       clearPendingWalletPayment();
@@ -269,6 +273,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         if (manual) toast("Payment not found on the Pi blockchain yet. It can take a few seconds after you confirm it in the Pi Wallet.");
         return;
       }
+      if (manual && intent.status === "failed") toast("This payment still shows as failed on the Pi blockchain. If you retry it in the Pi Wallet, it will update here.");
       finishIntent(target, intent);
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) {
@@ -299,8 +304,10 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
   // Poll the intent while waiting; ask for a blockchain check right away on mount and whenever
   // the user returns from the Pi Wallet.
+  // Waiting = on the Done screen and not finished (pending, or failed but still within the hour).
+  const isWaiting = screen === "success" && (liveStatus === "pending" || liveStatus === "failed");
   useEffect(() => {
-    if (screen !== "processing") return;
+    if (!isWaiting) return;
     const withinLimit = () => {
       const target = payTarget.current;
       return !!target && Date.now() - target.startedAt <= POLL_LIMIT_MS;
@@ -319,7 +326,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
       window.removeEventListener("pageshow", checkNow);
       window.removeEventListener("focus", checkNow);
     };
-  }, [screen]);
+  }, [isWaiting]);
 
   const cancelWaiting = async () => {
     const target = payTarget.current;
@@ -361,87 +368,12 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
     if (!opened) toast("Couldn't open the Pi Wallet here. Open it yourself and send the payment.");
   };
 
-  // ── Processing Screen (pulse / ripple animation — no spinner) ──────────
-  if (screen === "processing") {
-    return (
-      <div className="bg-background" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", padding: "24px 32px" }}>
-          {/* Pulsing coin with expanding ripple rings */}
-          <div className="relative w-36 h-36 flex items-center justify-center">
-            {[0, 0.7, 1.4].map((delay) => (
-              <span
-                key={delay}
-                className="absolute w-20 h-20 rounded-full"
-                style={{
-                  background: TERRACOTTA_RIPPLE,
-                  animation: "pay-ripple 2.1s ease-out infinite",
-                  animationDelay: `${delay}s`,
-                }}
-              />
-            ))}
-            <div
-              className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-2xl flex-shrink-0"
-              style={{ background: TERRACOTTA_GRADIENT, animation: "pay-bob 1.8s ease-in-out infinite" }}
-            >
-              <svg viewBox="0 0 24 24" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="22" fontWeight="bold" fontFamily="serif">π</text>
-              </svg>
-            </div>
-          </div>
-
-          <p className="text-gray-900 dark:text-white font-bold text-xl">Paid?</p>
-          {/* Bouncing dots */}
-          <div className="flex items-center gap-2">
-            {[0, 0.16, 0.32].map((delay) => (
-              <span
-                key={delay}
-                className="w-2.5 h-2.5 rounded-full"
-                style={{
-                  background: GRADIENT,
-                  animation: "pay-dot 1.2s ease-in-out infinite",
-                  animationDelay: `${delay}s`,
-                }}
-              />
-            ))}
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "24rem" }}>
-            <button
-              onClick={() => void checkForPayment("check", true)}
-              disabled={isChecking}
-              className="w-full py-4 rounded-2xl font-bold text-base text-white"
-              style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)", opacity: isChecking ? 0.7 : 1 }}
-            >
-              {isChecking ? "Checking…" : "Check"}
-            </button>
-            <button
-              onClick={() => void reopenWallet()}
-              className="w-full py-4 rounded-2xl border-2 border-gray-200 dark:border-border text-gray-700 dark:text-foreground font-bold text-base"
-            >
-              Open Pi Wallet again
-            </button>
-            <button
-              onClick={() => void cancelWaiting()}
-              disabled={isCancelling}
-              className="w-full py-3 text-gray-500 dark:text-muted-foreground text-sm"
-              style={{ minHeight: "44px", fontWeight: 600, opacity: isCancelling ? 0.6 : 1 }}
-            >
-              {isCancelling ? "Cancelling…" : "Cancel"}
-            </button>
-          </div>
-        </div>
-
-        <style>{`
-          @keyframes pay-ripple { 0% { transform: scale(0.7); opacity: 0.55; } 100% { transform: scale(2.4); opacity: 0; } }
-          @keyframes pay-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
-          @keyframes pay-dot { 0%, 80%, 100% { transform: scale(0.5); opacity: 0.35; } 40% { transform: scale(1); opacity: 1; } }
-        `}</style>
-      </div>
-    );
-  }
-
   // ── Success Screen ─────────────────────────────────────────────────────
   if (screen === "success") {
+    const isConfirmed = liveStatus === "confirmed";
+    const isFailed = liveStatus === "failed" || liveStatus === "expired";
+    // Check / Reopen / Cancel while the payment can still change (pending, or failed within the hour).
+    const canStillChange = liveStatus === "pending" || liveStatus === "failed";
     return (
       <div className="bg-background relative" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {/* Soft on-theme glow */}
@@ -451,16 +383,38 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
         />
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", gap: "32px", padding: "32px", paddingTop: "80px", position: "relative", zIndex: 10 }}>
-          {/* Animated success badge */}
-          <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
-            style={{ background: GRADIENT, boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}>
-            <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
-          </div>
+          {/* Status badge: brown tick (successful), bobbing π coin (pending), red cross (failed) */}
+          {isConfirmed ? (
+            <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
+              style={{ background: GRADIENT, boxShadow: "0 12px 40px rgba(89, 44, 22, 0.45)" }}>
+              <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
+            </div>
+          ) : isFailed ? (
+            <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
+              style={{ background: "linear-gradient(to right, #B91C1C, #EF4444)", boxShadow: "0 12px 40px rgba(185, 28, 28, 0.4)" }}>
+              <XCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
+            </div>
+          ) : (
+            <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
+              style={{ background: TERRACOTTA_GRADIENT, boxShadow: "0 12px 40px rgba(181, 90, 56, 0.4)", animation: "pay-bob 1.8s ease-in-out infinite" }}>
+              <svg viewBox="0 0 24 24" width="44" height="44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="22" fontWeight="bold" fontFamily="serif">π</text>
+              </svg>
+            </div>
+          )}
 
           <div className="text-center">
-            <p className="text-gray-900 dark:text-white font-bold text-2xl mb-1">Done !</p>
+            <p className="text-gray-900 dark:text-white font-bold text-2xl mb-1">
+              {isConfirmed ? "Successful!" : isFailed ? "Failed!" : "Pending!"}
+            </p>
             <p className="text-gray-400 text-sm text-center">
-              Your payment is on the Pi blockchain & the transaction is added to your ledger.
+              {isConfirmed
+                ? "Your payment is on the Pi blockchain & the transaction is added to your ledger."
+                : liveStatus === "expired"
+                  ? "Your payment wasn't found on the Pi blockchain within 1 hour, so nothing was added to your ledger. If you sent it, use Automatic Transaction to add it."
+                  : isFailed
+                    ? "Your payment failed on the Pi blockchain, so no Pi was sent and nothing was added to your ledger. If you retry it in the Pi Wallet, this page updates by itself."
+                    : "Your payment is being checked on the Pi blockchain. This page updates by itself."}
             </p>
           </div>
 
@@ -470,7 +424,7 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
             style={{ borderRadius: "24px", overflow: "hidden", animation: "pay-fade-up 0.5s 0.12s both" }}
           >
             <div className="flex flex-col items-center py-6 border-b border-gray-100 dark:border-border">
-              <p className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-muted-foreground mb-1">Amount Paid</p>
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-muted-foreground mb-1">{isConfirmed ? "Amount Paid" : "Amount"}</p>
               <p
                 className="font-black text-gray-900 dark:text-foreground leading-none"
                 style={{ fontSize: "clamp(2.5rem, 12vw, 3.5rem)" }}
@@ -494,37 +448,84 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
 
               <div className="flex items-center justify-between">
                 <span className="text-gray-400 dark:text-muted-foreground text-sm">Status</span>
-                <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 text-xs font-medium flex items-center gap-1.5">
-                  <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                  Successful
-                </span>
+                {isConfirmed ? (
+                  <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 text-xs font-medium flex items-center gap-1.5">
+                    <div className="w-3.5 h-3.5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-2 h-2" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    Successful
+                  </span>
+                ) : isFailed ? (
+                  <span className="px-3 py-1 rounded-full bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs font-medium flex items-center gap-1.5">
+                    <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" strokeWidth={2.6} />
+                    Failed
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 rounded-full bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400 text-xs font-medium flex items-center gap-1.5">
+                    <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0" style={{ border: "2px solid #facc15" }}>
+                      <span className="font-black leading-none" style={{ fontSize: "8px", color: "#facc15" }}>!</span>
+                    </div>
+                    Pending
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Open Ledger button below modal box — matching AutomaticTransactionScreen style */}
-          <button
-            onClick={() => {
-              const targetName = paidRecipientName || recipientName || pioneerQuery || "Pioneer Contact";
-              if (onNavigateToLedger) {
-                onNavigateToLedger(targetName);
-              }
-            }}
-            className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 cursor-pointer relative z-30"
-            style={{
-              background: "linear-gradient(to right, #592C16, #7B3D1E)",
-              boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
-            }}
-          >
-            Open Ledger
-            <BookOpen className="w-5 h-5" />
-          </button>
+          {isConfirmed && (
+            <>
+            {/* Open Ledger button below modal box — matching AutomaticTransactionScreen style */}
+            <button
+              onClick={() => {
+                const targetName = paidRecipientName || recipientName || pioneerQuery || "Pioneer Contact";
+                if (onNavigateToLedger) {
+                  onNavigateToLedger(targetName);
+                }
+              }}
+              className="w-full max-w-sm py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 cursor-pointer relative z-30"
+              style={{
+                background: "linear-gradient(to right, #592C16, #7B3D1E)",
+                boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)",
+              }}
+            >
+              Open Ledger
+              <BookOpen className="w-5 h-5" />
+            </button>
+            </>
+          )}
+
+          {/* While the payment can still change: check now, reopen the Pi Wallet, or cancel it */}
+          {canStillChange && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "24rem" }}>
+              <button
+                onClick={() => void checkForPayment("check", true)}
+                disabled={isChecking}
+                className="w-full py-4 rounded-2xl font-bold text-base text-white"
+                style={{ background: GRADIENT, boxShadow: "0 6px 24px rgba(89, 44, 22, 0.4)", opacity: isChecking ? 0.7 : 1 }}
+              >
+                {isChecking ? "Checking…" : "Check"}
+              </button>
+              <button
+                onClick={() => void reopenWallet()}
+                className="w-full py-4 rounded-2xl border-2 border-gray-200 dark:border-border text-gray-700 dark:text-foreground font-bold text-base"
+              >
+                Reopen Pi Wallet
+              </button>
+              <button
+                onClick={() => void cancelWaiting()}
+                disabled={isCancelling}
+                className="w-full py-3 text-gray-500 dark:text-muted-foreground text-sm"
+                style={{ minHeight: "44px", fontWeight: 600, opacity: isCancelling ? 0.6 : 1 }}
+              >
+                {isCancelling ? "Cancelling…" : "Cancel payment"}
+              </button>
+            </div>
+          )}
 
           {/* Bottom actions — pinned to bottom via marginTop auto */}
+          {!canStillChange && (
           <div style={{ display: "flex", gap: "12px", width: "100%", maxWidth: "24rem", marginTop: "auto" }}>
             <button
               onClick={onBack}
@@ -541,9 +542,11 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
               Pay Again
             </button>
           </div>
+          )}
         </div>
 
         <style>{`
+          @keyframes pay-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
           @keyframes pay-pop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
           @keyframes pay-fade-up { 0% { transform: translateY(14px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         `}</style>
