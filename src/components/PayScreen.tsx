@@ -709,20 +709,20 @@ export function PayScreen({ onBack, contacts, prefilledAddress, onAddressUsed, o
           </div>
 
           {/* Quick amount chips */}
-          <div className="flex gap-2 flex-wrap justify-center">
+          <div className="flex gap-1.5 flex-nowrap justify-center">
             {AMOUNT_PRESETS.map((preset) => {
               const isSelected = amount === preset;
               return (
                 <button
                   key={preset}
                   onClick={() => setAmount(preset)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${isSelected
+                  className={`px-2.5 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${isSelected
                     ? "text-white shadow-md border-0"
                     : "bg-white dark:bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-muted-foreground hover:border-[#592C16] dark:hover:border-[#8A532B] hover:text-[#592C16] dark:hover:text-[#EFC8AC]"
                     }`}
                   style={isSelected ? { background: GRADIENT } : undefined}
                 >
-                  {preset} π
+                  {preset}
                 </button>
               );
             })}
