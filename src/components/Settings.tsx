@@ -708,7 +708,7 @@ export function Settings({
             <span>Log Out</span>
           </button>
           <p className="text-xs text-gray-500 dark:text-muted-foreground mt-2">
-            Logging out will disconnect your Pi wallet.
+            Logging out will disconnect your Pi Account.
           </p>
         </div>
 
