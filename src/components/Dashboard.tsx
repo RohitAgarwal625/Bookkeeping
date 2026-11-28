@@ -147,7 +147,7 @@ export function Dashboard({
     return [...fromHistory, ...fromChain]
       .filter((n) => !isNaN(n.at))
       .sort((a, b) => b.at - a.at)
-      .slice(0, 2)
+      .slice(0, 4)
       .map((n) => ({ ...n, time: formatNotificationTime(n.at) }));
   })();
   const newestNotificationAt = notifications[0]?.at ?? 0;
