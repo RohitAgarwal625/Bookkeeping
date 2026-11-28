@@ -25,9 +25,11 @@ export const updateUserSchema = z.object({
   }),
 });
 
-/** PUT /api/users/me/wallet: set (or clear with null) the user's own public wallet address. */
+/** PUT /api/users/me/wallet: set (or clear with null) the user's own public wallet address (confirmReset: see updateMyWallet). */
 export const updateWalletSchema = z.object({
   body: z.object({
     walletPublicKey: stellarPublicKey.nullable(),
+    // Required (true) to change an address the user already has: that wipes their ledger.
+    confirmReset: z.boolean().optional(),
   }),
 });

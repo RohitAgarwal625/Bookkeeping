@@ -222,13 +222,18 @@ export async function cancelIntent(req: Request, res: Response, next: NextFuncti
  * (status "failed"; the receiver got nothing, so they aren't listed for the receiver),
  * newest first. The other side is shown only by wallet address and the viewer's
  * own contact (name/id) for it; never the other user's id, memberId, uid or username.
+ * Intents created before the user's ledgerResetAt (wallet address change) are left out.
  */
 export async function listHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.user!.id;
     const { page, limit } = req.query as unknown as { page: number; limit: number };
 
+    // After a wallet-change ledger reset, payments from before it are hidden from this
+    // user's History (the other party still sees them).
+    const resetAt = req.user!.ledgerResetAt;
     const where: Prisma.PaymentIntentWhereInput = {
+      ...(resetAt ? { createdAt: { gte: resetAt } } : {}),
       OR: [
         { status: "confirmed", OR: [{ senderId: userId }, { receiverId: userId }] },
         { status: "failed", senderId: userId },

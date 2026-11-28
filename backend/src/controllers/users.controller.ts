@@ -3,6 +3,8 @@ import { randomUUID } from "crypto";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { serializeUser } from "../lib/serializers";
+import { ledgerLockKey, normalizeAddress } from "../lib/paymentIntents";
+import { lockKeys, LOCKED_TX_OPTIONS } from "./transactions.controller";
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 
@@ -92,12 +94,20 @@ function sendWalletAlreadyUsed(res: Response): void {
 }
 
 /**
- * PUT /api/users/me/wallet
+ * PUT /api/users/me/wallet { walletPublicKey, confirmReset? }
  * Save (or clear with null) the signed-in user's own public Pi wallet address.
  * Pi doesn't share it with apps, so the user types it in Settings. It's used to keep
  * only payments between the user's wallet and a contact's wallet (Automatic scan).
  * Unique: one account per address (in-app payments find the receiver by it). An address
  * another user has → 409 WALLET_ALREADY_USED.
+ *
+ * Changing an address the user already has (to another one, or clearing it) wipes the
+ * user's ledger: without confirmReset: true → 409 WALLET_CHANGE_NEEDS_CONFIRM (nothing
+ * changes); with it, in one DB transaction: hard-delete all their transactions (soft-deleted
+ * ones too) and contacts, cancel their own pending sent intents, set ledgerResetAt = now and
+ * save the address → 200 { user, reset: true }. Intents are never deleted (the other party's
+ * History keeps them); this user's History hides the ones created before ledgerResetAt.
+ * First-time add or the same address again: no wipe, no confirm needed.
  */
 export async function updateMyWallet(
   req: Request,
@@ -105,24 +115,71 @@ export async function updateMyWallet(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { walletPublicKey } = req.body as { walletPublicKey: string | null };
+    const userId = req.user!.id;
+    const { walletPublicKey, confirmReset } = req.body as {
+      walletPublicKey: string | null;
+      confirmReset?: boolean;
+    };
 
-    if (walletPublicKey !== null) {
-      const owner = await prisma.user.findUnique({ where: { walletPublicKey }, select: { id: true } });
-      if (owner && owner.id !== req.user!.id) {
-        sendWalletAlreadyUsed(res);
-        return;
-      }
+    const findOtherOwner = async (db: Prisma.TransactionClient): Promise<boolean> => {
+      if (walletPublicKey === null) return false;
+      const owner = await db.user.findUnique({ where: { walletPublicKey }, select: { id: true } });
+      return !!owner && owner.id !== userId;
+    };
+
+    if (await findOtherOwner(prisma)) {
+      sendWalletAlreadyUsed(res);
+      return;
     }
 
-    const user = await prisma.user.update({
-      where: { id: req.user!.id },
-      data: { walletPublicKey },
+    const current = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { walletPublicKey: true },
     });
+    const isChange =
+      current.walletPublicKey !== null &&
+      (walletPublicKey === null || normalizeAddress(walletPublicKey) !== normalizeAddress(current.walletPublicKey));
 
-    res.status(200).json({ user: serializeUser(user) });
+    if (!isChange) {
+      const user = await prisma.user.update({ where: { id: userId }, data: { walletPublicKey } });
+      res.status(200).json({ user: serializeUser(user) });
+      return;
+    }
+
+    if (confirmReset !== true) {
+      res.status(409).json({
+        error: "WALLET_CHANGE_NEEDS_CONFIRM",
+        message: "Changing your wallet address deletes all your contacts and transactions. Confirm to continue.",
+      });
+      return;
+    }
+
+    const user = await prisma.$transaction(async (tx) => {
+      // Same lock as the in-app payment confirm / contact back-fill: no ledger row for this
+      // user is written between the wipe and ledgerResetAt being set.
+      await lockKeys(tx, [ledgerLockKey(userId)]);
+      // Checked again inside the transaction, before anything is deleted.
+      if (await findOtherOwner(tx)) return null;
+      await tx.transaction.deleteMany({ where: { userId } });
+      await tx.contact.deleteMany({ where: { userId } });
+      await tx.paymentIntent.updateMany({
+        where: { senderId: userId, status: "pending" },
+        data: { status: "cancelled" },
+      });
+      return tx.user.update({
+        where: { id: userId },
+        data: { walletPublicKey, ledgerResetAt: new Date() },
+      });
+    }, LOCKED_TX_OPTIONS);
+
+    if (!user) {
+      sendWalletAlreadyUsed(res);
+      return;
+    }
+    res.status(200).json({ user: serializeUser(user), reset: true });
   } catch (err) {
-    // Two users saving the same address at the same moment: the unique index stops the second.
+    // Two users saving the same address at the same moment: the unique index stops the second
+    // (inside the wipe transaction too, which then rolls back: nothing is deleted).
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       sendWalletAlreadyUsed(res);
       return;

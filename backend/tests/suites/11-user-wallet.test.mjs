@@ -11,8 +11,9 @@ export default async function run({ api }) {
   const ravi = await api.login("wallet_uid_ravi");
   check("new user has no wallet address yet", asha.user.walletPublicKey === null, JSON.stringify(asha.user));
 
-  const put = (token, walletPublicKey) =>
-    api.call("PUT", "/api/users/me/wallet", { token, body: { walletPublicKey } });
+  // Changing an address the user already has needs confirmReset (it wipes the ledger; suite 35).
+  const put = (token, walletPublicKey, confirmReset) =>
+    api.call("PUT", "/api/users/me/wallet", { token, body: { walletPublicKey, confirmReset } });
 
   check("no session -> 401", (await put(undefined, ADDR_A)).status === 401);
 
@@ -22,7 +23,7 @@ export default async function run({ api }) {
   const again = await api.login("wallet_uid_asha");
   check("address comes back on the next sign-in", again.user.walletPublicKey === ADDR_A);
 
-  const pasted = await put(asha.sessionToken, `  ${ADDR_B.slice(0, 20).toLowerCase()} ${ADDR_B.slice(20)}\n`);
+  const pasted = await put(asha.sessionToken, `  ${ADDR_B.slice(0, 20).toLowerCase()} ${ADDR_B.slice(20)}\n`, true);
   check("pasted with spaces / line break / lower case -> cleaned and saved", pasted.status === 200 && pasted.body.user?.walletPublicKey === ADDR_B, JSON.stringify(pasted.body));
 
   const otherUser = await api.login("wallet_uid_ravi");
@@ -35,6 +36,6 @@ export default async function run({ api }) {
   check("missing field -> 400", (await api.call("PUT", "/api/users/me/wallet", { token: asha.sessionToken, body: {} })).status === 400);
   check("rejected updates keep the saved address", (await api.login("wallet_uid_asha")).user.walletPublicKey === ADDR_B);
 
-  const cleared = await put(asha.sessionToken, null);
+  const cleared = await put(asha.sessionToken, null, true);
   check("null clears the address", cleared.status === 200 && cleared.body.user?.walletPublicKey === null);
 }

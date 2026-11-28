@@ -35,7 +35,7 @@ interface SettingsProps {
   isPremium?: boolean;
   onOpenPremiumModal?: () => void;
   /** Saves the user's own public Pi wallet address; throws with a readable message on failure. */
-  onSaveWalletAddress?: (address: string) => Promise<void>;
+  onSaveWalletAddress?: (address: string, confirmReset?: boolean) => Promise<void>;
   /** Display Name saved on the backend (null/undefined when not loaded). */
   savedDisplayName?: string | null;
   /** Saves the Display Name on the backend; throws on failure. */
@@ -143,6 +143,8 @@ export function Settings({
   const [walletInput, setWalletInput] = useState("");
   const [walletError, setWalletError] = useState<string | null>(null);
   const [savingWallet, setSavingWallet] = useState(false);
+  // "Change wallet address" warns first: a new address wipes the ledger.
+  const [showWalletChangeWarning, setShowWalletChangeWarning] = useState(false);
   const networkName = PI_NETWORK === "testnet" ? "Pi Testnet" : "Pi Mainnet";
 
   const startEditingWallet = () => {
@@ -150,6 +152,14 @@ export function Settings({
       onTriggerGuestModal?.();
       return;
     }
+    if (piWalletAddress) {
+      setShowWalletChangeWarning(true);
+      return;
+    }
+    openWalletEditor();
+  };
+
+  const openWalletEditor = () => {
     setWalletInput(piWalletAddress);
     setWalletError(null);
     setIsEditingWallet(true);
@@ -169,7 +179,10 @@ export function Settings({
         setWalletError(`No wallet with this address exists on ${networkName}. Please check it.`);
         return;
       }
-      await onSaveWalletAddress?.(address);
+      // A different address than the saved one wipes the ledger; the user agreed to that
+      // in the warning shown on "Change wallet address".
+      const changing = !!piWalletAddress && cleanWalletInput(piWalletAddress).toUpperCase() !== address.toUpperCase();
+      await onSaveWalletAddress?.(address, changing);
       setIsEditingWallet(false);
       toast.success("Wallet address saved");
     } catch (err) {
@@ -424,6 +437,41 @@ export function Settings({
           </div>
         </div>
 
+      {/* Confirm changing the wallet address (wipes the ledger) */}
+      {showWalletChangeWarning && (
+        <div className="fixed inset-0 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.5)", zIndex: 1000 }}>
+          <style>{`@keyframes modal-pop { 0% { transform: scale(0.82); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }`}</style>
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-describedby="wallet-change-text"
+            className="bg-white dark:bg-card rounded-2xl shadow-2xl dark:border dark:border-border w-full p-6 text-center"
+            style={{ maxWidth: "360px", animation: "modal-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both" }}
+          >
+            <p id="wallet-change-text" className="text-sm text-gray-700 dark:text-gray-300 mb-6" style={{ lineHeight: 1.6 }}>
+              Changing of Wallet Address will lead to the complete wipe out of your current ledgers with every contact &amp; resetting of your account.
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                autoFocus
+                onClick={() => setShowWalletChangeWarning(false)}
+                className="flex-1 h-12 rounded-xl font-bold text-sm text-gray-600 dark:text-muted-foreground border border-gray-200 dark:border-border"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowWalletChangeWarning(false); openWalletEditor(); }}
+                className="flex-1 h-12 rounded-xl text-white font-bold text-sm"
+                style={{ background: "linear-gradient(to right, #592C16, #8A532B)" }}
+              >
+                Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     );
   }

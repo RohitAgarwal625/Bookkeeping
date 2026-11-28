@@ -29,6 +29,23 @@ export function normalizeAddress(address: string): string {
   return address.replace(/\s+/g, "").toUpperCase();
 }
 
+/**
+ * Advisory-lock key for "this user's ledger": the wallet-change wipe (users.controller.ts)
+ * takes it, and so does every in-app payment write into that user's ledger, so a row is
+ * never written between the wipe and ledgerResetAt being set.
+ */
+export function ledgerLockKey(userId: string): string {
+  return `ledger:${userId}`;
+}
+
+/**
+ * True when the user's ledger was reset (wallet address changed) after this intent was
+ * created: the intent then never writes a row into that user's ledger.
+ */
+function resetAfter(ledgerResetAt: Date | null | undefined, intent: Pick<PaymentIntent, "createdAt">): boolean {
+  return !!ledgerResetAt && intent.createdAt.getTime() < ledgerResetAt.getTime();
+}
+
 /** Advisory-lock key for one intent (job and /check may run at the same time). */
 function intentLockKey(id: string): string {
   return `intent:${id}`;
@@ -204,6 +221,8 @@ async function confirmWith(intentId: string, rec: HorizonPaymentRecord): Promise
       intentOpLockKey(rec.id),
       paymentLockKey(current.senderId, rec.id),
       paymentLockKey(current.receiverId, rec.id),
+      ledgerLockKey(current.senderId),
+      ledgerLockKey(current.receiverId),
       ...(txHash ? [hashLockKey(current.senderId, txHash), hashLockKey(current.receiverId, txHash)] : []),
     ]);
     // Re-read under the lock: a concurrent check may have confirmed or cancelled it.
@@ -228,7 +247,17 @@ async function confirmWith(intentId: string, rec: HorizonPaymentRecord): Promise
       });
     }
     senderContact ??= await findContactByAddress(tx, intent.senderId, intent.receiverAddress);
-    const receiverContact = await findContactByAddress(tx, intent.receiverId, intent.senderAddress);
+    let receiverContact = await findContactByAddress(tx, intent.receiverId, intent.senderAddress);
+
+    // A party whose ledger was reset (wallet address changed) after this intent was created
+    // gets no row; the other party's row is still written.
+    const parties = await tx.user.findMany({
+      where: { id: { in: [intent.senderId, intent.receiverId] } },
+      select: { id: true, ledgerResetAt: true },
+    });
+    const resetAt = new Map(parties.map((p) => [p.id, p.ledgerResetAt]));
+    if (resetAfter(resetAt.get(intent.senderId), intent)) senderContact = null;
+    if (resetAfter(resetAt.get(intent.receiverId), intent)) receiverContact = null;
 
     const senderTransactionId = senderContact
       ? await writeLedgerRow(tx, intent.senderId, senderContact.id, {
@@ -362,10 +391,13 @@ export async function backfillContactPayments(
   contact: Pick<Contact, "id" | "name" | "piWalletAddress">
 ): Promise<void> {
   const address = normalizeAddress(contact.piWalletAddress);
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { ledgerResetAt: true } });
   const intents = await prisma.paymentIntent.findMany({
     where: {
       status: "confirmed",
       chainPaymentId: { not: null },
+      // Payments from before the user's ledger reset (wallet address change) stay out of it.
+      ...(user?.ledgerResetAt ? { createdAt: { gte: user.ledgerResetAt } } : {}),
       OR: [
         { senderId: userId, receiverAddress: address },
         { receiverId: userId, senderAddress: address },
@@ -388,6 +420,11 @@ export async function backfillContactPayments(
   });
 
   await inLockedTransaction(async (tx) => {
+    await lockKeys(tx, [ledgerLockKey(userId)]);
+    // A wallet-change wipe that committed after the read above deletes this contact too:
+    // write nothing then.
+    const still = await tx.contact.findFirst({ where: { id: contact.id, userId }, select: { id: true } });
+    if (!still) return;
     await importInTransaction(tx, userId, contact.id, entries);
     const rows = await tx.transaction.findMany({
       where: { userId, chainPaymentId: { in: entries.map((e) => e.chainPaymentId) } },

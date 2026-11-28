@@ -129,11 +129,15 @@ export const usersApi = {
       `/api/users/${encodeURIComponent(walletAddress)}`,
       { method: "PUT", body: JSON.stringify({ displayName }) }
     ),
-  /** Save (or clear with null) the signed-in user's own public Pi wallet address. */
-  updateWallet: (walletPublicKey: string | null) =>
-    request<{ user: User }>(`/api/users/me/wallet`, {
+  /**
+   * Save (or clear with null) the signed-in user's own public Pi wallet address.
+   * Changing an address that is already saved needs confirmReset: it deletes all the
+   * user's contacts and transactions (409 WALLET_CHANGE_NEEDS_CONFIRM without it).
+   */
+  updateWallet: (walletPublicKey: string | null, confirmReset = false) =>
+    request<{ user: User; reset?: boolean }>(`/api/users/me/wallet`, {
       method: "PUT",
-      body: JSON.stringify({ walletPublicKey }),
+      body: JSON.stringify(confirmReset ? { walletPublicKey, confirmReset: true } : { walletPublicKey }),
     }),
 };
 

@@ -624,9 +624,9 @@ function AppContent() {
         <Settings
           userName={userName}
           piWalletAddress={bk.user?.walletPublicKey ?? ""}
-          onSaveWalletAddress={async (address) => {
+          onSaveWalletAddress={async (address, confirmReset) => {
             if (!bk.isAuthenticated) throw new Error("Please sign in with Pi to save your wallet address.");
-            await bk.updateWalletPublicKey(address);
+            await bk.updateWalletPublicKey(address, confirmReset);
           }}
           savedDisplayName={bk.user?.displayName}
           onSaveDisplayName={async (name) => {

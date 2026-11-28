@@ -37,7 +37,8 @@ async function expireOverdue(now: number): Promise<void> {
 
 /**
  * Back-fills ledger rows for confirmed intents whose side now has a matching contact
- * (self-healing if the contact-create hook failed).
+ * (self-healing if the contact-create hook failed). Skips intents created before that
+ * side's ledgerResetAt (backfillContactPayments would write nothing for them).
  */
 async function backfillMissing(): Promise<void> {
   const missing = await prisma.$queryRaw<{ userId: string; id: string; name: string; piWalletAddress: string }[]>`
@@ -48,7 +49,10 @@ async function backfillMissing(): Promise<void> {
           AND upper(regexp_replace(c."piWalletAddress", '[[:space:]]', '', 'g')) = i."senderAddress")
       OR (c."userId" = i."senderId" AND i."senderTransactionId" IS NULL
           AND upper(regexp_replace(c."piWalletAddress", '[[:space:]]', '', 'g')) = i."receiverAddress")
+    JOIN "User" u ON u.id = c."userId"
     WHERE i.status = 'confirmed'
+      -- Intents from before that user's ledger reset (wallet change) never get rows in it.
+      AND (u."ledgerResetAt" IS NULL OR i."createdAt" >= u."ledgerResetAt")
     LIMIT 50
   `;
   for (const c of missing) {

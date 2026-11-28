@@ -197,11 +197,13 @@ export function useBookkeeping() {
   );
 
   /** Save the user's own public Pi wallet address (Settings -> Profile). Throws on failure. */
-  const updateWalletPublicKey = useCallback(async (walletPublicKey: string | null) => {
-    const res = await usersApi.updateWallet(walletPublicKey);
+  const updateWalletPublicKey = useCallback(async (walletPublicKey: string | null, confirmReset = false) => {
+    const res = await usersApi.updateWallet(walletPublicKey, confirmReset);
     setUser(res.user);
+    // A changed address wiped the ledger on the server: reload the (now empty) contacts and totals.
+    if (res.reset) await refreshAll();
     return res.user;
-  }, []);
+  }, [refreshAll]);
 
   /** Save the user's Display Name (Settings -> Profile). Throws on failure. */
   const updateDisplayName = useCallback(async (displayName: string) => {
