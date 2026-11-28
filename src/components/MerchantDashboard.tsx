@@ -440,9 +440,11 @@ export function MerchantDashboard({
                         }}
                       >
                         {unidentifiedInfo === merchant.id && (
-                          <p className="text-xs mb-3" style={{ lineHeight: 1.625, color: isDark ? "#fbbf24" : "#b45309" }}>
-                            You have received Pi from an unknown user of this app. The wallet address seen here is not saved in your Contact List. If you know/identify this user, then assign a full name to it &amp; add it to your Contact List. Kindly tap on the button given below to add it to your Contacts.
-                          </p>
+                          <div className="text-xs mb-3 space-y-2" style={{ lineHeight: 1.625, color: isDark ? "#fbbf24" : "#b45309" }}>
+                            <p>You have received Pi from an unknown user of this app as the wallet address seen here is not saved in your Contact List.</p>
+                            <p>If you recognize this user, then assign a full name to it &amp; add it to your Contact List.</p>
+                            <p>Kindly tap on the button given below to add it to your Contacts.</p>
+                          </div>
                         )}
                         <button
                           type="button"
