@@ -264,7 +264,7 @@ export function Dashboard({
                         <p className="text-gray-800 dark:text-foreground text-sm leading-snug">{n.message}</p>
                         <p className="text-gray-400 dark:text-muted-foreground mt-0.5" style={{ fontSize: "14px" }}>
                           {n.time}
-                          {n.viaApp && <> · via <span style={{ fontWeight: 700 }}>Bookkeeping</span></>}
+                          {n.viaApp && <> · via <span style={{ fontWeight: 700 }}>Bookkeeping.pi</span></>}
                         </p>
                       </div>
                     </div>

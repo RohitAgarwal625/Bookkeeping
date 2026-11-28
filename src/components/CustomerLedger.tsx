@@ -423,7 +423,7 @@ export function CustomerLedger({ customerName, contactId, onBack, initialNewTran
                               })()}
                               {/* Paid/received with the app's Pay button (same wording as the Home bell); Auto Sync rows stay as they are */}
                               {/^(Paid via app to |Received via app from )/.test(transaction.description) && (
-                                <> · via <span style={{ fontWeight: 700 }}>Bookkeeping</span></>
+                                <> · via <span style={{ fontWeight: 700 }}>Bookkeeping.pi</span></>
                               )}
                             </p>
                             <button
